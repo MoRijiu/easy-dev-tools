@@ -1,0 +1,15 @@
+# robots.txt for 极速开发工具箱
+# https://tools.morijiu.cn/robots.txt
+
+User-agent: *
+Allow: /
+
+# 禁止爬取某些路径（如果有的话）
+# Disallow: /api/
+# Disallow: /admin/
+
+# 站点地图
+Sitemap: https://tools.morijiu.cn/sitemap.xml
+
+# 爬取延迟（可选，单位：秒）
+Crawl-delay: 1

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="speedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="toolGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="100" cy="100" r="95" fill="url(#speedGradient)" opacity="0.1"/>
+  
+  <!-- 速度线条（表示"极速"） -->
+  <g opacity="0.8">
+    <path d="M 30 80 L 80 80" stroke="url(#speedGradient)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 40 100 L 90 100" stroke="url(#speedGradient)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 30 120 L 85 120" stroke="url(#speedGradient)" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  
+  <!-- 工具箱主体 -->
+  <g transform="translate(100, 100)">
+    <!-- 工具箱底部 -->
+    <rect x="-35" y="0" width="70" height="45" rx="4" fill="url(#toolGradient)"/>
+    
+    <!-- 工具箱顶部 -->
+    <rect x="-35" y="-25" width="70" height="25" rx="4" fill="url(#toolGradient)" opacity="0.9"/>
+    
+    <!-- 手柄 -->
+    <path d="M -20 -25 Q -20 -40, 0 -40 Q 20 -40, 20 -25" 
+          stroke="url(#speedGradient)" 
+          stroke-width="5" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <!-- 工具图标 - 扳手 -->
+    <g transform="translate(-15, 15)">
+      <path d="M 0 0 L 8 8 L 6 10 L -2 2 Z" fill="#fff" opacity="0.9"/>
+      <circle cx="0" cy="0" r="3" fill="#fff" opacity="0.9"/>
+    </g>
+    
+    <!-- 工具图标 - 螺丝刀 -->
+    <g transform="translate(5, 15)">
+      <rect x="-1" y="0" width="2" height="12" fill="#fff" opacity="0.9"/>
+      <polygon points="0,-4 -2,0 2,0" fill="#fff" opacity="0.9"/>
+    </g>
+    
+    <!-- 工具图标 - 锤子 -->
+    <g transform="translate(18, 15)">
+      <rect x="-1" y="2" width="2" height="10" fill="#fff" opacity="0.9"/>
+      <rect x="-4" y="-2" width="8" height="4" rx="1" fill="#fff" opacity="0.9"/>
+    </g>
+    
+    <!-- 闪电符号（表示"极速"） -->
+    <g transform="translate(25, -35)">
+      <path d="M 0 -8 L -4 0 L 0 0 L -2 8 L 4 0 L 0 0 Z" 
+            fill="#FBBF24" 
+            stroke="#F59E0B" 
+            stroke-width="0.5"/>
+    </g>
+  </g>
+  
+  <!-- 装饰性圆点 -->
+  <circle cx="160" cy="60" r="3" fill="url(#speedGradient)" opacity="0.6"/>
+  <circle cx="170" cy="80" r="2" fill="url(#toolGradient)" opacity="0.6"/>
+  <circle cx="155" cy="140" r="2.5" fill="url(#speedGradient)" opacity="0.6"/>
+</svg>
