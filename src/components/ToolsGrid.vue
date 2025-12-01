@@ -44,7 +44,7 @@ const tools = ref([
     name: 'Base64编解码',
     icon: '🔐',
     description: '快速进行Base64编码和解码操作',
-    route: null
+    route: '/text/base64'
   },
   {
     id: 3,

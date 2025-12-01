@@ -1,3 +1,10 @@
+<!--
+ * @Author: zhengduo
+ * @Date: 2025-12-01 14:10:02
+ * @LastEditors: zhengduo
+ * @LastEditTime: 2025-12-01 14:12:12
+ * @Description: Do not edit
+-->
 <template>
   <div class="json-formatter">
     <h1>JSON 格式化工具</h1>
@@ -67,82 +74,86 @@
         </div>
       </div>
 
+      <!-- 使用示例 -->
+      <ToolExamples :examples="examples" @use-example="useExample" />
+
       <!-- 功能说明 -->
-      <div class="features">
-        <h2>功能特点</h2>
-        <div class="feature-grid">
-          <div class="feature-item">
-            <span class="feature-icon">✨</span>
-            <h3>智能格式化</h3>
-            <p>自动美化 JSON 数据，使其更易读</p>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">🔍</span>
-            <h3>语法验证</h3>
-            <p>实时检测 JSON 语法错误并提示</p>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">🎨</span>
-            <h3>语法高亮</h3>
-            <p>彩色显示不同类型的数据</p>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">📦</span>
-            <h3>压缩功能</h3>
-            <p>移除空格和换行，减小体积</p>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">🔤</span>
-            <h3>键名排序</h3>
-            <p>按字母顺序排列对象键名</p>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">⚡</span>
-            <h3>快速处理</h3>
-            <p>支持大文件快速格式化</p>
-          </div>
-        </div>
-      </div>
+      <ToolFeatures :features="features" />
 
       <!-- 使用说明 -->
-      <div class="usage-guide">
-        <h2>使用说明</h2>
-        <ol>
-          <li>在左侧输入框中粘贴或输入 JSON 数据</li>
-          <li>点击"格式化"按钮美化 JSON，或点击"压缩"按钮压缩 JSON</li>
-          <li>点击"验证"按钮检查 JSON 语法是否正确</li>
-          <li>可选择"排序键名"选项对对象键进行排序</li>
-          <li>调整缩进空格数来控制格式化的缩进级别</li>
-          <li>点击"复制结果"按钮复制格式化后的 JSON</li>
-        </ol>
-      </div>
+      <ToolUsageGuide :steps="usageSteps" />
 
       <!-- 常见问题 -->
-      <div class="faq">
-        <h2>常见问题</h2>
-        <details>
-          <summary>什么是 JSON？</summary>
-          <p>JSON (JavaScript Object Notation) 是一种轻量级的数据交换格式，易于人阅读和编写，同时也易于机器解析和生成。</p>
-        </details>
-        <details>
-          <summary>JSON 格式化有什么用？</summary>
-          <p>格式化可以使压缩的 JSON 数据变得易读，方便开发者调试和查看数据结构。压缩则可以减小数据体积，提高传输效率。</p>
-        </details>
-        <details>
-          <summary>如何修复 JSON 语法错误？</summary>
-          <p>常见错误包括：缺少引号、多余的逗号、括号不匹配等。使用验证功能可以快速定位错误位置。</p>
-        </details>
-        <details>
-          <summary>是否支持大文件？</summary>
-          <p>本工具支持处理较大的 JSON 文件，但建议单个文件不超过 10MB 以保证最佳性能。</p>
-        </details>
-      </div>
+      <ToolFaq :faqs="faqs" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import ToolFeatures from '@/components/ToolFeatures.vue';
+import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
+import ToolFaq from '@/components/ToolFaq.vue';
+import ToolExamples from '@/components/ToolExamples.vue';
+
+// 功能特点数据
+const features = [
+  { icon: '✨', title: '智能格式化', description: '自动美化 JSON 数据，使其更易读' },
+  { icon: '🔍', title: '语法验证', description: '实时检测 JSON 语法错误并提示' },
+  { icon: '🎨', title: '语法高亮', description: '彩色显示不同类型的数据' },
+  { icon: '📦', title: '压缩功能', description: '移除空格和换行，减小体积' },
+  { icon: '🔤', title: '键名排序', description: '按字母顺序排列对象键名' },
+  { icon: '⚡', title: '快速处理', description: '支持大文件快速格式化' }
+];
+
+// 使用说明数据
+const usageSteps = [
+  '在左侧输入框中粘贴或输入 JSON 数据',
+  '点击"格式化"按钮美化 JSON，或点击"压缩"按钮压缩 JSON',
+  '点击"验证"按钮检查 JSON 语法是否正确',
+  '可选择"排序键名"选项对对象键进行排序',
+  '调整缩进空格数来控制格式化的缩进级别',
+  '点击"复制结果"按钮复制格式化后的 JSON'
+];
+
+// 常见问题数据
+const faqs = [
+  {
+    question: '什么是 JSON？',
+    answer: 'JSON (JavaScript Object Notation) 是一种轻量级的数据交换格式，易于人阅读和编写，同时也易于机器解析和生成。'
+  },
+  {
+    question: 'JSON 格式化有什么用？',
+    answer: '格式化可以使压缩的 JSON 数据变得易读，方便开发者调试和查看数据结构。压缩则可以减小数据体积，提高传输效率。'
+  },
+  {
+    question: '如何修复 JSON 语法错误？',
+    answer: '常见错误包括：缺少引号、多余的逗号、括号不匹配等。使用验证功能可以快速定位错误位置。'
+  },
+  {
+    question: '是否支持大文件？',
+    answer: '本工具支持处理较大的 JSON 文件，但建议单个文件不超过 10MB 以保证最佳性能。'
+  }
+];
+
+// 使用示例数据
+const examples = [
+  {
+    input: '{"name":"张三","age":25}',
+    output: '{\n  "name": "张三",\n  "age": 25\n}',
+    description: '简单对象格式化',
+  },
+  {
+    input: '[1,2,3,{"a":"b"}]',
+    output: '[\n  1,\n  2,\n  3,\n  {\n    "a": "b"\n  }\n]',
+    description: '数组格式化',
+  },
+  {
+    input: '{"users":[{"id":1,"name":"test"},{"id":2,"name":"demo"}]}',
+    output: '{\n  "users": [\n    {\n      "id": 1,\n      "name": "test"\n    },\n    {\n      "id": 2,\n      "name": "demo"\n    }\n  ]\n}',
+    description: '嵌套结构格式化',
+  },
+];
 
 const inputJson = ref('');
 const outputJson = ref('');
@@ -179,6 +190,12 @@ const formatJson = () => {
     statusType.value = 'error';
     outputJson.value = '';
   }
+};
+
+// 使用示例
+const useExample = (example) => {
+  inputJson.value = example.input;
+  formatJson();
 };
 
 // 压缩 JSON
@@ -552,117 +569,6 @@ h1 {
   font-weight: 600;
 }
 
-/* 功能特点 */
-.features {
-  margin-top: 50px;
-  padding-top: 40px;
-  border-top: 2px solid #f0f0f0;
-}
-
-.features h2 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
-}
-
-.feature-item {
-  text-align: center;
-  padding: 25px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border-radius: 12px;
-  transition: transform 0.3s;
-}
-
-.feature-item:hover {
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 15px;
-}
-
-.feature-item h3 {
-  font-size: 1.2rem;
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.feature-item p {
-  color: #666;
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* 使用说明 */
-.usage-guide {
-  margin-top: 40px;
-  padding: 30px;
-  background: #f8f9fa;
-  border-radius: 12px;
-}
-
-.usage-guide h2 {
-  font-size: 1.8rem;
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.usage-guide ol {
-  padding-left: 25px;
-}
-
-.usage-guide li {
-  margin-bottom: 12px;
-  color: #555;
-  line-height: 1.8;
-}
-
-/* 常见问题 */
-.faq {
-  margin-top: 40px;
-}
-
-.faq h2 {
-  font-size: 1.8rem;
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.faq details {
-  margin-bottom: 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 15px;
-  background: white;
-}
-
-.faq summary {
-  font-weight: 600;
-  color: #2c3e50;
-  cursor: pointer;
-  user-select: none;
-}
-
-.faq summary:hover {
-  color: #667eea;
-}
-
-.faq p {
-  margin-top: 10px;
-  color: #666;
-  line-height: 1.8;
-}
-
 /* 响应式设计 */
 @media (max-width: 968px) {
   .editor-container {
@@ -684,18 +590,14 @@ h1 {
   h1 {
     font-size: 2rem;
   }
-  
+
   .tool-container {
     padding: 20px;
   }
-  
+
   .btn {
     padding: 8px 16px;
     font-size: 13px;
-  }
-  
-  .feature-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>

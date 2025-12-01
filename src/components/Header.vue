@@ -334,41 +334,144 @@ const isCurrentTool = (path) => {
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 16px;
+    padding: 0 12px;
+    height: 56px;
   }
-  
+
+  .logo-section {
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .logo {
+    font-size: 15px;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .logo-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
   .logo-text {
-    font-size: 16px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  
-  .nav {
-    gap: 20px;
+
+  .tools-trigger {
+    padding: 5px 10px;
+    font-size: 12px;
+    flex-shrink: 0;
   }
-  
-  .nav-link {
+
+  .tools-icon {
     font-size: 14px;
   }
-  
+
+  .tools-text {
+    font-size: 12px;
+  }
+
+  .nav {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .nav-link {
+    font-size: 13px;
+    padding: 4px 6px;
+    white-space: nowrap;
+  }
+
+  .nav-link.router-link-active::after {
+    bottom: -14px;
+  }
+
+  .support-link {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .support-icon {
+    font-size: 14px;
+  }
+
+  .support-text {
+    display: none;
+  }
+
   .dropdown-menu {
-    min-width: 90vw;
-    left: 10px;
-    right: 10px;
+    position: fixed;
+    top: 56px;
+    left: 8px;
+    right: 8px;
+    min-width: auto;
+    max-width: none;
     transform: none;
+    max-height: calc(100vh - 70px);
   }
-  
+
   .dropdown-content {
-    grid-template-columns: 1fr;
+    gap: 12px;
   }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+
+  .tool-group {
+    padding: 10px;
+  }
+
+  .group-header {
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+
+  .tool-item {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+/* 超小屏幕适配 */
+@media (max-width: 420px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .logo-section {
+    gap: 6px;
+  }
+
+  .logo-text {
+    font-size: 12px;
+  }
+
+  .tools-trigger {
+    padding: 4px 6px;
+  }
+
+  .tools-text {
+    font-size: 11px;
+  }
+
+  .nav {
+    gap: 4px;
+  }
+
+  .nav-link {
+    font-size: 11px;
+    padding: 3px;
+  }
+
+  .support-link {
+    padding: 3px 5px;
+  }
+
+  .support-icon {
+    font-size: 12px;
   }
 }
 </style>

@@ -28,7 +28,7 @@ export const toolGroups = [
         icon: '🔐',
         description: 'Base64编码和解码工具',
         path: '/text/base64',
-        component: null, // 待实现
+        component: () => import('../views/tools/Base64Encoder.vue'),
         meta: {
           title: 'Base64编解码工具 - 在线Base64编码解码',
           description: '免费的在线Base64编解码工具，支持文本和文件的Base64编码解码',
@@ -42,7 +42,7 @@ export const toolGroups = [
         icon: '🔗',
         description: 'URL编码和解码工具',
         path: '/text/url-encode',
-        component: null,
+        component: () => import('../views/tools/UrlEncoder.vue'),
         meta: {
           title: 'URL编解码工具 - 在线URL编码解码',
           description: '免费的在线URL编解码工具，支持URL参数编码解码',
