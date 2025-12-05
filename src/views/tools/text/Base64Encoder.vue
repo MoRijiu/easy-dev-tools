@@ -7,7 +7,7 @@
 
     <div class="tool-container">
       <!-- 工具栏 -->
-      <div class="toolbar">
+      <ToolToolbar>
         <button class="btn btn-primary" @click="encodeBase64">
           <span class="icon">🔒</span> 编码
         </button>
@@ -23,38 +23,28 @@
         <button class="btn btn-info" @click="swapContent">
           <span class="icon">🔄</span> 交换
         </button>
-      </div>
+      </ToolToolbar>
 
       <!-- 状态信息 -->
-      <div v-if="statusMessage" class="status-message" :class="statusType">
-        {{ statusMessage }}
-      </div>
+      <ToolStatusMessage :message="statusMessage" :type="statusType" />
 
       <!-- 编辑器容器 -->
-      <div class="editor-container">
-        <div class="editor-panel">
-          <div class="panel-header">
-            <h3>输入内容</h3>
-            <span class="char-count">{{ inputText.length }} 字符</span>
-          </div>
+      <ToolEditorLayout>
+        <ToolEditorPanel title="输入内容" :info="`${inputText.length} 字符`">
           <textarea
             v-model="inputText"
             class="text-input"
             placeholder="在此输入需要编码或解码的内容..."
           ></textarea>
-        </div>
+        </ToolEditorPanel>
 
-        <div class="editor-panel">
-          <div class="panel-header">
-            <h3>输出结果</h3>
-            <span class="char-count">{{ outputText.length }} 字符</span>
-          </div>
+        <ToolEditorPanel title="输出结果" :info="`${outputText.length} 字符`">
           <div class="text-output-wrapper">
             <pre v-if="outputText" class="text-output">{{ outputText }}</pre>
             <div v-else class="placeholder">编码或解码后的结果将显示在这里</div>
           </div>
-        </div>
-      </div>
+        </ToolEditorPanel>
+      </ToolEditorLayout>
 
       <!-- 使用示例 -->
       <ToolExamples :examples="examples" @use-example="useExample" />
@@ -77,6 +67,10 @@ import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
+import ToolToolbar from "@/components/ToolToolbar.vue";
+import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import ToolEditorLayout from "@/components/ToolEditorLayout.vue";
+import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
 
 const inputText = ref("");
 const outputText = ref("");
@@ -141,18 +135,18 @@ const faqs = [
 // 使用示例数据
 const examples = [
   {
-    input: "Hello World",
-    output: "SGVsbG8gV29ybGQ=",
-    description: "英文文本编码",
+    input: "tools.morijiu.cn",
+    output: "dG9vbHMubW9yaWppdS5jbg==",
+    description: "网站域名编码",
   },
   {
-    input: "你好世界",
-    output: "5L2g5aW95LiW55WM",
+    input: "极速开发工具箱",
+    output: "5p6B6YCf5byA5Y+R5bel5YW3566x",
     description: "中文文本编码",
   },
   {
-    input: '{"name":"test","value":123}',
-    output: "eyJuYW1lIjoidGVzdCIsInZhbHVlIjoxMjN9",
+    input: '{"site":"morijiu","tool":"base64"}',
+    output: "eyJzaXRlIjoibW9yaWppdSIsInRvb2wiOiJiYXNlNjQifQ==",
     description: "JSON 数据编码",
   },
 ];
@@ -280,204 +274,7 @@ h1 {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
-  align-items: center;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-secondary {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
-}
-
-.btn-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
-}
-
-.btn-info:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
-}
-
-.btn-success {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  color: white;
-}
-
-.btn-success:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  color: white;
-}
-
-.btn-danger:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
-}
-
-.icon {
-  font-size: 16px;
-}
-
-/* 状态信息 */
-.status-message {
-  padding: 12px 20px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.status-message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.status-message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.status-message.info {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
-}
-
-/* 编辑器容器 */
-.editor-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.editor-panel {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.panel-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.char-count {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.text-input {
-  flex: 1;
-  min-height: 400px;
-  padding: 20px;
-  border: none;
-  font-family: "Consolas", "Monaco", "Courier New", monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  resize: vertical;
-  background: #f8f9fa;
-}
-
-.text-input:focus {
-  outline: none;
-  background: #fff;
-}
-
-.text-output-wrapper {
-  flex: 1;
-  min-height: 400px;
-  overflow: auto;
-  background: #f8f9fa;
-}
-
-.text-output {
-  margin: 0;
-  padding: 20px;
-  font-family: "Consolas", "Monaco", "Courier New", monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  background: #f8f9fa;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.placeholder {
-  padding: 20px;
-  color: #999;
-  text-align: center;
-  font-style: italic;
-}
-
 /* 响应式设计 */
-@media (max-width: 968px) {
-  .editor-container {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar {
-    justify-content: center;
-  }
-}
-
 @media (max-width: 640px) {
   h1 {
     font-size: 2rem;
@@ -485,11 +282,6 @@ h1 {
 
   .tool-container {
     padding: 20px;
-  }
-
-  .btn {
-    padding: 8px 16px;
-    font-size: 13px;
   }
 }
 </style>

@@ -1,9 +1,9 @@
 <!--
  * @Author: zhengduo
  * @Date: 2025-12-01 14:10:02
- * @LastEditors: zhengduo
- * @LastEditTime: 2025-12-01 14:12:12
- * @Description: Do not edit
+ * @LastEditors: Do not edit
+ * @LastEditTime: 2025-12-05 14:31:30
+ * @Description: JSON 格式化工具
 -->
 <template>
   <div class="json-formatter">
@@ -12,7 +12,7 @@
 
     <div class="tool-container">
       <!-- 工具栏 -->
-      <div class="toolbar">
+      <ToolToolbar>
         <button @click="formatJson" class="btn btn-primary" :disabled="!inputJson.trim()">
           <span class="icon">✨</span> 格式化
         </button>
@@ -28,7 +28,7 @@
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputJson">
           <span class="icon">📋</span> 复制结果
         </button>
-        
+
         <div class="options">
           <label>
             <input type="checkbox" v-model="options.sortKeys"> 排序键名
@@ -37,21 +37,15 @@
             <input type="number" v-model.number="options.indent" min="2" max="8" style="width: 50px;"> 缩进空格
           </label>
         </div>
-      </div>
+      </ToolToolbar>
 
       <!-- 状态信息 -->
-      <div v-if="statusMessage" :class="['status-message', statusType]">
-        {{ statusMessage }}
-      </div>
+      <ToolStatusMessage :message="statusMessage" :type="statusType" />
 
       <!-- 编辑器区域 -->
-      <div class="editor-container">
+      <ToolEditorLayout>
         <!-- 输入区 -->
-        <div class="editor-panel">
-          <div class="panel-header">
-            <h3>输入 JSON</h3>
-            <span class="char-count">{{ inputJson.length }} 字符</span>
-          </div>
+        <ToolEditorPanel title="输入 JSON" :info="`${inputJson.length} 字符`">
           <textarea
             v-model="inputJson"
             class="json-input"
@@ -59,20 +53,16 @@
             spellcheck="false"
             @input="onInputChange"
           ></textarea>
-        </div>
+        </ToolEditorPanel>
 
         <!-- 输出区 -->
-        <div class="editor-panel">
-          <div class="panel-header">
-            <h3>输出结果</h3>
-            <span v-if="outputJson" class="char-count">{{ outputJson.length }} 字符</span>
-          </div>
+        <ToolEditorPanel title="输出结果" :info="outputJson ? `${outputJson.length} 字符` : ''">
           <div class="json-output-wrapper">
             <pre v-if="outputJson" class="json-output"><code v-html="highlightedJson"></code></pre>
             <div v-else class="placeholder">格式化后的 JSON 将显示在这里</div>
           </div>
-        </div>
-      </div>
+        </ToolEditorPanel>
+      </ToolEditorLayout>
 
       <!-- 使用示例 -->
       <ToolExamples :examples="examples" @use-example="useExample" />
@@ -95,6 +85,10 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
+import ToolToolbar from '@/components/ToolToolbar.vue';
+import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
+import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 
 // 功能特点数据
 const features = [
@@ -139,18 +133,18 @@ const faqs = [
 // 使用示例数据
 const examples = [
   {
-    input: '{"name":"张三","age":25}',
-    output: '{\n  "name": "张三",\n  "age": 25\n}',
+    input: '{"name":"morijiu","site":"tools.morijiu.cn"}',
+    output: '{\n  "name": "morijiu",\n  "site": "tools.morijiu.cn"\n}',
     description: '简单对象格式化',
   },
   {
-    input: '[1,2,3,{"a":"b"}]',
-    output: '[\n  1,\n  2,\n  3,\n  {\n    "a": "b"\n  }\n]',
+    input: '["极速开发工具箱","JSON格式化","Base64编码"]',
+    output: '[\n  "极速开发工具箱",\n  "JSON格式化",\n  "Base64编码"\n]',
     description: '数组格式化',
   },
   {
-    input: '{"users":[{"id":1,"name":"test"},{"id":2,"name":"demo"}]}',
-    output: '{\n  "users": [\n    {\n      "id": 1,\n      "name": "test"\n    },\n    {\n      "id": 2,\n      "name": "demo"\n    }\n  ]\n}',
+    input: '{"tools":[{"id":1,"name":"JSON格式化"},{"id":2,"name":"时间戳转换"}]}',
+    output: '{\n  "tools": [\n    {\n      "id": 1,\n      "name": "JSON格式化"\n    },\n    {\n      "id": 2,\n      "name": "时间戳转换"\n    }\n  ]\n}',
     description: '嵌套结构格式化',
   },
 ];
@@ -330,223 +324,6 @@ h1 {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 工具栏 */
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
-  align-items: center;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-secondary {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
-}
-
-.btn-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
-}
-
-.btn-info:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
-}
-
-.btn-success {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  color: white;
-}
-
-.btn-success:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  color: white;
-}
-
-.btn-danger:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
-}
-
-.icon {
-  font-size: 16px;
-}
-
-.options {
-  display: flex;
-  gap: 15px;
-  margin-left: auto;
-  align-items: center;
-}
-
-.options label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-}
-
-.options input[type="checkbox"] {
-  cursor: pointer;
-}
-
-.options input[type="number"] {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-/* 状态信息 */
-.status-message {
-  padding: 12px 20px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.status-message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.status-message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.status-message.info {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
-}
-
-/* 编辑器容器 */
-.editor-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.editor-panel {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.panel-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.char-count {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.json-input {
-  flex: 1;
-  min-height: 400px;
-  padding: 20px;
-  border: none;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  resize: vertical;
-  background: #f8f9fa;
-}
-
-.json-input:focus {
-  outline: none;
-  background: #fff;
-}
-
-.json-output-wrapper {
-  flex: 1;
-  min-height: 400px;
-  overflow: auto;
-  background: #f8f9fa;
-}
-
-.json-output {
-  margin: 0;
-  padding: 20px;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  background: #f8f9fa;
-}
-
-.json-output code {
-  display: block;
-}
-
-.placeholder {
-  padding: 20px;
-  color: #999;
-  text-align: center;
-  font-style: italic;
-}
-
 /* 语法高亮样式 */
 :deep(.string) {
   color: #22863a;
@@ -570,22 +347,6 @@ h1 {
 }
 
 /* 响应式设计 */
-@media (max-width: 968px) {
-  .editor-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .toolbar {
-    justify-content: center;
-  }
-  
-  .options {
-    margin-left: 0;
-    width: 100%;
-    justify-content: center;
-  }
-}
-
 @media (max-width: 640px) {
   h1 {
     font-size: 2rem;
@@ -593,11 +354,6 @@ h1 {
 
   .tool-container {
     padding: 20px;
-  }
-
-  .btn {
-    padding: 8px 16px;
-    font-size: 13px;
   }
 }
 </style>

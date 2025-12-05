@@ -58,7 +58,7 @@ const tools = ref([
     name: '时间戳转换',
     icon: '⏰',
     description: '时间戳与日期时间相互转换工具',
-    route: null
+    route: '/converter/timestamp'
   },
   {
     id: 5,
@@ -86,7 +86,7 @@ const tools = ref([
     name: 'UUID生成',
     icon: '🆔',
     description: '快速生成UUID/GUID唯一标识符',
-    route: null
+    route: '/generator/uuid'
   }
 ])
 
