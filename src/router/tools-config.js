@@ -452,6 +452,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'env-json',
+        name: '.env/JSON互转',
+        nameEn: 'env-json',
+        icon: '🌱',
+        description: '.env环境变量与JSON互转，支持export/注释/引号/多行值',
+        aliases: ['env','dotenv','环境变量','配置','互转','huanjing','peizhi'],
+        path: '/converter/env-json',
+        component: () => import('../views/tools/converter/EnvJsonConverter.vue'),
+        meta: {
+          title: '.env/JSON互转工具 - 在线.env转JSON、JSON转.env',
+          description: '免费的在线.env/JSON互转工具，支持export前缀、注释、单双引号与多行值，重复键提示，错误定位到行，纯本地运行不上传服务器',
+          keywords: '.env转JSON,JSON转.env,dotenv,环境变量转换,配置文件转换'
+        }
+      },
+      {
         id: 'sql-formatter',
         name: 'SQL格式化',
         nameEn: 'sql-formatter',
