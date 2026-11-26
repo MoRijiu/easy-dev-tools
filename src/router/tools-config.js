@@ -813,6 +813,21 @@ export const toolGroups = [
           description: '免费的在线HMAC签名生成工具，支持SHA-256/512/384/1，密钥与消息可按UTF-8、Hex、Base64输入，输出Hex与Base64，纯本地运行不上传服务器',
           keywords: 'HMAC,HMAC-SHA256,签名生成,接口签名,Webhook验签'
         }
+      },
+      {
+        id: 'password-strength',
+        name: '密码强度检查',
+        nameEn: 'password-strength',
+        icon: '🔑',
+        description: '估算密码熵，检测弱口令/序列/键盘连排等模式并估算爆破耗时',
+        aliases: ['password','密码','强度','entropy','熵','qiangdu','mima'],
+        path: '/crypto/password-strength',
+        component: () => import('../views/tools/crypto/PasswordStrengthChecker.vue'),
+        meta: {
+          title: '密码强度检查工具 - 在线估算密码熵与爆破耗时',
+          description: '免费的在线密码强度检查工具，按字符集与模式估算有效熵，检测常见弱口令、连续序列、键盘连排、重复与年份，并估算四种场景的离线爆破耗时，纯本地运行不上传服务器',
+          keywords: '密码强度,密码熵,弱口令检测,爆破耗时,密码安全'
+        }
       }
     ]
   },
