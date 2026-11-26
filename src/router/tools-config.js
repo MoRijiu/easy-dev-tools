@@ -128,6 +128,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'mime-type',
+        name: 'MIME类型查询',
+        nameEn: 'mime-type',
+        icon: '🧾',
+        description: '按扩展名或MIME类型速查对应关系与Content-Type',
+        aliases: ['mime','content-type','扩展名','文件类型','kuozhanming','leixing'],
+        path: '/text/mime-type',
+        component: () => import('../views/tools/text/MimeTypeFinder.vue'),
+        meta: {
+          title: 'MIME类型查询工具 - 在线速查扩展名与Content-Type',
+          description: '免费的在线MIME类型查询工具，按文件扩展名、MIME类型或中文关键词速查对应关系，附易混类型说明，纯本地运行不上传服务器',
+          keywords: 'MIME类型,Content-Type,扩展名,MIME查询,文件类型'
+        }
+      },
+      {
         id: 'keycode-finder',
         name: '键盘按键查询',
         nameEn: 'keycode-finder',
