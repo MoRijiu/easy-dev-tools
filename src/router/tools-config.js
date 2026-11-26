@@ -158,6 +158,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'text-stats',
+        name: '文本统计',
+        nameEn: 'text-stats',
+        icon: '📈',
+        description: '统计字数、词数、行段句、字节与阅读时长、高频词',
+        aliases: ['text','count','word','字数','统计','词数','zishu','tongji','cishu'],
+        path: '/text/text-stats',
+        component: () => import('../views/tools/text/TextStats.vue'),
+        meta: {
+          title: '文本统计工具 - 在线字数词数行数统计',
+          description: '免费的在线文本统计工具，统计字符、词数、行数、段落、句子、UTF-8字节与阅读时长并列出高频词，纯本地运行不上传服务器',
+          keywords: '文本统计,字数统计,词数统计,word count,在线字数'
+        }
+      },
+      {
         id: 'line-tools',
         name: '文本行工具',
         nameEn: 'line-tools',
