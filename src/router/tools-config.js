@@ -437,6 +437,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'docker-run',
+        name: 'Docker Run转Compose',
+        nameEn: 'docker-run',
+        icon: '🐳',
+        description: '把docker run命令解析为docker-compose.yml配置',
+        aliases: ['docker','compose','容器','run命令','rongqi','zhuanhuan'],
+        path: '/converter/docker-run',
+        component: () => import('../views/tools/converter/DockerRunConverter.vue'),
+        meta: {
+          title: 'Docker Run转Compose工具 - 在线生成docker-compose.yml',
+          description: '免费的在线Docker Run转Compose工具，解析docker run命令的端口、挂载、环境变量与重启策略，一键生成docker-compose.yml，纯本地运行不上传服务器',
+          keywords: 'docker run转compose,docker-compose生成,docker命令转换,compose.yml'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
