@@ -1,0 +1,105 @@
+// 人民币金额大写：纯本地，按字符串处理金额（不经浮点，避免精度误差）。
+// 规则：整数部分按 4 位分级（个/万/亿/兆），级内零只读一个且级末零不读，
+// 整级为零或低级高位为零时在级间补一个「零」；小数只取角、分，
+// 角分都为零加「整」，角为零分不为零读「零 X 分」。
+const DIGITS = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+const INNER_UNITS = ['仟', '佰', '拾', ''];
+const SECTION_UNITS = ['', '万', '亿', '兆'];
+const MAX_INT_DIGITS = 16; // 最高到仟兆位
+
+function sectionText(value) {
+  // value: 0-9999，返回级内读法（不含级名）；级内尾零不读，中间连零只读一个
+  const digits = [
+    Math.floor(value / 1000) % 10,
+    Math.floor(value / 100) % 10,
+    Math.floor(value / 10) % 10,
+    value % 10
+  ];
+  let out = '';
+  let zeroPending = false;
+  digits.forEach((d, i) => {
+    if (d === 0) {
+      if (out) zeroPending = true;
+    } else {
+      if (zeroPending) { out += '零'; zeroPending = false; }
+      out += DIGITS[d] + INNER_UNITS[i];
+    }
+  });
+  return out;
+}
+
+export function integerToCapital(intStr) {
+  // intStr: 无符号、无前导零（除 "0" 本身）的整数字符串
+  if (intStr === '0') return '零';
+  const sections = [];
+  for (let end = intStr.length; end > 0; end -= 4) {
+    sections.unshift(Number(intStr.slice(Math.max(0, end - 4), end)));
+  }
+  // sections[0] 为最高级；级序号（自右）= sections.length - 1 - idx
+  let out = '';
+  let zeroSectionPending = false;
+  sections.forEach((value, idx) => {
+    const level = sections.length - 1 - idx;
+    if (value === 0) {
+      if (out) zeroSectionPending = true;
+      return;
+    }
+    if (out && (zeroSectionPending || value < 1000)) out += '零';
+    zeroSectionPending = false;
+    out += sectionText(value) + SECTION_UNITS[level];
+  });
+  return out;
+}
+
+export function parseAmount(input = '') {
+  let s = String(input ?? '').trim().replace(/[,，\s]/g, '').replace(/^[¥￥]/, '').replace(/元$/, '');
+  if (!s) return { ok: false, error: '请输入金额，如 1234.56' };
+  let negative = false;
+  if (s.startsWith('-') || s.startsWith('+')) { negative = s[0] === '-'; s = s.slice(1); }
+  const bad = s.match(/[^0-9.]/);
+  if (bad) return { ok: false, error: `金额含非法字符「${bad[0]}」，只能输入数字与小数点` };
+  const parts = s.split('.');
+  if (parts.length > 2) return { ok: false, error: '金额只能有一个小数点' };
+  const intRaw = parts[0];
+  const fracRaw = parts.length === 2 ? parts[1] : '';
+  if (intRaw === '' && fracRaw === '') return { ok: false, error: '请输入金额，如 1234.56' };
+  if (fracRaw.length > 2) return { ok: false, error: '金额最多保留两位小数（角、分），请先四舍五入' };
+  const intStr = (intRaw || '0').replace(/^0+(?=\d)/, '');
+  if (intStr.length > MAX_INT_DIGITS) return { ok: false, error: `整数部分最多 ${MAX_INT_DIGITS} 位（仟兆以内）` };
+  const jiao = fracRaw.length >= 1 ? Number(fracRaw[0]) : 0;
+  const fen = fracRaw.length >= 2 ? Number(fracRaw[1]) : 0;
+  return { ok: true, negative, intStr, jiao, fen };
+}
+
+export function convertRmb(parsed) {
+  const { negative, intStr, jiao, fen } = parsed;
+  const intCapital = integerToCapital(intStr);
+  let body;
+  if (intStr === '0' && (jiao > 0 || fen > 0)) {
+    // 不足一元：不读「零元」，如 0.01 → 零壹分、0.10 → 壹角整、0.11 → 壹角壹分
+    if (jiao > 0 && fen > 0) body = `${DIGITS[jiao]}角${DIGITS[fen]}分`;
+    else if (jiao > 0) body = `${DIGITS[jiao]}角整`;
+    else body = `零${DIGITS[fen]}分`;
+  } else if (jiao === 0 && fen === 0) {
+    body = `${intCapital}元整`;
+  } else if (jiao > 0 && fen === 0) {
+    body = `${intCapital}元${DIGITS[jiao]}角整`;
+  } else if (jiao === 0) {
+    body = `${intCapital}元零${DIGITS[fen]}分`;
+  } else {
+    body = `${intCapital}元${DIGITS[jiao]}角${DIGITS[fen]}分`;
+  }
+  return (negative ? '负' : '') + body;
+}
+
+export function formatMoney(parsed) {
+  const grouped = parsed.intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const frac = `${parsed.jiao}${parsed.fen}`;
+  return `${parsed.negative ? '-' : ''}¥${grouped}.${frac}`;
+}
+
+export function convertAmountInput(input) {
+  const parsed = parseAmount(input);
+  if (!parsed.ok) return parsed;
+  return { ok: true, parsed, capital: convertRmb(parsed), formatted: formatMoney(parsed) };
+}
