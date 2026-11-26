@@ -321,6 +321,21 @@ export const toolGroups = [
           description: '免费的在线文本行工具，自然排序、去除重复行、删除空行、修剪、反转、添加行号与前后缀，纯本地运行不上传服务器',
           keywords: '文本行工具,按行排序,去除重复行,删除空行,行排序,去重'
         }
+      },
+      {
+        id: 'markdown-table',
+        name: 'Markdown表格生成',
+        nameEn: 'markdown-table',
+        icon: '🧮',
+        description: '粘贴Excel/TSV/CSV一键生成Markdown表格，自动对齐',
+        aliases: ['markdown','表格','table','excel','csv','biaoge','shengcheng'],
+        path: '/text/markdown-table',
+        component: () => import('../views/tools/text/MarkdownTableGenerator.vue'),
+        meta: {
+          title: 'Markdown表格生成工具 - 在线Excel/CSV转Markdown表格',
+          description: '免费的在线Markdown表格生成工具，粘贴Excel、TSV或CSV内容一键生成Markdown表格，自动补齐对齐、数字列右对齐、竖线转义，纯本地运行不上传服务器',
+          keywords: 'Markdown表格,表格生成,Excel转Markdown,CSV转Markdown,Markdown table'
+        }
       }
     ]
   },
