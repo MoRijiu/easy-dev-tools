@@ -242,6 +242,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'sql-formatter',
+        name: 'SQL格式化',
+        nameEn: 'sql-formatter',
+        icon: '🗄️',
+        description: '美化或压缩SQL，子句分行缩进，字符串与注释不受影响',
+        aliases: ['sql','数据库','格式化','查询','geshihua','shujuku'],
+        path: '/converter/sql-formatter',
+        component: () => import('../views/tools/converter/SqlFormatter.vue'),
+        meta: {
+          title: 'SQL格式化工具 - 在线SQL美化与压缩',
+          description: '免费的在线SQL格式化工具，主子句分行、字段与条件缩进、子查询缩进，支持关键词大小写与压缩一行，纯本地运行不上传服务器',
+          keywords: 'SQL格式化,SQL美化,SQL压缩,在线SQL,SQL工具'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
