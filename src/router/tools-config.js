@@ -83,6 +83,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'http-status',
+        name: 'HTTP状态码查询',
+        nameEn: 'http-status',
+        icon: '🌐',
+        description: '按码值或关键词速查HTTP状态码含义与排查提示',
+        aliases: ['http','状态码','status','code','404','502','zhuangtaima','cha xun'],
+        path: '/text/http-status',
+        component: () => import('../views/tools/text/HttpStatus.vue'),
+        meta: {
+          title: 'HTTP状态码查询工具 - 在线速查状态码含义',
+          description: '免费的在线HTTP状态码查询工具，按状态码、英文名或中文关键词速查59个状态码含义与排查提示，纯本地运行不上传服务器',
+          keywords: 'HTTP状态码,状态码查询,404,502,HTTP status code'
+        }
+      },
+      {
         id: 'markdown',
         name: 'Markdown编辑器',
         nameEn: 'markdown',
