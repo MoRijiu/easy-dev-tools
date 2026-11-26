@@ -768,6 +768,21 @@ export const toolGroups = [
           description: '免费的在线JWT生成工具，支持HS256/HS384/HS512本地签名、有效期快捷设置与签名自检，密钥不上传服务器',
           keywords: 'JWT生成,JWT签名,HS256,Token生成'
         }
+      },
+      {
+        id: 'hmac-generator',
+        name: 'HMAC签名生成',
+        nameEn: 'hmac-generator',
+        icon: '🔏',
+        description: '用密钥对消息做HMAC签名，支持多算法与Hex/Base64输入',
+        aliases: ['hmac','签名','密钥','sha256','验签','qianming','miyao'],
+        path: '/crypto/hmac-generator',
+        component: () => import('../views/tools/crypto/HmacGenerator.vue'),
+        meta: {
+          title: 'HMAC签名生成工具 - 在线计算HMAC-SHA256/512签名',
+          description: '免费的在线HMAC签名生成工具，支持SHA-256/512/384/1，密钥与消息可按UTF-8、Hex、Base64输入，输出Hex与Base64，纯本地运行不上传服务器',
+          keywords: 'HMAC,HMAC-SHA256,签名生成,接口签名,Webhook验签'
+        }
       }
     ]
   },
