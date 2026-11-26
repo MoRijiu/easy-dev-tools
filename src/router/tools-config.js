@@ -437,6 +437,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'css-formatter',
+        name: 'CSS格式化',
+        nameEn: 'css-formatter',
+        icon: '🎨',
+        description: '美化或压缩CSS并校验结构，错误定位到行',
+        aliases: ['css','格式化','美化','压缩','样式','geshihua','yangshi'],
+        path: '/converter/css-formatter',
+        component: () => import('../views/tools/converter/CssFormatter.vue'),
+        meta: {
+          title: 'CSS格式化工具 - 在线CSS美化、压缩与校验',
+          description: '免费的在线CSS格式化工具，按嵌套缩进美化或压缩一行，校验大括号配平与声明完整性并把错误定位到行，纯本地运行不上传服务器',
+          keywords: 'CSS格式化,CSS美化,CSS压缩,CSS校验,在线CSS'
+        }
+      },
+      {
         id: 'cidr-calculator',
         name: 'CIDR子网计算器',
         nameEn: 'cidr-calculator',
