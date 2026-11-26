@@ -656,6 +656,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'uuid-parser',
+        name: 'UUID解析',
+        nameEn: 'uuid-parser',
+        icon: '🧬',
+        description: '校验UUID并解析版本、变体与内嵌时间',
+        aliases: ['uuid','guid','解析','校验','版本','jiexi','jiaoyan'],
+        path: '/generator/uuid-parser',
+        component: () => import('../views/tools/generator/UuidParser.vue'),
+        meta: {
+          title: 'UUID解析工具 - 在线校验UUID版本、变体与时间',
+          description: '免费的在线UUID解析工具，校验格式并解析版本、变体与分段，v1/v6/v7提取内嵌时间，支持大括号、URN与无连字符写法，纯本地运行不上传服务器',
+          keywords: 'UUID解析,UUID校验,UUID版本,GUID解析,UUID v7'
+        }
+      },
+      {
         id: 'qrcode',
         name: '二维码生成',
         nameEn: 'qrcode',
