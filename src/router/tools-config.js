@@ -228,6 +228,21 @@ export const toolGroups = [
           description: '免费的在线AES加解密工具，支持AES对称加密解密',
           keywords: 'AES加密,AES解密,AES工具'
         }
+      },
+      {
+        id: 'jwt-decoder',
+        name: 'JWT解码',
+        nameEn: 'jwt-decoder',
+        icon: '🎫',
+        description: '解析JWT的Header与Payload、校验过期',
+        aliases: ['jwt','token','令牌','解码','jiema','lingpai'],
+        path: '/crypto/jwt-decoder',
+        component: () => import('../views/tools/crypto/JwtDecoder.vue'),
+        meta: {
+          title: 'JWT解码工具 - 在线解析JWT Token',
+          description: '免费的在线JWT解码工具，本地解析Header、Payload与签名，自动校验exp过期时间，不上传服务器',
+          keywords: 'JWT解码,JWT解析,JWT Token,令牌解析'
+        }
       }
     ]
   },
