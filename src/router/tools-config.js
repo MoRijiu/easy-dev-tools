@@ -218,6 +218,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'morse-code',
+        name: '摩尔斯电码编解码',
+        nameEn: 'morse-code',
+        icon: '📡',
+        description: '文本与摩尔斯电码互转，可播放点画试听',
+        aliases: ['morse','摩尔斯','电码','电报','sos','moersi','dianma'],
+        path: '/text/morse-code',
+        component: () => import('../views/tools/text/MorseCode.vue'),
+        meta: {
+          title: '摩尔斯电码编解码工具 - 在线文本转电码并播放试听',
+          description: '免费的在线摩尔斯电码工具，文本与国际摩尔斯电码互转，支持字母、数字与常用标点，可按标准节奏播放点画试听，解码容错定位错误，纯本地运行不上传服务器',
+          keywords: '摩尔斯电码,摩斯密码,电码翻译,SOS,摩尔斯编码,摩尔斯解码'
+        }
+      },
+      {
         id: 'markdown',
         name: 'Markdown编辑器',
         nameEn: 'markdown',
