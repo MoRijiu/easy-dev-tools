@@ -236,3 +236,12 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* 减少动态偏好：关停背景漂移与过渡动画 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
