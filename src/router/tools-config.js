@@ -182,6 +182,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'json-csv',
+        name: 'JSON/CSV互转',
+        nameEn: 'json-csv',
+        icon: '📊',
+        description: 'JSON对象数组与CSV表格互转，支持类型推断',
+        aliases: ['json','csv','表格','互转','excel','biaoge','huzhuan'],
+        path: '/converter/json-csv',
+        component: () => import('../views/tools/converter/JsonCsvConverter.vue'),
+        meta: {
+          title: 'JSON/CSV互转工具 - 在线JSON转CSV、CSV转JSON',
+          description: '免费的在线JSON/CSV互转工具，表头并集、RFC 4180规范转义、CSV转JSON可选类型推断，纯本地运行不上传服务器',
+          keywords: 'JSON转CSV,CSV转JSON,JSON CSV互转,表格转换'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
