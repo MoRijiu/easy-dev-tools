@@ -572,6 +572,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'timezone-converter',
+        name: '时区转换',
+        nameEn: 'timezone-converter',
+        icon: '🌍',
+        description: '某个时区的时间一屏对照全球主要时区，自动处理夏令时',
+        aliases: ['timezone','时区','世界时钟','夏令时','utc','shiqu','zhuanhuan'],
+        path: '/converter/timezone-converter',
+        component: () => import('../views/tools/converter/TimezoneConverter.vue'),
+        meta: {
+          title: '时区转换工具 - 在线全球时区时间对照与夏令时换算',
+          description: '免费的在线时区转换工具，输入任意时区时间一屏对照17个主要时区的当地时间、星期与UTC偏移，自动处理夏令时，纯本地运行不上传服务器',
+          keywords: '时区转换,世界时钟,夏令时,UTC偏移,全球时间对照,timezone converter'
+        }
+      },
+      {
         id: 'css-units',
         name: 'CSS单位换算',
         nameEn: 'css-units',
