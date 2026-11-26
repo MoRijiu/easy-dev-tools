@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import ToolPage from '../views/ToolPage.vue'
 import About from '../views/About.vue'
-import { generateRoutes } from './tools-config'
+import { generateRoutes, getToolByPath } from './tools-config'
+import { useToolPrefs } from '../composables/useToolPrefs'
 
 // 基础路由
 const baseRoutes = [
@@ -91,6 +92,13 @@ router.beforeEach((to, from, next) => {
   }
   
   next()
+})
+
+// 访问工具页时记录「最近使用」（本地存储，不上传）
+router.afterEach((to) => {
+  if (getToolByPath(to.path)) {
+    useToolPrefs().recordVisit(to.path)
+  }
 })
 
 export default router
