@@ -452,6 +452,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'ip-address',
+        name: 'IP地址工具',
+        nameEn: 'ip-address',
+        icon: '🛰️',
+        description: '解析IPv4/IPv6：整数/十六进制互转、展开压缩与性质判定',
+        aliases: ['ip','ipv4','ipv6','地址','dizhi','jiexi'],
+        path: '/converter/ip-address',
+        component: () => import('../views/tools/converter/IpAddressTool.vue'),
+        meta: {
+          title: 'IP地址工具 - 在线IPv4/IPv6解析与互转',
+          description: '免费的在线IP地址工具，IPv4与整数、十六进制、二进制互转，IPv6按RFC 5952展开与压缩，判定私有、环回、组播等性质，纯本地运行不上传服务器',
+          keywords: 'IP地址,IPv4转换,IPv6展开,IPv6压缩,IP解析,整数转IP'
+        }
+      },
+      {
         id: 'json-to-ts',
         name: 'JSON转TypeScript',
         nameEn: 'json-to-ts',
