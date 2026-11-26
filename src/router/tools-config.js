@@ -156,6 +156,21 @@ export const toolGroups = [
           description: '免费的在线文本对比工具，行级差异与行内字符高亮，支持忽略空白/大小写、统一与双栏视图，纯本地运行不上传服务器',
           keywords: '文本对比,Diff,在线对比,差异比较,文本差异'
         }
+      },
+      {
+        id: 'line-tools',
+        name: '文本行工具',
+        nameEn: 'line-tools',
+        icon: '📋',
+        description: '按行排序、去重、删空行、加行号与前后缀',
+        aliases: ['line','lines','行','排序','去重','空行','paixu','quchong','hang'],
+        path: '/text/line-tools',
+        component: () => import('../views/tools/text/LineTools.vue'),
+        meta: {
+          title: '文本行工具 - 在线按行排序去重删空行',
+          description: '免费的在线文本行工具，自然排序、去除重复行、删除空行、修剪、反转、添加行号与前后缀，纯本地运行不上传服务器',
+          keywords: '文本行工具,按行排序,去除重复行,删除空行,行排序,去重'
+        }
       }
     ]
   },
