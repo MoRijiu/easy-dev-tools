@@ -104,28 +104,30 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .hero-section p { font-size: 1.05rem; color: var(--text-2); margin: 0; }
 .stats { font-size: .85rem !important; margin-top: .5rem !important; color: var(--text-3) !important; }
 .search-box { display: flex; align-items: center; gap: .5rem; max-width: 560px; margin: 1rem auto 0; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: .45rem .75rem; }
-.search-box:focus-within { border-color: #667eea; }
+.search-box:focus-within { border-color: var(--accent); }
 .search-input { flex: 1; border: none; outline: none; font-size: .95rem; background: transparent; min-width: 0; }
 .search-clear { border: none; background: var(--bg-soft); border-radius: 999px; width: 22px; height: 22px; cursor: pointer; line-height: 1; }
 .cat-nav { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: .85rem; }
 .cat-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: .32rem .7rem; font-size: .85rem; cursor: pointer; }
-.cat-chip:hover { border-color: #667eea; }
-.cat-chip.active { background: #667eea; color: #fff; border-color: #667eea; }
+.cat-chip:hover { border-color: var(--accent); }
+.cat-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .cat-count { opacity: .75; font-size: .78rem; }
 .result-hint { text-align: center; color: var(--text-2); font-size: .9rem; margin: .5rem 0 1rem; }
-.reset-link { border: none; background: none; color: #667eea; cursor: pointer; font-size: .9rem; margin-left: .5rem; text-decoration: underline; }
-.tools-container { display: flex; flex-direction: column; gap: 2rem; }
-.tool-group { background: var(--surface); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
-.group-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: .85rem; border-bottom: 2px solid var(--border); }
-.group-icon { font-size: 2rem; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius: 12px; }
-.group-info h2 { font-size: 1.35rem; color: var(--text-strong); margin: 0 0 .25rem; }
-.group-info p { font-size: .9rem; color: var(--text-2); margin: 0; }
-.tools-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(230px,1fr)); gap: 1rem; }
-.tool-card { background: var(--bg); border-radius: 8px; padding: 1.15rem; cursor: pointer; transition: all .25s ease; border: 2px solid transparent; }
-.tool-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,.15); border-color: #667eea; background: var(--surface); }
-.tool-icon { font-size: 1.7rem; margin-bottom: .5rem; }
-.tool-card h3 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
-.tool-card p { font-size: .88rem; color: var(--text-2); margin: 0; line-height: 1.4; }
+.reset-link { border: none; background: none; color: var(--accent); cursor: pointer; font-size: .9rem; margin-left: .5rem; text-decoration: underline; }
+.tools-container { display: flex; flex-direction: column; gap: 1.5rem; }
+.tool-group { background: var(--surface); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm); }
+.group-header { display: flex; align-items: center; gap: .85rem; margin-bottom: 1rem; padding-bottom: .7rem; border-bottom: 1px solid var(--border); }
+.group-icon { font-size: 1.6rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border-radius: 10px; }
+.group-info h2 { font-size: 1.2rem; color: var(--text-strong); margin: 0 0 .15rem; }
+.group-info p { font-size: .88rem; color: var(--text-2); margin: 0; }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: .85rem; }
+.tool-card { background: var(--bg); border-radius: 8px; padding: 1rem; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; border: 1px solid var(--border); }
+.tool-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); border-color: var(--accent); background: var(--surface-hover); }
+.tool-card:active { transform: translateY(0); }
+.tool-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tool-icon { font-size: 1.5rem; margin-bottom: .45rem; }
+.tool-card h3 { font-size: 1rem; color: var(--text-strong); margin: 0 0 .35rem; }
+.tool-card p { font-size: .86rem; color: var(--text-2); margin: 0; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .empty-state { text-align: center; background: var(--surface); border-radius: 12px; padding: 2rem 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 .empty-title { font-size: 1.1rem; color: var(--text-strong); margin: 0 0 .5rem; }
 .empty-desc { color: var(--text-2); margin: 0 0 1rem; font-size: .92rem; }
@@ -137,5 +139,19 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .pref-count { color: var(--text-3); font-size: .82rem; font-weight: normal; }
 .pref-chips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
 .pref-chip-wrap { display: inline-flex; align-items: center; }
-@media (max-width: 768px) { .hero-section h1 { font-size: 1.8rem; } .tools-grid { grid-template-columns: 1fr; } .tool-group { padding: 1.15rem; } }
+@media (max-width: 768px) {
+  .hero-section { padding: 1.25rem .5rem .9rem; margin-bottom: .75rem; }
+  .hero-section h1 { font-size: 1.6rem; }
+  .hero-section p { font-size: .95rem; }
+  .tools-grid { grid-template-columns: repeat(2, 1fr); gap: .65rem; }
+  .tool-group { padding: 1rem .85rem; }
+  .group-icon { width: 38px; height: 38px; font-size: 1.35rem; }
+  .group-info h2 { font-size: 1.05rem; }
+  .tool-card { padding: .8rem; }
+  .tool-icon { font-size: 1.3rem; margin-bottom: .35rem; }
+  .tool-card h3 { font-size: .92rem; }
+  .tool-card p { font-size: .8rem; }
+  .pref-section { padding: .85rem .9rem; }
+  .empty-state { padding: 1.5rem .85rem; }
+}
 </style>
