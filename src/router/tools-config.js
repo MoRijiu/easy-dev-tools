@@ -158,6 +158,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'encoding-converter',
+        name: '编码转换',
+        nameEn: 'encoding-converter',
+        icon: '🔣',
+        description: '文本与Hex/Base32/Base58互转，UTF-8安全',
+        aliases: ['hex','base32','base58','编码','十六进制','bianma','zhuanhuan'],
+        path: '/text/encoding-converter',
+        component: () => import('../views/tools/text/EncodingConverter.vue'),
+        meta: {
+          title: '编码转换工具 - 在线Hex/Base32/Base58与文本互转',
+          description: '免费的在线编码转换工具，文本与Hex十六进制、Base32、Base58互转，按UTF-8字节处理中文与Emoji，错误精确定位，纯本地运行不上传服务器',
+          keywords: 'Hex编码,Base32,Base58,十六进制编码,编码转换,文本转Hex'
+        }
+      },
+      {
         id: 'markdown',
         name: 'Markdown编辑器',
         nameEn: 'markdown',
