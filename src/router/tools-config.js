@@ -527,6 +527,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'css-units',
+        name: 'CSS单位换算',
+        nameEn: 'css-units',
+        icon: '📐',
+        description: 'px/rem/em/%/vw/vh与pt/in/cm互转，根字号与视口可调',
+        aliases: ['css','px','rem','em','vw','单位','换算','danwei','huansuan'],
+        path: '/converter/css-units',
+        component: () => import('../views/tools/converter/CssUnitConverter.vue'),
+        meta: {
+          title: 'CSS单位换算工具 - 在线px rem em vw互转',
+          description: '免费的在线CSS单位换算工具，px、rem、em、%、vw、vh、vmin、vmax与pt、pc、in、cm、mm、Q互转，根字号、父字号、百分比基准与视口尺寸可调，纯本地运行不上传服务器',
+          keywords: 'CSS单位换算,px转rem,rem换算,em换算,vw换算,前端单位'
+        }
+      },
+      {
         id: 'json-to-ts',
         name: 'JSON转TypeScript',
         nameEn: 'json-to-ts',
