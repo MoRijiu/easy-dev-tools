@@ -83,6 +83,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'unicode-html',
+        name: 'Unicode/HTML实体',
+        nameEn: 'unicode-html',
+        icon: '🔣',
+        description: 'Unicode转义与HTML实体编解码',
+        aliases: ['unicode','html','实体','转义','unicode编码','shiti','zhuanyi','entity'],
+        path: '/text/unicode-html',
+        component: () => import('../views/tools/text/UnicodeHtmlCodec.vue'),
+        meta: {
+          title: 'Unicode/HTML实体编解码工具 - 在线Unicode转义与HTML实体转换',
+          description: '免费的在线Unicode与HTML实体编解码工具，支持命名/十进制/十六进制实体、代理对与ES6花括号形式，纯本地运行不上传服务器',
+          keywords: 'Unicode编码,Unicode解码,HTML实体,HTML编码,实体编解码'
+        }
+      },
+      {
         id: 'text-diff',
         name: '文本对比',
         nameEn: 'text-diff',
