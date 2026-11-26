@@ -83,6 +83,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'curl-parser',
+        name: 'cURL解析',
+        nameEn: 'curl-parser',
+        icon: '🖥️',
+        description: '解析curl命令为方法/请求头/Body，并生成fetch与Python代码',
+        aliases: ['curl','命令','请求','fetch','python','jiexi','mingling'],
+        path: '/text/curl-parser',
+        component: () => import('../views/tools/text/CurlParser.vue'),
+        meta: {
+          title: 'cURL解析工具 - 在线解析curl命令并生成fetch/Python代码',
+          description: '免费的在线cURL解析工具，把curl命令拆成方法、URL、请求头、参数与Body，并生成JavaScript fetch与Python requests代码，纯本地运行不上传服务器',
+          keywords: 'curl解析,curl转fetch,curl转python,curl命令,在线curl'
+        }
+      },
+      {
         id: 'user-agent',
         name: 'User Agent解析',
         nameEn: 'user-agent',
