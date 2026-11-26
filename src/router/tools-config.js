@@ -746,6 +746,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'random-number',
+        name: '随机数生成器',
+        nameEn: 'random-number',
+        icon: '🎲',
+        description: '安全无偏地生成随机整数与小数',
+        aliases: ['random','随机数','随机','抽签','suijishu'],
+        path: '/generator/random-number',
+        component: () => import('../views/tools/generator/RandomNumberGenerator.vue'),
+        meta: {
+          title: '随机数生成器 - 在线生成安全无偏随机数',
+          description: '免费的在线随机数生成器，基于安全随机源与拒绝采样无偏生成随机整数和小数，支持不重复抽取、排序与批量复制，纯本地运行不上传服务器',
+          keywords: '随机数生成器,随机整数,随机小数,抽签,无偏随机'
+        }
+      },
+      {
         id: 'lorem-ipsum',
         name: '占位文本生成',
         nameEn: 'lorem-ipsum',
