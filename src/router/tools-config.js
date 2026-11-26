@@ -791,6 +791,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'snowflake',
+        name: '雪花ID解析/生成',
+        nameEn: 'snowflake',
+        icon: '❄️',
+        description: '解析雪花ID的时间、机器与序列号，也可按布局生成',
+        aliases: ['snowflake','雪花','分布式id','xuehua','fenbushi'],
+        path: '/generator/snowflake',
+        component: () => import('../views/tools/generator/SnowflakeTool.vue'),
+        meta: {
+          title: '雪花ID解析/生成工具 - 在线解析Snowflake时间与机器位',
+          description: '免费的在线雪花ID工具，解析Snowflake的时间戳、数据中心、机器与序列号，支持Twitter经典、Discord与自定义布局，并可反向生成，纯本地运行不上传服务器',
+          keywords: '雪花ID解析,Snowflake,雪花算法,分布式ID,Discord ID解析'
+        }
+      },
+      {
         id: 'qrcode',
         name: '二维码生成',
         nameEn: 'qrcode',
