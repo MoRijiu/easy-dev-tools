@@ -137,6 +137,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'base-converter',
+        name: '进制转换',
+        nameEn: 'base-converter',
+        icon: '🔢',
+        description: '二/八/十/十六等进制互转，支持大整数与小数',
+        aliases: ['base','radix','进制','二进制','十六进制','jinzhi','hex','binary'],
+        path: '/converter/base-converter',
+        component: () => import('../views/tools/converter/BaseConverter.vue'),
+        meta: {
+          title: '进制转换工具 - 在线二/八/十/十六进制互转',
+          description: '免费的在线进制转换工具，支持2到36进制互转、任意精度大整数与小数，识别0x/0b/0o前缀，纯本地计算不上传服务器',
+          keywords: '进制转换,二进制,十六进制,八进制,base converter'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
