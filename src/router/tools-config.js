@@ -272,6 +272,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'json-to-ts',
+        name: 'JSON转TypeScript',
+        nameEn: 'json-to-ts',
+        icon: '🧩',
+        description: '由JSON生成TS interface，嵌套拆分、数组合并推断',
+        aliases: ['json','typescript','ts','interface','类型','leixing','jiekou'],
+        path: '/converter/json-to-ts',
+        component: () => import('../views/tools/converter/JsonToTypescript.vue'),
+        meta: {
+          title: 'JSON转TypeScript工具 - 在线JSON生成TS interface类型',
+          description: '免费的在线JSON转TypeScript工具，嵌套对象拆独立interface、对象数组合并推断可选字段、同形接口复用，纯本地运行不上传服务器',
+          keywords: 'JSON转TypeScript,JSON生成interface,TS类型生成,json to ts'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
