@@ -19,6 +19,24 @@
 
     <p v-if="query || activeGroup !== 'all'" class="result-hint" role="status">找到 {{ filteredCount }} 个工具<button type="button" class="reset-link" @click="resetFilter">清除筛选</button></p>
 
+    <template v-if="!query && activeGroup === 'all'">
+      <section v-if="favoriteTools.length" class="pref-section" aria-label="我的收藏">
+        <h2 class="pref-title">★ 我的收藏 <span class="pref-count">{{ favoriteTools.length }}</span></h2>
+        <div class="pref-chips">
+          <span v-for="t in favoriteTools" :key="t.id" class="pref-chip-wrap">
+            <button type="button" class="cat-chip" @click="navigateToTool(t)">{{ t.icon }} {{ t.name }}</button>
+            <FavoriteButton :tool-id="t.id" :tool-name="t.name" />
+          </span>
+        </div>
+      </section>
+      <section v-if="recentTools.length" class="pref-section" aria-label="最近使用">
+        <h2 class="pref-title">🕘 最近使用 <span class="pref-count">{{ recentTools.length }}</span><button type="button" class="reset-link" @click="clearRecent">清空历史</button></h2>
+        <div class="pref-chips">
+          <button v-for="t in recentTools" :key="t.id" type="button" class="cat-chip" @click="navigateToTool(t)">{{ t.icon }} {{ t.name }}</button>
+        </div>
+      </section>
+    </template>
+
     <section v-if="visibleGroups.length" class="tools-container">
       <article v-for="group in visibleGroups" :key="group.id" class="tool-group">
         <header class="group-header">
@@ -30,7 +48,7 @@
         </header>
         <div class="tools-grid" role="list">
           <article v-for="tool in group.tools" :key="tool.id" class="tool-card" role="listitem" @click="navigateToTool(tool)" @keypress.enter="navigateToTool(tool)" tabindex="0" :aria-label="`${tool.name}: ${tool.description}`">
-            <div class="tool-icon" aria-hidden="true">{{ tool.icon }}</div>
+            <div class="card-top"><div class="tool-icon" aria-hidden="true">{{ tool.icon }}</div><FavoriteButton :tool-id="tool.id" :tool-name="tool.name" /></div>
             <h3>{{ tool.name }}</h3>
             <p>{{ tool.description }}</p>
           </article>
@@ -54,7 +72,11 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSeo } from '../composables/useSeo'
 import Danmaku from '../components/Danmaku.vue'
+import FavoriteButton from '../components/FavoriteButton.vue'
+import { useToolPrefs } from '../composables/useToolPrefs'
 import { toolGroups, searchTools, totalToolCount, getAllTools } from '../router/tools-config'
+
+const { favoriteTools, recentTools, clearRecent } = useToolPrefs()
 
 const router = useRouter()
 useSeo({
@@ -108,5 +130,12 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .empty-title { font-size: 1.1rem; color: #2c3e50; margin: 0 0 .5rem; }
 .empty-desc { color: #7f8c8d; margin: 0 0 1rem; font-size: .92rem; }
 .empty-suggest { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-top .tool-icon { margin-bottom: .5rem; }
+.pref-section { background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1rem; }
+.pref-title { font-size: 1rem; color: #2c3e50; margin: 0 0 .6rem; display: flex; align-items: center; gap: .4rem; }
+.pref-count { color: #95a5a6; font-size: .82rem; font-weight: normal; }
+.pref-chips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.pref-chip-wrap { display: inline-flex; align-items: center; }
 @media (max-width: 768px) { .hero-section h1 { font-size: 1.8rem; } .tools-grid { grid-template-columns: 1fr; } .tool-group { padding: 1.15rem; } }
 </style>
