@@ -452,6 +452,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'html-formatter',
+        name: 'HTML格式化',
+        nameEn: 'html-formatter',
+        icon: '🌐',
+        description: '美化或压缩HTML并校验标签嵌套，错误定位到行',
+        aliases: ['html','格式化','美化','压缩','标签','geshihua','biaoqian'],
+        path: '/converter/html-formatter',
+        component: () => import('../views/tools/converter/HtmlFormatter.vue'),
+        meta: {
+          title: 'HTML格式化工具 - 在线HTML美化、压缩与校验',
+          description: '免费的在线HTML格式化工具，按嵌套缩进美化或压缩一行，校验标签匹配并把错误定位到行，script/pre内容原样保留，纯本地运行不上传服务器',
+          keywords: 'HTML格式化,HTML美化,HTML压缩,HTML校验,在线HTML'
+        }
+      },
+      {
         id: 'cidr-calculator',
         name: 'CIDR子网计算器',
         nameEn: 'cidr-calculator',
