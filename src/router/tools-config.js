@@ -173,6 +173,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'ascii-table',
+        name: 'ASCII码查询',
+        nameEn: 'ascii-table',
+        icon: '🔡',
+        description: '速查ASCII码表四种进制，并支持文本与码值互转',
+        aliases: ['ascii','码表','字符编码','mabiao','bianma'],
+        path: '/text/ascii-table',
+        component: () => import('../views/tools/text/AsciiTable.vue'),
+        meta: {
+          title: 'ASCII码查询工具 - 在线ASCII码表与文本互转',
+          description: '免费的在线ASCII码查询工具，速查0到127码表的十进制、十六进制、八进制与二进制，支持文本与ASCII码互转，纯本地运行不上传服务器',
+          keywords: 'ASCII码表,ASCII查询,ASCII转换,字符编码,ASCII code'
+        }
+      },
+      {
         id: 'encoding-converter',
         name: '编码转换',
         nameEn: 'encoding-converter',
