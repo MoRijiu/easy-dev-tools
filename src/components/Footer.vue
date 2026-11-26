@@ -52,7 +52,7 @@
       <div class="footer-bottom">
         <div class="footer-info">
           <p class="copyright">
-            © {{ currentYear }} 极速开发工具箱 · Made with
+            © {{ currentYear }} morijiu.cn · 极速开发工具箱 · Made with
             <span class="heart" :class="{ beating: isHeartBeating }">❤️</span>
             by <a href="https://github.com/MoRijiu" target="_blank" rel="noopener noreferrer" class="dev-link">Mo_Rijiu</a>
           </p>
@@ -73,6 +73,7 @@
           </p>
         </div>
         <div class="footer-badge">
+          <span class="badge-item version-badge" title="当前版本">{{ displayVersion }}</span>
           <span class="badge-item" title="开源项目">⭐ Open Source</span>
         </div>
       </div>
@@ -82,7 +83,9 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { DISPLAY_VERSION } from '../config/version'
 
+const displayVersion = DISPLAY_VERSION
 const currentYear = new Date().getFullYear()
 const isHeartBeating = ref(false)
 
@@ -424,6 +427,11 @@ onBeforeUnmount(() => {
   cursor: default;
   user-select: none;
   border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.version-badge {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
 }
 
 .badge-item:hover {
