@@ -1,7 +1,9 @@
 <template>
   <div class="main-layout">
+    <a href="#main-content" class="skip-link">跳到主要内容</a>
     <Header />
-    <main class="main-content">
+    <CommandPalette />
+    <main id="main-content" class="main-content" tabindex="-1">
       <div v-if="currentTool" class="tool-bar">
         <router-link to="/" class="tool-bar-back">← 全部工具</router-link>
         <span class="tool-bar-name">{{ currentTool.icon }} {{ currentTool.name }}</span>
@@ -22,6 +24,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
+import CommandPalette from '../components/CommandPalette.vue'
 import FavoriteButton from '../components/FavoriteButton.vue'
 import { getToolByPath } from '../router/tools-config'
 import { useToolPrefs } from '../composables/useToolPrefs'
@@ -32,6 +35,21 @@ const currentTool = computed(() => getToolByPath(route.path))
 </script>
 
 <style scoped>
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 3000;
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  transition: top 0.15s ease;
+}
+.skip-link:focus-visible { top: 10px; }
+
 .main-layout {
   min-height: 100vh;
   display: flex;

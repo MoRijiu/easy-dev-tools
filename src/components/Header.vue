@@ -7,7 +7,7 @@
           <span class="logo-text">极速开发工具箱</span>
         </router-link>
         <div class="tools-dropdown" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
-          <button class="tools-trigger" aria-label="全部工具" title="全部工具">
+          <button class="tools-trigger" aria-label="全部工具" aria-haspopup="true" title="全部工具">
             <span class="tools-text">全部工具</span>
           </button>
           <div v-show="showDropdown" class="dropdown-menu" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
@@ -35,6 +35,17 @@
         </div>
       </div>
       <nav class="nav">
+        <button
+          class="palette-trigger"
+          type="button"
+          title="搜索工具（Ctrl+K）"
+          aria-label="打开命令面板搜索工具，快捷键 Ctrl 加 K"
+          @click="openPalette"
+        >
+          <span aria-hidden="true">⌕</span>
+          <span class="palette-trigger-text">搜索工具</span>
+          <kbd class="palette-trigger-kbd">Ctrl K</kbd>
+        </button>
         <button
           class="theme-toggle"
           type="button"
@@ -88,6 +99,10 @@ const handleMouseLeave = () => {
 
 const isCurrentTool = (path) => {
   return route.path === path
+}
+
+const openPalette = () => {
+  window.dispatchEvent(new Event('edt:open-command-palette'))
 }
 </script>
 
@@ -148,6 +163,38 @@ const isCurrentTool = (path) => {
   display: flex;
   gap: 32px;
   align-items: center;
+}
+
+.palette-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--text-2);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.palette-trigger:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.palette-trigger-kbd {
+  font-family: inherit;
+  font-size: 10px;
+  color: var(--text-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 4px;
+  line-height: 15px;
 }
 
 .theme-toggle {
@@ -414,6 +461,16 @@ const isCurrentTool = (path) => {
   .nav {
     gap: 6px;
     flex-shrink: 0;
+  }
+
+  .palette-trigger {
+    padding: 0 7px;
+    height: 28px;
+  }
+
+  .palette-trigger-text,
+  .palette-trigger-kbd {
+    display: none;
   }
 
   .nav-link {
