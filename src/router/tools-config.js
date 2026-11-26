@@ -336,6 +336,21 @@ export const toolGroups = [
           description: '免费的在线Markdown表格生成工具，粘贴Excel、TSV或CSV内容一键生成Markdown表格，自动补齐对齐、数字列右对齐、竖线转义，纯本地运行不上传服务器',
           keywords: 'Markdown表格,表格生成,Excel转Markdown,CSV转Markdown,Markdown table'
         }
+      },
+      {
+        id: 'width-converter',
+        name: '全角半角转换',
+        nameEn: 'width-converter',
+        icon: '🔤',
+        description: '全角字母数字标点与半角互转，可按类别选择',
+        aliases: ['width','全角','半角','fullwidth','halfwidth','quanjiao','banjiao'],
+        path: '/text/width-converter',
+        component: () => import('../views/tools/text/WidthConverter.vue'),
+        meta: {
+          title: '全角半角转换工具 - 在线全角转半角/半角转全角',
+          description: '免费的在线全角半角转换工具，全角字母、数字、标点与半角互转，可按数字/字母/标点/空格分类选择，清理中文输入法混入的全角字符，纯本地运行不上传服务器',
+          keywords: '全角半角转换,全角转半角,半角转全角,fullwidth,halfwidth'
+        }
       }
     ]
   },
