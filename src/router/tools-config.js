@@ -467,6 +467,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'data-size',
+        name: '数据大小换算',
+        nameEn: 'data-size',
+        icon: '💾',
+        description: '字节/比特与KB/MB/GB互转，SI与IEC双标准，估算下载耗时',
+        aliases: ['data','size','byte','字节','容量','文件大小','换算','rongliang','huansuan'],
+        path: '/converter/data-size',
+        component: () => import('../views/tools/converter/DataSizeConverter.vue'),
+        meta: {
+          title: '数据大小换算工具 - 在线字节KB MB GB与比特互转',
+          description: '免费的在线数据大小换算工具，字节、比特与KB/MB/GB/TB互转，SI 1000与IEC 1024双标准对照，按网速估算下载耗时，纯本地运行不上传服务器',
+          keywords: '数据大小换算,字节换算,MB转GB,KB换算,比特字节,下载耗时估算'
+        }
+      },
+      {
         id: 'json-to-ts',
         name: 'JSON转TypeScript',
         nameEn: 'json-to-ts',
