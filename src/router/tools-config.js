@@ -68,6 +68,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'user-agent',
+        name: 'User Agent解析',
+        nameEn: 'user-agent',
+        icon: '🕵️',
+        description: '解析UA字符串的浏览器、系统与设备信息',
+        aliases: ['ua','user agent','useragent','浏览器','设备','jiexi'],
+        path: '/text/user-agent',
+        component: () => import('../views/tools/text/UserAgentParser.vue'),
+        meta: {
+          title: 'User Agent解析工具 - 在线解析UA浏览器与设备信息',
+          description: '免费的在线User Agent解析工具，识别浏览器、渲染引擎、操作系统、设备类型与机器人，纯本地运行不上传服务器',
+          keywords: 'User Agent解析,UA解析,浏览器识别,设备识别,UA工具'
+        }
+      },
+      {
         id: 'markdown',
         name: 'Markdown编辑器',
         nameEn: 'markdown',
