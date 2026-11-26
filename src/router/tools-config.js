@@ -53,6 +53,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'url-parser',
+        name: 'URL解析',
+        nameEn: 'url-parser',
+        icon: '🧭',
+        description: '拆解URL组件与查询参数，参数可编辑重组',
+        aliases: ['url','链接','解析','参数','query','jiexi','canshu'],
+        path: '/text/url-parser',
+        component: () => import('../views/tools/text/UrlParser.vue'),
+        meta: {
+          title: 'URL解析工具 - 在线拆解URL组件与查询参数',
+          description: '免费的在线URL解析工具，拆解协议、主机、路径与查询参数，参数可编辑并实时重组新URL，纯本地运行不上传服务器',
+          keywords: 'URL解析,URL拆解,查询参数,query参数,链接解析'
+        }
+      },
+      {
         id: 'markdown',
         name: 'Markdown编辑器',
         nameEn: 'markdown',
