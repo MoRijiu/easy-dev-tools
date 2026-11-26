@@ -752,6 +752,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'css-gradient',
+        name: 'CSS渐变生成器',
+        nameEn: 'css-gradient',
+        icon: '🌈',
+        description: '可视化调线性/径向/锥形渐变，多色标实时预览并复制CSS',
+        aliases: ['css','gradient','渐变','背景','jianbian','beijing'],
+        path: '/converter/css-gradient',
+        component: () => import('../views/tools/converter/CssGradientGenerator.vue'),
+        meta: {
+          title: 'CSS渐变生成器 - 在线生成linear/radial/conic-gradient',
+          description: '免费的在线CSS渐变生成器，可视化调整线性、径向、锥形渐变的多色标、角度与重复条纹，实时预览并一键复制CSS代码，纯本地运行不上传服务器',
+          keywords: 'CSS渐变,渐变生成器,linear-gradient,radial-gradient,conic-gradient'
+        }
+      },
+      {
         id: 'unit-converter',
         name: '单位转换',
         nameEn: 'unit-converter',
