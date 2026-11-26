@@ -98,6 +98,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'case-converter',
+        name: '命名格式转换',
+        nameEn: 'case-converter',
+        icon: '🔤',
+        description: 'camelCase/snake_case/kebab-case 等命名风格互转',
+        aliases: ['case','命名','驼峰','变量名','camel','snake','kebab','mingming','tuofeng'],
+        path: '/text/case-converter',
+        component: () => import('../views/tools/text/CaseConverter.vue'),
+        meta: {
+          title: '命名格式转换工具 - camelCase snake_case kebab-case互转',
+          description: '免费的在线命名格式转换工具，12种命名风格一屏对照，智能拆词识别缩略词，支持多行批量，纯本地运行不上传服务器',
+          keywords: '命名转换,camelCase,snake_case,kebab-case,驼峰转换,变量命名'
+        }
+      },
+      {
         id: 'text-diff',
         name: '文本对比',
         nameEn: 'text-diff',

@@ -1,0 +1,92 @@
+<template>
+  <div class="case-converter">
+    <h1>命名格式转换</h1>
+    <p class="description">变量名、函数名、文件名一键互转：camelCase、snake_case、kebab-case 等 12 种风格一屏对照；支持多行批量，全程本地处理</p>
+    <div class="tool-container">
+      <ToolToolbar>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
+        <button @click="copyAll" class="btn btn-success" :disabled="!hasResult"><span class="icon">📋</span> 复制全部</button>
+      </ToolToolbar>
+      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <textarea v-model="inputText" class="text-input" placeholder="输入标识符或短语，每行一个，如 user_name / getUserInfo / HTTP server config" spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
+      <div v-if="hasResult" class="result-list">
+        <div v-for="row in results" :key="row.id" class="result-row">
+          <span class="row-label">{{ row.label }}</span>
+          <code class="row-value">{{ row.value }}</code>
+          <button class="copy-btn" @click="copyOne(row)" :aria-label="'复制 ' + row.label">复制</button>
+        </div>
+      </div>
+      <div v-else class="placeholder">输入后这里会同时列出 12 种命名风格的转换结果</div>
+      <ToolExamples :examples="examples" @use-example="useExample" />
+      <ToolFeatures :features="features" />
+      <ToolUsageGuide :steps="usageSteps" />
+      <ToolFaq :faqs="faqs" />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import ToolFeatures from '@/components/ToolFeatures.vue';
+import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
+import ToolFaq from '@/components/ToolFaq.vue';
+import ToolExamples from '@/components/ToolExamples.vue';
+import ToolToolbar from '@/components/ToolToolbar.vue';
+import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { convertCase } from '@/utils/caseConvert.js';
+
+const features = [
+  { icon: '🔤', title: '12 种风格', description: '驼峰、下划线、短横线、常量、标题、点分隔、路径等一屏对照' },
+  { icon: '✂️', title: '智能拆词', description: '自动识别驼峰边界与 HTTPServer 这类缩略词边界' },
+  { icon: '📚', title: '多行批量', description: '每行一个标识符，逐行转换不串行' },
+  { icon: '🔒', title: '纯本地处理', description: '文本不离开浏览器，不上传任何服务器' }
+];
+const usageSteps = ['在输入框粘贴标识符或短语（可多行，每行一个）', '下方实时列出 12 种命名风格的结果', '点某一行「复制」取单个结果，或「复制全部」带标签复制整表'];
+const faqs = [
+  { question: 'HTTPServer 为什么会拆成 HTTP + Server？', answer: '连续大写通常是缩略词（如 HTTP、URL、API），本工具会在缩略词与后续首字母大写单词之间切分，避免拼出 Httpserver 这类结果。' },
+  { question: '数字和中文怎么处理？', answer: '数字会并入相邻单词（如 version2）。命名标识符通常只用 ASCII 字母数字，其他字符（下划线、连字符、空格、点、斜杠等）一律按分隔符处理。' },
+  { question: '我的文本会被上传吗？', answer: '不会。全部转换都在浏览器本地完成，不发送任何网络请求。' }
+];
+const examples = [
+  { input: 'user_name', output: 'userName / UserName / USER_NAME', description: '下划线转驼峰示例' },
+  { input: 'getHTTPResponseCode', output: 'get_http_response_code', description: '驼峰含缩略词示例' },
+  { input: 'my-component-name', output: 'myComponentName', description: '短横线转驼峰示例' }
+];
+const inputText = ref('');
+const results = ref([]);
+const statusMessage = ref('');
+const statusType = ref('');
+const hasResult = computed(() => results.value.some(r => r.value.trim()));
+const convert = () => {
+  if (!inputText.value.trim()) { results.value = []; statusMessage.value = ''; return; }
+  results.value = convertCase(inputText.value);
+  statusMessage.value = '✓ 转换成功';
+  statusType.value = 'success';
+};
+const loadExample = () => { inputText.value = 'user_name\ngetHTTPResponseCode\nmy-component-name'; convert(); };
+const useExample = (ex) => { inputText.value = ex.input; convert(); };
+const clearAll = () => { inputText.value = ''; results.value = []; statusMessage.value = ''; };
+const copyText = async (text, okMsg) => {
+  try { await navigator.clipboard.writeText(text); statusMessage.value = okMsg; statusType.value = 'success'; }
+  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
+};
+const copyOne = (row) => copyText(row.value, '✓ 已复制 ' + row.label);
+const copyAll = () => copyText(results.value.map(r => r.label.split(' ')[0] + ': ' + r.value).join('\n'), '✓ 全部结果已复制');
+</script>
+
+<style scoped>
+.case-converter { max-width: 1400px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
+.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.text-input { width: 100%; min-height: 96px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; resize: vertical; margin-bottom: 14px; }
+.result-list { display: flex; flex-direction: column; gap: 6px; }
+.result-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); }
+.row-label { flex: 0 0 168px; color: var(--text-2); font-size: 12px; }
+.row-value { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; color: var(--text); }
+.copy-btn { flex: 0 0 auto; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; }
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.placeholder { color: var(--text-2); font-size: 14px; padding: 12px 0; }
+@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .row-label { flex-basis: 118px; } }
+</style>
