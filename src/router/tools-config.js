@@ -347,6 +347,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'semver',
+        name: 'SemVer版本工具',
+        nameEn: 'semver',
+        icon: '🏷️',
+        description: '解析语义化版本、比较大小、递增与范围校验',
+        aliases: ['semver','版本','语义化版本','版本号','version','banben','yuyihua'],
+        path: '/converter/semver',
+        component: () => import('../views/tools/converter/SemverTool.vue'),
+        meta: {
+          title: 'SemVer版本工具 - 在线解析比较语义化版本',
+          description: '免费的在线SemVer语义化版本工具，解析主/次/修订与预发布、比较优先级、一键递增、校验 ^ ~ 区间范围，纯本地运行不上传服务器',
+          keywords: 'SemVer,语义化版本,版本比较,版本号解析,版本范围'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
