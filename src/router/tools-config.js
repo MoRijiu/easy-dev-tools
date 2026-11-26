@@ -81,6 +81,21 @@ export const toolGroups = [
           description: '免费的在线正则表达式测试工具，实时高亮匹配、查看捕获组与命名组、预览替换结果，纯本地运行不上传服务器',
           keywords: '正则表达式,正则测试,regex,在线正则,匹配高亮'
         }
+      },
+      {
+        id: 'text-diff',
+        name: '文本对比',
+        nameEn: 'text-diff',
+        icon: '↔️',
+        description: '对比两段文本差异，行级与行内高亮',
+        aliases: ['diff','对比','比较','差异','duibi','bijiao'],
+        path: '/text/text-diff',
+        component: () => import('../views/tools/text/TextDiff.vue'),
+        meta: {
+          title: '文本对比工具 - 在线Diff文本差异对比',
+          description: '免费的在线文本对比工具，行级差异与行内字符高亮，支持忽略空白/大小写、统一与双栏视图，纯本地运行不上传服务器',
+          keywords: '文本对比,Diff,在线对比,差异比较,文本差异'
+        }
       }
     ]
   },
