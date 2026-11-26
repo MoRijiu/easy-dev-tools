@@ -92,6 +92,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'cron-parser',
+        name: 'Cron表达式解析',
+        nameEn: 'cron-parser',
+        icon: '⏱️',
+        description: '解析Cron表达式含义并预览执行时间',
+        aliases: ['cron','crontab','定时','表达式','定时任务','dingshi'],
+        path: '/converter/cron-parser',
+        component: () => import('../views/tools/converter/CronParser.vue'),
+        meta: {
+          title: 'Cron表达式解析工具 - 在线解析Cron定时表达式',
+          description: '免费的在线Cron表达式解析工具，逐字段说明含义并预览未来执行时间，支持5/6/7字段与@daily别名，纯本地计算',
+          keywords: 'Cron解析,Cron表达式,crontab,定时任务'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
