@@ -158,6 +158,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'port-finder',
+        name: '常用端口查询',
+        nameEn: 'port-finder',
+        icon: '🔌',
+        description: '按端口号或服务名速查常用端口、协议与安全提示',
+        aliases: ['port','端口','服务端口','3306','6379','ssh','duankou','fuwu'],
+        path: '/text/port-finder',
+        component: () => import('../views/tools/text/PortFinder.vue'),
+        meta: {
+          title: '常用端口查询工具 - 在线速查服务端口与协议',
+          description: '免费的在线常用端口查询工具，按端口号、服务名或中文用途速查协议、服务说明与安全提示，并判定任意端口所属段，纯本地运行不上传服务器',
+          keywords: '常用端口,端口查询,3306,6379,服务端口,TCP端口,UDP端口'
+        }
+      },
+      {
         id: 'encoding-converter',
         name: '编码转换',
         nameEn: 'encoding-converter',
