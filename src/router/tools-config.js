@@ -351,6 +351,21 @@ export const toolGroups = [
           description: '免费的在线全角半角转换工具，全角字母、数字、标点与半角互转，可按数字/字母/标点/空格分类选择，清理中文输入法混入的全角字符，纯本地运行不上传服务器',
           keywords: '全角半角转换,全角转半角,半角转全角,fullwidth,halfwidth'
         }
+      },
+      {
+        id: 'slug-generator',
+        name: 'URL Slug生成',
+        nameEn: 'slug-generator',
+        icon: '🔗',
+        description: '把标题转成URL友好的slug，支持批量与重名加序号',
+        aliases: ['slug','url','链接','标题转url','slugify','biaoti'],
+        path: '/text/slug-generator',
+        component: () => import('../views/tools/text/SlugGenerator.vue'),
+        meta: {
+          title: 'URL Slug生成工具 - 在线标题转Slug',
+          description: '免费的在线URL Slug生成工具，把标题转成小写连字符slug，去重音、批量生成、重名自动加序号，纯本地运行不上传服务器',
+          keywords: 'Slug生成,URL Slug,slugify,标题转URL,slug generator'
+        }
       }
     ]
   },
