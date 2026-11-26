@@ -23,6 +23,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'jsonpath',
+        name: 'JSONPath查询',
+        nameEn: 'jsonpath',
+        icon: '🧭',
+        description: '用JSONPath表达式从JSON中提取数据，支持通配/递归/切片/过滤',
+        aliases: ['jsonpath','json','路径','查询','提取','lujing','chaxun','tiqu'],
+        path: '/text/jsonpath',
+        component: () => import('../views/tools/text/JsonPathQuery.vue'),
+        meta: {
+          title: 'JSONPath查询工具 - 在线JSONPath表达式测试与数据提取',
+          description: '免费的在线JSONPath查询工具，粘贴JSON写表达式实时提取数据，支持通配、递归下降、切片、联合与条件过滤，纯本地运行不上传服务器',
+          keywords: 'JSONPath,JSONPath查询,JSON提取,JSONPath测试,JSON查询'
+        }
+      },
+      {
         id: 'base64',
         name: 'Base64编解码',
         nameEn: 'base64',
