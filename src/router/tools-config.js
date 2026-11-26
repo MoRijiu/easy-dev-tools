@@ -602,6 +602,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'color-contrast',
+        name: '颜色对比度检查',
+        nameEn: 'color-contrast',
+        icon: '◐',
+        description: '按WCAG计算前景/背景对比度，判定AA/AAA并可一键调整达标',
+        aliases: ['contrast','对比度','wcag','无障碍','颜色','duibidu','yanse'],
+        path: '/converter/color-contrast',
+        component: () => import('../views/tools/converter/ColorContrastChecker.vue'),
+        meta: {
+          title: '颜色对比度检查工具 - 在线WCAG对比度计算与AA/AAA判定',
+          description: '免费的在线颜色对比度检查工具，按WCAG 2.x计算前景与背景对比度，判定普通文本与大字的AA/AAA达标情况，不达标可一键调整前景色，纯本地运行不上传服务器',
+          keywords: '颜色对比度,WCAG,对比度计算,AA,AAA,无障碍'
+        }
+      },
+      {
         id: 'unit-converter',
         name: '单位转换',
         nameEn: 'unit-converter',
