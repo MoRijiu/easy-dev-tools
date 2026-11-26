@@ -21,13 +21,13 @@ defineProps({
 .usage-guide {
   margin-top: 40px;
   padding: 30px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 12px;
 }
 
 .usage-guide h2 {
   font-size: 1.8rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 20px;
 }
 
@@ -37,7 +37,7 @@ defineProps({
 
 .usage-guide li {
   margin-bottom: 12px;
-  color: #555;
+  color: var(--text-2);
   line-height: 1.8;
 }
 </style>

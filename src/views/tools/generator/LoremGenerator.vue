@@ -297,20 +297,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -318,7 +318,7 @@ h1 {
 
 /* 设置区域 */
 .settings-section {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
   padding: 20px;
   margin: 20px 0;
@@ -333,7 +333,7 @@ h1 {
 .setting-item label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 8px;
 }
 
@@ -341,10 +341,10 @@ h1 {
 .setting-item input[type="number"] {
   width: 100%;
   padding: 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
-  background: white;
+  background: var(--surface);
   box-sizing: border-box;
 }
 
@@ -375,7 +375,7 @@ h1 {
 
 /* 输出区域 */
 .output-section {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 30px;
@@ -390,17 +390,17 @@ h1 {
 
 .output-header h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .text-stats {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
 .text-output-wrapper {
-  background: white;
-  border: 2px solid #e0e0e0;
+  background: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   min-height: 200px;
   max-height: 400px;
@@ -413,7 +413,7 @@ h1 {
   font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
   font-size: 15px;
   line-height: 1.8;
-  color: #2c3e50;
+  color: var(--text-strong);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -423,7 +423,7 @@ h1 {
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  color: #999;
+  color: var(--text-3);
   font-size: 16px;
 }
 

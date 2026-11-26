@@ -421,20 +421,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -444,14 +444,14 @@ h1 {
 .algorithm-section {
   margin-bottom: 24px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
 }
 
 .section-label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 12px;
 }
 
@@ -464,9 +464,9 @@ h1 {
 
 .algo-btn {
   padding: 10px 20px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
@@ -513,7 +513,7 @@ h1 {
 
 .results-title {
   font-size: 18px;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 16px;
 }
 
@@ -523,10 +523,10 @@ h1 {
 }
 
 .result-card {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
   padding: 16px 20px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
 }
 
 .result-header {
@@ -549,9 +549,9 @@ h1 {
 
 .case-btn {
   padding: 6px 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   font-weight: 600;
   font-size: 12px;
@@ -581,10 +581,10 @@ h1 {
 .result-value {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 14px;
-  color: #333;
+  color: var(--text);
   word-break: break-all;
   line-height: 1.6;
-  background: white;
+  background: var(--surface);
   padding: 12px;
   border-radius: 6px;
 }

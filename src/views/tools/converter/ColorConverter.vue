@@ -423,20 +423,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -449,7 +449,7 @@ h1 {
   gap: 24px;
   margin-bottom: 24px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
 }
 
@@ -482,7 +482,7 @@ h1 {
 
 .color-picker-wrapper label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .color-picker {
@@ -502,10 +502,10 @@ h1 {
 }
 
 .color-input-card {
-  background: #f8f9fa;
+  background: var(--bg);
   padding: 20px;
   border-radius: 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   transition: border-color 0.3s;
 }
 
@@ -517,7 +517,7 @@ h1 {
   display: block;
   font-weight: 700;
   font-size: 16px;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 12px;
 }
 
@@ -530,7 +530,7 @@ h1 {
 .color-input {
   flex: 1;
   padding: 12px 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -548,7 +548,7 @@ h1 {
 .cmyk-inputs input {
   width: 70px;
   padding: 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -582,7 +582,7 @@ h1 {
   display: block;
   margin-top: 8px;
   font-size: 12px;
-  color: #999;
+  color: var(--text-3);
 }
 
 /* 响应式设计 */

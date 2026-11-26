@@ -86,7 +86,7 @@ const goBack = () => {
 }
 
 .back-button {
-  background: #f8f9fa;
+  background: var(--bg);
   border: 1px solid #dee2e6;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -98,7 +98,7 @@ const goBack = () => {
 }
 
 .back-button:hover {
-  background: #e9ecef;
+  background: var(--bg-soft);
   border-color: #adb5bd;
 }
 
@@ -115,18 +115,18 @@ const goBack = () => {
 
 .tool-title h1 {
   font-size: 2rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin: 0;
 }
 
 .tool-description {
   font-size: 1.1rem;
-  color: #7f8c8d;
+  color: var(--text-2);
   margin: 0;
 }
 
 .tool-content {
-  background: #fff;
+  background: var(--surface);
   border-radius: 12px;
   padding: 3rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -138,7 +138,7 @@ const goBack = () => {
 
 .placeholder {
   text-align: center;
-  color: #7f8c8d;
+  color: var(--text-2);
 }
 
 .placeholder p:first-child {

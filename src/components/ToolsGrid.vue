@@ -101,7 +101,7 @@ const navigateToTool = (tool) => {
 .tools-section {
   flex: 1;
   padding: 48px 0;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .container {
@@ -118,14 +118,14 @@ const navigateToTool = (tool) => {
 .title {
   font-size: 36px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 12px 0;
   letter-spacing: -0.5px;
 }
 
 .subtitle {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--text-2);
   margin: 0;
   line-height: 1.6;
 }
@@ -137,8 +137,8 @@ const navigateToTool = (tool) => {
 }
 
 .tool-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 32px 24px;
   transition: all 0.3s ease;
@@ -168,13 +168,13 @@ const navigateToTool = (tool) => {
 .tool-name {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 8px 0;
 }
 
 .tool-desc {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-2);
   margin: 0 0 20px 0;
   line-height: 1.6;
   flex: 1;

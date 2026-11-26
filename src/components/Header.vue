@@ -35,6 +35,15 @@
         </div>
       </div>
       <nav class="nav">
+        <button
+          class="theme-toggle"
+          type="button"
+          :title="`主题：${themeLabel}（点击切换）`"
+          :aria-label="`切换主题，当前${themeLabel}`"
+          @click="cycle"
+        >
+          {{ themeIcon }}
+        </button>
         <router-link to="/" class="nav-link">首页</router-link>
         <router-link to="/about" class="nav-link">关于</router-link>
         <router-link to="/about#support" class="nav-link support-link">
@@ -47,11 +56,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { toolGroups } from '../router/tools-config'
+import { useTheme } from '../composables/useTheme'
 
 const route = useRoute()
+const { mode, cycle } = useTheme()
+const themeIcon = computed(() => (mode.value === 'dark' ? '🌙' : mode.value === 'light' ? '☀️' : '🖥️'))
+const themeLabel = computed(() =>
+  mode.value === 'dark' ? '暗色' : mode.value === 'light' ? '亮色' : '跟随系统'
+)
 const showDropdown = ref(false)
 let hideTimeout = null
 
@@ -78,8 +93,8 @@ const isCurrentTool = (path) => {
 
 <style scoped>
 .header {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -108,7 +123,7 @@ const isCurrentTool = (path) => {
   gap: 8px;
   font-size: 20px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   cursor: pointer;
   user-select: none;
   text-decoration: none;
@@ -135,8 +150,27 @@ const isCurrentTool = (path) => {
   align-items: center;
 }
 
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
 .nav-link {
-  color: #6b7280;
+  color: var(--text-2);
   text-decoration: none;
   font-size: 15px;
   font-weight: 500;
@@ -145,7 +179,7 @@ const isCurrentTool = (path) => {
 }
 
 .nav-link:hover {
-  color: #1f2937;
+  color: var(--text);
 }
 
 .nav-link.router-link-active {
@@ -169,7 +203,7 @@ const isCurrentTool = (path) => {
   padding: 6px 12px;
   background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
   border-radius: 6px;
-  color: #2c3e50 !important;
+  color: var(--text-strong) !important;
   font-weight: 600;
   transition: all 0.3s ease;
 }
@@ -198,13 +232,13 @@ const isCurrentTool = (path) => {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
-  color: #4b5563;
+  color: var(--text-2);
   font-weight: 500;
 }
 
@@ -232,7 +266,7 @@ const isCurrentTool = (path) => {
   top: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   padding: 20px;
@@ -264,7 +298,7 @@ const isCurrentTool = (path) => {
 }
 
 .tool-group {
-  background: #f9fafb;
+  background: var(--bg-softer);
   border-radius: 8px;
   padding: 12px;
 }
@@ -275,7 +309,7 @@ const isCurrentTool = (path) => {
   gap: 8px;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .group-icon {
@@ -285,7 +319,7 @@ const isCurrentTool = (path) => {
 .group-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .group-tools {
@@ -301,14 +335,14 @@ const isCurrentTool = (path) => {
   padding: 8px 12px;
   border-radius: 6px;
   text-decoration: none;
-  color: #4b5563;
+  color: var(--text-2);
   font-size: 14px;
   transition: all 0.2s;
   background: transparent;
 }
 
 .tool-item:hover {
-  background: #ffffff;
+  background: var(--surface);
   color: #667eea;
   transform: translateX(4px);
 }

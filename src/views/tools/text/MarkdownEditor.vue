@@ -417,11 +417,11 @@ const exportHtml = () => {
   <title>Markdown Document</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-    pre { background: #f5f5f5; padding: 15px; border-radius: 6px; overflow-x: auto; }
-    code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
-    blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 20px; color: #666; }
+    pre { background: var(--bg-soft); padding: 15px; border-radius: 6px; overflow-x: auto; }
+    code { background: var(--bg-soft); padding: 2px 6px; border-radius: 3px; }
+    blockquote { border-left: 4px solid var(--border); margin: 0; padding-left: 20px; color: var(--text-2); }
     table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
     img { max-width: 100%; }
   </style>
 </head>
@@ -519,20 +519,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -540,13 +540,13 @@ h1 {
 
 /* Markdown 预览样式 */
 :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
-  color: #2c3e50;
+  color: var(--text-strong);
   margin: 1em 0 0.5em;
   font-weight: 600;
 }
 
-:deep(h1) { font-size: 2em; border-bottom: 2px solid #eee; padding-bottom: 0.3em; }
-:deep(h2) { font-size: 1.5em; border-bottom: 1px solid #eee; padding-bottom: 0.3em; }
+:deep(h1) { font-size: 2em; border-bottom: 2px solid var(--border); padding-bottom: 0.3em; }
+:deep(h2) { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
 :deep(h3) { font-size: 1.25em; }
 :deep(h4) { font-size: 1em; }
 
@@ -556,17 +556,17 @@ h1 {
 
 :deep(strong) {
   font-weight: 700;
-  color: #333;
+  color: var(--text);
 }
 
 :deep(em) {
   font-style: italic;
-  color: #555;
+  color: var(--text-2);
 }
 
 :deep(del) {
   text-decoration: line-through;
-  color: #999;
+  color: var(--text-3);
 }
 
 :deep(a) {
@@ -582,8 +582,8 @@ h1 {
   border-left: 4px solid #667eea;
   margin: 1em 0;
   padding: 0.5em 1em;
-  background: #f8f9fa;
-  color: #666;
+  background: var(--bg);
+  color: var(--text-2);
 }
 
 :deep(ul), :deep(ol) {
@@ -608,7 +608,7 @@ h1 {
 }
 
 :deep(.inline-code) {
-  background: #f0f0f0;
+  background: var(--bg-soft);
   color: #e83e8c;
   padding: 2px 6px;
   border-radius: 4px;
@@ -618,7 +618,7 @@ h1 {
 
 :deep(hr) {
   border: none;
-  border-top: 2px solid #eee;
+  border-top: 2px solid var(--border);
   margin: 2em 0;
 }
 
@@ -631,18 +631,18 @@ h1 {
 
 :deep(.md-table th),
 :deep(.md-table td) {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   padding: 10px 15px;
   text-align: left;
 }
 
 :deep(.md-table th) {
-  background: #f5f5f5;
+  background: var(--bg-soft);
   font-weight: 600;
 }
 
 :deep(.md-table tr:nth-child(even)) {
-  background: #fafafa;
+  background: var(--bg-soft);
 }
 
 :deep(.md-image) {

@@ -131,11 +131,11 @@ onMounted(() => {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   margin: 0 0.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--danmaku-bg);
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   transition: all 0.3s ease;
   cursor: pointer;
   text-decoration: none;

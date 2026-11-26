@@ -554,20 +554,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -580,7 +580,7 @@ h1 {
   gap: 10px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--border);
 }
 
 .tab-btn {
@@ -588,9 +588,9 @@ h1 {
   align-items: center;
   gap: 6px;
   padding: 10px 18px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;
@@ -598,7 +598,7 @@ h1 {
 
 .tab-btn:hover {
   border-color: #667eea;
-  background: #f8f9ff;
+  background: var(--accent-soft);
 }
 
 .tab-btn.active {
@@ -621,10 +621,10 @@ h1 {
 
 .converter-panel {
   flex: 1;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 12px;
   padding: 20px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
 }
 
 .panel-header {
@@ -636,16 +636,16 @@ h1 {
 
 .panel-header label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   font-size: 16px;
 }
 
 .unit-select {
   padding: 8px 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   min-width: 180px;
 }
@@ -658,7 +658,7 @@ h1 {
 .value-input {
   width: 100%;
   padding: 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 24px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -673,8 +673,8 @@ h1 {
 .value-output {
   width: 100%;
   padding: 16px;
-  background: white;
-  border: 2px solid #e0e0e0;
+  background: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 24px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -705,7 +705,7 @@ h1 {
 
 .quick-conversions h3 {
   font-size: 16px;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 12px;
 }
 
@@ -719,7 +719,7 @@ h1 {
   padding: 8px 16px;
   border: 1px solid #667eea;
   border-radius: 20px;
-  background: white;
+  background: var(--surface);
   color: #667eea;
   font-size: 13px;
   cursor: pointer;
@@ -733,7 +733,7 @@ h1 {
 
 /* 公式说明 */
 .formula-info {
-  background: #f0f4ff;
+  background: var(--accent-soft);
   border-radius: 8px;
   padding: 16px 20px;
   margin-bottom: 24px;
@@ -747,7 +747,7 @@ h1 {
 
 .formula-content {
   font-family: 'Consolas', 'Monaco', monospace;
-  color: #2c3e50;
+  color: var(--text-strong);
   font-size: 15px;
 }
 
@@ -758,7 +758,7 @@ h1 {
 
 .unit-reference h3 {
   font-size: 18px;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 16px;
 }
 
@@ -773,13 +773,13 @@ h1 {
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 6px;
   font-size: 14px;
 }
 
 .unit-name {
-  color: #2c3e50;
+  color: var(--text-strong);
   font-weight: 500;
 }
 

@@ -283,20 +283,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -304,7 +304,7 @@ h1 {
 
 /* 设置区域 */
 .settings-section {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
   padding: 20px;
   margin: 20px 0;
@@ -320,7 +320,7 @@ h1 {
 .setting-item label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 8px;
 }
 
@@ -334,14 +334,14 @@ h1 {
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: #e0e0e0;
+  background: var(--border);
   cursor: pointer;
 }
 
 .length-input {
   width: 70px;
   padding: 8px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   text-align: center;
   font-size: 16px;
@@ -350,7 +350,7 @@ h1 {
 .setting-item input[type="number"] {
   width: 100%;
   padding: 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
 }
@@ -367,14 +367,14 @@ h1 {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .checkbox-label:hover {
-  background: #e8f4fd;
+  background: var(--accent-soft);
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -386,14 +386,14 @@ h1 {
 .exclude-section label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 8px;
 }
 
 .exclude-section input {
   width: 100%;
   padding: 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
   box-sizing: border-box;
@@ -406,19 +406,19 @@ h1 {
   gap: 12px;
   margin: 20px 0;
   padding: 16px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
 }
 
 .strength-indicator label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .strength-bar {
   flex: 1;
   height: 10px;
-  background: #e0e0e0;
+  background: var(--border);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -443,7 +443,7 @@ h1 {
 
 /* 输出区域 */
 .output-section {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 30px;
@@ -458,11 +458,11 @@ h1 {
 
 .output-header h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .password-count {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
@@ -477,9 +477,9 @@ h1 {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
 }
 
 .password-text {
@@ -487,7 +487,7 @@ h1 {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 16px;
   word-break: break-all;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .copy-btn {
@@ -507,7 +507,7 @@ h1 {
 
 .placeholder {
   text-align: center;
-  color: #999;
+  color: var(--text-3);
   padding: 40px;
   font-size: 16px;
 }
