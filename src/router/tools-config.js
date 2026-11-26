@@ -821,6 +821,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'ulid',
+        name: 'ULID生成/解析',
+        nameEn: 'ulid',
+        icon: '🔢',
+        description: '生成按时间可排序的ULID并解析内嵌时间戳，支持批量与单调递增',
+        aliases: ['ulid','排序id','时间有序id','有序唯一id'],
+        path: '/generator/ulid',
+        component: () => import('../views/tools/generator/UlidTool.vue'),
+        meta: {
+          title: 'ULID生成/解析工具 - 在线生成时间可排序的唯一ID',
+          description: '免费的在线ULID工具，生成26位时间可排序唯一ID，支持指定时间戳、批量与同毫秒单调递增，并可解析任意ULID的内嵌时间与随机段，纯本地运行不上传服务器',
+          keywords: 'ULID生成器,ULID解析,时间有序ID,可排序唯一ID,Crockford Base32'
+        }
+      },
+      {
         id: 'qrcode',
         name: '二维码生成',
         nameEn: 'qrcode',
