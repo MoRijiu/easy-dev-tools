@@ -708,6 +708,21 @@ export const toolGroups = [
           description: '免费的在线JWT解码工具，本地解析Header、Payload与签名，自动校验exp过期时间，不上传服务器',
           keywords: 'JWT解码,JWT解析,JWT Token,令牌解析'
         }
+      },
+      {
+        id: 'jwt-encoder',
+        name: 'JWT生成',
+        nameEn: 'jwt-encoder',
+        icon: '✍️',
+        description: '用HMAC密钥本地签名生成JWT Token',
+        aliases: ['jwt','token','令牌','生成','签名','shengcheng','qianming'],
+        path: '/crypto/jwt-encoder',
+        component: () => import('../views/tools/crypto/JwtEncoder.vue'),
+        meta: {
+          title: 'JWT生成工具 - 在线HMAC签名生成JWT Token',
+          description: '免费的在线JWT生成工具，支持HS256/HS384/HS512本地签名、有效期快捷设置与签名自检，密钥不上传服务器',
+          keywords: 'JWT生成,JWT签名,HS256,Token生成'
+        }
       }
     ]
   },
