@@ -542,6 +542,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'rmb-capital',
+        name: '金额大写转换',
+        nameEn: 'rmb-capital',
+        icon: '💴',
+        description: '数字金额转人民币大写，处理各级零与角分规则',
+        aliases: ['rmb','金额','大写','人民币','财务','jin e','daxie','renminbi'],
+        path: '/converter/rmb-capital',
+        component: () => import('../views/tools/converter/RmbCapitalConverter.vue'),
+        meta: {
+          title: '金额大写转换工具 - 在线人民币金额转大写',
+          description: '免费的在线金额大写转换工具，数字金额转财务规范的人民币大写，正确处理各级零、角分与整，字符串精确计算，纯本地运行不上传服务器',
+          keywords: '金额大写,人民币大写,金额转大写,财务大写,大写转换'
+        }
+      },
+      {
         id: 'json-to-ts',
         name: 'JSON转TypeScript',
         nameEn: 'json-to-ts',
