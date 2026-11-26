@@ -332,6 +332,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'toml-json',
+        name: 'TOML/JSON 互转',
+        nameEn: 'toml-json',
+        icon: '🧾',
+        description: 'TOML 与 JSON 双向转换，支持表/数组表/点分键，错误定位到行',
+        aliases: ['toml','json','配置','互转','peizhi','huzhuan'],
+        path: '/converter/toml-json',
+        component: () => import('../views/tools/converter/TomlJsonConverter.vue'),
+        meta: {
+          title: 'TOML/JSON互转工具 - 在线TOML与JSON双向转换',
+          description: '免费的在线TOML/JSON互转工具，支持表、数组表、点分键、多行字符串与日期时间，错误定位到行，纯本地运行不上传服务器',
+          keywords: 'TOML转JSON,JSON转TOML,TOML解析,TOML工具,配置转换'
+        }
+      },
+      {
         id: 'xml-formatter',
         name: 'XML格式化',
         nameEn: 'xml-formatter',
