@@ -13,6 +13,7 @@ export const toolGroups = [
         nameEn: 'json-formatter',
         icon: '{ }',
         description: '格式化和验证JSON数据',
+        aliases: ['json','格式化','美化','校验','geshihua','meihua'],
         path: '/text/json-formatter',
         component: () => import('../views/tools/text/JsonFormatter.vue'),
         meta: {
@@ -27,6 +28,7 @@ export const toolGroups = [
         nameEn: 'base64',
         icon: '🔐',
         description: 'Base64编码和解码工具',
+        aliases: ['base64','编码','解码','bianma','jiema'],
         path: '/text/base64',
         component: () => import('../views/tools/text/Base64Encoder.vue'),
         meta: {
@@ -41,6 +43,7 @@ export const toolGroups = [
         nameEn: 'url-encode',
         icon: '🔗',
         description: 'URL编码和解码工具',
+        aliases: ['url','链接','编码','解码','encode','decode'],
         path: '/text/url-encode',
         component: () => import('../views/tools/text/UrlEncoder.vue'),
         meta: {
@@ -55,6 +58,7 @@ export const toolGroups = [
         nameEn: 'markdown',
         icon: '📄',
         description: '实时预览的Markdown编辑器',
+        aliases: ['markdown','md','编辑器','预览','bianjiqi'],
         path: '/text/markdown',
         component: () => import('../views/tools/text/MarkdownEditor.vue'),
         meta: {
@@ -78,6 +82,7 @@ export const toolGroups = [
         nameEn: 'timestamp',
         icon: '⏰',
         description: '时间戳与日期时间互转',
+        aliases: ['timestamp','时间戳','日期','unix','shijianchuo'],
         path: '/converter/timestamp',
         component: () => import('../views/tools/converter/TimestampConverter.vue'),
         meta: {
@@ -92,6 +97,7 @@ export const toolGroups = [
         nameEn: 'color-converter',
         icon: '🎨',
         description: 'RGB、HEX、HSL颜色转换',
+        aliases: ['color','颜色','rgb','hex','hsl','yanse'],
         path: '/converter/color-converter',
         component: () => import('../views/tools/converter/ColorConverter.vue'),
         meta: {
@@ -106,6 +112,7 @@ export const toolGroups = [
         nameEn: 'unit-converter',
         icon: '📏',
         description: '长度、重量等单位转换',
+        aliases: ['unit','单位','长度','重量','温度','danwei'],
         path: '/converter/unit-converter',
         component: () => import('../views/tools/converter/UnitConverter.vue'),
         meta: {
@@ -129,6 +136,7 @@ export const toolGroups = [
         nameEn: 'uuid',
         icon: '🆔',
         description: '生成UUID/GUID',
+        aliases: ['uuid','guid','唯一标识','shengcheng'],
         path: '/generator/uuid',
         component: () => import('../views/tools/generator/UuidGenerator.vue'),
         meta: {
@@ -143,6 +151,7 @@ export const toolGroups = [
         nameEn: 'qrcode',
         icon: '📱',
         description: '生成二维码图片',
+        aliases: ['qrcode','qr','二维码','erweima'],
         path: '/generator/qrcode',
         component: () => import('../views/tools/generator/QrcodeGenerator.vue'),
         meta: {
@@ -157,6 +166,7 @@ export const toolGroups = [
         nameEn: 'password',
         icon: '🔑',
         description: '生成安全的随机密码',
+        aliases: ['password','密码','随机密码','mima'],
         path: '/generator/password',
         component: () => import('../views/tools/generator/PasswordGenerator.vue'),
         meta: {
@@ -171,6 +181,7 @@ export const toolGroups = [
         nameEn: 'lorem-ipsum',
         icon: '📃',
         description: '生成Lorem Ipsum占位文本',
+        aliases: ['lorem','ipsum','占位','假文本','zhanwei'],
         path: '/generator/lorem-ipsum',
         component: () => import('../views/tools/generator/LoremGenerator.vue'),
         meta: {
@@ -194,6 +205,7 @@ export const toolGroups = [
         nameEn: 'hash',
         icon: '#️⃣',
         description: 'MD5、SHA1、SHA256等哈希计算',
+        aliases: ['hash','md5','sha1','sha256','哈希','haxi'],
         path: '/crypto/hash',
         component: () => import('../views/tools/crypto/HashCalculator.vue'),
         meta: {
@@ -208,6 +220,7 @@ export const toolGroups = [
         nameEn: 'aes',
         icon: '🛡️',
         description: 'AES对称加密解密',
+        aliases: ['aes','加密','解密','jiami','jiemi'],
         path: '/crypto/aes',
         component: () => import('../views/tools/crypto/AesEncryption.vue'),
         meta: {
@@ -231,6 +244,7 @@ export const toolGroups = [
         nameEn: 'image-compress',
         icon: '📦',
         description: '在线压缩图片大小',
+        aliases: ['image','图片','压缩','yasuo','tupian'],
         path: '/image/image-compress',
         component: () => import('../views/tools/image/ImageCompress.vue'),
         meta: {
@@ -245,6 +259,7 @@ export const toolGroups = [
         nameEn: 'image-converter',
         icon: '🔄',
         description: '转换图片格式',
+        aliases: ['image','图片','格式转换','webp','png','jpg','geshi'],
         path: '/image/image-converter',
         component: () => import('../views/tools/image/ImageConverter.vue'),
         meta: {
@@ -286,3 +301,16 @@ export const generateRoutes = () => {
   
   return routes
 }
+// 按关键词搜索工具：匹配名称/英文名/描述/关键词/别名/所属分类（大小写不敏感）
+export const searchTools = (keyword) => {
+  const q = (keyword || '').trim().toLowerCase()
+  if (!q) return toolGroups
+  return toolGroups.map(group => ({
+    ...group,
+    tools: group.tools.filter(tool => {
+      const hay = [tool.name, tool.nameEn, tool.description, tool.meta?.keywords || '', group.name, ...(tool.aliases || [])].join(' ').toLowerCase()
+      return q.split(/\s+/).every(part => hay.includes(part))
+    })
+  })).filter(group => group.tools.length > 0)
+}
+export const totalToolCount = getAllTools().length
