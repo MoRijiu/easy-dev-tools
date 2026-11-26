@@ -49,8 +49,8 @@ const currentTool = computed(() => getToolByPath(route.path))
   display: flex;
   align-items: center;
   gap: .75rem;
-  background: #fff;
-  border: 1px solid #eceef1;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: .45rem .8rem;
   margin-bottom: 1rem;
@@ -58,8 +58,8 @@ const currentTool = computed(() => getToolByPath(route.path))
 }
 .tool-bar-back { color: #667eea; text-decoration: none; white-space: nowrap; }
 .tool-bar-back:hover { text-decoration: underline; }
-.tool-bar-name { color: #2c3e50; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tool-bar-fav { display: inline-flex; align-items: center; gap: .15rem; color: #7f8c8d; white-space: nowrap; }
+.tool-bar-name { color: var(--text-strong); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tool-bar-fav { display: inline-flex; align-items: center; gap: .15rem; color: var(--text-2); white-space: nowrap; }
 
 @media (max-width: 768px) {
   .main-content {

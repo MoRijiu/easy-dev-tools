@@ -56,7 +56,7 @@ const handleUseExample = (example) => {
 
 .examples h2 {
   font-size: 1.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -68,7 +68,7 @@ const handleUseExample = (example) => {
 }
 
 .example-item {
-  background: white;
+  background: var(--surface);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -86,7 +86,7 @@ const handleUseExample = (example) => {
   gap: 10px;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 
 .example-number {
@@ -99,7 +99,7 @@ const handleUseExample = (example) => {
 }
 
 .example-desc {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
@@ -116,7 +116,7 @@ const handleUseExample = (example) => {
 .label {
   min-width: 45px;
   font-weight: 600;
-  color: #555;
+  color: var(--text-2);
   font-size: 13px;
 }
 
@@ -131,13 +131,13 @@ const handleUseExample = (example) => {
 }
 
 .input-value {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  color: #333;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
 }
 
 .output-value {
-  background: #e8f5e9;
+  background: var(--success-soft);
   border: 1px solid #c8e6c9;
   color: #2e7d32;
 }

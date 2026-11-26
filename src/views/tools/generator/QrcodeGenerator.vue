@@ -441,20 +441,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -476,7 +476,7 @@ h1 {
 }
 
 .input-card, .options-card, .preview-card {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
   padding: 20px;
 }
@@ -484,14 +484,14 @@ h1 {
 .input-label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
 }
 
 .text-input {
   width: 100%;
   padding: 12px;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
   resize: vertical;
@@ -508,7 +508,7 @@ h1 {
   display: block;
   text-align: right;
   font-size: 0.85rem;
-  color: #999;
+  color: var(--text-3);
   margin-top: 6px;
 }
 
@@ -516,7 +516,7 @@ h1 {
 .options-card h3 {
   margin: 0 0 16px 0;
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .options-grid {
@@ -533,14 +533,14 @@ h1 {
 
 .option-item label {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-2);
   font-weight: 500;
 }
 
 .option-item input[type="number"],
 .option-item select {
   padding: 8px 12px;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--border);
   border-radius: 6px;
   font-size: 0.95rem;
 }
@@ -561,14 +561,14 @@ h1 {
   width: 40px;
   height: 32px;
   padding: 0;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--border);
   border-radius: 6px;
   cursor: pointer;
 }
 
 .color-input-wrapper span {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-2);
   font-family: monospace;
 }
 
@@ -587,7 +587,7 @@ h1 {
 .preview-card h3 {
   margin: 0 0 16px 0;
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .preview-box {
@@ -595,8 +595,8 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  border: 2px dashed #e1e5e9;
+  background: var(--surface);
+  border: 2px dashed var(--border);
   border-radius: 10px;
   min-height: 300px;
   padding: 20px;
@@ -611,7 +611,7 @@ h1 {
 
 .placeholder {
   text-align: center;
-  color: #999;
+  color: var(--text-3);
 }
 
 .placeholder-icon {
@@ -676,7 +676,7 @@ h1 {
   height: 60px;
   object-fit: cover;
   border-radius: 8px;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--border);
 }
 
 .logo-options {
@@ -684,9 +684,9 @@ h1 {
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   padding: 16px;
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
-  border: 1px solid #e1e5e9;
+  border: 1px solid var(--border);
 }
 
 .logo-options .option-item {
@@ -703,7 +703,7 @@ h1 {
   flex: 1;
   height: 6px;
   -webkit-appearance: none;
-  background: #e1e5e9;
+  background: var(--border);
   border-radius: 3px;
   outline: none;
 }
@@ -721,7 +721,7 @@ h1 {
   min-width: 40px;
   text-align: right;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-2);
   font-family: monospace;
 }
 
@@ -744,10 +744,10 @@ h1 {
 
 .logo-tip {
   font-size: 0.85rem;
-  color: #999;
+  color: var(--text-3);
   margin: 0;
   padding: 10px;
-  background: #fff8e1;
+  background: var(--warn-soft);
   border-radius: 6px;
   border-left: 3px solid #ffc107;
 }

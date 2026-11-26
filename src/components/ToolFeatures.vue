@@ -32,12 +32,12 @@ defineProps({
 .features {
   margin-top: 50px;
   padding-top: 40px;
-  border-top: 2px solid #f0f0f0;
+  border-top: 2px solid var(--border);
 }
 
 .features h2 {
   font-size: 2rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 30px;
   text-align: center;
 }
@@ -69,12 +69,12 @@ defineProps({
 
 .feature-item h3 {
   font-size: 1.2rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
 }
 
 .feature-item p {
-  color: #666;
+  color: var(--text-2);
   font-size: 0.95rem;
   line-height: 1.6;
 }

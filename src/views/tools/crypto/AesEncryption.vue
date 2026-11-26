@@ -422,20 +422,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -454,9 +454,9 @@ h1 {
 
 .mode-tab {
   padding: 14px 40px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 10px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
@@ -480,7 +480,7 @@ h1 {
 .config-section {
   margin-bottom: 24px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
 }
 
@@ -498,16 +498,16 @@ h1 {
 
 .config-item label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   font-size: 14px;
 }
 
 .config-item select {
   padding: 10px 14px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
-  background: white;
+  background: var(--surface);
   cursor: pointer;
 }
 
@@ -520,7 +520,7 @@ h1 {
 .key-section {
   margin-bottom: 24px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
 }
 
@@ -535,7 +535,7 @@ h1 {
 
 .section-label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .key-actions {
@@ -569,7 +569,7 @@ h1 {
 .iv-input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -591,7 +591,7 @@ h1 {
 
 .iv-row label {
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--text-strong);
   font-size: 14px;
 }
 

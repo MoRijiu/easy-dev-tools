@@ -31,6 +31,6 @@ const { isFavorite, toggleFavorite } = useToolPrefs()
   padding: .2rem .3rem;
   border-radius: 6px;
 }
-.fav-btn:hover { color: #f5a623; background: #fff7e6; }
+.fav-btn:hover { color: #f5a623; background: var(--warn-soft); }
 .fav-btn.active { color: #f5a623; }
 </style>

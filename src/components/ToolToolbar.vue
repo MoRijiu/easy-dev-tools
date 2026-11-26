@@ -20,7 +20,7 @@
   gap: 10px;
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--border);
   align-items: center;
 }
 
@@ -95,13 +95,13 @@
 
 :deep(.btn-tool) {
   padding: 8px 12px;
-  background: #f5f5f5;
-  color: #333;
+  background: var(--bg-soft);
+  color: var(--text);
   font-weight: 600;
 }
 
 :deep(.btn-tool:hover) {
-  background: #e0e0e0;
+  background: var(--border);
 }
 
 :deep(.icon) {
@@ -127,7 +127,7 @@
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-2);
   cursor: pointer;
 }
 
@@ -137,7 +137,7 @@
 
 :deep(.options input[type="number"]) {
   padding: 4px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 4px;
   font-size: 14px;
 }

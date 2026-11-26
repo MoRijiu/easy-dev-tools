@@ -128,8 +128,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .footer {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-top: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, var(--bg-softer) 0%, var(--bg-soft) 100%);
+  border-top: 1px solid var(--border);
   margin-top: auto;
   position: relative;
   overflow: hidden;
@@ -192,12 +192,12 @@ onBeforeUnmount(() => {
 .footer-logo {
   font-size: 20px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-strong);
   letter-spacing: -0.5px;
 }
 
 .footer-desc {
-  color: #64748b;
+  color: var(--text-2);
   font-size: 14px;
   margin: 0;
   line-height: 1.6;
@@ -205,7 +205,7 @@ onBeforeUnmount(() => {
 }
 
 .footer-motto {
-  color: #94a3b8;
+  color: var(--text-3);
   font-size: 13px;
   margin: 8px 0 0 0;
   font-style: italic;
@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
 .footer-title {
   font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  color: var(--text);
   margin: 0 0 16px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -237,7 +237,7 @@ onBeforeUnmount(() => {
 }
 
 .footer-link {
-  color: #64748b;
+  color: var(--text-2);
   text-decoration: none;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -290,7 +290,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #94a3b8;
+  color: var(--text-3);
   font-size: 12px;
   margin: 0;
 }
@@ -302,7 +302,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-number {
-  color: #64748b;
+  color: var(--text-2);
   font-weight: 600;
   font-family: 'Courier New', monospace;
   transition: color 0.2s ease;
@@ -321,8 +321,8 @@ onBeforeUnmount(() => {
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    #e2e8f0 20%,
-    #e2e8f0 80%,
+    var(--border) 20%,
+    var(--border) 80%,
     transparent 100%
   );
   margin: 32px 0;
@@ -344,7 +344,7 @@ onBeforeUnmount(() => {
 }
 
 .copyright {
-  color: #94a3b8;
+  color: var(--text-3);
   font-size: 13px;
   margin: 0;
   display: flex;
@@ -395,19 +395,19 @@ onBeforeUnmount(() => {
 }
 
 .icp {
-  color: #94a3b8;
+  color: var(--text-3);
   font-size: 12px;
   margin: 0;
 }
 
 .icp-link {
-  color: #94a3b8;
+  color: var(--text-3);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .icp-link:hover {
-  color: #64748b;
+  color: var(--text-2);
 }
 
 .footer-badge {
@@ -417,7 +417,7 @@ onBeforeUnmount(() => {
 }
 
 .badge-item {
-  color: #64748b;
+  color: var(--text-2);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 14px;

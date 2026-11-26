@@ -397,20 +397,20 @@ const examples = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -464,7 +464,7 @@ h1 {
 /* 输入区域 */
 .input-section {
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   min-height: 400px;
 }
 
@@ -475,14 +475,14 @@ h1 {
 .input-group label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 8px;
 }
 
 .text-input-field {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -510,7 +510,7 @@ h1 {
 
 .divider {
   text-align: center;
-  color: #999;
+  color: var(--text-3);
   margin: 24px 0;
   position: relative;
 }
@@ -522,7 +522,7 @@ h1 {
   top: 50%;
   width: 40%;
   height: 1px;
-  background: #e0e0e0;
+  background: var(--border);
 }
 
 .divider::before {
@@ -536,7 +536,7 @@ h1 {
 /* 结果区域 */
 .result-section {
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   min-height: 400px;
 }
 
@@ -545,34 +545,34 @@ h1 {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .result-label {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
 .result-value {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 15px;
-  color: #2c3e50;
+  color: var(--text-strong);
   font-weight: 600;
 }
 
 .placeholder {
   padding: 20px;
-  color: #999;
+  color: var(--text-3);
   text-align: center;
   font-style: italic;
   min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: var(--bg);
 }
 
 /* 响应式设计 */

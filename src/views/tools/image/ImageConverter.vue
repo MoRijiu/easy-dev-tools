@@ -107,7 +107,7 @@
                 min="10"
                 max="100"
                 step="5"
-                :style="{ background: `linear-gradient(to right, #667eea 0%, #667eea ${quality}%, #e0e0e0 ${quality}%, #e0e0e0 100%)` }"
+                :style="{ background: `linear-gradient(to right, #667eea 0%, #667eea ${quality}%, var(--border) ${quality}%, var(--border) 100%)` }"
               />
               <span class="quality-value">{{ quality }}%</span>
             </div>
@@ -445,20 +445,20 @@ const faqs = [
 
 h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .description {
   text-align: center;
-  color: #666;
+  color: var(--text-2);
   font-size: 1.1rem;
   margin-bottom: 30px;
 }
 
 .tool-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -466,26 +466,26 @@ h1 {
 
 /* 上传区域 */
 .upload-area {
-  border: 3px dashed #e0e0e0;
+  border: 3px dashed var(--border);
   border-radius: 12px;
   padding: 50px 30px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  background: #f8f9fa;
+  background: var(--bg);
   margin-bottom: 24px;
 }
 
 .upload-area:hover,
 .upload-area.dragging {
   border-color: #667eea;
-  background: #f0f4ff;
+  background: var(--accent-soft);
 }
 
 .upload-area.compact {
   padding: 20px;
   border-style: dashed;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
+  background: linear-gradient(135deg, var(--bg) 0%, var(--accent-soft) 100%);
 }
 
 .upload-area.compact .upload-icon {
@@ -506,13 +506,13 @@ h1 {
 
 .upload-text {
   font-size: 18px;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 8px;
 }
 
 .upload-hint {
   font-size: 14px;
-  color: #999;
+  color: var(--text-3);
 }
 
 .upload-images-wrapper {
@@ -523,13 +523,13 @@ h1 {
 .settings-section {
   margin-bottom: 24px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 10px;
 }
 
 .settings-section h3 {
   margin-bottom: 16px;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .settings-grid {
@@ -546,12 +546,12 @@ h1 {
 
 .setting-item label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .setting-item select {
   padding: 10px 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
 }
@@ -603,7 +603,7 @@ h1 {
 .resize-control input {
   width: 80px;
   padding: 10px 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
   text-align: center;
@@ -615,13 +615,13 @@ h1 {
 }
 
 .resize-x {
-  color: #999;
+  color: var(--text-3);
   font-weight: 600;
 }
 
 .setting-hint {
   font-size: 12px;
-  color: #999;
+  color: var(--text-3);
 }
 
 /* 图片列表 */
@@ -644,7 +644,7 @@ h1 {
 
 .images-section h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-strong);
   font-size: 1.1rem;
 }
 
@@ -653,13 +653,13 @@ h1 {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: white;
+  background: var(--surface);
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .format-label {
-  color: #666;
+  color: var(--text-2);
   font-size: 14px;
 }
 
@@ -676,10 +676,10 @@ h1 {
 }
 
 .image-card {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   overflow: hidden;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   transition: all 0.3s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
@@ -693,7 +693,7 @@ h1 {
 .image-preview {
   position: relative;
   height: 150px;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: linear-gradient(135deg, var(--bg-soft) 0%, var(--border) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -773,7 +773,7 @@ h1 {
 
 .image-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -789,11 +789,11 @@ h1 {
 }
 
 .original-size {
-  color: #666;
+  color: var(--text-2);
 }
 
 .arrow {
-  color: #999;
+  color: var(--text-3);
 }
 
 .converted-size {
@@ -805,7 +805,7 @@ h1 {
   display: flex;
   gap: 8px;
   padding: 12px 16px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border);
 }
 
 .action-btn {

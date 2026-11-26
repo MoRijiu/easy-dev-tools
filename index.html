@@ -13,7 +13,24 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <script>
+      // 首屏前确定主题，避免暗色模式闪烁（与 src/composables/useTheme.js 口径一致）
+      (function () {
+        try {
+          var saved = localStorage.getItem('edt:theme')
+          var dark =
+            saved === 'dark' ||
+            ((saved !== 'light') &&
+              window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
+
     <!-- Primary Meta Tags -->
     <title>极速开发工具箱 - 在线开发者工具集合 | JSON格式化、Base64编解码、UUID生成器</title>
     <meta name="title" content="极速开发工具箱 - 在线开发者工具集合 | JSON格式化、Base64编解码、UUID生成器" />

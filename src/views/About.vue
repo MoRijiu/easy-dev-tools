@@ -228,7 +228,7 @@ useSeo({
 
 /* 通用区块样式 */
 .section {
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -255,20 +255,20 @@ useSeo({
 
 .section h2 {
   font-size: 1.8rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   text-align: center;
   margin-bottom: 1.5rem;
 }
 
 .content-card {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 12px;
   padding: 1.5rem;
   line-height: 1.8;
 }
 
 .content-card p {
-  color: #4a5568;
+  color: var(--text-2);
   margin-bottom: 1rem;
 }
 
@@ -290,7 +290,7 @@ useSeo({
 
 .feature-list li {
   padding: 0.5rem 0;
-  color: #4a5568;
+  color: var(--text-2);
   font-size: 1rem;
 }
 
@@ -302,7 +302,7 @@ useSeo({
 }
 
 .tech-card {
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
@@ -324,13 +324,13 @@ useSeo({
 
 .tech-card h3 {
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin: 0.5rem 0;
 }
 
 .tech-card p {
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: var(--text-2);
   margin: 0;
 }
 
@@ -370,19 +370,19 @@ useSeo({
 }
 
 .support-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--surface);
   text-align: center;
 }
 
 .support-text {
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: var(--text-strong);
   margin-bottom: 0.5rem;
 }
 
 .support-joke {
   font-size: 0.95rem;
-  color: #7f8c8d;
+  color: var(--text-2);
   font-style: italic;
   margin-bottom: 2rem;
 }
@@ -403,7 +403,7 @@ useSeo({
   width: 160px;
   height: 160px;
   padding: 12px;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
@@ -417,7 +417,7 @@ useSeo({
 .qrcode-label {
   margin-top: 0.75rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-strong);
 }
 
 .support-thanks {
@@ -441,12 +441,12 @@ useSeo({
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #ffffff;
+  background: var(--surface);
   border-radius: 8px;
   text-decoration: none;
-  color: #4a5568;
+  color: var(--text-2);
   transition: all 0.3s ease;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border);
 }
 
 .contact-item:hover {

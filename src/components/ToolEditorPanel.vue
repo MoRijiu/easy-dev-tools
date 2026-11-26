@@ -39,7 +39,7 @@ defineProps({
 .editor-panel {
   display: flex;
   flex-direction: column;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -90,14 +90,14 @@ defineProps({
   font-size: 14px;
   line-height: 1.6;
   resize: vertical;
-  background: #f8f9fa;
+  background: var(--bg);
 }
 
 :deep(.text-input:focus),
 :deep(.json-input:focus),
 :deep(.markdown-input:focus) {
   outline: none;
-  background: #fff;
+  background: var(--surface);
 }
 
 /* 输出区样式 */
@@ -106,7 +106,7 @@ defineProps({
   flex: 1;
   min-height: 400px;
   overflow: auto;
-  background: #f8f9fa;
+  background: var(--bg);
 }
 
 :deep(.text-output),
@@ -116,7 +116,7 @@ defineProps({
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.6;
-  background: #f8f9fa;
+  background: var(--bg);
 }
 
 :deep(.text-output) {
@@ -130,7 +130,7 @@ defineProps({
 
 :deep(.placeholder) {
   padding: 20px;
-  color: #999;
+  color: var(--text-3);
   text-align: center;
   font-style: italic;
 }
@@ -141,7 +141,7 @@ defineProps({
   min-height: 500px;
   padding: 20px;
   overflow: auto;
-  background: #fff;
+  background: var(--surface);
   font-size: 15px;
   line-height: 1.8;
 }
