@@ -452,6 +452,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'chmod-calculator',
+        name: 'Chmod权限计算器',
+        nameEn: 'chmod-calculator',
+        icon: '🔐',
+        description: '勾选权限算八进制与符号形式、反向解析与umask计算',
+        aliases: ['chmod','权限','linux','文件权限','quanxian','bash'],
+        path: '/converter/chmod-calculator',
+        component: () => import('../views/tools/converter/ChmodCalculator.vue'),
+        meta: {
+          title: 'Chmod权限计算器 - 在线计算Linux文件权限',
+          description: '免费的在线Chmod权限计算器，勾选读/写/执行与setuid等特殊位实时得到八进制与符号形式，支持反向解析与umask默认权限计算，纯本地运行不上传服务器',
+          keywords: 'chmod,权限计算器,Linux文件权限,755,644,umask'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
