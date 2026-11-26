@@ -302,6 +302,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'yaml-json',
+        name: 'YAML/JSON互转',
+        nameEn: 'yaml-json',
+        icon: '🔀',
+        description: 'YAML与JSON互转，支持嵌套、流式写法、注释与块标量',
+        aliases: ['yaml','yml','json','配置','互转','peizhi','huzhuan'],
+        path: '/converter/yaml-json',
+        component: () => import('../views/tools/converter/YamlJsonConverter.vue'),
+        meta: {
+          title: 'YAML/JSON互转工具 - 在线YAML转JSON、JSON转YAML',
+          description: '免费的在线YAML/JSON互转工具，支持嵌套映射与序列、流式写法、引号字符串、注释与块标量，错误定位到行，纯本地运行不上传服务器',
+          keywords: 'YAML转JSON,JSON转YAML,YAML JSON互转,配置文件转换'
+        }
+      },
+      {
         id: 'sql-formatter',
         name: 'SQL格式化',
         nameEn: 'sql-formatter',
