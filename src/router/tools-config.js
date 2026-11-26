@@ -257,6 +257,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'cidr-calculator',
+        name: 'CIDR子网计算器',
+        nameEn: 'cidr-calculator',
+        icon: '🌐',
+        description: '由IP与前缀算网络/广播地址、可用主机范围与掩码',
+        aliases: ['cidr','子网','网段','掩码','subnet','ip','wangduan','yanma'],
+        path: '/converter/cidr-calculator',
+        component: () => import('../views/tools/converter/CidrCalculator.vue'),
+        meta: {
+          title: 'CIDR子网计算器 - 在线IPv4子网掩码与网段计算',
+          description: '免费的在线CIDR子网计算器，输入IPv4地址与前缀算出网络地址、广播地址、可用主机范围、子网掩码与地址性质，纯本地计算不上传服务器',
+          keywords: 'CIDR计算,子网计算,子网掩码,网段计算,IP计算器'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
