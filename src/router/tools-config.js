@@ -66,6 +66,21 @@ export const toolGroups = [
           description: '免费的在线Markdown编辑器，支持实时预览和导出',
           keywords: 'Markdown编辑器,Markdown预览,Markdown工具'
         }
+      },
+      {
+        id: 'regex-tester',
+        name: '正则表达式测试',
+        nameEn: 'regex-tester',
+        icon: '🔍',
+        description: '在线测试正则，匹配高亮与捕获组查看',
+        aliases: ['regex','regexp','正则','匹配','zhengze','pipei'],
+        path: '/text/regex-tester',
+        component: () => import('../views/tools/text/RegexTester.vue'),
+        meta: {
+          title: '正则表达式测试工具 - 在线正则匹配高亮与替换预览',
+          description: '免费的在线正则表达式测试工具，实时高亮匹配、查看捕获组与命名组、预览替换结果，纯本地运行不上传服务器',
+          keywords: '正则表达式,正则测试,regex,在线正则,匹配高亮'
+        }
       }
     ]
   },
