@@ -332,6 +332,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'xml-formatter',
+        name: 'XML格式化',
+        nameEn: 'xml-formatter',
+        icon: '📰',
+        description: '美化或压缩XML并校验良构性，错误定位到行',
+        aliases: ['xml','格式化','校验','报文','geshihua','jiaoyan'],
+        path: '/converter/xml-formatter',
+        component: () => import('../views/tools/converter/XmlFormatter.vue'),
+        meta: {
+          title: 'XML格式化工具 - 在线XML美化、压缩与校验',
+          description: '免费的在线XML格式化工具，按嵌套缩进美化或压缩一行，校验标签匹配与单个根元素并把错误定位到行，纯本地运行不上传服务器',
+          keywords: 'XML格式化,XML美化,XML压缩,XML校验,在线XML'
+        }
+      },
+      {
         id: 'cidr-calculator',
         name: 'CIDR子网计算器',
         nameEn: 'cidr-calculator',
