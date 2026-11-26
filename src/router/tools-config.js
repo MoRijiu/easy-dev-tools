@@ -806,6 +806,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'nanoid',
+        name: 'Nano ID生成',
+        nameEn: 'nanoid',
+        icon: '🆔',
+        description: '生成短小、URL安全的随机ID，支持自定义字母表与批量',
+        aliases: ['nanoid','nano id','短id','随机id','duanid'],
+        path: '/generator/nanoid',
+        component: () => import('../views/tools/generator/NanoidGenerator.vue'),
+        meta: {
+          title: 'Nano ID生成器 - 在线生成短小随机ID',
+          description: '免费的在线Nano ID生成器，默认21位约126位熵，支持自定义字母表、六种预设与批量不重复生成，纯本地运行不上传服务器',
+          keywords: 'Nano ID生成器,nanoid,随机ID,短ID,URL安全ID'
+        }
+      },
+      {
         id: 'qrcode',
         name: '二维码生成',
         nameEn: 'qrcode',
