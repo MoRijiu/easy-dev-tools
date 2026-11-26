@@ -23,6 +23,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'json-escape',
+        name: 'JSON字符串转义',
+        nameEn: 'json-escape',
+        icon: '🔀',
+        description: '普通文本与JSON字符串互转，处理引号、换行与Unicode转义',
+        aliases: ['json','escape','转义','去转义','字符串','zhuanyi','zifuchuan'],
+        path: '/text/json-escape',
+        component: () => import('../views/tools/text/JsonEscape.vue'),
+        meta: {
+          title: 'JSON字符串转义工具 - 在线文本与JSON字符串互转',
+          description: '免费的在线JSON字符串转义工具，把普通文本转义为可嵌入JSON的字符串或还原带转义的JSON字符串，支持Unicode转义与错误定位，纯本地运行不上传服务器',
+          keywords: 'JSON转义,JSON字符串转义,JSON去转义,Unicode转义,字符串转义'
+        }
+      },
+      {
         id: 'jsonpath',
         name: 'JSONPath查询',
         nameEn: 'jsonpath',
