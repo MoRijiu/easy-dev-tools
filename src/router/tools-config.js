@@ -98,6 +98,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'keycode-finder',
+        name: '键盘按键查询',
+        nameEn: 'keycode-finder',
+        icon: '⌨️',
+        description: '按任意键实时查看key/code/keyCode，附常用键码表',
+        aliases: ['keycode','keyboard','按键','键码','键盘','event.key','event.code','jianpan','anjian'],
+        path: '/text/keycode-finder',
+        component: () => import('../views/tools/text/KeyCodeFinder.vue'),
+        meta: {
+          title: '键盘按键查询工具 - 在线KeyCode与event.key/code速查',
+          description: '免费的在线键盘按键查询工具，按任意键实时查看event.key、event.code、keyCode与修饰键，附常用键码表搜索，纯本地运行不上传服务器',
+          keywords: 'KeyCode查询,键盘按键,event.key,event.code,keyCode表,按键识别'
+        }
+      },
+      {
         id: 'markdown',
         name: 'Markdown编辑器',
         nameEn: 'markdown',
