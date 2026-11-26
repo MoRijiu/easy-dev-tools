@@ -302,6 +302,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'date-calculator',
+        name: '日期计算器',
+        nameEn: 'date-calculator',
+        icon: '📅',
+        description: '计算日期间隔、工作日与日期加减',
+        aliases: ['date','日期','天数','间隔','工作日','riqi','tianshu','jiange'],
+        path: '/converter/date-calculator',
+        component: () => import('../views/tools/converter/DateCalculator.vue'),
+        meta: {
+          title: '日期计算器 - 在线计算日期间隔与日期加减',
+          description: '免费的在线日期计算器，计算两日期相隔天数、年月日分解、工作日与周末天数，支持日期加减天/周/月/年，纯本地运行不上传服务器',
+          keywords: '日期计算器,日期间隔,天数计算,工作日计算,日期加减'
+        }
+      },
+      {
         id: 'color-converter',
         name: '颜色转换',
         nameEn: 'color-converter',
