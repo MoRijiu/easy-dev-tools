@@ -10,12 +10,12 @@
 
 ## 2. 现有功能（基线）
 
-共 28 个工具，配置集中在 `src/router/tools-config.js`：
+共 29 个工具，配置集中在 `src/router/tools-config.js`：
 
 | 分类 | 工具 |
 | --- | --- |
 | 文本处理 | JSON 格式化、Base64 编解码、URL 编解码、URL 解析、User Agent 解析、Markdown 编辑器、正则表达式测试、文本对比、Unicode/HTML 实体编解码、命名格式转换、文本行工具 |
-| 格式转换 | 时间戳转换、Cron 表达式解析、进制转换、JSON/CSV 互转、SQL 格式化、CIDR 子网计算、颜色转换、单位转换 |
+| 格式转换 | 时间戳转换、Cron 表达式解析、进制转换、JSON/CSV 互转、SQL 格式化、CIDR 子网计算、JSON 转 TypeScript、颜色转换、单位转换 |
 | 生成器 | UUID 生成、二维码生成、密码生成、Lorem 占位文本 |
 | 加密解密 | 哈希计算、AES 加解密、JWT 解码 |
 | 图片工具 | 图片压缩、图片格式转换 |
