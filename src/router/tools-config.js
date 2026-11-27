@@ -1107,6 +1107,21 @@ export const toolGroups = [
           description: '免费的在线图片格式转换工具，支持JPG、PNG、WebP等格式互转',
           keywords: '图片转换,格式转换,图片工具'
         }
+      },
+      {
+        id: 'qrcode-decoder',
+        name: '二维码解码',
+        nameEn: 'qrcode-decoder',
+        icon: '🔍',
+        description: '上传/拖放/粘贴二维码图片，本地解码并识别内容类型',
+        aliases: ['qrcode','qr','二维码','解码','扫码','识别','erweima','jiema'],
+        path: '/image/qrcode-decoder',
+        component: () => import('../views/tools/image/QrcodeDecoder.vue'),
+        meta: {
+          title: '二维码解码工具 - 在线识别二维码图片内容',
+          description: '免费的在线二维码解码工具，上传、拖放或粘贴二维码图片即可本地识别内容，自动判断链接、WiFi、名片等类型，图片不上传服务器',
+          keywords: '二维码解码,二维码识别,QR码解码,扫码,在线解码'
+        }
       }
     ]
   }
