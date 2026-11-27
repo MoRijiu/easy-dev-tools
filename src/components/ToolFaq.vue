@@ -45,7 +45,7 @@ defineProps({
 }
 
 .faq summary:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .faq p {

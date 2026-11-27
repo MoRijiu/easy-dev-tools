@@ -557,7 +557,7 @@ h1 {
 
 .quality-value {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   min-width: 50px;
 }
 
@@ -610,7 +610,7 @@ h1 {
 }
 
 .total-compressed {
-  color: var(--success);
+  color: var(--success-text);
   font-weight: 600;
 }
 
@@ -741,7 +741,7 @@ h1 {
 }
 
 .compressed-size {
-  color: var(--success);
+  color: var(--success-text);
   font-weight: 600;
 }
 
@@ -756,7 +756,7 @@ h1 {
 
 .savings.positive {
   background: var(--success-soft);
-  color: var(--success);
+  color: var(--success-text);
 }
 
 .image-actions {

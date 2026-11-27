@@ -150,7 +150,7 @@ onMounted(() => {
 }
 
 .danmaku-toggle:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .danmaku-row {
@@ -201,7 +201,7 @@ onMounted(() => {
   transform: scale(1.08);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   background: var(--surface);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .danmaku-icon {

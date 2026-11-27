@@ -490,7 +490,7 @@ h1 {
 
 .algo-btn:hover {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .algo-btn.active {
@@ -507,7 +507,7 @@ h1 {
 .link-btn {
   background: none;
   border: none;
-  color: var(--accent);
+  color: var(--accent-text);
   cursor: pointer;
   font-size: 14px;
   padding: 0;
@@ -590,7 +590,7 @@ h1 {
 
 .result-algo {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
 }
 

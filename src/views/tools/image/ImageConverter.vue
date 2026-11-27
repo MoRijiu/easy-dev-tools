@@ -520,7 +520,7 @@ h1 {
   border: 2px solid var(--accent);
   border-radius: 8px;
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -617,7 +617,7 @@ h1 {
 
 .quality-value {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   min-width: 50px;
 }
 
@@ -695,7 +695,7 @@ h1 {
 }
 
 .total-converted {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -715,7 +715,7 @@ h1 {
 }
 
 .format-value {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
   font-size: 14px;
 }
@@ -854,7 +854,7 @@ h1 {
 }
 
 .converted-size {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 

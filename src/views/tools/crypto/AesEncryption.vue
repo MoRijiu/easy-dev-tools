@@ -461,14 +461,14 @@ h1 {
 
 .key-hint {
   font-size: 12px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 500;
 }
 
 .link-btn {
   background: none;
   border: none;
-  color: var(--accent);
+  color: var(--accent-text);
   cursor: pointer;
   font-size: 14px;
   display: flex;

@@ -41,7 +41,7 @@ const currentTool = computed(() => getToolByPath(route.path))
   top: -48px;
   z-index: 3000;
   background: var(--surface);
-  color: var(--accent);
+  color: var(--accent-text);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 6px 12px;
@@ -78,7 +78,7 @@ const currentTool = computed(() => getToolByPath(route.path))
   margin-bottom: 1rem;
   font-size: .9rem;
 }
-.tool-bar-back { color: var(--accent); text-decoration: none; white-space: nowrap; }
+.tool-bar-back { color: var(--accent-text); text-decoration: none; white-space: nowrap; }
 .tool-bar-back:hover { text-decoration: underline; }
 .tool-bar-name { color: var(--text-strong); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tool-bar-fav { display: inline-flex; align-items: center; gap: .15rem; color: var(--text-2); white-space: nowrap; }

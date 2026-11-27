@@ -113,7 +113,7 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .cat-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .cat-count { opacity: .75; font-size: .78rem; }
 .result-hint { text-align: center; color: var(--text-2); font-size: .9rem; margin: .5rem 0 1rem; }
-.reset-link { border: none; background: none; color: var(--accent); cursor: pointer; font-size: .9rem; margin-left: .5rem; text-decoration: underline; }
+.reset-link { border: none; background: none; color: var(--accent-text); cursor: pointer; font-size: .9rem; margin-left: .5rem; text-decoration: underline; }
 .tools-container { display: flex; flex-direction: column; gap: 1.5rem; }
 .tool-group { background: var(--surface); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm); }
 .group-header { display: flex; align-items: center; gap: .85rem; margin-bottom: 1rem; padding-bottom: .7rem; border-bottom: 1px solid var(--border); }

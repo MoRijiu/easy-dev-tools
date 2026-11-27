@@ -286,7 +286,7 @@ onBeforeUnmount(() => {
 
 .item-tag {
   font-size: 11px;
-  color: var(--accent);
+  color: var(--accent-text);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 999px;

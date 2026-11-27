@@ -448,7 +448,7 @@ h1 {
 }
 
 :deep(a) {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
 }
 
@@ -496,7 +496,7 @@ h1 {
 
 :deep(.inline-code) {
   background: var(--bg-soft);
-  color: var(--accent-2);
+  color: var(--accent-text-hover);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
