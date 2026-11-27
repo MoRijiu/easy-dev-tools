@@ -10,10 +10,14 @@
         <button class="chip" type="button" @click="loadExample(EXAMPLES[0])">示例 v4</button>
         <button class="chip" type="button" @click="loadExample(EXAMPLES[1])">示例 v1</button>
         <button class="chip" type="button" @click="loadExample(EXAMPLES[2])">示例 v7</button>
+        <button class="chip" type="button" @click="loadExample(EXAMPLES[3])">示例 Max</button>
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <span class="muted">输入后实时解析</span>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功解析的结果。</p>
+      <p v-for="note in (result?.notes || [])" :key="note" class="note">{{ note }}</p>
+      <p v-for="warn in (result?.warnings || [])" :key="warn" class="warn">⚠ {{ warn }}</p>
       <template v-if="result">
         <p class="summary">合法 UUID · {{ result.versionName }} · 变体 {{ result.variant.label }}<span v-if="result.special"> · {{ result.special }}</span></p>
         <div class="table-wrap"><table><tbody>
@@ -35,7 +39,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -51,17 +55,27 @@ const usageSteps = ['粘贴 UUID（带不带连字符、大括号或 urn:uuid: �
 const faqs = [
   { question: '怎么看一个 UUID 是哪个版本？', answer: '看第三段的第一个十六进制字符：1–8 就是版本号。例如 550e8400-e29b-41d4-… 第三段以 4 开头，是 v4 随机型；以 7 开头是 v7 时间型。' },
   { question: 'v4 和 v7 该选哪个？', answer: 'v4 完全随机、无序，做主键时索引局部性差；v7 前 48 位是 Unix 毫秒时间戳，天然按时间递增、数据库索引更友好，新系统更推荐 v7（RFC 9562）。' },
-  { question: 'v1 UUID 里的时间和节点安全吗？', answer: 'v1 内嵌生成时间与节点（历史上常用网卡 MAC 地址），会泄露生成时刻与设备信息，对外场景应避免 v1，改用 v4 / v7；随机生成的节点会把多播位置 1 以示区分。' }
+  { question: 'v1 UUID 里的时间和节点安全吗？', answer: 'v1 内嵌生成时间与节点（历史上常用网卡 MAC 地址），会泄露生成时刻与设备信息，对外场景应避免 v1，改用 v4 / v7；随机生成的节点会把多播位置 1 以示区分。' },
+  { question: '版本位是 9–15 或变体不是标准值，算合法 UUID 吗？', answer: '字符与分组都对时本工具会照常解析，但会给出提示：RFC 9562 只定义版本 0–8，9–15 为保留未分配；变体只有 10xx 才是标准变体，其余（NCS / Microsoft / 未来保留）多数 UUID 库会拒绝或区别对待，Max UUID（全 F）是特殊值、版本位不适用。' },
+  { question: '粘贴时带空格、换行或全角字符能解析吗？', answer: '可以：从日志或表格复制时混入的空格、换行与全角字母数字会被自动容错并给出提示，大括号与 urn:uuid: 前缀任意嵌套顺序也能剥除；但一次只能解析一个 UUID，多行每行一个时会点名报错。输错时页面会保留上一次成功的结果，不会直接清空。' },
+  { question: '为什么 v2 不提取时间？', answer: 'v2（DCE Security）把 v1 的时间低位与时钟序列的一部分换成了本地标识符（如 POSIX UID），字段已被覆盖、拼不出完整时间，所以本工具对 v2 只报版本与变体并给出提示。' }
 ];
 const EXAMPLES = [
   '550e8400-e29b-41d4-a716-446655440000',
   '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
-  '018bcfe5-6800-7000-8000-000000000000'
+  '018bcfe5-6800-7000-8000-000000000000',
+  'ffffffff-ffff-ffff-ffff-ffffffffffff'
 ];
 const input = ref(EXAMPLES[0]);
 const statusMessage = ref(''); const statusType = ref('');
 const parsed = computed(() => (input.value.trim() ? parseUuid(input.value) : null));
-const result = computed(() => (parsed.value && parsed.value.ok ? parsed.value : null));
+const lastValid = ref(null);
+watch(parsed, (v) => { if (v && v.ok) lastValid.value = v; }, { immediate: true });
+const result = computed(() => {
+  if (!input.value.trim()) return null;
+  if (parsed.value && parsed.value.ok) return parsed.value;
+  return lastValid.value;
+});
 const error = computed(() => (parsed.value && !parsed.value.ok ? parsed.value.error : ''));
 const summary = computed(() => buildUuidSummary(result.value));
 const outRows = computed(() => {
@@ -84,7 +98,7 @@ const outRows = computed(() => {
   return rows;
 });
 function loadExample(v) { input.value = v; }
-function clearAll() { input.value = ''; }
+function clearAll() { input.value = ''; lastValid.value = null; }
 async function copyText(text) {
   try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
   catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
@@ -94,7 +108,9 @@ async function copyText(text) {
 .uuid-parser { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.note { color: var(--info-text, var(--text-2)); font-size: 13px; margin: 6px 0; }
+.warn { color: var(--warning-text, #b45309); font-size: 13px; margin: 6px 0; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
 textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; resize: vertical; box-sizing: border-box; }
