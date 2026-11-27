@@ -27,7 +27,7 @@
           </div>
           <label>
             生成数量:
-            <input type="number" v-model="options.count" min="1" :max="MAX_COUNT" />
+            <input id="uuid-count" aria-label="生成数量" type="number" v-model="options.count" min="1" :max="MAX_COUNT" :aria-invalid="genErrorField === 'count' ? 'true' : undefined" :aria-describedby="genErrorField === 'count' ? 'uuid-generator-status' : undefined" />
           </label>
           <label>
             <input type="checkbox" v-model="options.uppercase" :disabled="options.urn" />
@@ -50,7 +50,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="uuid-generator-status" :message="statusMessage" :type="statusType" />
 
       <!-- UUID 列表显示 -->
       <div class="uuid-output-section">
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { generateBatch, MAX_COUNT } from "@/utils/uuidGenerate.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
@@ -107,6 +107,14 @@ import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
 const uuidList = ref([]);
 const statusMessage = ref("");
 const statusType = ref("");
+
+// 生成错误单独留存：状态区还兼报复制/下载结果，只有当前展示的正是这条生成错误时才做字段关联
+const genError = ref("");
+// 数量校验错误文案自带字段名（生成数量…/一次最多生成…），据此归到数量输入；版本/环境/重复/自检类错误不归任何字段
+const genErrorField = computed(() => {
+  if (!genError.value || statusType.value !== "error" || statusMessage.value !== `✗ ${genError.value}`) return "";
+  return /生成数量|一次最多生成/.test(genError.value) ? "count" : "";
+});
 
 const options = ref({
   count: 5,
@@ -216,9 +224,11 @@ const generateUuids = () => {
     },
   });
   if (!result.ok) {
+    genError.value = result.error;
     showStatus(`✗ ${result.error}`, "error");
     return;
   }
+  genError.value = "";
   uuidList.value = result.list;
   showStatus(`✓ 成功生成 ${result.count} 个 UUID（${result.version.toUpperCase()}，全部唯一）`, "success");
 };
@@ -263,6 +273,7 @@ const downloadList = () => {
 // 清空内容
 const clearAll = () => {
   uuidList.value = [];
+  genError.value = "";
   statusMessage.value = "";
 };
 
