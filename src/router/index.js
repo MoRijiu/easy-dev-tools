@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import ToolPage from '../views/ToolPage.vue'
+import NotFound from '../views/NotFound.vue'
 import About from '../views/About.vue'
 import { generateRoutes, getToolByPath } from './tools-config'
 import { useToolPrefs } from '../composables/useToolPrefs'
@@ -31,12 +31,19 @@ const baseRoutes = [
 // 从配置生成工具路由
 const toolRoutes = generateRoutes()
 
-// 兜底路由 - 处理未实现的工具页面
+// 兜底路由 - 未知路径一律落 404 页（R9ao）：旧版二段路径落「工具开发中」
+// 占位页会把不存在误报成未上线，且占位页读错参数名（params.id 对 toolId）
+// 永远显示「未知工具」；一段/三段以上路径则无任何路由命中、主区域白屏。
+// 现统一 catch-all 到 NotFound，任何形状的未知路径都有明确出口。
 const fallbackRoutes = [
   {
-    path: '/:category/:toolId',
-    name: 'Tool',
-    component: ToolPage
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
+    meta: {
+      title: '页面不存在 - 极速开发工具箱',
+      description: '访问的页面不存在，返回首页或搜索 72 个在线开发工具。'
+    }
   }
 ]
 
