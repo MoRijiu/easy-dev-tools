@@ -94,7 +94,7 @@ const handleUseExample = (example) => {
 }
 
 .example-number {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   color: white;
   padding: 4px 10px;
   border-radius: 20px;
@@ -149,7 +149,7 @@ const handleUseExample = (example) => {
 .use-btn {
   width: 100%;
   padding: 10px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   color: white;
   border: none;
   border-radius: 6px;

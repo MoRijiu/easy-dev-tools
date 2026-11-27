@@ -768,7 +768,7 @@ h1 {
 }
 
 .format-tag.original {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   color: white;
 }
 
@@ -786,7 +786,7 @@ h1 {
 }
 
 .status-badge.success {
-  background: var(--success);
+  background: var(--success-solid);
   color: white;
 }
 
@@ -876,7 +876,7 @@ h1 {
 }
 
 .convert-btn {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   color: white;
 }
 
@@ -886,12 +886,12 @@ h1 {
 }
 
 .download-btn {
-  background: var(--success);
+  background: var(--success-solid);
   color: white;
 }
 
 .download-btn:hover:not(:disabled) {
-  background: var(--success);
+  background: var(--success-solid);
 }
 
 .action-btn:disabled {

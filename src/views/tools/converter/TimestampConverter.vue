@@ -438,7 +438,7 @@ h1 {
 }
 
 .current-time-card {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   color: white;
   padding: 16px 20px;
   border-radius: 10px;
