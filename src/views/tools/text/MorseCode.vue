@@ -28,13 +28,14 @@
         <span v-if="playableCode && !error" class="dur">时长约 {{ durationText }}</span>
       </div>
       <div class="panels">
-        <ToolEditorPanel :title="mode === 'encode' ? '输入文本' : '输入电码'" :info="input ? `${input.length} 字符` : ''">
+        <ToolEditorPanel :title="mode === 'encode' ? '输入文本' : '输入电码'" :info="input ? `${[...input].length} 字符` : ''">
           <textarea v-model="input" class="ta" rows="6" spellcheck="false" :placeholder="mode === 'encode' ? '输入英文、数字或标点，如 SOS 或 Hello World' : '粘贴电码，如 ... --- ... ，字母间空格、单词间用 / 分隔'" aria-label="输入"></textarea>
         </ToolEditorPanel>
         <ToolEditorPanel :title="mode === 'encode' ? '电码结果' : '解码结果'" :info="info">
           <textarea :value="output" class="ta" rows="6" readonly spellcheck="false" placeholder="结果实时显示" aria-label="输出"></textarea>
         </ToolEditorPanel>
       </div>
+      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
       <p v-if="error" class="error" role="alert">✗ {{ error }}</p>
       <div class="ref">
         <div v-for="g in MORSE_GROUPS" :key="g.name" class="ref-group">
@@ -52,7 +53,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -71,26 +72,36 @@ const faqs = [
   { question: '摩尔斯电码怎么分隔字母和单词？', answer: '通行写法：同一单词内字母之间用一个空格分隔，单词之间用「 / 」分隔。发报节奏上字母间隔 3 个单位、单词间隔 7 个单位。' },
   { question: 'SOS 为什么是 ... --- ...？', answer: 'S 是 ...、O 是 ---，连起来短长分明、极易辨认，1906 年被定为国际遇险信号。' },
   { question: '能编码中文吗？', answer: '不能。摩尔斯电码只定义了拉丁字母、数字与少量标点；历史上中文电报先把汉字转成四位数字电码本再发送。本工具遇到不支持的字符会指出位置。' },
-  { question: 'WPM 是什么？', answer: 'Words Per Minute，每分钟单词数，以 PARIS 一词 50 个单位为基准：1 单位 = 1200 / WPM 毫秒，WPM 越高点画越快。' }
+  { question: 'WPM 是什么？', answer: 'Words Per Minute，每分钟单词数，以 PARIS 一词 50 个单位为基准：1 单位 = 1200 / WPM 毫秒，WPM 越高点画越快。' },
+  { question: '从文档/网页粘贴来的内容要注意什么？', answer: '全角字母数字（如 ＳＯＳ）会自动转半角，解码时 • · − － ／ 等变体符号也会统一成标准 . - /，页面会给出提示；但零宽空格等不可见字符会点名报错，删掉后重试即可。' },
+  { question: '报错位置是怎么数的？', answer: '按 Unicode 码点计数，一个 Emoji 算 1 个字符，报错会原样显示出问题字符，不会出现乱码占位。' },
+  { question: '输入出错时为什么还显示着上一次的结果？', answer: '这是故意的：改错一个字符不会把之前的结果清掉，方便对照修正；把输入全部清空或切换方向后，保留的结果才会清掉。' }
 ];
 const input = ref(''); const mode = ref('encode'); const wpm = ref(15);
 const statusMessage = ref(''); const statusType = ref('');
 const playing = ref(false);
 let audioCtx = null; let playTimers = [];
-const result = computed(() => {
+const fresh = computed(() => {
   if (!input.value || !input.value.trim()) return { output: '', error: '', stats: null };
   try {
     const r = mode.value === 'encode' ? encodeMorse(input.value) : decodeMorse(input.value);
     return { output: r.output, error: '', stats: r };
   } catch (e) { return { output: '', error: e.message, stats: null }; }
 });
+// 出错时保留上一次成功结果，不清空（输入清空时由 fresh 的空结果覆盖，切换方向时模式标记失效）。
+const lastGood = ref({ mode: '', output: '', stats: null });
+watch(fresh, (r) => { if (!r.error) lastGood.value = { mode: mode.value, output: r.output, stats: r.stats }; });
+const result = computed(() => (fresh.value.error && lastGood.value.mode === mode.value)
+  ? { output: lastGood.value.output, error: fresh.value.error, stats: lastGood.value.stats }
+  : fresh.value);
 const output = computed(() => result.value.output);
 const error = computed(() => result.value.error);
+const notes = computed(() => (fresh.value.error ? [] : (result.value.stats?.notes || [])));
 const info = computed(() => {
   const s = result.value.stats;
   if (!s) return '';
   if (mode.value === 'encode') return `${s.charCount} 字符 · ${s.wordCount} 词 · 点 ${s.dotCount} / 划 ${s.dashCount}`;
-  return `${s.letterCount} 字母 · ${s.wordCount} 词`;
+  return `${s.letterCount} 字符 · ${s.wordCount} 词`;
 });
 const playableCode = computed(() => (mode.value === 'encode' ? output.value : input.value.trim()));
 const durationText = computed(() => {
@@ -148,7 +159,8 @@ onBeforeUnmount(stopPlay);
 .morse-code { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.notes { margin: 10px 0 0; color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
 .mode-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
