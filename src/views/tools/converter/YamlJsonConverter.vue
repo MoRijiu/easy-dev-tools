@@ -52,13 +52,16 @@ const features = [
 ];
 const usageSteps = ['选转换方向（YAML → JSON 可选输出缩进）', '粘贴 YAML 或 JSON，下方实时生成结果', '点「复制结果」取走，或点「交换」把结果作为输入反向再转'];
 const faqs = [
-  { question: '支持哪些 YAML 写法？', answer: '支持日常配置的绝大多数写法：缩进映射与序列、序列里嵌映射、[1, 2] 与 {a: 1} 流式写法、单/双引号字符串、# 注释、| 与 > 块标量、--- 文档标记。锚点(&)、别名(*)与标签(!)暂不支持，遇到会明确报错而不是悄悄转错。' },
+  { question: '支持哪些 YAML 写法？', answer: '支持日常配置的绝大多数写法：缩进映射与序列、序列里嵌映射、[1, 2] 与 {a: 1} 流式写法、单/双引号字符串、# 注释、| 与 > 块标量（含 |- 去尾换行、|+ 保留空行）、--- 文档标记。锚点(&)、别名(*)与标签(!)暂不支持，遇到会明确报错而不是悄悄转错。' },
   { question: 'YAML 里的 007 转成 JSON 变字符串了？', answer: '是故意的：007、0123 这类带前导零的值在 YAML 里容易被误读成八进制，本工具按字符串保留原文，避免配置悄悄变值。0xFF 这类明确的十六进制写法会转成数字 255。' },
+  { question: '重复键和多个文档会怎样？', answer: '同一映射里出现重复键会点名报错并指出两次定义的行号，不会像旧版那样静默用后一个值覆盖；一份输入里有多个 --- 文档也会报错，本工具只转单文档，请拆开逐个转换。' },
+  { question: '块标量结尾的换行怎么算？', answer: '按 YAML 规范：| 默认保留一个结尾换行（clip），|- 去掉结尾换行，|+ 连文末空行一并保留；> 折叠时段内换行变空格、空行仍保留为换行。' },
   { question: '我的配置会被上传吗？', answer: '不会。全部转换都在浏览器本地完成，不发送任何网络请求。' }
 ];
 const examples = [
-  { input: 'name: app\nports:\n  - 80\n  - 443', output: '{"name":"app","ports":[80,443]}', description: 'YAML 转 JSON' },
-  { input: '{"name":"app","debug":true}', output: 'name: app\ndebug: true', description: 'JSON 转 YAML' }
+  { mode: 'yaml2json', input: 'name: app\nports:\n  - 80\n  - 443', output: '{"name":"app","ports":[80,443]}', description: 'YAML 转 JSON' },
+  { mode: 'json2yaml', input: '{"name":"app","debug":true}', output: 'name: app\ndebug: true', description: 'JSON 转 YAML' },
+  { mode: 'yaml2json', input: 'note: |-\n  第一行\n  第二行', output: '{"note":"第一行\\n第二行"}', description: '块标量 |- 去尾换行' }
 ];
 const mode = ref('yaml2json');
 const indent = ref(2);
@@ -69,8 +72,7 @@ const statusMessage = ref('');
 const statusType = ref('');
 const countLines = (s) => (s ? s.split('\n').length : 0);
 const convert = () => {
-  outputText.value = ''; stats.value = '';
-  if (!inputText.value.trim()) { statusMessage.value = ''; return; }
+  if (!inputText.value.trim()) { outputText.value = ''; stats.value = ''; statusMessage.value = ''; return; }
   try {
     if (mode.value === 'yaml2json') {
       const r = yamlToJson(inputText.value);
@@ -93,7 +95,7 @@ const YAML_EXAMPLE = 'name: my-app\nversion: 1.2.0\ndebug: false\nserver:\n  hos
 const JSON_EXAMPLE = '{\n  "name": "my-app",\n  "version": "1.2.0",\n  "debug": false,\n  "server": { "host": "localhost", "ports": [8080, 9090] },\n  "owner": { "name": "张三", "roles": ["admin", "ops"] }\n}';
 const loadExample = () => { inputText.value = mode.value === 'yaml2json' ? YAML_EXAMPLE : JSON_EXAMPLE; convert(); };
 const useExample = (ex) => {
-  mode.value = ex.description.startsWith('JSON') ? 'json2yaml' : 'yaml2json';
+  mode.value = ex.mode || (ex.description.startsWith('JSON') ? 'json2yaml' : 'yaml2json');
   inputText.value = ex.input; convert();
 };
 const swap = () => {
@@ -113,7 +115,7 @@ const copyOutput = async () => {
 .yaml-json { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .mode-btn { padding: 6px 12px; border: none; background: var(--bg-soft); color: var(--text-2); font-size: 13px; cursor: pointer; }
 .mode-btn.active { background: var(--accent); color: #fff; }
