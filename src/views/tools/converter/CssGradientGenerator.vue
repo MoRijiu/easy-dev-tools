@@ -53,7 +53,8 @@
         <button class="del" :disabled="form.stops.length <= 2" aria-label="删除色标" @click="removeStop(i)">✕</button>
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in GRADIENT_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
+      <p v-if="error" class="error">{{ error }}<span v-if="gradientCss">（已保留上一次成功结果）</span></p>
       <template v-if="gradientCss">
         <div class="code-head"><span>CSS 代码</span>
           <span class="code-btns">
@@ -71,7 +72,7 @@
   </div>
 </template>
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -87,7 +88,9 @@ const usageSteps = ['选渐变类型（线性/径向/锥形），调角度或形
 const faqs = [
   { question: '怎么做条纹效果？', answer: '勾选「重复渐变」，再让相邻色标同色同位置形成硬停靠（如蓝色 0–10%、深蓝 10–20%），渐变会按最后色标的位置周期重复，预设「条纹重复」就是现成例子。' },
   { question: '色标位置可以不按顺序填吗？', answer: '可以。本工具会自动按位置从小到大排序输出；CSS 规范里位置更小的后写色标会被钳制到前一色标位置，容易写出意料之外的硬边，排序输出更直观。' },
-  { question: '锥形渐变适合做什么？', answer: '饼图、进度环、彩虹色轮与 conic 边框。把相邻色标设成同位置硬停靠即可分扇区，例如 0–25% 红、25–50% 蓝就是四等分的开始。' }
+  { question: '锥形渐变适合做什么？', answer: '饼图、进度环、彩虹色轮与 conic 边框。把相邻色标设成同位置硬停靠即可分扇区，例如 0–25% 红、25–50% 蓝就是四等分的开始。' },
+  { question: '颜色可以怎么写？', answer: '支持 #hex（3/4/6/8 位）、rgb()/rgba() 的逗号写法与现代空格写法（rgb(255 0 0 / 0.5)）、hsl()/hsla()（色相可写 deg 或 turn、饱和度与亮度须带 %），以及 yellow、rebeccapurple 等常用英文名。全角字符（如 ＃ＦＦ００００、ｒｇｂ（…））会自动转半角。分量带多余字符（如 10abc、0x10）会点名报错，不会静默算错。' },
+  { question: '改错颜色后预览为什么还在？', answer: '出错时保留上一次成功生成的渐变与 CSS 代码，方便对照修改；把颜色或位置改回合法值后会自动更新。位置与角度留空不再静默当 0，会直接提示不能为空。' }
 ];
 const DIRECTIONS = [
   { name: '→ 向右', deg: 90 }, { name: '↓ 向下', deg: 180 }, { name: '← 向左', deg: 270 }, { name: '↑ 向上', deg: 0 }, { name: '↘ 右下', deg: 135 }, { name: '↙ 左下', deg: 225 }
@@ -99,7 +102,10 @@ const form = reactive({
 const statusMessage = ref(''); const statusType = ref('');
 const built = computed(() => buildGradient(form));
 const error = computed(() => (built.value.ok ? '' : built.value.error));
-const gradientCss = computed(() => (built.value.ok ? built.value.css : ''));
+const notes = computed(() => (built.value.ok ? built.value.notes || [] : []));
+const lastGoodCss = ref('');
+watch(built, (v) => { if (v.ok) lastGoodCss.value = v.css; }, { immediate: true });
+const gradientCss = computed(() => (built.value.ok ? built.value.css : lastGoodCss.value));
 const snippet = computed(() => (gradientCss.value ? buildCssSnippet(gradientCss.value) : ''));
 const pickerValue = (color) => { const c = parseCssColor(color); return c.ok ? toHexInput(c) : '#000000'; };
 const onPick = (i, value) => { form.stops[i].color = value; };
@@ -126,7 +132,8 @@ const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt)
 .cg-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.notes { color: var(--warning, #b45309); font-size: 13px; }
 .preview { height: 180px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 16px; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
 .row label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
