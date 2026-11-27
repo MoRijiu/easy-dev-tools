@@ -5,13 +5,13 @@
     <div class="tool-container">
       <div class="row">
         <label>金额（元）
-          <input v-model="input" type="text" inputmode="decimal" placeholder="如 1234.56" aria-label="金额输入" @keyup.enter="analyze" />
+          <input v-model="input" type="text" inputmode="decimal" placeholder="如 1234.56" aria-label="金额输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'rmb-capital-error' : undefined" @keyup.enter="analyze" />
         </label>
         <button class="btn" @click="analyze">转换</button>
         <button class="btn ghost" @click="clearAll">清空</button>
       </div>
       <div class="examples"><span>示例：</span><button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button></div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="rmb-capital-error" class="error" role="alert">{{ error }}</p>
       <p v-if="notes.length" class="note" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <template v-if="result">
         <p class="capital">{{ result.capital }}</p>

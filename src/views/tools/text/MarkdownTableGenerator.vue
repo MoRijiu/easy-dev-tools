@@ -16,7 +16,7 @@
         </label>
       </div>
       <label class="block">输入（每行一行，列间用 Tab、逗号或 | 分隔）
-        <textarea v-model="input" rows="7" spellcheck="false" placeholder="从 Excel 复制粘贴，或输入逗号分隔的内容" aria-label="表格输入"></textarea>
+        <textarea v-model="input" rows="7" spellcheck="false" placeholder="从 Excel 复制粘贴，或输入逗号分隔的内容" aria-label="表格输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'markdown-table-error' : undefined"></textarea>
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample">示例</button>
@@ -25,7 +25,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.markdown)">复制 Markdown</button>
         <span class="muted">输入后实时生成</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="markdown-table-error" class="error" role="alert">{{ error }}</p>
       <p v-if="result && result.notes && result.notes.length" class="note" role="status" aria-live="polite">{{ result.notes.join('；') }}</p>
       <template v-if="result">
         <label class="block">Markdown 输出

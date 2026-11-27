@@ -16,7 +16,7 @@
         <label class="check"><input type="checkbox" v-model="opts.space" /> 空格</label>
       </div>
       <label class="block">输入
-        <textarea v-model="input" rows="6" spellcheck="false" placeholder="粘贴含全角字符的文本，如：Ｈｅｌｌｏ　２０２６！" aria-label="转换输入"></textarea>
+        <textarea v-model="input" rows="6" spellcheck="false" placeholder="粘贴含全角字符的文本，如：Ｈｅｌｌｏ　２０２６！" aria-label="转换输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'width-converter-error' : undefined"></textarea>
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample">示例（全→半）</button>
@@ -26,7 +26,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.text)">复制结果</button>
         <span class="muted">输入后实时转换</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="width-converter-error" class="error" role="alert">{{ error }}</p>
       <p v-if="result && result.notes && result.notes.length" class="note" role="status" aria-live="polite">{{ result.notes.join('；') }}</p>
       <template v-if="result">
         <label class="block">输出

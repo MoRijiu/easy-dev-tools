@@ -10,7 +10,7 @@
           </select>
         </label>
         <label>时间
-          <input class="dt" type="text" v-model="input" placeholder="2026-11-27 09:30" aria-label="源时间" />
+          <input class="dt" type="text" v-model="input" placeholder="2026-11-27 09:30" aria-label="源时间" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'timezone-error' : undefined" />
         </label>
         <button class="chip" type="button" @click="useNow">当前时刻</button>
         <button class="chip" type="button" @click="loadExample">示例</button>
@@ -18,7 +18,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <button class="btn" type="button" :disabled="!result" @click="copySummary">复制摘要</button>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="timezone-error" class="error" role="alert">{{ error }}</p>
       <p v-for="note in displayNotes" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <template v-if="result">
         <p class="summary">{{ result.source.dateTime }} {{ result.source.weekday }}（{{ fromZone }}，{{ result.source.offset }}）= UTC {{ isoShort }}，共 {{ result.rows.length }} 个时区</p>
