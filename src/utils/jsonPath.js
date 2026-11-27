@@ -5,10 +5,16 @@
 // 结果上限 MAX_RESULTS 条，递归遍历带节点上限，避免大文档卡死。
 
 export const MAX_RESULTS = 1000;
+export const MAX_EXPR_LENGTH = 1024;
 const MAX_NODES = 200000;
 
-const isIdentStart = (c) => /[A-Za-z_$]/.test(c);
-const isIdentChar = (c) => /[A-Za-z0-9_$]/.test(c);
+// 键名允许 Unicode 字母（中文、日文等），与 $['中文'] 写法等价
+const isIdentStart = (c) => /[\p{L}_$]/u.test(c);
+const isIdentChar = (c) => /[\p{L}\p{N}_$]/u.test(c);
+const IDENT_RE = /^[\p{L}_$][\p{L}\p{N}_$]*$/u;
+// 只认对象自身的键：'in' 会把原型链上的 toString/constructor 也算命中，
+// 对普通 JSON 数据是假命中（$.toString 在 {} 上不应有结果）
+const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
 function parseQuoted(s, i) {
   const quote = s[i];
@@ -76,7 +82,9 @@ function parseLiteral(text) {
     const last = t.lastIndexOf('/');
     const flags = t.slice(last + 1);
     if (!/^[ims]*$/.test(flags)) throw new Error(`正则标志不支持：${flags}`);
-    return { __regex: t.slice(1, last), flags };
+    const pattern = t.slice(1, last);
+    try { new RegExp(pattern, flags); } catch { throw new Error(`过滤条件正则不合法：/${pattern}/${flags}`); }
+    return { __regex: pattern, flags };
   }
   throw new Error(`过滤条件字面量无法识别：${t}`);
 }
@@ -111,7 +119,7 @@ function parseCondition(text) {
   const ands = splitBool(text, '&&');
   if (ands.length > 1) return { and: ands.map(parseCondition) };
   const t = text.trim();
-  const m = t.match(/^(@(?:\.[A-Za-z_$][\w$]*|\[[^\]]*\])*)?\s*(==|!=|>=|<=|=~|>|<)\s*([\s\S]+)$/);
+  const m = t.match(/^(@(?:\.[\p{L}_$][\p{L}\p{N}_$]*|\[[^\]]*\])*)?\s*(==|!=|>=|<=|=~|>|<)\s*([\s\S]+)$/u);
   if (m) {
     const left = m[1] ? parseAtPath(m[1].slice(1)) : [];
     return { cmp: { path: left, op: m[2], value: parseLiteral(m[3]) } };
@@ -192,6 +200,7 @@ function parseBracket(s, i) {
 export function parseJsonPath(expr) {
   const s = String(expr ?? '').trim();
   if (!s) throw new Error('请输入 JSONPath 表达式');
+  if (s.length > MAX_EXPR_LENGTH) throw new Error(`表达式过长（${s.length} 字符，上限 ${MAX_EXPR_LENGTH}）`);
   let i = 0;
   if (s[i] === '$') i += 1;
   else if (s[i] === '.' || s[i] === '[') { /* 允许省略 $ */ }
@@ -240,7 +249,7 @@ export function formatPath(parts) {
   let out = '$';
   for (const p of parts) {
     if (typeof p === 'number') out += `[${p}]`;
-    else if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(p)) out += `.${p}`;
+    else if (IDENT_RE.test(p)) out += `.${p}`;
     else out += `['${String(p).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}']`;
   }
   return out;
@@ -255,7 +264,7 @@ function resolveAt(node, parts) {
       if (idx === null || idx < 0 || idx >= cur.length) return { found: false };
       cur = cur[idx];
     } else {
-      if (!(p in cur)) return { found: false };
+      if (!hasOwn(cur, p)) return { found: false };
       cur = cur[p];
     }
   }
@@ -281,7 +290,11 @@ function evalCondition(cond, node) {
       case '>=': return left >= value;
       case '<': return left < value;
       case '<=': return left <= value;
-      case '=~': return new RegExp(String(value)).test(String(left));
+      case '=~': {
+        let re;
+        try { re = new RegExp(String(value)); } catch { throw new Error(`过滤条件正则不合法：${String(value)}`); }
+        return re.test(String(left));
+      }
       default: return false;
     }
   }
@@ -295,7 +308,7 @@ function applySegment(seg, node, path, out, state) {
   };
   switch (seg.type) {
     case 'child': {
-      if (isObj(node) && !Array.isArray(node) && seg.name in node) push(node[seg.name], [...path, seg.name]);
+      if (isObj(node) && !Array.isArray(node) && hasOwn(node, seg.name)) push(node[seg.name], [...path, seg.name]);
       break;
     }
     case 'index': {
