@@ -21,7 +21,7 @@
       <template v-if="result">
         <p class="summary">合法 UUID · {{ result.versionName }} · 变体 {{ result.variant.label }}<span v-if="result.special"> · {{ result.special }}</span></p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in outRows" :key="row.label"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td><td><button class="mini" type="button" @click="copyText(row.value)">复制</button></td></tr>
+          <tr v-for="row in outRows" :key="row.label"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td><td><button class="mini" type="button" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
         </tbody></table></div>
         <div class="row actions">
           <button class="btn ghost" type="button" @click="copyText(summary)">复制摘要</button>

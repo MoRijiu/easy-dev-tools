@@ -30,7 +30,7 @@
       <template v-if="result">
         <p class="summary">{{ result.label }} · 密钥 {{ result.keyBytes }} 字节 · 消息 {{ result.messageBytes }} 字节 · 签名 {{ result.digestBytes }} 字节</p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in outRows" :key="row.key"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td><td><button class="mini" type="button" @click="copyText(row.value)">复制</button></td></tr>
+          <tr v-for="row in outRows" :key="row.key"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td><td><button class="mini" type="button" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
         </tbody></table></div>
         <div class="row actions">
           <button class="btn ghost" type="button" @click="copyText(summary)">复制摘要</button>

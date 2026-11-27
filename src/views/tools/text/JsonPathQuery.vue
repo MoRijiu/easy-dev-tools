@@ -22,7 +22,7 @@
             <div v-for="(m, i) in shownMatches" :key="i" class="match">
               <code class="mpath">{{ m.path }}</code>
               <pre class="mvalue">{{ formatValue(m.value) }}</pre>
-              <button class="copy-one" @click="copyOne(m)">复制</button>
+              <button class="copy-one" :aria-label="`复制 ${m.path} 的值`" @click="copyOne(m)">复制</button>
             </div>
             <p v-if="result.matches.length > shownMatches.length" class="more">仅展示前 {{ shownMatches.length }} 条，复制结果可拿到全部命中摘要</p>
           </div>

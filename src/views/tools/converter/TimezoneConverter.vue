@@ -32,7 +32,7 @@
                 <td>{{ row.weekday }}</td>
                 <td class="mono">{{ row.offset }}</td>
                 <td>{{ formatDiffHours(row.diffHours) }}</td>
-                <td><button class="chip" type="button" @click="copyText(`${row.label} ${row.dateTime} ${row.weekday} ${row.offset}`)">复制</button></td>
+                <td><button class="chip" type="button" :aria-label="`复制${row.label}时间`" @click="copyText(`${row.label} ${row.dateTime} ${row.weekday} ${row.offset}`)">复制</button></td>
               </tr>
             </tbody>
           </table>

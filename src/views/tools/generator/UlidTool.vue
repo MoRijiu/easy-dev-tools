@@ -38,13 +38,13 @@
       <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="kv">
         <tbody>
-          <tr><th>规范形式</th><td class="mono">{{ parsed.ulid }}</td><td><button class="btn ghost sm" type="button" @click="copyText(parsed.ulid)">复制</button></td></tr>
-          <tr><th>内嵌时间</th><td class="mono">{{ parsed.iso }}</td><td><button class="btn ghost sm" type="button" @click="copyText(parsed.iso)">复制</button></td></tr>
-          <tr><th>时间戳（毫秒）</th><td class="mono">{{ parsed.timestampMs }}</td><td><button class="btn ghost sm" type="button" @click="copyText(String(parsed.timestampMs))">复制</button></td></tr>
+          <tr><th>规范形式</th><td class="mono">{{ parsed.ulid }}</td><td><button class="btn ghost sm" type="button" aria-label="复制规范形式" @click="copyText(parsed.ulid)">复制</button></td></tr>
+          <tr><th>内嵌时间</th><td class="mono">{{ parsed.iso }}</td><td><button class="btn ghost sm" type="button" aria-label="复制内嵌时间" @click="copyText(parsed.iso)">复制</button></td></tr>
+          <tr><th>时间戳（毫秒）</th><td class="mono">{{ parsed.timestampMs }}</td><td><button class="btn ghost sm" type="button" aria-label="复制时间戳（毫秒）" @click="copyText(String(parsed.timestampMs))">复制</button></td></tr>
           <tr><th>本地时间</th><td class="mono">{{ localTime }}</td><td></td></tr>
           <tr><th>时间段（10 位）</th><td class="mono">{{ parsed.timeSegment }}</td><td></td></tr>
           <tr><th>随机段（16 位 / 80 bit）</th><td class="mono">{{ parsed.randomSegment }}</td><td></td></tr>
-          <tr><th>随机段十六进制</th><td class="mono">{{ parsed.randomnessHex }}</td><td><button class="btn ghost sm" type="button" @click="copyText(parsed.randomnessHex)">复制</button></td></tr>
+          <tr><th>随机段十六进制</th><td class="mono">{{ parsed.randomnessHex }}</td><td><button class="btn ghost sm" type="button" aria-label="复制随机段十六进制" @click="copyText(parsed.randomnessHex)">复制</button></td></tr>
         </tbody>
       </table>
       <div v-if="parsed" class="row actions">

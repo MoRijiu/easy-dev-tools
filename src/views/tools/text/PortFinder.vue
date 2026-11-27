@@ -19,7 +19,7 @@
       <p class="count">端口表共 {{ totalCount }} 条，当前显示 {{ results.length }} 条 · 提示：数据库与远程管理端口不要直接暴露公网，优先走内网、VPN 或跳板机</p>
       <div v-if="results.length" class="list">
         <article v-for="t in results" :key="t.port + t.service" class="item">
-          <div class="head"><span class="port">{{ t.port }}</span><code class="svc">{{ t.service }}</code><span class="proto">{{ t.protocol }}</span><span class="zh">{{ t.nameZh }}</span><button class="copy" @click="copyItem(t)">复制</button></div>
+          <div class="head"><span class="port">{{ t.port }}</span><code class="svc">{{ t.service }}</code><span class="proto">{{ t.protocol }}</span><span class="zh">{{ t.nameZh }}</span><button class="copy" :aria-label="`复制端口 ${t.port} ${t.service}`" @click="copyItem(t)">复制</button></div>
           <p v-if="t.note" class="desc">{{ t.note }}</p>
         </article>
       </div>

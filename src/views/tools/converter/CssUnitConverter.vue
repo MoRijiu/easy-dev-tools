@@ -26,7 +26,7 @@
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in rows" :key="row.symbol"><th>{{ row.symbol }} <span class="muted">{{ row.name }}</span></th><td class="mono">{{ row.css }}</td><td><button class="copy" @click="copyText(row.css)">复制</button></td></tr>
+          <tr v-for="row in rows" :key="row.symbol"><th>{{ row.symbol }} <span class="muted">{{ row.name }}</span></th><td class="mono">{{ row.css }}</td><td><button class="copy" :aria-label="`复制 ${row.symbol} 换算结果`" @click="copyText(row.css)">复制</button></td></tr>
         </tbody></table></div>
         <button class="btn ghost" @click="copyText(summary)">复制摘要</button>
       </template>
