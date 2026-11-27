@@ -51,24 +51,73 @@ export function integerToCapital(intStr) {
   return out;
 }
 
+const MAX_INPUT_LENGTH = 64;
+
+// 全角数字/标点转半角（金额从中文输入法或文档粘贴时常见），返回是否发生转换
+function normalizeFullWidth(s) {
+  let changed = false;
+  const out = s.replace(/[\uFF01-\uFF5E\u3000]/g, (ch) => {
+    changed = true;
+    if (ch === '\u3000') return ' ';
+    return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+  });
+  return { text: out, changed };
+}
+
 export function parseAmount(input = '') {
-  let s = String(input ?? '').trim().replace(/[,，\s]/g, '').replace(/^[¥￥]/, '').replace(/元$/, '');
+  const notes = [];
+  const raw = String(input ?? '');
+  if (raw.length > MAX_INPUT_LENGTH) {
+    return { ok: false, error: `金额输入过长（${raw.length} 个字符），最多 ${MAX_INPUT_LENGTH} 个字符` };
+  }
+  let { text: s, changed } = normalizeFullWidth(raw.trim());
+  if (changed) notes.push('已将全角数字/标点转换为半角');
   if (!s) return { ok: false, error: '请输入金额，如 1234.56' };
   let negative = false;
-  if (s.startsWith('-') || s.startsWith('+')) { negative = s[0] === '-'; s = s.slice(1); }
-  const bad = s.match(/[^0-9.]/);
-  if (bad) return { ok: false, error: `金额含非法字符「${bad[0]}」，只能输入数字与小数点` };
+  // 「负」字前缀与 +/- 号（可与 ¥ 前缀任意先后，如 -¥100 / ¥-100）
+  for (let i = 0; i < 2; i++) {
+    if (s.startsWith('¥')) { s = s.slice(1).trimStart(); }
+    else if (s.startsWith('负')) { negative = true; s = s.slice(1); }
+    else if (s.startsWith('-') || s.startsWith('+')) { negative = s[0] === '-'; s = s.slice(1); }
+    else break;
+  }
+  if (s.endsWith('元整')) { s = s.slice(0, -2); notes.push('已去掉末尾的「元整」'); }
+  else if (s.endsWith('元')) { s = s.slice(0, -1); }
+  if (!s) return { ok: false, error: '请输入金额，如 1234.56' };
+  const bad = s.match(/[^0-9., ]/);
+  if (bad) return { ok: false, error: `金额第 ${bad.index + 1} 个字符「${bad[0]}」不合法，只能输入数字、小数点与千分位分隔符` };
   const parts = s.split('.');
   if (parts.length > 2) return { ok: false, error: '金额只能有一个小数点' };
-  const intRaw = parts[0];
+  let intRaw = parts[0];
   const fracRaw = parts.length === 2 ? parts[1] : '';
   if (intRaw === '' && fracRaw === '') return { ok: false, error: '请输入金额，如 1234.56' };
+  if (/[, ]/.test(fracRaw)) {
+    return { ok: false, error: '小数部分不能带千分位分隔符' };
+  }
+  // 千分位分隔符（逗号或空格）只能出现在整数部分，且必须按 3 位分组，
+  // 否则 1,5 会被静默拼成 15、1 2 拼成 12，金额场景下绝不能猜。
+  const seps = [...new Set(intRaw.match(/[, ]/g) || [])];
+  if (seps.length > 1) return { ok: false, error: '千分位分隔符不能混用逗号与空格，请统一一种' };
+  if (seps.length === 1) {
+    const sep = seps[0];
+    const groups = intRaw.split(sep);
+    const valid = groups.length > 1 && /^\d{1,3}$/.test(groups[0]) && groups.slice(1).every((g) => /^\d{3}$/.test(g));
+    if (!valid) {
+      return { ok: false, error: `千分位分隔符位置不对：应为每 3 位一组（如 1,234,567），当前「${intRaw}」无法确认金额，请去掉分隔符或改正分组` };
+    }
+    intRaw = groups.join('');
+    notes.push('已按千分位分组去掉分隔符');
+  }
   if (fracRaw.length > 2) return { ok: false, error: '金额最多保留两位小数（角、分），请先四舍五入' };
   const intStr = (intRaw || '0').replace(/^0+(?=\d)/, '');
   if (intStr.length > MAX_INT_DIGITS) return { ok: false, error: `整数部分最多 ${MAX_INT_DIGITS} 位（仟兆以内）` };
   const jiao = fracRaw.length >= 1 ? Number(fracRaw[0]) : 0;
   const fen = fracRaw.length >= 2 ? Number(fracRaw[1]) : 0;
-  return { ok: true, negative, intStr, jiao, fen };
+  if (negative && intStr === '0' && jiao === 0 && fen === 0) {
+    negative = false;
+    notes.push('负零按零处理，不读「负」');
+  }
+  return { ok: true, negative, intStr, jiao, fen, notes };
 }
 
 export function convertRmb(parsed) {
@@ -101,5 +150,5 @@ export function formatMoney(parsed) {
 export function convertAmountInput(input) {
   const parsed = parseAmount(input);
   if (!parsed.ok) return parsed;
-  return { ok: true, parsed, capital: convertRmb(parsed), formatted: formatMoney(parsed) };
+  return { ok: true, parsed, capital: convertRmb(parsed), formatted: formatMoney(parsed), notes: parsed.notes || [] };
 }
