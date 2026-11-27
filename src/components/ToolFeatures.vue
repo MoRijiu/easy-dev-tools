@@ -30,28 +30,27 @@ defineProps({
 
 <style scoped>
 .features {
-  margin-top: 50px;
-  padding-top: 40px;
+  margin-top: 32px;
+  padding-top: 28px;
   border-top: 2px solid var(--border);
 }
 
 .features h2 {
-  font-size: 2rem;
+  font-size: 1.3rem;
   color: var(--text-strong);
-  margin-bottom: 30px;
-  text-align: center;
+  margin-bottom: 16px;
 }
 
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
 .feature-item {
   text-align: center;
-  padding: 25px;
+  padding: 16px;
   background: linear-gradient(135deg, var(--bg-soft) 0%, var(--border) 100%);
   border-radius: 12px;
   transition: transform 0.3s;
@@ -62,15 +61,15 @@ defineProps({
 }
 
 .feature-icon {
-  font-size: 3rem;
+  font-size: 2rem;
   display: block;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .feature-item h3 {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   color: var(--text-strong);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .feature-item p {

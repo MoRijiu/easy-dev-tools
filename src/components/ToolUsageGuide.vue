@@ -19,26 +19,26 @@ defineProps({
 
 <style scoped>
 .usage-guide {
-  margin-top: 40px;
-  padding: 30px;
+  margin-top: 28px;
+  padding: 20px;
   background: var(--bg);
   border-radius: 12px;
 }
 
 .usage-guide h2 {
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   color: var(--text-strong);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .usage-guide ol {
-  padding-left: 25px;
+  padding-left: 22px;
 }
 
 .usage-guide li {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   color: var(--text-2);
-  line-height: 1.8;
+  line-height: 1.7;
 }
 </style>
 
