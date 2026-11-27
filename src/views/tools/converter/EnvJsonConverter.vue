@@ -25,6 +25,7 @@
         <textarea v-model="inputText" class="text-input" :placeholder="mode === 'env2json' ? '粘贴 .env，如：\nAPP_NAME=demo\nPORT=8080' : '粘贴 JSON，如 {&quot;APP_NAME&quot;:&quot;demo&quot;,&quot;PORT&quot;:8080}'" spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
         <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'env2json' ? 'JSON 结果会显示在这里' : '.env 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
+      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
       <p v-if="stats" class="stats">{{ stats }}</p>
       <ToolExamples :examples="examples" @use-example="useExample" />
       <ToolFeatures :features="features" />
@@ -46,7 +47,7 @@ import { envToJson, jsonToEnv } from '@/utils/envJson.js';
 
 const features = [
   { icon: '🔁', title: '双向互转', description: '.env 转 JSON、JSON 转 .env，一页搞定' },
-  { icon: '🧩', title: '常见写法全支持', description: 'export 前缀、# 注释、单/双引号、双引号转义与多行值' },
+  { icon: '🧩', title: '常见写法全支持', description: 'export 前缀、# 注释、单/双引号、双引号转义与引号多行值' },
   { icon: '🎯', title: '错误定位到行', description: '缺 =、键名不合法、引号未闭合等问题直接指出行号；重复键单独提示' },
   { icon: '🔒', title: '纯本地处理', description: '.env 常含密钥，全部在浏览器本地转换，不上传服务器' }
 ];
@@ -55,6 +56,9 @@ const faqs = [
   { question: '.env 转 JSON 后数字都变成字符串了？', answer: '.env 本身没有类型，所有值都是字符串，所以 PORT=8080 转出的是 "8080"。反向时 JSON 的数字与布尔会写成 8080、true，null 写成空值。' },
   { question: '值里有空格或 # 怎么办？', answer: '用双引号包起来，如 GREETING="hello # world"；无引号值里空格后的 # 会被当作行尾注释。JSON 转 .env 时这类值会自动加双引号。' },
   { question: '嵌套对象能转成 .env 吗？', answer: '不能。.env 只能存扁平字符串，遇到对象或数组会明确报错指出键名，请先把该值压成 JSON 字符串再转。' },
+  { question: '从文档粘来的全角等号、全角引号能认吗？', answer: '能。键名、等号与引号定界符位置的全角字符会按半角处理并给出提示；值内容里的全角字保持原样，不会被改动。单引号与双引号值都支持跨多行。' },
+  { question: 'JSON 里同名键重复、数字写了 1e999 会怎样？', answer: '重复键会点名报错（JSON.parse 本会静默只留最后一个值）；1e999 这类溢出成无穷大的数值会被拒绝，超出安全范围的大整数会给出核对提醒。' },
+  { question: '转换报错后之前的结果还在吗？', answer: '在。出错只更新上方的错误提示，上一次成功的结果与统计会保留，改好输入重新转换即可覆盖。' },
   { question: '我的 .env 会被上传吗？', answer: '不会。全部转换都在浏览器本地完成，不发送任何网络请求。' }
 ];
 const examples = [
@@ -68,25 +72,28 @@ const sortKeys = ref(false);
 const inputText = ref('');
 const outputText = ref('');
 const stats = ref('');
+const notes = ref([]);
 const statusMessage = ref('');
 const statusType = ref('');
 const countLines = (s) => (s ? s.split('\n').length : 0);
 const convert = () => {
-  outputText.value = ''; stats.value = '';
-  if (!inputText.value.trim()) { statusMessage.value = ''; return; }
+  if (!inputText.value.trim()) { outputText.value = ''; stats.value = ''; notes.value = []; statusMessage.value = ''; return; }
   try {
     if (mode.value === 'env2json') {
       const r = envToJson(inputText.value, indent.value);
       outputText.value = r.json;
+      notes.value = r.notes || [];
       stats.value = `共 ${r.uniqueCount} 个键 · 输入 ${countLines(inputText.value)} 行 → 输出 ${countLines(outputText.value)} 行` + (r.duplicates.length ? ` · 重复键（后者生效）：${[...new Set(r.duplicates)].join(', ')}` : '');
     } else {
       const r = jsonToEnv(inputText.value, { quote: quote.value, sortKeys: sortKeys.value });
       outputText.value = r.env.replace(/\n$/, '');
+      notes.value = r.warnings || [];
       stats.value = `共 ${r.count} 个键 · 输入 ${countLines(inputText.value)} 行 → 输出 ${r.count} 行`;
     }
     statusMessage.value = '✓ 转换成功';
     statusType.value = 'success';
   } catch (e) {
+    // 出错保留上一次成功结果与统计，只更新错误提示
     statusMessage.value = '✗ ' + e.message;
     statusType.value = 'error';
   }
@@ -97,7 +104,7 @@ const JSON_EXAMPLE = '{\n  "APP_NAME": "my-app",\n  "PORT": 8080,\n  "DEBUG": fa
 const loadExample = () => { inputText.value = mode.value === 'env2json' ? ENV_EXAMPLE : JSON_EXAMPLE; convert(); };
 const useExample = (ex) => { mode.value = ex.description.startsWith('JSON') ? 'json2env' : 'env2json'; inputText.value = ex.input; convert(); };
 const swap = () => { if (!outputText.value) return; inputText.value = outputText.value; mode.value = mode.value === 'env2json' ? 'json2env' : 'env2json'; convert(); };
-const clearAll = () => { inputText.value = ''; outputText.value = ''; stats.value = ''; statusMessage.value = ''; };
+const clearAll = () => { inputText.value = ''; outputText.value = ''; stats.value = ''; notes.value = []; statusMessage.value = ''; };
 const copyOutput = async () => {
   try { await navigator.clipboard.writeText(outputText.value); statusMessage.value = '✓ 结果已复制'; statusType.value = 'success'; }
   catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
@@ -108,7 +115,7 @@ const copyOutput = async () => {
 .env-json { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .mode-btn { padding: 6px 12px; border: none; background: var(--bg-soft); color: var(--text-2); font-size: 13px; cursor: pointer; }
 .mode-btn.active { background: var(--accent); color: #fff; }
@@ -118,5 +125,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .text-input { width: 100%; min-height: 220px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .text-input.output { background: var(--bg-soft); }
 .stats { margin: 10px 0 0; font-size: 13px; color: var(--text-2); }
+.notes { margin: 10px 0 0; color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .panes { grid-template-columns: 1fr; } }
 </style>
