@@ -45,7 +45,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="hash-status" :message="statusMessage" :type="statusType" />
 
       <!-- 文本输入区域 -->
       <div class="input-section" v-if="mode === 'text'">
@@ -69,6 +69,8 @@
           tabindex="0"
           role="button"
           aria-label="选择要计算哈希的文件，或把文件拖放到这里"
+          :aria-invalid="fileErrorActive ? 'true' : undefined"
+          :aria-describedby="fileErrorActive ? 'hash-status' : undefined"
           @keydown="onDropZoneKeydown"
           @dragover.prevent="dragging = true"
           @dragleave="dragging = false"
@@ -127,9 +129,11 @@
             type="text"
             spellcheck="false"
             placeholder="粘贴官方公布的哈希值，自动与上方结果比对（大小写、空格不敏感）"
+            :aria-invalid="verifyType === 'error' && verifyMessage ? 'true' : undefined"
+            :aria-describedby="verifyType === 'error' && verifyMessage ? 'hash-verify-message' : undefined"
             @input="runVerify"
           />
-          <p v-if="verifyMessage" :class="['verify-message', verifyType]" :role="verifyType === 'error' ? 'alert' : 'status'" :aria-live="verifyType === 'error' ? 'assertive' : 'polite'" aria-atomic="true">{{ verifyMessage }}</p>
+          <p v-if="verifyMessage" id="hash-verify-message" :class="['verify-message', verifyType]" :role="verifyType === 'error' ? 'alert' : 'status'" :aria-live="verifyType === 'error' ? 'assertive' : 'polite'" aria-atomic="true">{{ verifyMessage }}</p>
         </div>
       </div>
 
@@ -182,6 +186,10 @@ const hashResults = ref({});
 const upperCase = reactive({});
 const statusMessage = ref("");
 const statusType = ref("");
+// 文件类状态错误（未选文件/读取失败）留存原文，仅当前展示的正是该错误时才关联到拖放区；算法未勾选等其他状态消息不误绑
+const fileErrorText = ref("");
+const setFileError = (msg) => { statusMessage.value = msg; statusType.value = "error"; fileErrorText.value = msg; };
+const fileErrorActive = computed(() => statusType.value === "error" && fileErrorText.value !== "" && statusMessage.value === fileErrorText.value);
 const expectedInput = ref("");
 const verifyMessage = ref("");
 const verifyType = ref("");
@@ -230,8 +238,7 @@ const calculateHash = async () => {
   }
   const bytes = sourceBytes();
   if (bytes === null) {
-    statusMessage.value = "✗ 请先选择要计算哈希的文件";
-    statusType.value = "error";
+    setFileError("✗ 请先选择要计算哈希的文件");
     return;
   }
   try {
@@ -276,8 +283,7 @@ const loadFile = async (file) => {
     fileMeta.value = { name: file.name, size: file.size };
     calculateHash();
   } catch {
-    statusMessage.value = "✗ 文件读取失败，请重新选择";
-    statusType.value = "error";
+    setFileError("✗ 文件读取失败，请重新选择");
   }
 };
 

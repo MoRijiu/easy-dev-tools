@@ -16,7 +16,7 @@
         </button>
       </ToolToolbar>
 
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="jwt-decoder-status" :message="statusMessage" :type="statusType" />
 
       <div class="input-section">
         <ToolEditorPanel title="输入 JWT" :info="inputToken.trim() ? `${inputToken.trim().length} 字符` : ''">
@@ -26,6 +26,8 @@
             placeholder="粘贴 JWT，例如：eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0...."
             spellcheck="false"
             aria-label="JWT 输入"
+            :aria-invalid="inputErrorActive ? 'true' : undefined"
+            :aria-describedby="inputErrorActive ? 'jwt-decoder-status' : undefined"
             @input="decode"
           ></textarea>
         </ToolEditorPanel>
@@ -154,6 +156,9 @@ const notes = ref([]);
 const warnings = ref([]);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 
 const headerText = computed(() => decoded.value ? JSON.stringify(decoded.value.header, null, 2) : '');
 const payloadText = computed(() => decoded.value ? JSON.stringify(decoded.value.payload, null, 2) : '');
@@ -208,7 +213,7 @@ const decode = () => {
   decoded.value = null;
   notes.value = [];
   warnings.value = [];
-  if (!inputToken.value.trim()) { statusMessage.value = ''; return; }
+  if (!inputToken.value.trim()) { statusMessage.value = ''; inputErrorText.value = ''; return; }
   try {
     const result = parseJwt(inputToken.value);
     decoded.value = result;
@@ -217,14 +222,13 @@ const decode = () => {
     statusMessage.value = '✓ 解码成功';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = `✗ 解码失败：${e.message}`;
-    statusType.value = 'error';
+    setInputError(`✗ 解码失败：${e.message}`);
   }
 };
 
 const loadExample = () => { inputToken.value = SAMPLE_TOKEN; decode(); };
 const useExample = (example) => { inputToken.value = example.input; decode(); };
-const clearAll = () => { inputToken.value = ''; decoded.value = null; notes.value = []; warnings.value = []; statusMessage.value = ''; };
+const clearAll = () => { inputToken.value = ''; decoded.value = null; notes.value = []; warnings.value = []; statusMessage.value = ''; inputErrorText.value = ''; };
 const copyPayload = async () => {
   try {
     await navigator.clipboard.writeText(payloadText.value);

@@ -8,15 +8,15 @@
           <select v-model="alg" aria-label="签名算法" @change="syncHeaderAlg"><option v-for="a in JWT_ALGS" :key="a.id" :value="a.id">{{ a.label }}</option></select>
         </label>
         <label class="secret-label">签名密钥（Secret）
-          <span class="secret-wrap"><input v-model="secret" :type="showSecret ? 'text' : 'password'" placeholder="输入签名密钥" aria-label="签名密钥" autocomplete="off" /><button class="mini" type="button" :aria-pressed="showSecret" :aria-label="showSecret ? '隐藏签名密钥' : '显示签名密钥'" @click="showSecret = !showSecret">{{ showSecret ? '隐藏' : '显示' }}</button></span>
+          <span class="secret-wrap"><input v-model="secret" :type="showSecret ? 'text' : 'password'" placeholder="输入签名密钥" aria-label="签名密钥" autocomplete="off" :aria-invalid="errorField === 'secret' ? 'true' : undefined" :aria-describedby="errorField === 'secret' ? 'jwt-encoder-error' : undefined" /><button class="mini" type="button" :aria-pressed="showSecret" :aria-label="showSecret ? '隐藏签名密钥' : '显示签名密钥'" @click="showSecret = !showSecret">{{ showSecret ? '隐藏' : '显示' }}</button></span>
         </label>
       </div>
       <div class="cols">
         <label>Header（JSON）
-          <textarea v-model="headerText" rows="5" spellcheck="false" aria-label="Header JSON"></textarea>
+          <textarea v-model="headerText" rows="5" spellcheck="false" aria-label="Header JSON" :aria-invalid="errorField === 'header' ? 'true' : undefined" :aria-describedby="errorField === 'header' ? 'jwt-encoder-error' : undefined"></textarea>
         </label>
         <label>Payload（JSON）
-          <textarea v-model="payloadText" rows="9" spellcheck="false" aria-label="Payload JSON"></textarea>
+          <textarea v-model="payloadText" rows="9" spellcheck="false" aria-label="Payload JSON" :aria-invalid="errorField === 'payload' ? 'true' : undefined" :aria-describedby="errorField === 'payload' ? 'jwt-encoder-error' : undefined"></textarea>
         </label>
       </div>
       <div class="row actions">
@@ -26,7 +26,7 @@
         <button class="btn" type="button" @click="generate">生成 Token</button>
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="jwt-encoder-error" class="error" role="alert">{{ error }}</p>
       <div v-if="result && result.warnings && result.warnings.length" class="warn-box" role="status" aria-live="polite">
         <p v-for="(w, i) in result.warnings" :key="i">⚠ {{ w }}</p>
       </div>
@@ -48,7 +48,7 @@
   </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -80,6 +80,15 @@ const headerText = ref(EXAMPLE_HEADER);
 const payloadText = ref(EXAMPLE_PAYLOAD);
 const result = ref(null); const selfCheck = ref(null); const error = ref('');
 const statusMessage = ref(''); const statusType = ref('');
+// 错误归属：signJwt/parseJsonObjectInput 的报错以 Header/Payload 开头或点名签名密钥，据此关联出错字段；签名失败等环境类错误不归字段
+const errorField = computed(() => {
+  const e = error.value;
+  if (!e) return '';
+  if (e.startsWith('Header')) return 'header';
+  if (e.startsWith('Payload')) return 'payload';
+  if (e.includes('签名密钥')) return 'secret';
+  return '';
+});
 const selfCheckText = ref('');
 const syncHeaderAlg = () => {
   const p = parseJsonObjectInput(headerText.value, 'Header');
@@ -91,7 +100,7 @@ const applyTtl = (sec) => {
   error.value = '';
   try {
     payloadText.value = JSON.stringify(applyTimeClaims(p.value, { ttlSec: sec }), null, 2);
-  } catch (e) { error.value = e.message; }
+  } catch (e) { error.value = `Payload ${e.message}`; }
 };
 const generate = async () => {
   const r = await signJwt({ headerText: headerText.value, payloadText: payloadText.value, secret: secret.value, alg: alg.value });

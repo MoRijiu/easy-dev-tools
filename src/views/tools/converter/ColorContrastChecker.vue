@@ -5,16 +5,16 @@
     <div class="tool-container">
       <div class="row">
         <label>前景色（文字）
-          <span class="field"><input v-model="fgInput" type="text" placeholder="#1f2937" aria-label="前景色输入" /><input v-model="fgPicker" type="color" aria-label="前景色取色器" /></span>
+          <span class="field"><input v-model="fgInput" type="text" placeholder="#1f2937" aria-label="前景色输入" :aria-invalid="error.startsWith('前景色') ? 'true' : undefined" :aria-describedby="error.startsWith('前景色') ? 'color-contrast-error' : undefined" /><input v-model="fgPicker" type="color" aria-label="前景色取色器" /></span>
         </label>
         <button class="btn ghost swap" @click="swap">⇄ 交换</button>
         <label>背景色
-          <span class="field"><input v-model="bgInput" type="text" placeholder="#ffffff" aria-label="背景色输入" /><input v-model="bgPicker" type="color" aria-label="背景色取色器" /></span>
+          <span class="field"><input v-model="bgInput" type="text" placeholder="#ffffff" aria-label="背景色输入" :aria-invalid="error.startsWith('背景色') ? 'true' : undefined" :aria-describedby="error.startsWith('背景色') ? 'color-contrast-error' : undefined" /><input v-model="bgPicker" type="color" aria-label="背景色取色器" /></span>
         </label>
         <button class="btn ghost" @click="clearAll">清空</button>
       </div>
       <div class="examples"><span>常用搭配：</span><button v-for="e in examples" :key="e.label" class="chip" @click="pick(e)">{{ e.label }}</button></div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="color-contrast-error" class="error" role="alert">{{ error }}</p>
       <template v-if="result">
         <div class="preview" :style="{ background: result.bg.hex, color: result.fg.hex }">
           <p class="pv-normal">普通文本示例：快速的棕色狐狸跳过懒狗 0123456789（16px）</p>

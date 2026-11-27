@@ -29,14 +29,14 @@
       <div class="parse-section">
         <label class="input-label" for="any-color">粘贴任意格式一键识别</label>
         <div class="input-row">
-          <input id="any-color" v-model="anyInput" type="text" class="color-input" placeholder="#FF5733 / rgb(255, 87, 51) / hsl(11, 100%, 60%) / orange" @keyup.enter="parseAny" />
+          <input id="any-color" v-model="anyInput" type="text" class="color-input" placeholder="#FF5733 / rgb(255, 87, 51) / hsl(11, 100%, 60%) / orange" :aria-invalid="parseError ? 'true' : undefined" :aria-describedby="parseError ? 'color-any-error' : undefined" @keyup.enter="parseAny" />
           <button class="btn btn-primary" @click="parseAny">解析</button>
         </div>
         <span class="format-hint">支持 #HEX（3/4/6/8 位）、rgb()/rgba()、hsl()/hsla() 与常用英文名；错误会定位到具体字符。</span>
-        <p v-if="parseError" class="field-error" role="alert">{{ parseError }}</p>
+        <p v-if="parseError" id="color-any-error" class="field-error" role="alert">{{ parseError }}</p>
         <div class="alpha-row">
           <label for="alpha-range">透明度 Alpha：{{ alphaPct }}%</label>
-          <input id="alpha-range" v-model.number="alphaPct" type="range" min="0" max="100" @input="onAlphaChange" />
+          <input id="alpha-range" v-model.number="alphaPct" type="range" min="0" max="100" :aria-invalid="compInvalid('alpha') ? 'true' : undefined" :aria-describedby="compInvalid('alpha') ? 'color-converter-status' : undefined" @input="onAlphaChange" />
           <span class="format-hint">带透明度时 HEX 显示为 8 位（#RRGGBBAA），RGB/HSL 显示为 rgba()/hsla()</span>
           <span class="named-chip">最近命名色：<b>{{ nearest.name }}</b> {{ nearest.hex }}{{ nearest.exact ? '（精确命中）' : '' }}</span>
         </div>
@@ -56,7 +56,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="color-converter-status" :message="statusMessage" :type="statusType" />
 
       <!-- 颜色输入区域 -->
       <div class="color-inputs-grid">
@@ -64,7 +64,9 @@
         <div class="color-input-card">
           <label class="input-label">HEX</label>
           <div class="input-row">
-            <input aria-label="HEX 颜色值" 
+            <input aria-label="HEX 颜色值"
+              :aria-invalid="hexError ? 'true' : undefined"
+              :aria-describedby="hexError ? 'color-hex-error' : undefined"
               v-model="hexInput" 
               type="text" 
               class="color-input"
@@ -74,16 +76,16 @@
             <button class="copy-btn" aria-label="复制 HEX 值" @click="copyValue(hexInput, 'HEX')">📋</button>
           </div>
           <span class="format-hint">格式: #RGB / #RRGGBB / 带透明度 #RGBA / #RRGGBBAA</span>
-          <p v-if="hexError" class="field-error" role="alert">{{ hexError }}</p>
+          <p v-if="hexError" id="color-hex-error" class="field-error" role="alert">{{ hexError }}</p>
         </div>
 
         <!-- RGB 输入 -->
         <div class="color-input-card">
           <label class="input-label">RGB</label>
           <div class="input-row rgb-inputs">
-            <input aria-label="RGB 红色分量 R" v-model.number="rgb.r" type="number" min="0" max="255" placeholder="R" @input="onRgbChange" />
-            <input aria-label="RGB 绿色分量 G" v-model.number="rgb.g" type="number" min="0" max="255" placeholder="G" @input="onRgbChange" />
-            <input aria-label="RGB 蓝色分量 B" v-model.number="rgb.b" type="number" min="0" max="255" placeholder="B" @input="onRgbChange" />
+            <input aria-label="RGB 红色分量 R" :aria-invalid="compInvalid('rgb.r') ? 'true' : undefined" :aria-describedby="compInvalid('rgb.r') ? 'color-converter-status' : undefined" v-model.number="rgb.r" type="number" min="0" max="255" placeholder="R" @input="onRgbChange" />
+            <input aria-label="RGB 绿色分量 G" :aria-invalid="compInvalid('rgb.g') ? 'true' : undefined" :aria-describedby="compInvalid('rgb.g') ? 'color-converter-status' : undefined" v-model.number="rgb.g" type="number" min="0" max="255" placeholder="G" @input="onRgbChange" />
+            <input aria-label="RGB 蓝色分量 B" :aria-invalid="compInvalid('rgb.b') ? 'true' : undefined" :aria-describedby="compInvalid('rgb.b') ? 'color-converter-status' : undefined" v-model.number="rgb.b" type="number" min="0" max="255" placeholder="B" @input="onRgbChange" />
             <button class="copy-btn" aria-label="复制 RGB 值" @click="copyValue(rgbString, 'RGB')">📋</button>
           </div>
           <span class="format-hint">范围: 0-255</span>
@@ -93,9 +95,9 @@
         <div class="color-input-card">
           <label class="input-label">HSL</label>
           <div class="input-row hsl-inputs">
-            <input aria-label="HSL 色相 H" v-model.number="hsl.h" type="number" min="0" max="360" placeholder="H" @input="onHslChange" />
-            <input aria-label="HSL 饱和度 S" v-model.number="hsl.s" type="number" min="0" max="100" placeholder="S" @input="onHslChange" />
-            <input aria-label="HSL 亮度 L" v-model.number="hsl.l" type="number" min="0" max="100" placeholder="L" @input="onHslChange" />
+            <input aria-label="HSL 色相 H" :aria-invalid="compInvalid('hsl.h') ? 'true' : undefined" :aria-describedby="compInvalid('hsl.h') ? 'color-converter-status' : undefined" v-model.number="hsl.h" type="number" min="0" max="360" placeholder="H" @input="onHslChange" />
+            <input aria-label="HSL 饱和度 S" :aria-invalid="compInvalid('hsl.s') ? 'true' : undefined" :aria-describedby="compInvalid('hsl.s') ? 'color-converter-status' : undefined" v-model.number="hsl.s" type="number" min="0" max="100" placeholder="S" @input="onHslChange" />
+            <input aria-label="HSL 亮度 L" :aria-invalid="compInvalid('hsl.l') ? 'true' : undefined" :aria-describedby="compInvalid('hsl.l') ? 'color-converter-status' : undefined" v-model.number="hsl.l" type="number" min="0" max="100" placeholder="L" @input="onHslChange" />
             <button class="copy-btn" aria-label="复制 HSL 值" @click="copyValue(hslString, 'HSL')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, S/L: 0-100%</span>
@@ -105,9 +107,9 @@
         <div class="color-input-card">
           <label class="input-label">HSV / HSB</label>
           <div class="input-row hsv-inputs">
-            <input aria-label="HSV 色相 H" v-model.number="hsv.h" type="number" min="0" max="360" placeholder="H" @input="onHsvChange" />
-            <input aria-label="HSV 饱和度 S" v-model.number="hsv.s" type="number" min="0" max="100" placeholder="S" @input="onHsvChange" />
-            <input aria-label="HSV 明度 V" v-model.number="hsv.v" type="number" min="0" max="100" placeholder="V" @input="onHsvChange" />
+            <input aria-label="HSV 色相 H" :aria-invalid="compInvalid('hsv.h') ? 'true' : undefined" :aria-describedby="compInvalid('hsv.h') ? 'color-converter-status' : undefined" v-model.number="hsv.h" type="number" min="0" max="360" placeholder="H" @input="onHsvChange" />
+            <input aria-label="HSV 饱和度 S" :aria-invalid="compInvalid('hsv.s') ? 'true' : undefined" :aria-describedby="compInvalid('hsv.s') ? 'color-converter-status' : undefined" v-model.number="hsv.s" type="number" min="0" max="100" placeholder="S" @input="onHsvChange" />
+            <input aria-label="HSV 明度 V" :aria-invalid="compInvalid('hsv.v') ? 'true' : undefined" :aria-describedby="compInvalid('hsv.v') ? 'color-converter-status' : undefined" v-model.number="hsv.v" type="number" min="0" max="100" placeholder="V" @input="onHsvChange" />
             <button class="copy-btn" aria-label="复制 HSV 值" @click="copyValue(hsvString, 'HSV')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, S/V: 0-100%</span>
@@ -117,10 +119,10 @@
         <div class="color-input-card">
           <label class="input-label">CMYK</label>
           <div class="input-row cmyk-inputs">
-            <input aria-label="CMYK 青色 C" v-model.number="cmyk.c" type="number" min="0" max="100" placeholder="C" @input="onCmykChange" />
-            <input aria-label="CMYK 品红 M" v-model.number="cmyk.m" type="number" min="0" max="100" placeholder="M" @input="onCmykChange" />
-            <input aria-label="CMYK 黄色 Y" v-model.number="cmyk.y" type="number" min="0" max="100" placeholder="Y" @input="onCmykChange" />
-            <input aria-label="CMYK 黑色 K" v-model.number="cmyk.k" type="number" min="0" max="100" placeholder="K" @input="onCmykChange" />
+            <input aria-label="CMYK 青色 C" :aria-invalid="compInvalid('cmyk.c') ? 'true' : undefined" :aria-describedby="compInvalid('cmyk.c') ? 'color-converter-status' : undefined" v-model.number="cmyk.c" type="number" min="0" max="100" placeholder="C" @input="onCmykChange" />
+            <input aria-label="CMYK 品红 M" :aria-invalid="compInvalid('cmyk.m') ? 'true' : undefined" :aria-describedby="compInvalid('cmyk.m') ? 'color-converter-status' : undefined" v-model.number="cmyk.m" type="number" min="0" max="100" placeholder="M" @input="onCmykChange" />
+            <input aria-label="CMYK 黄色 Y" :aria-invalid="compInvalid('cmyk.y') ? 'true' : undefined" :aria-describedby="compInvalid('cmyk.y') ? 'color-converter-status' : undefined" v-model.number="cmyk.y" type="number" min="0" max="100" placeholder="Y" @input="onCmykChange" />
+            <input aria-label="CMYK 黑色 K" :aria-invalid="compInvalid('cmyk.k') ? 'true' : undefined" :aria-describedby="compInvalid('cmyk.k') ? 'color-converter-status' : undefined" v-model.number="cmyk.k" type="number" min="0" max="100" placeholder="K" @input="onCmykChange" />
             <button class="copy-btn" aria-label="复制 CMYK 值" @click="copyValue(cmykString, 'CMYK')">📋</button>
           </div>
           <span class="format-hint">范围: 0-100%</span>
@@ -130,9 +132,9 @@
         <div class="color-input-card">
           <label class="input-label">HWB（CSS Color 4）</label>
           <div class="input-row hsv-inputs">
-            <input aria-label="HWB 色相 H" v-model.number="hwb.h" type="number" min="0" max="360" placeholder="H" @input="onHwbChange" />
-            <input aria-label="HWB 白度 W" v-model.number="hwb.w" type="number" min="0" max="100" placeholder="W" @input="onHwbChange" />
-            <input aria-label="HWB 黑度 B" v-model.number="hwb.b" type="number" min="0" max="100" placeholder="B" @input="onHwbChange" />
+            <input aria-label="HWB 色相 H" :aria-invalid="compInvalid('hwb.h') ? 'true' : undefined" :aria-describedby="compInvalid('hwb.h') ? 'color-converter-status' : undefined" v-model.number="hwb.h" type="number" min="0" max="360" placeholder="H" @input="onHwbChange" />
+            <input aria-label="HWB 白度 W" :aria-invalid="compInvalid('hwb.w') ? 'true' : undefined" :aria-describedby="compInvalid('hwb.w') ? 'color-converter-status' : undefined" v-model.number="hwb.w" type="number" min="0" max="100" placeholder="W" @input="onHwbChange" />
+            <input aria-label="HWB 黑度 B" :aria-invalid="compInvalid('hwb.b') ? 'true' : undefined" :aria-describedby="compInvalid('hwb.b') ? 'color-converter-status' : undefined" v-model.number="hwb.b" type="number" min="0" max="100" placeholder="B" @input="onHwbChange" />
             <button class="copy-btn" aria-label="复制 HWB 值" @click="copyValue(hwbString, 'HWB')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, W/B: 0-100%（两者之和 ≤100）</span>
@@ -201,7 +203,20 @@ const syncFromMaster = () => {
   alphaPct.value = f.alphaPct;
 };
 
-const setError = (msg) => { statusMessage.value = msg ? `✗ ${msg}` : ""; statusType.value = msg ? "error" : ""; };
+const setError = (msg) => { statusMessage.value = msg ? `✗ ${msg}` : ""; statusType.value = msg ? "error" : ""; compErrorText.value = msg || ""; };
+// 分量/透明度错误归属：报错文案自带格式与分量名（如「RGB 的 R 应在 0–255 之间」），据此关联对应分量框；HWB 白+黑超限同绑两框
+const compErrorText = ref("");
+const COMP_LABEL_KEYS = { RGB: { R: "rgb.r", G: "rgb.g", B: "rgb.b" }, HSL: { "H 色相": "hsl.h", "S 饱和度": "hsl.s", "L 亮度": "hsl.l" }, HSV: { "H 色相": "hsv.h", "S 饱和度": "hsv.s", "V 明度": "hsv.v" }, CMYK: { C: "cmyk.c", M: "cmyk.m", Y: "cmyk.y", K: "cmyk.k" }, HWB: { "H 色相": "hwb.h", "W 白度": "hwb.w", "B 黑度": "hwb.b" } };
+const compErrorTargets = computed(() => {
+  const msg = compErrorText.value;
+  if (!msg || statusType.value !== "error" || statusMessage.value !== `✗ ${msg}`) return [];
+  if (msg.startsWith("透明度")) return ["alpha"];
+  if (msg.startsWith("HWB 的白度 + 黑度")) return ["hwb.w", "hwb.b"];
+  const m = msg.match(/^(RGB|HSL|HSV|CMYK|HWB) 的 (.+?)(?:「| 应| 不能为空)/);
+  if (m && COMP_LABEL_KEYS[m[1]] && COMP_LABEL_KEYS[m[1]][m[2]]) return [COMP_LABEL_KEYS[m[1]][m[2]]];
+  return [];
+});
+const compInvalid = (field) => compErrorTargets.value.includes(field);
 
 const applyComponents = (format, values) => {
   const result = componentsToRgb(format, values, master.value.a);
@@ -228,9 +243,11 @@ const parseAny = () => {
   parseError.value = "";
   master.value = parsed.rgba;
   syncFromMaster();
-  statusMessage.value = `✓ 已识别为 ${parsed.format} 格式`;
+  const msg = `✓ 已识别为 ${parsed.format} 格式`;
+  statusMessage.value = msg;
   statusType.value = "success";
-  setTimeout(() => { statusMessage.value = ""; }, 2000);
+  // 自动清空只清自己这条：2 秒内若已换成别的消息（如分量错误），不得误清
+  setTimeout(() => { if (statusMessage.value === msg) statusMessage.value = ""; }, 2000);
 };
 
 const onAlphaChange = () => {
@@ -267,17 +284,19 @@ const copyToClipboard = async (text) => {
 
 const copyValue = async (value, format) => {
   if (await copyToClipboard(value)) {
-    statusMessage.value = `✓ 已复制 ${format} 值！`;
+    const msg = `✓ 已复制 ${format} 值！`;
+    statusMessage.value = msg;
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    setTimeout(() => { if (statusMessage.value === msg) statusMessage.value = ""; }, 2000);
   } else { statusMessage.value = "✗ 复制失败"; statusType.value = "error"; }
 };
 
 const copyAllFormats = async () => {
   if (await copyToClipboard(buildColorSummary(master.value))) {
-    statusMessage.value = "✓ 已复制所有格式！";
+    const msg = "✓ 已复制所有格式！";
+    statusMessage.value = msg;
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    setTimeout(() => { if (statusMessage.value === msg) statusMessage.value = ""; }, 2000);
   }
 };
 
