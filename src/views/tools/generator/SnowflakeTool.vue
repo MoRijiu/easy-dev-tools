@@ -13,21 +13,21 @@
         <span class="layout-note">{{ layoutNote }}</span>
       </div>
       <div v-if="presetId === 'custom'" class="custom-grid">
-        <label class="opt">纪元 epoch（毫秒）<input v-model.number="custom.epoch" type="number" class="num wide" @input="reparse" /></label>
-        <label class="opt">时间戳位<input v-model.number="custom.timestampBits" type="number" class="num" min="1" max="62" @input="reparse" /></label>
-        <label class="opt">数据中心位<input v-model.number="custom.datacenterBits" type="number" class="num" min="0" max="62" @input="reparse" /></label>
-        <label class="opt">机器位<input v-model.number="custom.workerBits" type="number" class="num" min="0" max="62" @input="reparse" /></label>
-        <label class="opt">序列位<input v-model.number="custom.sequenceBits" type="number" class="num" min="1" max="62" @input="reparse" /></label>
+        <label class="opt">纪元 epoch（毫秒）<input id="snowflake-epoch" aria-label="纪元 epoch（毫秒）" v-model.number="custom.epoch" type="number" class="num wide" :aria-invalid="layoutErrorFields(parseErrorFields).includes('epoch') || layoutErrorFields(genErrorFields).includes('epoch') ? 'true' : undefined" :aria-describedby="layoutErrorDesc(parseErrorFields, genErrorFields, 'epoch')" @input="reparse" /></label>
+        <label class="opt">时间戳位<input id="snowflake-timestamp-bits" aria-label="时间戳位" v-model.number="custom.timestampBits" type="number" class="num" min="1" max="62" :aria-invalid="layoutErrorFields(parseErrorFields).includes('timestampBits') || layoutErrorFields(genErrorFields).includes('timestampBits') ? 'true' : undefined" :aria-describedby="layoutErrorDesc(parseErrorFields, genErrorFields, 'timestampBits')" @input="reparse" /></label>
+        <label class="opt">数据中心位<input id="snowflake-datacenter-bits" aria-label="数据中心位" v-model.number="custom.datacenterBits" type="number" class="num" min="0" max="62" :aria-invalid="layoutErrorFields(parseErrorFields).includes('datacenterBits') || layoutErrorFields(genErrorFields).includes('datacenterBits') ? 'true' : undefined" :aria-describedby="layoutErrorDesc(parseErrorFields, genErrorFields, 'datacenterBits')" @input="reparse" /></label>
+        <label class="opt">机器位<input id="snowflake-worker-bits" aria-label="机器位" v-model.number="custom.workerBits" type="number" class="num" min="0" max="62" :aria-invalid="layoutErrorFields(parseErrorFields).includes('workerBits') || layoutErrorFields(genErrorFields).includes('workerBits') ? 'true' : undefined" :aria-describedby="layoutErrorDesc(parseErrorFields, genErrorFields, 'workerBits')" @input="reparse" /></label>
+        <label class="opt">序列位<input id="snowflake-sequence-bits" aria-label="序列位" v-model.number="custom.sequenceBits" type="number" class="num" min="1" max="62" :aria-invalid="layoutErrorFields(parseErrorFields).includes('sequenceBits') || layoutErrorFields(genErrorFields).includes('sequenceBits') ? 'true' : undefined" :aria-describedby="layoutErrorDesc(parseErrorFields, genErrorFields, 'sequenceBits')" @input="reparse" /></label>
       </div>
 
       <h2 class="section-title">解析</h2>
       <div class="parse-row">
-        <input v-model="idInput" class="text-input" placeholder="粘贴雪花 ID，如 175928847299117063（选 Discord 布局）" spellcheck="false" aria-label="雪花 ID 输入" @input="reparse" />
+        <input id="snowflake-id-input" v-model="idInput" class="text-input" placeholder="粘贴雪花 ID，如 175928847299117063（选 Discord 布局）" spellcheck="false" aria-label="雪花 ID 输入" :aria-invalid="parseErrorFields.includes('idInput') ? 'true' : undefined" :aria-describedby="parseErrorFields.includes('idInput') ? 'snowflake-parse-status' : undefined" @input="reparse" />
         <button @click="loadDiscordExample" class="btn btn-secondary">Discord 示例</button>
         <button @click="loadTwitterExample" class="btn btn-secondary">Twitter 示例</button>
         <button @click="clearParse" class="btn btn-danger">清空</button>
       </div>
-      <ToolStatusMessage :message="parseMessage" :type="parseType" />
+      <ToolStatusMessage id="snowflake-parse-status" :message="parseMessage" :type="parseType" />
       <p v-if="parseNotes.length" class="notes" role="status" aria-live="polite">{{ parseNotes.join('；') }}</p>
       <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <div v-if="parsed" class="table-wrap">
@@ -48,15 +48,15 @@
 
       <h2 class="section-title">生成</h2>
       <div class="gen-grid">
-        <label class="opt">时间戳（毫秒）<input v-model.number="gen.timestampMs" type="number" class="num wide" /></label>
-        <label v-if="layout.datacenterBits > 0" class="opt">数据中心 ID<input v-model.number="gen.datacenterId" type="number" class="num" min="0" /></label>
-        <label class="opt">机器 ID<input v-model.number="gen.workerId" type="number" class="num" min="0" /></label>
-        <label class="opt">序列号<input v-model.number="gen.sequence" type="number" class="num" min="0" /></label>
+        <label class="opt">时间戳（毫秒）<input id="snowflake-gen-timestamp" aria-label="生成时间戳（毫秒）" v-model.number="gen.timestampMs" type="number" class="num wide" :aria-invalid="genErrorFields.includes('timestampMs') ? 'true' : undefined" :aria-describedby="genErrorFields.includes('timestampMs') ? 'snowflake-gen-status' : undefined" /></label>
+        <label v-if="layout.datacenterBits > 0" class="opt">数据中心 ID<input id="snowflake-gen-datacenter" aria-label="数据中心 ID" v-model.number="gen.datacenterId" type="number" class="num" min="0" :aria-invalid="genErrorFields.includes('datacenterId') ? 'true' : undefined" :aria-describedby="genErrorFields.includes('datacenterId') ? 'snowflake-gen-status' : undefined" /></label>
+        <label class="opt">机器 ID<input id="snowflake-gen-worker" aria-label="机器 ID" v-model.number="gen.workerId" type="number" class="num" min="0" :aria-invalid="genErrorFields.includes('workerId') ? 'true' : undefined" :aria-describedby="genErrorFields.includes('workerId') ? 'snowflake-gen-status' : undefined" /></label>
+        <label class="opt">序列号<input id="snowflake-gen-sequence" aria-label="序列号" v-model.number="gen.sequence" type="number" class="num" min="0" :aria-invalid="genErrorFields.includes('sequence') ? 'true' : undefined" :aria-describedby="genErrorFields.includes('sequence') ? 'snowflake-gen-status' : undefined" /></label>
         <button @click="useNow" class="btn btn-secondary">当前时间</button>
         <button @click="randomSeq" class="btn btn-secondary">随机序列</button>
         <button @click="doGenerate" class="btn btn-success">生成 ID</button>
       </div>
-      <ToolStatusMessage :message="genMessage" :type="genType" />
+      <ToolStatusMessage id="snowflake-gen-status" :message="genMessage" :type="genType" />
       <div v-if="generatedId" class="gen-result">
         <span class="mono">{{ generatedId }}</span>
         <button class="copy-btn" aria-label="复制生成的 ID" @click="copyText(generatedId)">复制</button>
@@ -111,21 +111,65 @@ const parsed = ref(null);
 const parseMessage = ref('');
 const parseType = ref('');
 const parseNotes = ref([]);
+// 解析/生成错误单独留存全文：解析状态区还兼报复制结果，只有当前展示的正是该错误时才做字段关联（R9bb 口径）
+const parseError = ref('');
+const parseErrorFull = ref('');
+const genError = ref('');
+const genErrorFull = ref('');
+// 布局校验错误按文案自带字段名归到自定义布局字段；总位数超限是跨字段约束、同时归四个位数
+const layoutFieldsOf = (msg) => {
+  if (/总位数/.test(msg)) return ['timestampBits', 'datacenterBits', 'workerBits', 'sequenceBits'];
+  if (/纪元/.test(msg)) return ['epoch'];
+  if (/时间戳位数/.test(msg)) return ['timestampBits'];
+  if (/数据中心位数/.test(msg)) return ['datacenterBits'];
+  if (/机器位数/.test(msg)) return ['workerBits'];
+  if (/序列号?位数/.test(msg)) return ['sequenceBits'];
+  return null;
+};
+const layoutErrorFields = (fields) => fields;
+const layoutErrorDesc = (parseFields, genFields, field) => {
+  const ids = [];
+  if (parseFields.includes(field)) ids.push('snowflake-parse-status');
+  if (genFields.includes(field)) ids.push('snowflake-gen-status');
+  return ids.length ? ids.join(' ') : undefined;
+};
+// 解析错误：布局错误归布局字段；「超出当前布局…位范围」布局与输入都有可能、不归任何字段；其余均为 ID 输入本身的格式错误
+const parseErrorFields = computed(() => {
+  if (!parseError.value || parseType.value !== 'error' || parseMessage.value !== parseErrorFull.value) return [];
+  const lf = layoutFieldsOf(parseError.value);
+  if (lf) return lf;
+  if (/超出当前布局/.test(parseError.value)) return [];
+  return ['idInput'];
+});
+// 生成错误：布局错误归布局字段；其余按文案自带字段名（生成时间/数据中心/机器 ID/序列号）归对应生成字段
+const genErrorFields = computed(() => {
+  if (!genError.value || genType.value !== 'error' || genMessage.value !== genErrorFull.value) return [];
+  const lf = layoutFieldsOf(genError.value);
+  if (lf) return lf;
+  if (/生成时间/.test(genError.value)) return ['timestampMs'];
+  if (/数据中心/.test(genError.value)) return ['datacenterId'];
+  if (/机器 ID/.test(genError.value)) return ['workerId'];
+  if (/序列号/.test(genError.value)) return ['sequence'];
+  return [];
+});
 const localTime = computed(() => {
   if (!parsed.value || !parsed.value.iso) return parsed.value ? '超出可表示范围' : '';
   return new Date(parsed.value.timestampMs).toLocaleString('zh-CN', { hour12: false });
 });
 const reparse = () => {
-  if (!idInput.value.trim()) { parsed.value = null; parseNotes.value = []; parseMessage.value = ''; return; }
+  if (!idInput.value.trim()) { parsed.value = null; parseNotes.value = []; parseMessage.value = ''; parseError.value = ''; parseErrorFull.value = ''; return; }
   try {
     const r = parseSnowflake(idInput.value, layout.value);
     parsed.value = r;
     parseNotes.value = r.notes || [];
     parseMessage.value = '✓ 解析成功';
     parseType.value = 'success';
+    parseError.value = ''; parseErrorFull.value = '';
   } catch (e) {
     parseNotes.value = [];
-    parseMessage.value = '✗ ' + e.message + '（已保留上一次结果）';
+    parseError.value = e.message;
+    parseErrorFull.value = '✗ ' + e.message + '（已保留上一次结果）';
+    parseMessage.value = parseErrorFull.value;
     parseType.value = 'error';
   }
 };
@@ -136,7 +180,7 @@ const loadTwitterExample = () => {
   try { idInput.value = generateSnowflake({ timestampMs: 1700000000000, datacenterId: 1, workerId: 2, sequence: 3 }, layout.value); } catch { idInput.value = ''; }
   reparse();
 };
-const clearParse = () => { idInput.value = ''; parsed.value = null; parseNotes.value = []; parseMessage.value = ''; };
+const clearParse = () => { idInput.value = ''; parsed.value = null; parseNotes.value = []; parseMessage.value = ''; parseError.value = ''; parseErrorFull.value = ''; };
 const gen = ref({ timestampMs: Date.now(), datacenterId: 1, workerId: 1, sequence: 0 });
 const generatedId = ref('');
 const genMessage = ref('');
@@ -145,11 +189,16 @@ const useNow = () => { gen.value.timestampMs = Date.now(); };
 const randomSeq = () => { gen.value.sequence = Math.floor(Math.random() * (2 ** layout.value.sequenceBits)); };
 const doGenerate = () => {
   try {
-    generatedId.value = generateSnowflake({ ...gen.value }, layout.value);
+    // 当前布局没有数据中心位时该字段不渲染，生成时按 0 处理（保留用户填的值、切回有数据中心位的布局仍在）；
+    // 此前直接透传默认值 1，Discord/简化版布局点生成必报「数据中心必须为 0」
+    generatedId.value = generateSnowflake({ ...gen.value, datacenterId: layout.value.datacenterBits > 0 ? gen.value.datacenterId : 0 }, layout.value);
     genMessage.value = '✓ 生成成功';
     genType.value = 'success';
+    genError.value = ''; genErrorFull.value = '';
   } catch (e) {
-    genMessage.value = '✗ ' + e.message + (generatedId.value ? '（已保留上一次结果）' : '');
+    genError.value = e.message;
+    genErrorFull.value = '✗ ' + e.message + (generatedId.value ? '（已保留上一次结果）' : '');
+    genMessage.value = genErrorFull.value;
     genType.value = 'error';
   }
 };
