@@ -119,6 +119,14 @@ const faqs = [
   {
     question: '负数怎么表示？',
     answer: '采用符号位表示法：结果带前导负号，如十进制 -255 的二进制是 -11111111，不做补码展开。'
+  },
+  {
+    question: '粘贴 0xFF 却报「x 不是合法数字」怎么办？',
+    answer: '说明源进制没选对：0x 是 16 进制前缀、0b 是 2 进制、0o 是 8 进制。现在工具会直接点名检测到的前缀与应切换的进制，按提示切换即可；报错里的字符位置按原文计算（含符号与前缀）。'
+  },
+  {
+    question: '下划线分隔符有什么规则？',
+    answer: '下划线只能夹在两个数字之间（如 1111_1111、ff_ff），开头、结尾、紧挨小数点或连续两个下划线都会报错并定位；整数与小数合计最多 4096 位。'
   }
 ];
 
@@ -131,13 +139,13 @@ const presets = [
 ];
 
 const examples = [
-  { input: '255（10 进制）', output: '十六进制 ff', description: '颜色值里最常见的 255' },
-  { input: '0xFF（16 进制）', output: '十进制 255', description: '粘贴带 0x 前缀的值' },
-  { input: '0.5（10 进制）', output: '二进制 0.1', description: '小数转换示例' }
+  { input: '255（10 进制）', output: '十六进制 ff', description: '颜色值里最常见的 255', value: '255', base: 10 },
+  { input: '0xFF（16 进制）', output: '十进制 255', description: '粘贴带 0x 前缀的值', value: '0xFF', base: 16 },
+  { input: '0.5（10 进制）', output: '二进制 0.1', description: '小数转换示例', value: '0.5', base: 10 }
 ];
 
-const baseOptions = COMMON_BASES;
 const allBases = Array.from({ length: 35 }, (_, i) => i + 2);
+const baseOptions = allBases;
 
 const inputValue = ref('');
 const fromBase = ref(10);
@@ -179,7 +187,10 @@ const convert = () => {
 
 const loadExample = () => { inputValue.value = '255'; fromBase.value = 10; convert(); };
 const usePreset = (p) => { inputValue.value = p.value; fromBase.value = p.base; convert(); };
-const useExample = () => loadExample();
+const useExample = (ex) => {
+  if (ex && ex.value !== undefined) { inputValue.value = ex.value; fromBase.value = ex.base || 10; convert(); }
+  else loadExample();
+};
 const clearAll = () => { inputValue.value = ''; results.value = null; statusMessage.value = ''; };
 
 const copyText = async (text, okMsg) => {
