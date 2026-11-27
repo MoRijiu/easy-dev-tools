@@ -16,6 +16,7 @@
         <button class="btn ghost" type="button" @click="generateNow">用当前时间</button>
         <button class="btn ghost" type="button" @click="clearGenerated">清空</button>
       </div>
+      <p v-if="genNotes.length" class="notes">{{ genNotes.join('；') }}</p>
       <p v-if="genError" class="error">{{ genError }}</p>
       <template v-if="results.length">
         <label class="block">结果（每行一个，共 {{ results.length }} 个，本身已按时间有序）
@@ -33,7 +34,9 @@
         <input v-model="parseInput" type="text" spellcheck="false" placeholder="如 01ARZ3NDEKTSV4RRFFQ69G5FAV" aria-label="待解析的 ULID">
       </label>
       <p v-if="parseError" class="error">{{ parseError }}</p>
-      <table v-else-if="parsed" class="kv">
+      <p v-if="parsed?.notes?.length" class="notes">{{ parsed.notes.join('；') }}</p>
+      <p v-if="parsed?.warnings?.length" class="notes warn">{{ parsed.warnings.join('；') }}</p>
+      <table v-if="parsed" class="kv">
         <tbody>
           <tr><th>规范形式</th><td class="mono">{{ parsed.ulid }}</td><td><button class="btn ghost sm" type="button" @click="copyText(parsed.ulid)">复制</button></td></tr>
           <tr><th>内嵌时间</th><td class="mono">{{ parsed.iso }}</td><td><button class="btn ghost sm" type="button" @click="copyText(parsed.iso)">复制</button></td></tr>
@@ -60,7 +63,7 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
-import { generateUlidBatch, parseUlid, buildSummary } from '@/utils/ulid.js';
+import { generateUlidBatch, parseUlid, buildSummary, collectGenerateNotes } from '@/utils/ulid.js';
 const features = [
   { icon: '🔤', title: '时间可排序', description: '时间戳在高位，字符串字典序与生成时间序一致，数据库索引友好' },
   { icon: '🎲', title: '80 位随机', description: '随机段 80 位由 Web Crypto 安全随机源生成，同毫秒单调模式下逐个 +1 不重复' },
@@ -72,13 +75,17 @@ const faqs = [
   { question: 'ULID 和 UUID v7 怎么选？', answer: '两者都是时间有序 ID。ULID 是 26 位无连字符文本、生态在服务端与前端库里很常见；UUID v7 保持标准 UUID 外形，适合已有 UUID 字段约束的系统。' },
   { question: '为什么字母表里没有 I、L、O、U？', answer: 'Crockford Base32 刻意去掉易与 1/0 混淆的 I、L、O，并去掉 U 以免随机拼出英文脏话。本工具对这四个字母会给出定位报错。' },
   { question: '「同毫秒单调递增」是什么意思？', answer: '批量生成共用同一时间戳时，随机段按 80 位整数逐个加一，保证整批严格递增、不重复；跨毫秒则由时间段自然保证顺序。' },
-  { question: 'ULID 能用到哪一年？', answer: '48 位毫秒时间戳上限是 281474976710655 毫秒，约公元 10893 年，实际不用担心溢出；解析时首字符超过 7 会被判为溢出并报错。' }
+  { question: 'ULID 能用到哪一年？', answer: '48 位毫秒时间戳上限是 281474976710655 毫秒，约公元 10893 年，实际不用担心溢出；解析时首字符超过 7 会被判为溢出并报错。' },
+  { question: '粘贴时有哪些容错？', answer: '全角字符会自动转半角；被空格或换行折断的单个 ULID 会拼回并提示；按 Crockford 解码规范，I/L 会读作 1、O 读作 0 并提示替换个数。多行粘贴多个 ULID 会点名一次只能解析一个。' },
+  { question: '数量和时间戳为什么不能写 1e3 这类写法？', answer: '数量与时间戳只接受完整十进制整数：科学计数法、小数、千分位逗号都会点名报错，不再像旧版用 Number() 静默换算，以免生成出与预期不同的结果。' },
+  { question: '生成或解析出错时，旧结果还在吗？', answer: '在。出错只显示错误提示，上一次成功生成的结果与解析结果会保留，不会因为改错一个数字就被清空。' }
 ];
 const genTimeInput = ref('');
 const countInput = ref('10');
 const monotonic = ref(true);
 const results = ref([]);
 const genError = ref('');
+const genNotes = ref([]);
 const parseInput = ref('01ARZ3NDEKTSV4RRFFQ69G5FAV');
 const parsed = ref(null);
 const parseError = ref('');
@@ -88,23 +95,23 @@ const localTime = computed(() => (parsed.value ? new Date(parsed.value.timestamp
 const summary = computed(() => (parsed.value ? buildSummary(parsed.value) : ''));
 function generate() {
   genError.value = ''; statusMessage.value = '';
+  const ts = genTimeInput.value.trim() === '' ? null : genTimeInput.value.trim();
+  genNotes.value = collectGenerateNotes({ count: countInput.value, timestampMs: ts });
   try {
-    const ts = genTimeInput.value.trim() === '' ? null : genTimeInput.value.trim();
-    if (ts !== null && !/^\d+$/.test(ts)) throw new Error(`时间戳必须是整数毫秒，收到「${genTimeInput.value.trim()}」`);
-    results.value = generateUlidBatch({ count: countInput.value, timestampMs: ts === null ? null : Number(ts), monotonic: monotonic.value });
+    results.value = generateUlidBatch({ count: countInput.value, timestampMs: ts, monotonic: monotonic.value });
   } catch (e) {
     genError.value = e.message || String(e);
-    results.value = [];
+    // 出错保留上一次成功结果，不清空
   }
 }
 function generateNow() { genTimeInput.value = ''; generate(); }
-function clearGenerated() { results.value = []; genError.value = ''; }
+function clearGenerated() { results.value = []; genError.value = ''; genNotes.value = []; }
 function sendFirstToParser() { if (results.value.length) parseInput.value = results.value[0]; }
 function runParse() {
   parseError.value = '';
   if (!parseInput.value.trim()) { parsed.value = null; return; }
   try { parsed.value = parseUlid(parseInput.value); }
-  catch (e) { parsed.value = null; parseError.value = e.message || String(e); }
+  catch (e) { parseError.value = e.message || String(e); /* 出错保留上一次成功结果 */ }
 }
 watch(parseInput, runParse);
 async function copyText(text) {
@@ -118,7 +125,9 @@ runParse();
 .ulid-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.notes { margin: 10px 0 0; color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
+.notes.warn { background: var(--warn-soft); }
 .section-title { font-size: 16px; color: var(--text-strong); margin: 18px 0 10px; }
 .section-title:first-child { margin-top: 0; }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
