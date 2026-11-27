@@ -4,8 +4,8 @@
     <p class="description">解析语义化版本、比较大小、递增版本号并校验版本范围（^ / ~ / 区间），全程本地处理、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="copySummary" class="btn btn-success" :disabled="!parsed"><span class="icon">📋</span> 复制解析摘要</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="copySummary" class="btn btn-success" :disabled="!parsed"><span class="icon" aria-hidden="true">📋</span> 复制解析摘要</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <section class="block">

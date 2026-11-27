@@ -4,9 +4,9 @@
     <p class="description">粘贴 docker run 命令，一键生成等价的 docker-compose.yml：端口、挂载、环境变量、重启策略与资源限制全覆盖，全程本地处理不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copyYaml" class="btn btn-success" :disabled="!yamlText"><span class="icon">📋</span> 复制 YAML</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copyYaml" class="btn btn-success" :disabled="!yamlText"><span class="icon" aria-hidden="true">📋</span> 复制 YAML</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 docker run 命令，如：&#10;docker run -d --name web -p 8080:80 -v ./site:/usr/share/nginx/html:ro --restart unless-stopped nginx:alpine" spellcheck="false" aria-label="docker run命令输入" @input="parse"></textarea>

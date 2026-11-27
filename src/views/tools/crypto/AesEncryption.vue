@@ -13,13 +13,13 @@
             :class="['mode-tab', { active: mode === 'encrypt' }]"
             @click="mode = 'encrypt'"
           >
-            <span class="icon">🔒</span> 加密
+            <span class="icon" aria-hidden="true">🔒</span> 加密
           </button>
           <button 
             :class="['mode-tab', { active: mode === 'decrypt' }]"
             @click="mode = 'decrypt'"
           >
-            <span class="icon">🔓</span> 解密
+            <span class="icon" aria-hidden="true">🔓</span> 解密
           </button>
         </div>
       </div>
@@ -58,7 +58,7 @@
           <label class="section-label">密钥 (Key)</label>
           <div class="key-actions">
             <button class="link-btn" @click="generateRandomKey">
-              <span class="icon">🎲</span> 生成随机密钥
+              <span class="icon" aria-hidden="true">🎲</span> 生成随机密钥
             </button>
           </div>
         </div>
@@ -87,17 +87,17 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="processData">
-          <span class="icon">{{ mode === 'encrypt' ? '🔒' : '🔓' }}</span>
+          <span class="icon" aria-hidden="true">{{ mode === 'encrypt' ? '🔒' : '🔓' }}</span>
           {{ mode === 'encrypt' ? '加密' : '解密' }}
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-success" @click="copyOutput">
-          <span class="icon">📋</span> 复制结果
+          <span class="icon" aria-hidden="true">📋</span> 复制结果
         </button>
         <button class="btn btn-info" @click="swapContent">
-          <span class="icon">🔄</span> 交换
+          <span class="icon" aria-hidden="true">🔄</span> 交换
         </button>
       </ToolToolbar>
 

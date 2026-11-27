@@ -3,7 +3,7 @@
     <div class="container">
       <div class="logo-section">
         <router-link to="/" class="logo">
-          <img src="/favicon.svg" alt="极速开发工具箱" class="logo-icon" />
+          <img src="/favicon.svg" alt="" class="logo-icon" />
           <span class="logo-text">极速开发工具箱</span>
         </router-link>
         <div class="tools-dropdown" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
@@ -14,7 +14,7 @@
             <div class="dropdown-content">
               <div v-for="group in toolGroups" :key="group.id" class="tool-group">
                 <div class="group-header">
-                  <span class="group-icon">{{ group.icon }}</span>
+                  <span class="group-icon" aria-hidden="true">{{ group.icon }}</span>
                   <span class="group-name">{{ group.name }}</span>
                 </div>
                 <div class="group-tools">
@@ -25,7 +25,7 @@
                     class="tool-item"
                     :class="{ active: isCurrentTool(tool.path) }"
                   >
-                    <span class="tool-icon">{{ tool.icon }}</span>
+                    <span class="tool-icon" aria-hidden="true">{{ tool.icon }}</span>
                     <span class="tool-name">{{ tool.name }}</span>
                   </router-link>
                 </div>
@@ -58,7 +58,7 @@
         <router-link to="/" class="nav-link">首页</router-link>
         <router-link to="/about" class="nav-link">关于</router-link>
         <router-link to="/about#support" class="nav-link support-link">
-          <span class="support-icon">☕</span>
+          <span class="support-icon" aria-hidden="true">☕</span>
           <span>赞赏</span>
         </router-link>
       </nav>

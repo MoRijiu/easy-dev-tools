@@ -9,19 +9,19 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="encodeUrl">
-          <span class="icon">🔒</span> 编码
+          <span class="icon" aria-hidden="true">🔒</span> 编码
         </button>
         <button class="btn btn-secondary" @click="decodeUrl">
-          <span class="icon">🔓</span> 解码
+          <span class="icon" aria-hidden="true">🔓</span> 解码
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-success" @click="copyOutput">
-          <span class="icon">📋</span> 复制结果
+          <span class="icon" aria-hidden="true">📋</span> 复制结果
         </button>
         <button class="btn btn-info" @click="swapContent">
-          <span class="icon">🔄</span> 交换
+          <span class="icon" aria-hidden="true">🔄</span> 交换
         </button>
       </ToolToolbar>
 

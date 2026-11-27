@@ -4,9 +4,9 @@
     <p class="description">勾选权限即得八进制与符号形式，也可反向解析 chmod 数字或 ls 符号串，并计算 umask 下的默认权限，全程本地、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadPreset(PRESETS[1])" class="btn btn-secondary"><span class="icon">📝</span> 示例 755</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copySummary" class="btn btn-success"><span class="icon">📋</span> 复制摘要</button>
+        <button @click="loadPreset(PRESETS[1])" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例 755</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copySummary" class="btn btn-success"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <input v-model="parseInput" class="text-input" placeholder="反向解析：755 / 4755 / rwxr-xr-x / drwxr-xr-x+ / 符号模式 u+x、a=rwx（回车解析）" spellcheck="false" aria-label="反向解析输入" @keyup.enter="doParse" />

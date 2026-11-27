@@ -4,9 +4,9 @@
     <p class="description">用 JSONPath 表达式从 JSON 里提取数据：通配、递归、切片与过滤全支持，全程本地处理、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="copyResults" class="btn btn-success" :disabled="!result || !result.matches.length"><span class="icon">📋</span> 复制结果</button>
-        <button @click="clearAll" class="btn btn-secondary"><span class="icon">🗑️</span> 清空</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="copyResults" class="btn btn-success" :disabled="!result || !result.matches.length"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
+        <button @click="clearAll" class="btn btn-secondary"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="cols">

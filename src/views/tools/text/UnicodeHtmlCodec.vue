@@ -5,10 +5,10 @@
 
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="swapContent" class="btn btn-info" :disabled="!outputText"><span class="icon">🔄</span> 结果作输入并反向</button>
-        <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon">📋</span> 复制结果</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="swapContent" class="btn btn-info" :disabled="!outputText"><span class="icon" aria-hidden="true">🔄</span> 结果作输入并反向</button>
+        <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
 
       <ToolStatusMessage :message="statusMessage" :type="statusType" />

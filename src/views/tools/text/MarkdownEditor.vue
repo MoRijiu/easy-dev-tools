@@ -11,50 +11,50 @@
     <div class="tool-container">
       <!-- 工具栏 -->
       <ToolToolbar>
-        <button @click="insertBold" class="btn btn-tool" title="粗体 (Ctrl+B)">
-          <span class="icon">𝐁</span>
+        <button @click="insertBold" class="btn btn-tool" title="粗体 (Ctrl+B)" aria-label="粗体 (Ctrl+B)">
+          <span class="icon" aria-hidden="true">𝐁</span>
         </button>
-        <button @click="insertItalic" class="btn btn-tool" title="斜体 (Ctrl+I)">
-          <span class="icon">𝐼</span>
+        <button @click="insertItalic" class="btn btn-tool" title="斜体 (Ctrl+I)" aria-label="斜体 (Ctrl+I)">
+          <span class="icon" aria-hidden="true">𝐼</span>
         </button>
-        <button @click="insertHeading" class="btn btn-tool" title="标题">
-          <span class="icon">H</span>
+        <button @click="insertHeading" class="btn btn-tool" title="标题" aria-label="插入标题">
+          <span class="icon" aria-hidden="true">H</span>
         </button>
-        <button @click="insertLink" class="btn btn-tool" title="链接">
-          <span class="icon">🔗</span>
+        <button @click="insertLink" class="btn btn-tool" title="链接" aria-label="插入链接">
+          <span class="icon" aria-hidden="true">🔗</span>
         </button>
-        <button @click="insertImage" class="btn btn-tool" title="图片">
-          <span class="icon">🖼️</span>
+        <button @click="insertImage" class="btn btn-tool" title="图片" aria-label="插入图片">
+          <span class="icon" aria-hidden="true">🖼️</span>
         </button>
-        <button @click="insertCode" class="btn btn-tool" title="代码块">
-          <span class="icon">&lt;/&gt;</span>
+        <button @click="insertCode" class="btn btn-tool" title="代码块" aria-label="插入代码块">
+          <span class="icon" aria-hidden="true">&lt;/&gt;</span>
         </button>
-        <button @click="insertList" class="btn btn-tool" title="列表">
-          <span class="icon">☰</span>
+        <button @click="insertList" class="btn btn-tool" title="列表" aria-label="插入列表">
+          <span class="icon" aria-hidden="true">☰</span>
         </button>
-        <button @click="insertQuote" class="btn btn-tool" title="引用">
-          <span class="icon">❝</span>
+        <button @click="insertQuote" class="btn btn-tool" title="引用" aria-label="插入引用">
+          <span class="icon" aria-hidden="true">❝</span>
         </button>
-        <button @click="insertTable" class="btn btn-tool" title="表格">
-          <span class="icon">▦</span>
+        <button @click="insertTable" class="btn btn-tool" title="表格" aria-label="插入表格">
+          <span class="icon" aria-hidden="true">▦</span>
         </button>
 
         <div class="toolbar-divider"></div>
 
         <button @click="clearContent" class="btn btn-danger">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button @click="copyMarkdown" class="btn btn-secondary" :disabled="!markdownText.trim()">
-          <span class="icon">📋</span> 复制
+          <span class="icon" aria-hidden="true">📋</span> 复制
         </button>
         <button @click="copyHtml" class="btn btn-secondary" :disabled="!markdownText.trim()">
-          <span class="icon">🧩</span> 复制HTML
+          <span class="icon" aria-hidden="true">🧩</span> 复制HTML
         </button>
         <button @click="exportMarkdown" class="btn btn-primary" :disabled="!markdownText.trim()">
-          <span class="icon">💾</span> 导出
+          <span class="icon" aria-hidden="true">💾</span> 导出
         </button>
         <button @click="exportHtml" class="btn btn-success" :disabled="!markdownText.trim()">
-          <span class="icon">🌐</span> 导出HTML
+          <span class="icon" aria-hidden="true">🌐</span> 导出HTML
         </button>
       </ToolToolbar>
 

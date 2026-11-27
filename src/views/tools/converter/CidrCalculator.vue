@@ -4,9 +4,9 @@
     <p class="description">输入 IPv4 地址与前缀，算出网络地址、广播地址、可用主机范围与掩码，全程本地计算、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copySummary" class="btn btn-success" :disabled="!result"><span class="icon">📋</span> 复制摘要</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copySummary" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <input v-model="inputText" class="text-input" placeholder="如 192.168.1.10/24，也支持 /255.255.255.0 掩码写法或纯 IP" spellcheck="false" aria-label="CIDR 输入" @input="calculate" />

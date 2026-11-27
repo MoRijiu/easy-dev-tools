@@ -15,10 +15,10 @@
           <select v-model="quote" class="select" @change="convert"><option value="auto">按需加</option><option value="always">总是加</option><option value="never">不加</option></select>
         </label>
         <label v-if="mode === 'json2env'" class="opt"><input type="checkbox" v-model="sortKeys" @change="convert" /> 键排序</label>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="swap" class="btn btn-secondary" :disabled="!outputText"><span class="icon">🔄</span> 交换</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon">📋</span> 复制结果</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="swap" class="btn btn-secondary" :disabled="!outputText"><span class="icon" aria-hidden="true">🔄</span> 交换</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="panes">

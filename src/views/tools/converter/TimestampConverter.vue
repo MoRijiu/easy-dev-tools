@@ -28,19 +28,19 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="timestampToDate">
-          <span class="icon">📅</span> 时间戳 → 日期
+          <span class="icon" aria-hidden="true">📅</span> 时间戳 → 日期
         </button>
         <button class="btn btn-secondary" @click="dateToTimestamp">
-          <span class="icon">⏱️</span> 日期 → 时间戳
+          <span class="icon" aria-hidden="true">⏱️</span> 日期 → 时间戳
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-success" @click="copyOutput">
-          <span class="icon">📋</span> 复制结果
+          <span class="icon" aria-hidden="true">📋</span> 复制结果
         </button>
         <button class="btn btn-info" @click="useCurrentTimestamp">
-          <span class="icon">🔄</span> 使用当前时间
+          <span class="icon" aria-hidden="true">🔄</span> 使用当前时间
         </button>
       </ToolToolbar>
 

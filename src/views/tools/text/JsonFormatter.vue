@@ -14,19 +14,19 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button @click="formatJson" class="btn btn-primary" :disabled="!inputJson.trim()">
-          <span class="icon">✨</span> 格式化
+          <span class="icon" aria-hidden="true">✨</span> 格式化
         </button>
         <button @click="minifyJson" class="btn btn-secondary" :disabled="!inputJson.trim()">
-          <span class="icon">📦</span> 压缩
+          <span class="icon" aria-hidden="true">📦</span> 压缩
         </button>
         <button @click="validateJson" class="btn btn-info" :disabled="!inputJson.trim()">
-          <span class="icon">✓</span> 验证
+          <span class="icon" aria-hidden="true">✓</span> 验证
         </button>
         <button @click="clearAll" class="btn btn-danger">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputJson">
-          <span class="icon">📋</span> 复制结果
+          <span class="icon" aria-hidden="true">📋</span> 复制结果
         </button>
         <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!outputJson">
           结果作输入

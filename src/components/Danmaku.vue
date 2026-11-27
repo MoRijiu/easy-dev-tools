@@ -14,7 +14,7 @@
             :to="item.path"
             class="danmaku-item"
           >
-            <span class="danmaku-icon">{{ item.icon }}</span>
+            <span class="danmaku-icon" aria-hidden="true">{{ item.icon }}</span>
             <span class="danmaku-text">{{ item.name }}</span>
           </router-link>
         </div>
@@ -27,7 +27,7 @@
             class="danmaku-item"
             tabindex="-1"
           >
-            <span class="danmaku-icon">{{ item.icon }}</span>
+            <span class="danmaku-icon" aria-hidden="true">{{ item.icon }}</span>
             <span class="danmaku-text">{{ item.name }}</span>
           </router-link>
         </div>

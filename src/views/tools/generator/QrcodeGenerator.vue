@@ -7,13 +7,13 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="generateQrcode">
-          <span class="icon">🎲</span> 生成二维码
+          <span class="icon" aria-hidden="true">🎲</span> 生成二维码
         </button>
         <button class="btn btn-success" @click="downloadQrcode" :disabled="!qrcodeDataUrl">
-          <span class="icon">💾</span> 下载图片
+          <span class="icon" aria-hidden="true">💾</span> 下载图片
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
       </ToolToolbar>
 
@@ -97,7 +97,7 @@
               </div>
 
               <div v-if="logoDataUrl" class="logo-preview">
-                <img :src="logoDataUrl" alt="Logo Preview" class="logo-thumb" />
+                <img :src="logoDataUrl" alt="已上传的 Logo 预览" class="logo-thumb" />
               </div>
 
               <div v-if="logoDataUrl" class="logo-options">
@@ -154,9 +154,9 @@
           <div class="preview-card">
             <h2>📷 二维码预览</h2>
             <div class="preview-box">
-              <img v-if="qrcodeDataUrl" :src="qrcodeDataUrl" alt="QR Code" class="qrcode-image" />
+              <img v-if="qrcodeDataUrl" :src="qrcodeDataUrl" alt="生成的二维码图片" class="qrcode-image" />
               <div v-else class="placeholder">
-                <span class="placeholder-icon">📱</span>
+                <span class="placeholder-icon" aria-hidden="true">📱</span>
                 <p>输入内容后生成二维码</p>
               </div>
             </div>

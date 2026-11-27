@@ -6,13 +6,13 @@
     <div class="tool-container">
       <ToolToolbar>
         <button @click="loadExample" class="btn btn-secondary">
-          <span class="icon">📝</span> 示例
+          <span class="icon" aria-hidden="true">📝</span> 示例
         </button>
         <button @click="clearAll" class="btn btn-danger">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button @click="copyMatches" class="btn btn-success" :disabled="!matches.length">
-          <span class="icon">📋</span> 复制匹配结果
+          <span class="icon" aria-hidden="true">📋</span> 复制匹配结果
         </button>
       </ToolToolbar>
 
@@ -105,7 +105,7 @@
           />
           <div v-if="replacement && replacedText !== null" class="replace-actions">
             <button @click="copyReplaced" class="btn btn-success btn-sm">
-              <span class="icon">📋</span> 复制替换结果
+              <span class="icon" aria-hidden="true">📋</span> 复制替换结果
             </button>
           </div>
           <pre v-if="replacement && replacedText !== null" class="replace-output">{{ replacedText }}</pre>

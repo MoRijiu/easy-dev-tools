@@ -6,13 +6,13 @@
     <div class="tool-container">
       <ToolToolbar>
         <button @click="loadExample" class="btn btn-secondary">
-          <span class="icon">📝</span> 示例 Token
+          <span class="icon" aria-hidden="true">📝</span> 示例 Token
         </button>
         <button @click="clearAll" class="btn btn-danger">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button @click="copyPayload" class="btn btn-success" :disabled="!payloadText">
-          <span class="icon">📋</span> 复制 Payload
+          <span class="icon" aria-hidden="true">📋</span> 复制 Payload
         </button>
       </ToolToolbar>
 

@@ -4,9 +4,9 @@
     <p class="description">变量名、函数名、文件名一键互转：camelCase、snake_case、kebab-case 等 12 种风格一屏对照；支持多行批量，全程本地处理</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copyAll" class="btn btn-success" :disabled="!hasResult"><span class="icon">📋</span> 复制全部</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copyAll" class="btn btn-success" :disabled="!hasResult"><span class="icon" aria-hidden="true">📋</span> 复制全部</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="输入标识符或短语，每行一个，如 user_name / getUserInfo / HTTP server config" spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
