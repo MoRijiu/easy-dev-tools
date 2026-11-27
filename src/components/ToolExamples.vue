@@ -16,7 +16,7 @@ const handleUseExample = (example) => {
 
 <template>
   <div class="examples">
-    <h2>📝 使用示例</h2>
+    <h2><span aria-hidden="true">📝</span> 使用示例</h2>
     <div class="example-grid">
       <div 
         v-for="(example, index) in examples" 
@@ -37,8 +37,12 @@ const handleUseExample = (example) => {
             <code class="value output-value">{{ example.output }}</code>
           </div>
         </div>
-        <button class="use-btn" @click="handleUseExample(example)">
-          🚀 使用此示例
+        <button
+          class="use-btn"
+          :aria-label="example.description ? `使用示例 ${index + 1}：${example.description}` : `使用示例 ${index + 1}`"
+          @click="handleUseExample(example)"
+        >
+          <span aria-hidden="true">🚀</span> 使用此示例
         </button>
       </div>
     </div>
@@ -63,7 +67,7 @@ const handleUseExample = (example) => {
 
 .example-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 20px;
 }
 
