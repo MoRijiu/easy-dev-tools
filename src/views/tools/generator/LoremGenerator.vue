@@ -58,7 +58,7 @@
       <!-- 输出区域 -->
       <div class="output-section">
         <div class="output-header">
-          <h3>生成的文本</h3>
+          <h2>生成的文本</h2>
           <span class="text-stats" v-if="outputText && stats">
             {{ stats.paragraphs }} 段 · {{ stats.sentences }} 句 · {{ stats.words }} {{ options.style === 'chinese' ? '字' : '词' }} · {{ stats.chars }} 字符 · {{ stats.bytes }} 字节（UTF-8）
           </span>
@@ -319,7 +319,7 @@ h1 {
   margin-bottom: 16px;
 }
 
-.output-header h3 {
+.output-header h2 {
   margin: 0;
   color: var(--text-strong);
 }

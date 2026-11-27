@@ -6,7 +6,7 @@
 <template>
   <div class="editor-panel">
     <div :class="['panel-header', headerClass]">
-      <h3>{{ title }}</h3>
+      <h2>{{ title }}</h2>
       <span v-if="$slots.headerExtra" class="header-extra">
         <slot name="headerExtra"></slot>
       </span>
@@ -57,7 +57,7 @@ defineProps({
   background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
 
-.panel-header h3 {
+.panel-header h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;

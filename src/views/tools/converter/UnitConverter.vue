@@ -83,7 +83,7 @@
 
       <!-- 常用转换快捷按钮 -->
       <div class="quick-conversions" v-if="quickConversions.length > 0">
-        <h3>常用转换</h3>
+        <h2>常用转换</h2>
         <div class="quick-btns">
           <button
             v-for="(qc, index) in quickConversions"
@@ -98,13 +98,13 @@
 
       <!-- 转换公式说明 -->
       <div class="formula-info" v-if="currentFormula">
-        <h3>转换公式</h3>
+        <h2>转换公式</h2>
         <div class="formula-content">{{ currentFormula }}</div>
       </div>
 
       <!-- 全量对照（当前输入换算到本类全部单位） -->
       <div class="unit-reference" v-if="allResults.length > 0">
-        <h3>全量对照</h3>
+        <h2>全量对照</h2>
         <div class="reference-table">
           <button v-for="row in allResults" :key="row.id" class="reference-row all-row" @click="copyText(formatResult(row.value) + ' ' + row.symbol)" :title="'点击复制 ' + row.name">
             <span class="unit-name">{{ row.name }}</span>
@@ -115,7 +115,7 @@
 
       <!-- 单位参考表 -->
       <div class="unit-reference">
-        <h3>{{ getCategoryName(currentCategory) }}单位参考</h3>
+        <h2>{{ getCategoryName(currentCategory) }}单位参考</h2>
         <div class="reference-table">
           <div v-for="unit in currentUnits" :key="unit.id" class="reference-row">
             <span class="unit-name">{{ unit.name }}</span>
@@ -520,7 +520,7 @@ h1 {
   margin-bottom: 24px;
 }
 
-.quick-conversions h3 {
+.quick-conversions h2 {
   font-size: 16px;
   color: var(--text-strong);
   margin-bottom: 12px;
@@ -556,7 +556,7 @@ h1 {
   margin-bottom: 24px;
 }
 
-.formula-info h3 {
+.formula-info h2 {
   font-size: 14px;
   color: var(--accent);
   margin-bottom: 8px;
@@ -573,7 +573,7 @@ h1 {
   margin-bottom: 30px;
 }
 
-.unit-reference h3 {
+.unit-reference h2 {
   font-size: 18px;
   color: var(--text-strong);
   margin-bottom: 16px;

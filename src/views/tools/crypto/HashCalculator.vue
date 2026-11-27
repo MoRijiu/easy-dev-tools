@@ -84,7 +84,7 @@
 
       <!-- 哈希结果区域 -->
       <div class="results-section" v-if="Object.keys(hashResults).length > 0">
-        <h3 class="results-title">计算结果</h3>
+        <h2 class="results-title">计算结果</h2>
         <div class="results-grid">
           <div
             v-for="(value, key) in hashResults"

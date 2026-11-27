@@ -31,7 +31,7 @@
             <span>预计阅读：{{ stats.readingText }}</span><span>预计朗读：{{ stats.speakingText }}</span><span>不重复词：{{ fmt(stats.uniqueWords) }}</span>
           </div>
           <div v-if="stats && stats.topWords.length" class="top">
-            <h3>高频词 Top {{ stats.topWords.length }}</h3>
+            <h2>高频词 Top {{ stats.topWords.length }}</h2>
             <ol>
               <li v-for="w in stats.topWords" :key="w.word"><span class="word">{{ w.word }}</span><span class="count">{{ w.count }} 次 · {{ w.percent }}%</span></li>
             </ol>
@@ -114,7 +114,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .label { font-size: 12px; color: var(--text-2); }
 .empty { color: var(--text-2); font-size: 13px; text-align: center; padding: 32px 0; }
 .times { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; font-size: 13px; color: var(--text-2); }
-.top { margin-top: 12px; } .top h3 { font-size: 14px; color: var(--text-strong); margin: 0 0 6px; }
+.top { margin-top: 12px; } .top h2 { font-size: 14px; color: var(--text-strong); margin: 0 0 6px; }
 .top ol { margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-2); }
 .top li { display: flex; justify-content: space-between; padding: 2px 0; }
 .word { color: var(--text); font-weight: 600; }

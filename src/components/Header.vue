@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <nav class="nav">
+      <nav class="nav" aria-label="主导航">
         <button
           class="palette-trigger"
           type="button"

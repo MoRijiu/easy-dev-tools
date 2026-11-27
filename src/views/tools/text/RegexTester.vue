@@ -64,14 +64,14 @@
       </div>
 
       <div v-if="pattern && testText" class="highlight-section">
-        <h3 class="section-title">匹配高亮</h3>
+        <h2 class="section-title">匹配高亮</h2>
         <div v-if="errorMessage" class="no-match">正则有误，修正后将实时显示高亮</div>
         <p v-else-if="!matches.length" class="no-match">没有匹配到任何内容</p>
         <div v-else class="highlight-box" aria-label="匹配高亮预览"><template v-for="(seg, i) in segments" :key="i"><mark v-if="seg.isMatch && !seg.zeroWidth" class="hl">{{ seg.text }}</mark><span v-else-if="seg.isMatch" class="hl-zero" title="零宽匹配"></span><template v-else>{{ seg.text }}</template></template></div>
       </div>
 
       <div v-if="matches.length" class="matches-section">
-        <h3 class="section-title">匹配明细</h3>
+        <h2 class="section-title">匹配明细</h2>
         <div class="table-wrap">
           <table class="matches-table">
             <thead>
