@@ -306,7 +306,7 @@ const openPalette = () => {
 }
 
 .nav-link.router-link-active {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .nav-link.router-link-active::after {
@@ -466,7 +466,7 @@ const openPalette = () => {
 
 .tool-item:hover {
   background: var(--surface);
-  color: var(--accent);
+  color: var(--accent-text);
   transform: translateX(4px);
 }
 

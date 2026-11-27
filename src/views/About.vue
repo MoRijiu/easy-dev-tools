@@ -277,7 +277,7 @@ useSeo({
 }
 
 .content-card strong {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -422,7 +422,7 @@ useSeo({
 
 .support-thanks {
   font-size: 1rem;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   margin-top: 2rem;
   margin-bottom: 0;

@@ -297,7 +297,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .pattern-row { display: flex; align-items: center; gap: 6px; }
 .slash { color: var(--text-2); font-size: 18px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
 .pattern-input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 15px; box-sizing: border-box; }
-.flags-text { color: var(--accent); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; min-width: 24px; }
+.flags-text { color: var(--accent-text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; min-width: 24px; }
 .flags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .flag-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; border: 1px solid var(--border); cursor: pointer; }
 .flag-chip.active { color: var(--text-strong); border-color: var(--accent); background: var(--accent-soft); }
@@ -322,10 +322,10 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .matches-table td code { word-break: break-all; }
 .groups-cell { display: flex; flex-wrap: wrap; gap: 6px; }
 .group-tag { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
-.group-tag code { color: var(--accent); margin-right: 4px; }
+.group-tag code { color: var(--accent-text); margin-right: 4px; }
 .limit-note { color: var(--text-2); font-size: 13px; margin: 8px 0 0; }
 .pos-sub { display: block; color: var(--text-2); font-size: 12px; white-space: nowrap; }
-.literal-note { color: var(--accent); font-size: 13px; margin: 0 0 10px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; word-break: break-all; }
+.literal-note { color: var(--accent-text); font-size: 13px; margin: 0 0 10px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; word-break: break-all; }
 .risk-box { border: 1px solid var(--danger-border); background: var(--danger-soft); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
 .risk-item { color: var(--danger-text); font-size: 13px; margin: 2px 0; }
 .replace-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; }

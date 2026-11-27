@@ -27,6 +27,10 @@
   --text-3: #646c78;
   --accent: #667eea;
   --accent-2: #764ba2;
+  /* 强调文字色（R9p 校准）：--accent 本体作文字仅 3.33–3.66:1、--accent-2 暗色仅 2.56:1，
+     文字一律走这两个变量，主背景上均 ≥4.5:1；--accent/--accent-2 只作背景/渐变/边框 */
+  --accent-text: #4a54c4;
+  --accent-text-hover: #764ba2;
   --accent-soft: #f0f4ff;
   --success: #27ae60;
   --success-soft: #e8f5e9;
@@ -85,6 +89,8 @@
   --text-strong: #f1f5f9;
   --text-2: #9aa3b2;
   --text-3: #8b94a5;
+  --accent-text: #93a5f5;
+  --accent-text-hover: #c9a7eb;
   --accent-soft: #262c47;
   --success-soft: #14301f;
   --danmaku-bg: rgba(28, 32, 42, 0.92);
@@ -258,13 +264,13 @@ input, textarea, select {
 
 /* 链接样式 */
 a {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 a:hover {
-  color: var(--accent-2);
+  color: var(--accent-text-hover);
 }
 
 /* 响应式图片 */

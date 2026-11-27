@@ -226,7 +226,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .results-table th, .results-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; color: var(--text); }
 .results-table thead th { background: var(--bg-soft); color: var(--text-strong); }
 .results-table tbody th { width: 110px; color: var(--text-strong); background: var(--bg-soft); white-space: nowrap; }
-.results-table tr.is-source tbody th, .results-table tr.is-source th { color: var(--accent); }
+.results-table tr.is-source tbody th, .results-table tr.is-source th { color: var(--accent-text); }
 .src-tag { margin-left: 6px; font-size: 11px; color: var(--text-2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 6px; }
 .result-value { font-size: 14px; word-break: break-all; }
 .approx-tag { margin-left: 8px; font-size: 12px; color: var(--warning-text); white-space: nowrap; }

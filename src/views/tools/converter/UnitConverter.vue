@@ -496,7 +496,7 @@ h1 {
   font-size: 24px;
   font-family: 'Consolas', 'Monaco', monospace;
   text-align: center;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   min-height: 60px;
   display: flex;
@@ -512,7 +512,7 @@ h1 {
 
 .arrow {
   font-size: 32px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* 快捷转换 */
@@ -537,7 +537,7 @@ h1 {
   border: 1px solid var(--accent);
   border-radius: 20px;
   background: var(--surface);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.3s;
@@ -558,7 +558,7 @@ h1 {
 
 .formula-info h2 {
   font-size: 14px;
-  color: var(--accent);
+  color: var(--accent-text);
   margin-bottom: 8px;
 }
 
@@ -603,7 +603,7 @@ h1 {
 }
 
 .unit-symbol {
-  color: var(--accent);
+  color: var(--accent-text);
   font-family: 'Consolas', 'Monaco', monospace;
 }
 

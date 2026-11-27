@@ -111,7 +111,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .row-label { flex: 0 0 168px; color: var(--text-2); font-size: 12px; }
 .row-value { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; color: var(--text); }
 .copy-btn { flex: 0 0 auto; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; }
-.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.copy-btn:hover { border-color: var(--accent); color: var(--accent-text); }
 .placeholder { color: var(--text-2); font-size: 14px; padding: 12px 0; }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .row-label { flex-basis: 118px; } }
 </style>

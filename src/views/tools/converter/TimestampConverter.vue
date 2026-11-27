@@ -590,7 +590,7 @@ h1 {
 
 .unit-hint { margin-top: 8px; font-size: 12px; color: var(--text-2); }
 .row-copy { margin-left: 10px; padding: 3px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text-2); cursor: pointer; white-space: nowrap; }
-.row-copy:hover { color: var(--accent); border-color: var(--accent); }
+.row-copy:hover { color: var(--accent-text); border-color: var(--accent); }
 
 /* 响应式设计 */
 @media (max-width: 640px) {
