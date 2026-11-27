@@ -11,7 +11,7 @@
       </div>
       <nav class="cat-nav" aria-label="分类快速导航">
         <button type="button" class="cat-chip" :class="{ active: activeGroup === 'all' }" :aria-pressed="activeGroup === 'all'" @click="activeGroup = 'all'">全部</button>
-        <button v-for="g in toolGroups" :key="g.id" type="button" class="cat-chip" :class="{ active: activeGroup === g.id }" :aria-pressed="activeGroup === g.id" @click="activeGroup = g.id">{{ g.icon }} {{ g.name }} <span class="cat-count">{{ g.tools.length }}</span></button>
+        <button v-for="g in toolGroups" :key="g.id" type="button" class="cat-chip" :class="{ active: activeGroup === g.id }" :aria-pressed="activeGroup === g.id" @click="activeGroup = g.id"><span aria-hidden="true">{{ g.icon }}</span> {{ g.name }} <span class="cat-count">{{ g.tools.length }}</span></button>
       </nav>
     </section>
 
@@ -21,18 +21,18 @@
 
     <template v-if="!query && activeGroup === 'all'">
       <section v-if="favoriteTools.length" class="pref-section" aria-label="我的收藏">
-        <h2 class="pref-title">★ 我的收藏 <span class="pref-count">{{ favoriteTools.length }}</span></h2>
+        <h2 class="pref-title"><span aria-hidden="true">★</span> 我的收藏 <span class="pref-count">{{ favoriteTools.length }}</span></h2>
         <div class="pref-chips">
           <span v-for="t in favoriteTools" :key="t.id" class="pref-chip-wrap">
-            <button type="button" class="cat-chip" @click="navigateToTool(t)">{{ t.icon }} {{ t.name }}</button>
+            <button type="button" class="cat-chip" @click="navigateToTool(t)"><span aria-hidden="true">{{ t.icon }}</span> {{ t.name }}</button>
             <FavoriteButton :tool-id="t.id" :tool-name="t.name" />
           </span>
         </div>
       </section>
       <section v-if="recentTools.length" class="pref-section" aria-label="最近使用">
-        <h2 class="pref-title">🕘 最近使用 <span class="pref-count">{{ recentTools.length }}</span><button type="button" class="reset-link" @click="clearRecent">清空历史</button></h2>
+        <h2 class="pref-title"><span aria-hidden="true">🕘</span> 最近使用 <span class="pref-count">{{ recentTools.length }}</span><button type="button" class="reset-link" @click="clearRecent">清空历史</button></h2>
         <div class="pref-chips">
-          <button v-for="t in recentTools" :key="t.id" type="button" class="cat-chip" @click="navigateToTool(t)">{{ t.icon }} {{ t.name }}</button>
+          <button v-for="t in recentTools" :key="t.id" type="button" class="cat-chip" @click="navigateToTool(t)"><span aria-hidden="true">{{ t.icon }}</span> {{ t.name }}</button>
         </div>
       </section>
     </template>
@@ -60,7 +60,7 @@
       <p class="empty-title">没有找到「{{ query }}」相关的工具</p>
       <p class="empty-desc">换个关键词试试，或看看这些常用工具：</p>
       <div class="empty-suggest">
-        <button v-for="t in popularTools" :key="t.id" type="button" class="cat-chip" @click="navigateToTool(t)">{{ t.icon }} {{ t.name }}</button>
+        <button v-for="t in popularTools" :key="t.id" type="button" class="cat-chip" @click="navigateToTool(t)"><span aria-hidden="true">{{ t.icon }}</span> {{ t.name }}</button>
       </div>
       <button type="button" class="reset-link" @click="resetFilter">清除搜索，浏览全部工具</button>
     </section>
