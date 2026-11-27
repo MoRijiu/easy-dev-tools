@@ -33,10 +33,15 @@ const resolved = computed(() =>
   mode.value === 'auto' ? (systemDark.value ? 'dark' : 'light') : mode.value
 )
 
+// 浏览器地址栏/系统栏颜色与实际生效主题同步（值同 style.css 的 --bg 双主题）
+const THEME_COLORS = { light: '#f8f9fa', dark: '#0f1115' }
+
 function apply() {
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.theme = resolved.value
     document.documentElement.style.colorScheme = resolved.value
+    const meta = document.getElementById('edt-theme-color')
+    if (meta) meta.setAttribute('content', THEME_COLORS[resolved.value])
   }
 }
 
