@@ -750,8 +750,8 @@ h1 {
   border-radius: 12px;
   font-size: 12px;
   font-weight: 700;
-  background: #fee;
-  color: var(--danger, #e74c3c);
+  background: var(--danger-soft);
+  color: var(--danger-text);
 }
 
 .savings.positive {

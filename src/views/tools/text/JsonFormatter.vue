@@ -421,23 +421,23 @@ h1 {
 
 /* 语法高亮样式 */
 :deep(.string) {
-  color: #22863a;
+  color: var(--syntax-string);
 }
 
 :deep(.number) {
-  color: #005cc5;
+  color: var(--syntax-number);
 }
 
 :deep(.boolean) {
-  color: #d73a49;
+  color: var(--syntax-boolean);
 }
 
 :deep(.null) {
-  color: #6f42c1;
+  color: var(--syntax-null);
 }
 
 :deep(.key) {
-  color: #e36209;
+  color: var(--syntax-key);
   font-weight: 600;
 }
 
