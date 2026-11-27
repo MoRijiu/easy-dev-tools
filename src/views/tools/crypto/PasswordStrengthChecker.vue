@@ -6,7 +6,7 @@
       <label class="block">密码
         <span class="input-row">
           <input v-model="input" :type="visible ? 'text' : 'password'" spellcheck="false" autocomplete="off" placeholder="输入要检查的密码" aria-label="密码">
-          <button class="mini" type="button" @click="visible = !visible">{{ visible ? '隐藏' : '显示' }}</button>
+          <button class="mini" type="button" :aria-pressed="visible" :aria-label="visible ? '隐藏密码' : '显示密码'" @click="visible = !visible">{{ visible ? '隐藏' : '显示' }}</button>
         </span>
       </label>
       <div class="row actions">

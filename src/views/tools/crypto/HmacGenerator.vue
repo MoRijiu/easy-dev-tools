@@ -15,7 +15,7 @@
         </label>
       </div>
       <label class="block">密钥（Key）
-        <span class="secret-wrap"><input v-model="keyText" :type="showKey ? 'text' : 'password'" placeholder="输入密钥" aria-label="密钥" autocomplete="off" /><button class="mini" type="button" @click="showKey = !showKey">{{ showKey ? '隐藏' : '显示' }}</button></span>
+        <span class="secret-wrap"><input v-model="keyText" :type="showKey ? 'text' : 'password'" placeholder="输入密钥" aria-label="密钥" autocomplete="off" /><button class="mini" type="button" :aria-pressed="showKey" :aria-label="showKey ? '隐藏密钥' : '显示密钥'" @click="showKey = !showKey">{{ showKey ? '隐藏' : '显示' }}</button></span>
       </label>
       <label class="block">消息（Message）
         <textarea v-model="messageText" rows="4" spellcheck="false" placeholder="输入要签名的消息" aria-label="消息"></textarea>

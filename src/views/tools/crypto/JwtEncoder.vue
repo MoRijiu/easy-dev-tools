@@ -8,7 +8,7 @@
           <select v-model="alg" aria-label="签名算法" @change="syncHeaderAlg"><option v-for="a in JWT_ALGS" :key="a.id" :value="a.id">{{ a.label }}</option></select>
         </label>
         <label class="secret-label">签名密钥（Secret）
-          <span class="secret-wrap"><input v-model="secret" :type="showSecret ? 'text' : 'password'" placeholder="输入签名密钥" aria-label="签名密钥" autocomplete="off" /><button class="mini" type="button" @click="showSecret = !showSecret">{{ showSecret ? '隐藏' : '显示' }}</button></span>
+          <span class="secret-wrap"><input v-model="secret" :type="showSecret ? 'text' : 'password'" placeholder="输入签名密钥" aria-label="签名密钥" autocomplete="off" /><button class="mini" type="button" :aria-pressed="showSecret" :aria-label="showSecret ? '隐藏签名密钥' : '显示签名密钥'" @click="showSecret = !showSecret">{{ showSecret ? '隐藏' : '显示' }}</button></span>
         </label>
       </div>
       <div class="cols">
