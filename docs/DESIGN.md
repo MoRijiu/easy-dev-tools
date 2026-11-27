@@ -41,6 +41,7 @@
 - 状态消息必须可播报（R9k 起）：全站状态反馈走共享组件 `ToolStatusMessage`（72 个工具页共用），组件按类型给出 live region 语义——错误用 `role="alert"` + `aria-live="assertive"`、成功/信息用 `role="status"` + `aria-live="polite"`，均带 `aria-atomic="true"`，屏幕阅读器才会主动念出「成功/失败」结果；禁止只靠颜色与视觉出现传达状态。自带的状态段落（如哈希校验结果）同样须带 role/aria-live。各工具自带的动态提示条（计算后才出现的 notes/warnings/截断与处理提示，R9l 起）统一带 `role="status"` + `aria-live="polite"`，让「已自动处理/需要注意」类信息也能被读屏播报；静态说明文字（常驻的格式提示、字段说明）不加 live region，避免进页即朗读。
 - 自动移动内容必须可暂停（R9j 起）：持续自动滚动/移动超过 5 秒的内容（如首页工具弹幕 Danmaku）必须提供暂停/继续开关（带 `aria-pressed` 与 `aria-label`），且鼠标悬停、键盘焦点进入区域时自动暂停（`animation-play-state: paused`），方便点中与读清移动中的链接；系统 `prefers-reduced-motion: reduce` 时默认静止——组件内显式 `animation: none` 并默认暂停，不要只依赖全局规则压缩动画时长（那会跳到末帧而非停在起点）。
 - 披露菜单须多通道可操作（R9i 起）：Header「全部工具」下拉一类的展开菜单禁止只靠鼠标悬停打开——触发按钮必须可点击切换、带 `aria-expanded` 与 `aria-controls` 指向菜单，并支持 Esc 关闭并回焦、焦点离开区域自动关闭、点击外部关闭、路由变化关闭；悬停只作鼠标用户的快捷方式，不能是唯一入口（触屏与键盘用户没有 hover）。
+- 示例区可达名（R9m 起）：共享组件 `ToolExamples` 的标题与按钮内装饰 Emoji（📝/🚀）须用 `<span aria-hidden="true">` 包裹（同 R9h 口径，不限于 class 含 icon 的元素）；同页多个「使用此示例」按钮的可达名禁止完全相同——按钮须带含示例序号与说明的 `aria-label`（如「使用示例 1：格式化 JSON」），屏幕阅读器与语音控制用户才能区分要触发哪一个。共享组件卡片网格列宽用 `minmax(min(<列宽>, 100%), 1fr)`，不裸写 `minmax(300px, 1fr)` 以防窄容器溢出（同 R7d 口径，`ToolExamples`/`ToolFeatures` 已统一）。
 - 标题层级与地标（R9g 起）：全站只有一个 `<main>`（`MainLayout` 的 `#main-content`），页面与工具组件禁止再嵌套 `<main>` 或 `role="main"`，根元素用 `<div>`。标题不得跳级：页面 `<h1>` 后的一级小节用 `<h2>`（含页脚栏目名、编辑面板标题与各工具的结果/设置小节），`<h3>` 只用于 `<h2>` 之下的子项（如功能特点卡片）；改标题级别时同步改对应 CSS 选择器并靠 class 固定字号，不靠标签默认字号。多个 `<nav>` 并存时每个都要有 `aria-label` 区分（主导航 / 分类快速导航）。
 
 ## 5. 构建与发布纪律
