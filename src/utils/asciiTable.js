@@ -18,7 +18,7 @@ const CONTROL = [
   ['FS','文件分隔符',''],['GS','组分隔符',''],['RS','记录分隔符',''],['US','单元分隔符','']
 ];
 function categoryOf(code) {
-  if (code <= 32 || code === 127) return 'control';
+  if (code < 32 || code === 127) return 'control';
   if (code >= 48 && code <= 57) return 'digit';
   if (code >= 65 && code <= 90) return 'upper';
   if (code >= 97 && code <= 122) return 'lower';
@@ -58,22 +58,48 @@ export const ASCII_TABLE = Array.from({ length: 128 }, (_, code) => ({
   category: categoryOf(code),
   note: noteOf(code)
 }));
+export function normalizeAsciiInput(value = '') {
+  return String(value ?? '').replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/\u3000/g, ' ');
+}
+export function countByCategory() {
+  const counts = { all: ASCII_TABLE.length };
+  for (const c of ASCII_CATEGORIES) if (c.id !== 'all') counts[c.id] = 0;
+  for (const t of ASCII_TABLE) counts[t.category] = (counts[t.category] || 0) + 1;
+  return counts;
+}
+function searchScore(t, q, qRaw = '') {
+  if (!q || q.includes(' ')) return 0;
+  if (String(t.code) === q) return 0;
+  if (t.char && t.char === qRaw) return 0.5;
+  if (t.display.toLowerCase() === q || (t.char && t.char.toLowerCase() === q)) return 1;
+  if (t.abbr && t.abbr.toLowerCase() === q) return 2;
+  if (t.hex.toLowerCase() === q || `0x${t.hex.toLowerCase()}` === q) return 3;
+  if (String(t.code).startsWith(q)) return 4;
+  return 5;
+}
 export function searchAscii(query = '', category = 'all') {
-  const q = String(query || '').trim().toLowerCase();
+  const qRaw = normalizeAsciiInput(query || '').trim();
+  const q = qRaw.toLowerCase();
   const cat = category || 'all';
-  return ASCII_TABLE.filter((t) => {
+  const out = ASCII_TABLE.filter((t) => {
     if (cat !== 'all' && t.category !== cat) return false;
     if (!q) return true;
     const hay = `${t.code} ${t.display} ${t.name} ${t.abbr} ${t.hex} 0x${t.hex} ${t.oct} ${t.binary} ${t.note}`.toLowerCase();
-    return q.split(/\s+/).every((p) => hay.includes(p));
+    return q.split(/\s+/).every((part) => hay.includes(part));
   });
+  if (q && !q.includes(' ')) out.sort((a, b) => searchScore(a, q, qRaw) - searchScore(b, q, qRaw) || a.code - b.code);
+  return out;
 }
+export const ASCII_TEXT_LIMIT = 100000;
 export function textToAscii(text = '', format = 'dec') {
   const s = String(text ?? '');
+  const chars = [...s];
+  if (chars.length > ASCII_TEXT_LIMIT) return { ok: false, error: `文本过长：共 ${chars.length} 个字符，上限为 ${ASCII_TEXT_LIMIT} 个` };
   const codes = [];
-  for (const ch of s) {
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
     const cp = ch.codePointAt(0);
-    if (cp > 127) return { ok: false, error: `字符「${ch}」不是 ASCII（码点 ${cp}），ASCII 只包含 0–127` };
+    if (cp > 127) return { ok: false, error: `第 ${i + 1} 个字符「${ch}」不是 ASCII（码点 ${cp}），ASCII 只包含 0–127` };
     codes.push(cp);
   }
   let output = '';
@@ -83,22 +109,44 @@ export function textToAscii(text = '', format = 'dec') {
   return { ok: true, output, count: codes.length };
 }
 export function asciiToText(input = '', format = 'dec') {
-  const raw = String(input ?? '').trim();
+  const raw = normalizeAsciiInput(input ?? '').trim();
   if (!raw) return { ok: true, output: '', count: 0 };
+  if (raw.length > 1000000) return { ok: false, error: '输入过长：上限为 1000000 个字符' };
   let tokens;
   if (format === 'escape') {
-    if (!/^(\\x[0-9a-fA-F]{2})+$/.test(raw.replace(/\s+/g, ''))) return { ok: false, error: '格式应为连续的 \\xHH，如 \\x48\\x69' };
-    tokens = raw.replace(/\s+/g, '').match(/\\x([0-9a-fA-F]{2})/g).map((t) => parseInt(t.slice(2), 16));
+    const compact = raw.replace(/\s+/g, '');
+    const parts = compact.match(/\\x[0-9a-fA-F]{2}/gi);
+    if (!parts || parts.join('').length !== compact.length) {
+      const bad = compact.replace(/\\x[0-9a-fA-F]{2}/gi, '');
+      return { ok: false, error: `格式应为连续的 \\xHH，如 \\x48\\x69；多余内容「${bad.slice(0, 20)}」无法识别` };
+    }
+    tokens = parts.map((t) => parseInt(t.slice(2), 16));
+    for (let i = 0; i < tokens.length; i++) if (tokens[i] > 127) return { ok: false, error: `第 ${i + 1} 个码值 ${tokens[i]}（${parts[i]}）超出 ASCII 范围 0–127` };
   } else {
     const parts = raw.split(/[\s,]+/).filter(Boolean);
     tokens = [];
-    for (const p of parts) {
-      const v = format === 'hex' ? (/^[0-9a-fA-F]{1,2}$/.test(p.replace(/^0x/i, '')) ? parseInt(p.replace(/^0x/i, ''), 16) : NaN) : (/^\d{1,3}$/.test(p) ? Number(p) : NaN);
-      if (!Number.isInteger(v) || v < 0 || v > 127) return { ok: false, error: `「${p}」不是有效的 ASCII 码（应为 0–127${format === 'hex' ? ' 的十六进制' : ''}）` };
-      tokens.push(v);
+    for (let idx = 0; idx < parts.length; idx++) {
+      const p = parts[idx];
+      if (format === 'hex') {
+        const body = p.replace(/^0x/i, '');
+        if (!body) return { ok: false, error: `第 ${idx + 1} 项「${p}」在 0x 后没有数字` };
+        if (!/^[0-9a-fA-F]+$/.test(body)) { const bad = [...body].find((c) => !/[0-9a-fA-F]/.test(c)); return { ok: false, error: `第 ${idx + 1} 项「${p}」含非法十六进制字符「${bad}」` }; }
+        if (body.length > 2) {
+          if (body.length % 2 !== 0) return { ok: false, error: `第 ${idx + 1} 项「${p}」是连续十六进制串时长度须为偶数（每 2 位一个字节），当前 ${body.length} 位` };
+          for (let j = 0; j < body.length; j += 2) { const v = parseInt(body.slice(j, j + 2), 16); if (v > 127) return { ok: false, error: `第 ${idx + 1} 项中第 ${j / 2 + 1} 个码值 ${body.slice(j, j + 2)}（=${v}）超出 ASCII 范围 0–127` }; tokens.push(v); }
+          continue;
+        }
+        const v = parseInt(body, 16);
+        if (v > 127) return { ok: false, error: `第 ${idx + 1} 项「${p}」（=${v}）超出 ASCII 范围 0–127` };
+        tokens.push(v);
+      } else {
+        if (!/^\d+$/.test(p)) { const bad = [...p].find((c) => !/\d/.test(c)); return { ok: false, error: bad ? `第 ${idx + 1} 项「${p}」含非法字符「${bad}」，十进制码值只能是数字` : `第 ${idx + 1} 项「${p}」不是有效的十进制码值` }; }
+        const v = Number(p);
+        if (v > 127) return { ok: false, error: `第 ${idx + 1} 项「${p}」超出 ASCII 范围 0–127` };
+        tokens.push(v);
+      }
     }
   }
-  for (const v of tokens) if (v > 127) return { ok: false, error: `码值 ${v} 超出 ASCII 范围 0–127` };
   return { ok: true, output: tokens.map((c) => String.fromCharCode(c)).join(''), count: tokens.length };
 }
 export function buildAsciiSummary(t) {
