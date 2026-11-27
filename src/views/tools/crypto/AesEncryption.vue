@@ -69,7 +69,7 @@
           :placeholder="`请输入正好 ${getKeyLength()} 字节的密钥（UTF-8）`"
         />
         <div class="key-tools">
-          <button class="link-btn" @click="showKey = !showKey">{{ showKey ? '隐藏密钥' : '显示密钥' }}</button>
+          <button class="link-btn" type="button" :aria-pressed="showKey" @click="showKey = !showKey">{{ showKey ? '隐藏密钥' : '显示密钥' }}</button>
           <span :class="['key-state', keyStateClass]">{{ keyHint }}</span>
         </div>
         <div class="iv-row" v-if="cipherMode === 'CBC'">
