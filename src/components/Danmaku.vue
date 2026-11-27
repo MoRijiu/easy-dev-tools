@@ -1,10 +1,21 @@
 <template>
   <div class="danmaku-container">
+    <button
+      type="button"
+      class="danmaku-toggle"
+      :aria-pressed="paused ? 'true' : 'false'"
+      :aria-label="paused ? '继续滚动工具弹幕' : '暂停滚动工具弹幕'"
+      @click="paused = !paused"
+    >
+      <span aria-hidden="true">{{ paused ? '▶' : '⏸' }}</span>
+      {{ paused ? '继续滚动' : '暂停滚动' }}
+    </button>
     <div class="danmaku-wrapper">
       <div
         v-for="(row, index) in danmakuRows"
         :key="index"
         class="danmaku-row"
+        :class="{ 'is-paused': paused }"
         :style="{ animationDuration: row.duration + 's' }"
       >
         <div class="danmaku-content">
@@ -46,6 +57,13 @@ const allTools = getAllTools()
 // 弹幕行数
 const rowCount = 3
 const danmakuRows = ref([])
+// 自动滚动必须可暂停（WCAG 2.2.2）：用户手动暂停、悬停/聚焦时自动暂停；
+// 系统要求减少动态时默认静止，由用户主动开启滚动。
+const paused = ref(
+  typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+)
 
 // 随机打乱数组
 const shuffleArray = (array) => {
@@ -113,11 +131,49 @@ onMounted(() => {
   padding: 2rem 0;
 }
 
+.danmaku-toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 32px;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--danmaku-bg);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  box-shadow: var(--shadow-card);
+}
+
+.danmaku-toggle:hover {
+  color: var(--accent);
+}
+
 .danmaku-row {
   display: flex;
   white-space: nowrap;
   animation: scroll-left linear infinite;
   will-change: transform;
+}
+
+/* 暂停：手动开关、鼠标悬停、键盘焦点进入区域时都静止，方便点中/读清移动中的链接 */
+/* 注意：聚焦暂停只认链接所在的 wrapper——暂停按钮本身在容器内，
+   若用容器 :focus-within，点「继续滚动」后按钮保持焦点会让滚动永远恢复不了 */
+.danmaku-row.is-paused,
+.danmaku-container:hover .danmaku-row,
+.danmaku-wrapper:focus-within .danmaku-row {
+  animation-play-state: paused;
+}
+
+/* 减少动态偏好：弹幕直接静止（全局规则只压缩时长会跳到末帧，这里明确关停） */
+@media (prefers-reduced-motion: reduce) {
+  .danmaku-row {
+    animation: none;
+  }
 }
 
 .danmaku-content {
