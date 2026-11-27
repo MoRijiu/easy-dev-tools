@@ -47,6 +47,9 @@
         <button @click="copyMarkdown" class="btn btn-secondary" :disabled="!markdownText.trim()">
           <span class="icon">📋</span> 复制
         </button>
+        <button @click="copyHtml" class="btn btn-secondary" :disabled="!markdownText.trim()">
+          <span class="icon">🧩</span> 复制HTML
+        </button>
         <button @click="exportMarkdown" class="btn btn-primary" :disabled="!markdownText.trim()">
           <span class="icon">💾</span> 导出
         </button>
@@ -63,7 +66,7 @@
         <!-- 输入区 -->
         <ToolEditorPanel
           title="Markdown 编辑"
-          :info="`${markdownText.length} 字符 | ${lineCount} 行`"
+          :info="statsText"
         >
           <textarea
             ref="editorRef"
@@ -85,6 +88,7 @@
 `代码` 或 ```代码块```"
             spellcheck="false"
             @keydown="handleKeydown"
+            @scroll="handleEditorScroll"
           ></textarea>
         </ToolEditorPanel>
 
@@ -96,6 +100,7 @@
             </label>
           </template>
           <div
+            ref="previewRef"
             class="markdown-preview"
             v-html="renderedHtml"
             @scroll="handlePreviewScroll"
@@ -128,195 +133,33 @@ import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
+import { renderMarkdown, markdownStats, buildStandaloneHtml } from '@/utils/markdown.js';
 
 const editorRef = ref(null);
+const previewRef = ref(null);
 const markdownText = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
 const syncScroll = ref(true);
 
-// 计算行数
-const lineCount = computed(() => {
-  return markdownText.value.split('\n').length;
+// 文档统计（字符/行/词/标题/链接/图片/代码块/表格/阅读时长）
+const stats = computed(() => markdownStats(markdownText.value));
+const lineCount = computed(() => stats.value.lines);
+const statsText = computed(() => {
+  const st = stats.value;
+  if (!markdownText.value.trim()) return '0 字符 | 0 行';
+  const parts = [`${st.chars} 字符`, `${st.lines} 行`, `${st.words} 词`];
+  if (st.headings) parts.push(`${st.headings} 标题`);
+  if (st.links) parts.push(`${st.links} 链接`);
+  if (st.images) parts.push(`${st.images} 图片`);
+  if (st.codeBlocks) parts.push(`${st.codeBlocks} 代码块`);
+  if (st.tables) parts.push(`${st.tables} 表格`);
+  if (st.readingMinutes) parts.push(`约 ${st.readingMinutes} 分钟读完`);
+  return parts.join(' | ');
 });
 
-// 简易 Markdown 解析器
-const parseMarkdown = (text) => {
-  if (!text) return '';
-
-  let html = text;
-
-  // 保存代码块，避免被其他规则处理
-  const codeBlocks = [];
-  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
-    const placeholder = `\x00CODEBLOCK${codeBlocks.length}\x00`;
-    const escapedCode = code.trim()
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    codeBlocks.push(`<pre class="code-block${lang ? ' language-' + lang : ''}"><code>${escapedCode}</code></pre>`);
-    return placeholder;
-  });
-
-  // 保存行内代码
-  const inlineCodes = [];
-  html = html.replace(/`([^`]+)`/g, (_, code) => {
-    const placeholder = `\x00INLINECODE${inlineCodes.length}\x00`;
-    const escapedCode = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    inlineCodes.push(`<code class="inline-code">${escapedCode}</code>`);
-    return placeholder;
-  });
-
-  // 转义 HTML 特殊字符
-  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  // 表格处理 - 需要在其他处理之前
-  html = html.replace(/((?:^\|.+\|$\n?)+)/gm, (match) => {
-    const rows = match.trim().split('\n');
-    let tableHtml = '<table class="md-table">';
-    let isHeader = true;
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      // 跳过分隔行 (|---|---|)
-      if (/^\|[\s\-:]+\|$/.test(row)) {
-        isHeader = false;
-        continue;
-      }
-
-      const cells = row.slice(1, -1).split('|').map(cell => cell.trim());
-      const tag = isHeader && i === 0 ? 'th' : 'td';
-      const cellsHtml = cells.map(cell => `<${tag}>${cell}</${tag}>`).join('');
-      tableHtml += `<tr>${cellsHtml}</tr>`;
-
-      if (isHeader && i === 0 && rows.length > 1 && /^\|[\s\-:]+\|$/.test(rows[1])) {
-        // 第一行是表头
-      } else {
-        isHeader = false;
-      }
-    }
-
-    tableHtml += '</table>';
-    return tableHtml;
-  });
-
-  // 标题 (# ~ ######)
-  html = html.replace(/^######\s+(.*)$/gm, '<h6>$1</h6>');
-  html = html.replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>');
-  html = html.replace(/^####\s+(.*)$/gm, '<h4>$1</h4>');
-  html = html.replace(/^###\s+(.*)$/gm, '<h3>$1</h3>');
-  html = html.replace(/^##\s+(.*)$/gm, '<h2>$1</h2>');
-  html = html.replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
-
-  // 水平线 (--- 或 ***) - 在列表之前处理
-  html = html.replace(/^[\-\*]{3,}$/gm, '<hr>');
-
-  // 粗体 (**text** 或 __text__)
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
-
-  // 斜体 (*text* 或 _text_) - 注意不要匹配列表项
-  html = html.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
-  html = html.replace(/(?<!_)_([^_\n]+)_(?!_)/g, '<em>$1</em>');
-
-  // 删除线 (~~text~~)
-  html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>');
-
-  // 图片 ![alt](url) - 必须在链接之前处理
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="md-image" />');
-
-  // 链接 [text](url)
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-
-  // 引用块 (> text)
-  html = html.replace(/^&gt;\s+(.*)$/gm, '<blockquote>$1</blockquote>');
-  html = html.replace(/<\/blockquote>\n<blockquote>/g, '\n');
-
-  // 无序列表处理
-  const processLists = (text) => {
-    const lines = text.split('\n');
-    let result = [];
-    let inList = false;
-
-    for (let line of lines) {
-      if (/^[\-\*]\s+(.*)$/.test(line)) {
-        if (!inList) {
-          result.push('<ul>');
-          inList = true;
-        }
-        result.push(line.replace(/^[\-\*]\s+(.*)$/, '<li>$1</li>'));
-      } else {
-        if (inList) {
-          result.push('</ul>');
-          inList = false;
-        }
-        result.push(line);
-      }
-    }
-    if (inList) result.push('</ul>');
-    return result.join('\n');
-  };
-  html = processLists(html);
-
-  // 有序列表处理
-  const processOrderedLists = (text) => {
-    const lines = text.split('\n');
-    let result = [];
-    let inList = false;
-
-    for (let line of lines) {
-      if (/^\d+\.\s+(.*)$/.test(line)) {
-        if (!inList) {
-          result.push('<ol>');
-          inList = true;
-        }
-        result.push(line.replace(/^\d+\.\s+(.*)$/, '<li>$1</li>'));
-      } else {
-        if (inList) {
-          result.push('</ol>');
-          inList = false;
-        }
-        result.push(line);
-      }
-    }
-    if (inList) result.push('</ol>');
-    return result.join('\n');
-  };
-  html = processOrderedLists(html);
-
-  // 段落和换行处理
-  const blocks = html.split(/\n\n+/);
-  html = blocks.map(block => {
-    block = block.trim();
-    if (!block) return '';
-    // 不包装已有 HTML 标签的块
-    if (/^<(h[1-6]|ul|ol|blockquote|pre|hr|table|div)/.test(block)) {
-      return block;
-    }
-    // 包装为段落
-    return `<p>${block.replace(/\n/g, '<br>')}</p>`;
-  }).join('\n');
-
-  // 恢复行内代码
-  inlineCodes.forEach((code, i) => {
-    html = html.replace(`\x00INLINECODE${i}\x00`, code);
-  });
-
-  // 恢复代码块
-  codeBlocks.forEach((code, i) => {
-    html = html.replace(`\x00CODEBLOCK${i}\x00`, code);
-  });
-
-  return html;
-};
-
-// 渲染 HTML
-const renderedHtml = computed(() => {
-  return parseMarkdown(markdownText.value);
-});
+// 渲染 HTML（安全渲染核心：原文 HTML 转义、危险协议链接拦截）
+const renderedHtml = computed(() => renderMarkdown(markdownText.value));
 
 // 插入文本到光标位置
 const insertText = (before, after = '', placeholder = '') => {
@@ -393,6 +236,19 @@ const copyMarkdown = async () => {
   }
 };
 
+// 复制渲染后的 HTML
+const copyHtml = async () => {
+  try {
+    await navigator.clipboard.writeText(renderedHtml.value);
+    statusMessage.value = '✓ HTML 已复制到剪贴板！';
+    statusType.value = 'success';
+    setTimeout(() => statusMessage.value = '', 2000);
+  } catch (error) {
+    statusMessage.value = '✗ 复制失败，请手动复制';
+    statusType.value = 'error';
+  }
+};
+
 // 导出 Markdown 文件
 const exportMarkdown = () => {
   const blob = new Blob([markdownText.value], { type: 'text/markdown' });
@@ -409,26 +265,7 @@ const exportMarkdown = () => {
 
 // 导出 HTML 文件
 const exportHtml = () => {
-  const htmlContent = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Markdown Document</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-    pre { background: var(--bg-soft); padding: 15px; border-radius: 6px; overflow-x: auto; }
-    code { background: var(--bg-soft); padding: 2px 6px; border-radius: 3px; }
-    blockquote { border-left: 4px solid var(--border); margin: 0; padding-left: 20px; color: var(--text-2); }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
-    img { max-width: 100%; }
-  </style>
-</head>
-<body>
-${renderedHtml.value}
-</body>
-</html>`;
+  const htmlContent = buildStandaloneHtml(renderedHtml.value);
   const blob = new Blob([htmlContent], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -441,9 +278,22 @@ ${renderedHtml.value}
   setTimeout(() => statusMessage.value = '', 2000);
 };
 
-// 同步滚动
+// 同步滚动：按滚动比例联动另一侧，scrollingFrom 防回环
+let scrollingFrom = '';
+const syncTo = (from, to) => {
+  if (!from || !to || scrollingFrom === 'syncing') return;
+  const maxFrom = from.scrollHeight - from.clientHeight;
+  const maxTo = to.scrollHeight - to.clientHeight;
+  if (maxFrom <= 0 || maxTo <= 0) return;
+  scrollingFrom = 'syncing';
+  to.scrollTop = (from.scrollTop / maxFrom) * maxTo;
+  requestAnimationFrame(() => { scrollingFrom = ''; });
+};
+const handleEditorScroll = () => {
+  if (syncScroll.value) syncTo(editorRef.value, previewRef.value);
+};
 const handlePreviewScroll = () => {
-  // 保留用于未来实现
+  if (syncScroll.value) syncTo(previewRef.value, editorRef.value);
 };
 
 // 使用示例
@@ -478,7 +328,15 @@ const faqs = [
   },
   {
     question: '支持哪些 Markdown 语法？',
-    answer: '支持标题（#）、粗体（**）、斜体（*）、链接、图片、代码块、引用、列表、表格等常用语法。'
+    answer: '支持标题（#）、粗体（**）、斜体（*）、删除线、链接、图片、代码块、引用、有序/无序/任务列表（含缩进嵌套）、带对齐的表格（|:---|---:|）与水平线。'
+  },
+  {
+    question: '粘贴别人写的 Markdown 安全吗？',
+    answer: '预览渲染会把原文里的 HTML 标签转义为纯文本，链接和图片只允许 http/https/mailto/tel 与相对路径，javascript: 等危险协议会被自动降级为纯文本，不会在预览区执行脚本。'
+  },
+  {
+    question: '同步滚动是怎么工作的？',
+    answer: '勾选「同步滚动」后，编辑区与预览区按滚动比例联动，长文档对照修改时不用两边来回拖。取消勾选即可独立滚动。'
   },
   {
     question: '如何插入代码块？',
@@ -501,6 +359,11 @@ const examples = [
     input: '- JSON格式化\n- Base64编解码\n- 时间戳转换',
     output: '<ul><li>JSON格式化</li><li>Base64编解码</li><li>时间戳转换</li></ul>',
     description: '工具列表',
+  },
+  {
+    input: '- [x] 写需求\n- [ ] 写代码\n\n| 工具 | 对齐 |\n| :--- | ---: |\n| JSON格式化 | 居右 |',
+    output: '',
+    description: '任务列表与表格对齐',
   },
   {
     input: '```javascript\n// 访问极速开发工具箱\nwindow.open("https://tools.morijiu.cn");\n```',
@@ -538,6 +401,21 @@ h1 {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* 编辑/预览区定高内部滚动，同步滚动才有作用对象（原实现两区随内容撑高、无内部滚动） */
+/* 面板定高后，内部 flex:1 的编辑/预览区自然被约束并各自滚动 */
+.markdown-editor :deep(.editor-panel) {
+  height: min(72vh, 720px);
+}
+
+/* flex 子项自动最小高度会被内容撑开，必须显式归零面板内容区才能真滚动 */
+.markdown-editor :deep(.panel-content) {
+  min-height: 0;
+}
+
+.markdown-editor .markdown-preview {
+  overflow-y: auto;
+}
+
 /* Markdown 预览样式 */
 :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
   color: var(--text-strong);
@@ -570,7 +448,7 @@ h1 {
 }
 
 :deep(a) {
-  color: #667eea;
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -579,7 +457,7 @@ h1 {
 }
 
 :deep(blockquote) {
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--accent);
   margin: 1em 0;
   padding: 0.5em 1em;
   background: var(--bg);
@@ -593,6 +471,15 @@ h1 {
 
 :deep(li) {
   margin: 0.4em 0;
+}
+
+:deep(li.task-item) {
+  list-style: none;
+  margin-left: -1.4em;
+}
+
+:deep(li.task-item input[type='checkbox']) {
+  margin-right: 6px;
 }
 
 :deep(.code-block) {
@@ -609,7 +496,7 @@ h1 {
 
 :deep(.inline-code) {
   background: var(--bg-soft);
-  color: #e83e8c;
+  color: var(--accent-2);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
