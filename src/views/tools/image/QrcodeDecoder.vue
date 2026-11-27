@@ -34,6 +34,7 @@
         <label class="block">解码内容
           <textarea :value="result.text" rows="4" readonly spellcheck="false" aria-label="解码内容"></textarea>
         </label>
+        <p v-for="w in (result.info.warnings || [])" :key="w" class="warn">⚠ {{ w }}</p>
         <table v-if="result.info.rows.length" class="kv">
           <tbody>
             <tr v-for="row in result.info.rows" :key="row.label"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td></tr>
@@ -72,7 +73,9 @@ const usageSteps = ['上传、拖放或粘贴二维码图片', '自动识别并�
 const faqs = [
   { question: '识别不出来怎么办？', answer: '多为图片模糊、二维码太小、倾斜严重或被压缩失真。可换一张更清晰的原图、把二维码裁大一些再试；纯色反色码已自动尝试反色解码。' },
   { question: '图片会上传到服务器吗？', answer: '不会。解码全程在你的浏览器本地完成，图片不离开设备；WiFi 密码、名片等敏感内容也不会被发送到任何地方。' },
-  { question: '和二维码生成器有什么区别？', answer: '生成器是把文本变成二维码图片，本工具反过来：把二维码图片还原成文本，并进一步识别是链接、WiFi 还是名片等类型。' }
+  { question: '和二维码生成器有什么区别？', answer: '生成器是把文本变成二维码图片，本工具反过来：把二维码图片还原成文本，并进一步识别是链接、WiFi 还是名片等类型。' },
+  { question: '识别结果上方的黄色提示是什么意思？', answer: '内容本身有可疑之处时会出现：如链接里内嵌了用户名/密码（真实域名在 @ 之后）、位置坐标超出合法范围、电话/短信号码为空。提示不影响查看内容，但打开链接或拨号前请先核对。' },
+  { question: '图片有什么限制？', answer: '单张图片不超过 20MB；过小的二维码会自动放大后再识别，过大的图片会等比缩小到 3000px 内处理。动图只取第一帧。' }
 ];
 
 const fileInput = ref(null);
@@ -89,6 +92,7 @@ function revokePreview() {
 }
 
 function clearAll() {
+  decodeSeq++; decoding.value = false;
   revokePreview();
   previewUrl.value = '';
   result.value = null;
@@ -101,20 +105,26 @@ async function decodeImageElement(img) {
   const maxDim = 3000;
   let { naturalWidth: w, naturalHeight: h } = img;
   if (!w || !h) throw new Error('图片加载失败，请换一张图片');
-  const scale = Math.min(1, maxDim / Math.max(w, h));
+  let scale = Math.min(1, maxDim / Math.max(w, h));
+  // 小图整数倍放大再识别：几十像素的小码直接喂给 jsQR 经常识别不到
+  if (scale === 1 && Math.max(w, h) < 500) scale = Math.min(8, Math.ceil(500 / Math.max(w, h)));
   w = Math.max(1, Math.round(w * scale)); h = Math.max(1, Math.round(h * scale));
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (scale > 1) ctx.imageSmoothingEnabled = false;
   ctx.drawImage(img, 0, 0, w, h);
   const imageData = ctx.getImageData(0, 0, w, h);
   const code = jsQR(imageData.data, w, h, { inversionAttempts: 'attemptBoth' });
   return code ? code.data : '';
 }
 
+let decodeSeq = 0;
 async function handleFile(file) {
   if (!file) return;
-  if (!file.type.startsWith('image/')) { error.value = '所选文件不是图片，请选择 PNG/JPG/WebP 等图片文件'; return; }
+  if (file.type && !file.type.startsWith('image/')) { error.value = '所选文件不是图片，请选择 PNG/JPG/WebP 等图片文件'; return; }
+  if (file.size > 20 * 1024 * 1024) { error.value = '图片超过 20MB，请压缩后再试'; return; }
+  const seq = ++decodeSeq;
   error.value = ''; result.value = null; decoding.value = true;
   revokePreview();
   previewUrl.value = URL.createObjectURL(file);
@@ -123,14 +133,17 @@ async function handleFile(file) {
     const img = new Image();
     img.src = previewUrl.value;
     await img.decode();
+    if (seq !== decodeSeq) return;
+    imageInfo.value += ` · ${img.naturalWidth}×${img.naturalHeight}`;
     const text = await decodeImageElement(img);
+    if (seq !== decodeSeq) return;
     if (!text) { error.value = '没有识别到二维码：请确认图片里有完整清晰的二维码'; return; }
     const info = classifyQrContent(text);
     result.value = { text, info, summary: buildDecodeSummary(info, text) };
   } catch (e) {
-    error.value = e.message || '图片处理失败，请换一张图片重试';
+    if (seq === decodeSeq) error.value = e.message || '图片处理失败，请换一张图片重试';
   } finally {
-    decoding.value = false;
+    if (seq === decodeSeq) decoding.value = false;
   }
 }
 
@@ -158,6 +171,7 @@ async function pasteFromClipboard() {
 }
 
 async function loadSample() {
+  const seq = ++decodeSeq;
   error.value = ''; result.value = null; decoding.value = true;
   try {
     const dataUrl = await QRCodeLib.toDataURL('https://tools.morijiu.cn', { width: 320, margin: 2 });
@@ -168,13 +182,14 @@ async function loadSample() {
     img.src = dataUrl;
     await img.decode();
     const text = await decodeImageElement(img);
+    if (seq !== decodeSeq) return;
     if (!text) { error.value = '示例二维码识别失败，请重试'; return; }
     const info = classifyQrContent(text);
     result.value = { text, info, summary: buildDecodeSummary(info, text) };
   } catch {
-    error.value = '示例生成失败，请重试';
+    if (seq === decodeSeq) error.value = '示例生成失败，请重试';
   } finally {
-    decoding.value = false;
+    if (seq === decodeSeq) decoding.value = false;
   }
 }
 
@@ -190,7 +205,7 @@ onBeforeUnmount(revokePreview);
 .qr-decoder { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; background: var(--bg-softer); margin-bottom: 12px; }
 .drop-zone.dragging { border-color: var(--accent, #4f46e5); }
 .drop-zone:focus-visible { outline: 2px solid var(--accent, #4f46e5); outline-offset: 2px; }
@@ -205,6 +220,7 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .meta { font-size: 12px; color: var(--text-2); }
 .error { color: var(--danger, #dc2626); font-size: 14px; }
+.warn { color: var(--text); background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; margin: 0 0 8px; }
 .hint { color: var(--text-2); font-size: 13px; }
 .verdict { font-size: 15px; font-weight: 600; margin: 8px 0; }
 .verdict.pass { color: var(--success, #16a34a); }
