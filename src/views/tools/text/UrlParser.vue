@@ -8,8 +8,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyRebuilt" class="btn btn-success" :disabled="!rebuilt"><span class="icon" aria-hidden="true">📋</span> 复制重组URL</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <textarea v-model="inputText" class="text-input" placeholder="粘贴 URL，如 https://example.com:8080/path?a=1&amp;b=2#top（可省略协议）" spellcheck="false" aria-label="URL输入" @input="parse"></textarea>
+      <ToolStatusMessage id="url-parser-status" :message="statusMessage" :type="statusType" />
+      <textarea v-model="inputText" class="text-input" placeholder="粘贴 URL，如 https://example.com:8080/path?a=1&amp;b=2#top（可省略协议）" spellcheck="false" aria-label="URL输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'url-parser-status' : undefined" @input="parse"></textarea>
       <template v-if="result">
         <p v-for="(w, i) in result.warnings" :key="i" class="warn" role="status" aria-live="polite">⚠ {{ w }}</p>
         <table class="kv" aria-label="URL组件">
@@ -76,6 +76,9 @@ const editableParams = ref([]);
 const rebuilt = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const rows = computed(() => {
   if (!result.value) return [];
   const r = result.value;
@@ -103,7 +106,7 @@ const parse = () => {
     rebuild();
     statusMessage.value = '✓ 解析成功' + (result.value.autoProtocol ? '（已自动补 https://）' : '');
     statusType.value = 'success';
-  } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  } catch (e) { setInputError('✗ ' + e.message); }
 };
 const addParam = () => { editableParams.value.push({ key: '', value: '' }); rebuild(); };
 const removeParam = (i) => { editableParams.value.splice(i, 1); rebuild(); };
