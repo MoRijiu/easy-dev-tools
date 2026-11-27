@@ -25,8 +25,22 @@
         </button>
       </ToolToolbar>
 
+      <!-- 编码选项 -->
+      <div class="options-row">
+        <div class="segmented" role="group" aria-label="编码字母表">
+          <button type="button" :class="{ active: alphabet === 'standard' }" @click="alphabet = 'standard'">标准（+ /）</button>
+          <button type="button" :class="{ active: alphabet === 'urlsafe' }" @click="alphabet = 'urlsafe'">URL-safe（- _）</button>
+        </div>
+        <label class="check-option">
+          <input type="checkbox" v-model="withPadding" />
+          编码时保留结尾填充 =
+        </label>
+        <span class="options-hint">解码会自动识别两种字母表，缺少填充也能解</span>
+      </div>
+
       <!-- 状态信息 -->
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <p v-if="statsText" class="stats-line">{{ statsText }}</p>
 
       <!-- 编辑器容器 -->
       <ToolEditorLayout>
@@ -71,11 +85,15 @@ import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
 import ToolEditorLayout from "@/components/ToolEditorLayout.vue";
 import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
+import { encodeBase64Text, decodeBase64Text, base64GrowthText } from "@/utils/base64.js";
 
 const inputText = ref("");
 const outputText = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
+const alphabet = ref("standard");
+const withPadding = ref(true);
+const statsText = ref("");
 
 // 功能特点数据
 const features = [
@@ -130,6 +148,21 @@ const faqs = [
     answer:
       "支持。本工具使用 UTF-8 编码处理文本，完美支持中文、日文、韩文等多语言字符。",
   },
+  {
+    question: "标准 Base64 和 URL-safe 有什么区别？",
+    answer:
+      "标准字母表用 + 和 /，放在 URL 参数里会被误解析；URL-safe 把它们换成 - 和 _，可以直接放进链接。解码时本工具会自动识别是哪一种，但两种不能混在同一串里。",
+  },
+  {
+    question: "结尾的 = 是什么，能去掉吗？",
+    answer:
+      "= 是填充符，让总长度凑齐 4 的倍数，本身不携带数据。去掉也能解码（本工具会自动补齐），但有些严格的服务端会拒绝无填充的输入，拿不准时建议保留。",
+  },
+  {
+    question: "解码提示「不是合法的 UTF-8 文本」是什么意思？",
+    answer:
+      "说明这段 Base64 编码的原始内容是图片、压缩包等二进制数据，而不是文本。它不是编码错了，只是没法当文字显示。",
+  },
 ];
 
 // 使用示例数据
@@ -151,25 +184,22 @@ const examples = [
   },
 ];
 
-// Base64 编码
+// Base64 编码（分块处理，长文本也不会爆栈）
 const encodeBase64 = () => {
   if (!inputText.value.trim()) {
     statusMessage.value = "✗ 请输入需要编码的内容";
     statusType.value = "error";
+    statsText.value = "";
     return;
   }
-  try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(inputText.value);
-    const base64 = btoa(String.fromCharCode(...data));
-    outputText.value = base64;
-    statusMessage.value = `✓ 编码成功！从 ${inputText.value.length} 字符转换为 ${base64.length} 字符`;
-    statusType.value = "success";
-  } catch (error) {
-    statusMessage.value = `✗ 编码失败: ${error.message}`;
-    statusType.value = "error";
-    outputText.value = "";
-  }
+  const result = encodeBase64Text(inputText.value, {
+    urlSafe: alphabet.value === "urlsafe",
+    padding: withPadding.value,
+  });
+  outputText.value = result.output;
+  statusMessage.value = `✓ 编码成功（${result.alphabet}字母表）`;
+  statusType.value = "success";
+  statsText.value = `输入 ${result.inputChars} 字符 · UTF-8 ${result.bytes} 字节 · 输出 ${result.outputChars} 字符 · ${base64GrowthText(result.bytes, result.outputChars)}`;
 };
 
 // 使用示例
@@ -178,30 +208,27 @@ const useExample = (example) => {
   encodeBase64();
 };
 
-// Base64 解码
+// Base64 解码（逐字校验，错误精确定位；解出非 UTF-8 会明确提示是二进制数据）
 const decodeBase64 = () => {
   if (!inputText.value.trim()) {
     statusMessage.value = "✗ 请输入需要解码的 Base64 字符串";
     statusType.value = "error";
+    statsText.value = "";
     return;
   }
-  try {
-    const cleanInput = inputText.value.replace(/\s/g, "");
-    const binaryString = atob(cleanInput);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    const decoder = new TextDecoder();
-    const decoded = decoder.decode(bytes);
-    outputText.value = decoded;
-    statusMessage.value = `✓ 解码成功！从 ${inputText.value.length} 字符转换为 ${decoded.length} 字符`;
-    statusType.value = "success";
-  } catch (error) {
-    statusMessage.value = "✗ 解码失败: 输入的不是有效的 Base64 字符串";
+  const result = decodeBase64Text(inputText.value);
+  if (!result.ok) {
+    statusMessage.value = `✗ 解码失败：${result.error.message}`;
     statusType.value = "error";
     outputText.value = "";
+    statsText.value = "";
+    return;
   }
+  outputText.value = result.text;
+  const warn = result.warnings.length ? `（${result.warnings.join("；")}）` : "";
+  statusMessage.value = `✓ 解码成功（识别为 ${result.alphabet}字母表）${warn}`;
+  statusType.value = "success";
+  statsText.value = `输入 ${result.inputChars} 字符 · 解出 ${result.bytes} 字节 · 文本 ${result.text.length} 字符`;
 };
 
 // 清空内容
@@ -209,6 +236,7 @@ const clearAll = () => {
   inputText.value = "";
   outputText.value = "";
   statusMessage.value = "";
+  statsText.value = "";
 };
 
 // 复制输出结果
@@ -241,6 +269,7 @@ const swapContent = () => {
   const temp = outputText.value;
   outputText.value = inputText.value;
   inputText.value = temp;
+  statsText.value = "";
   statusMessage.value = "✓ 输入输出内容已交换";
   statusType.value = "info";
 };
@@ -272,6 +301,55 @@ h1 {
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.options-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text-2);
+  border: none;
+  cursor: pointer;
+}
+
+.segmented button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.check-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.options-hint {
+  font-size: 12px;
+  color: var(--text-3, var(--text-2));
+}
+
+.stats-line {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 /* 响应式设计 */
