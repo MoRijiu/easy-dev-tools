@@ -722,7 +722,7 @@ h1 {
 }
 
 .logo-upload-btn.has-logo {
-  background: var(--success);
+  background: var(--success-solid);
 }
 
 .btn-sm {

@@ -186,7 +186,7 @@ useSeo({
 <style scoped>
 .about-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   padding: 2rem 1rem;
 }
 

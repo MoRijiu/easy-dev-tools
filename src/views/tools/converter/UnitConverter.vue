@@ -419,7 +419,7 @@ h1 {
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--accent-grad-from) 0%, var(--accent-grad-to) 100%);
   color: white;
   border-color: transparent;
 }
