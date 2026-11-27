@@ -17,7 +17,11 @@ export function splitLines(text) {
   const normalized = String(text).replace(/\r\n?/g, '\n');
   // 末尾单个换行不产生空行，与常见编辑器/Diff 工具口径一致
   const body = normalized.endsWith('\n') ? normalized.slice(0, -1) : normalized;
-  return body === '' ? [] : body.split('\n');
+  if (body === '') {
+    // 纯换行文本（如 "\n"）仍代表 1 个空行，不能与空文本混为一谈
+    return normalized === '' ? [] : [''];
+  }
+  return body.split('\n');
 }
 
 /**
@@ -56,7 +60,7 @@ export function diffLines(oldText, newText, options = {}) {
         if (b !== undefined) rows.push({ type: 'add', text: b, oldNo: null, newNo: i + 1 });
       }
     }
-    return { rows, stats: pushStats(), truncated, fallback: true };
+    return { rows, stats: pushStats(), truncated, fallback: true, oldCount: oldLines.length, newCount: newLines.length };
   }
 
   const n = oldLines.length; const m = newLines.length;
@@ -84,14 +88,17 @@ export function diffLines(oldText, newText, options = {}) {
   }
   while (i < n) { rows.push({ type: 'del', text: oldLines[i], oldNo: i + 1, newNo: null }); i += 1; }
   while (j < m) { rows.push({ type: 'add', text: newLines[j], oldNo: null, newNo: j + 1 }); j += 1; }
-  return { rows, stats: pushStats(), truncated, fallback: false };
+  return { rows, stats: pushStats(), truncated, fallback: false, oldCount: oldLines.length, newCount: newLines.length };
 }
 
 /**
- * 字符级 Diff（供修改行行内高亮）：返回 [{type:'same'|'del'|'add', text}]
+ * 字符级 Diff（供修改行行内高亮）：返回 [{type:'same'|'del'|'add', text, textNew?}]
+ * same 段在忽略大小写/空白等价时两侧字符可能不同，text 存旧侧、textNew 存新侧。
+ * options: { ignoreCase, ignoreWhitespace } —— 与行级对比口径一致，
+ * 被忽略的差异（仅大小写不同、空格与制表符互换）不再误高亮。
  * 字符数乘积过大时退化为整行一删一增。
  */
-export function diffChars(oldStr, newStr) {
+export function diffChars(oldStr, newStr, options = {}) {
   const a = Array.from(oldStr || '');
   const b = Array.from(newStr || '');
   if (!a.length) return b.length ? [{ type: 'add', text: newStr }] : [];
@@ -99,22 +106,35 @@ export function diffChars(oldStr, newStr) {
   if (a.length * b.length > 40000) {
     return [{ type: 'del', text: oldStr }, { type: 'add', text: newStr }];
   }
+  const keyOf = (ch) => {
+    let k = ch;
+    if (options.ignoreWhitespace && /\s/.test(k)) k = ' ';
+    if (options.ignoreCase) k = k.toLowerCase();
+    return k;
+  };
+  const ka = a.map(keyOf); const kb = b.map(keyOf);
   const n = a.length; const m = b.length;
   const dp = Array.from({ length: n + 1 }, () => new Uint32Array(m + 1));
   for (let i = n - 1; i >= 0; i -= 1) {
     for (let j = m - 1; j >= 0; j -= 1) {
-      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      dp[i][j] = ka[i] === kb[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
     }
   }
   const segs = [];
-  const push = (type, ch) => {
+  const push = (type, chOld, chNew) => {
     const last = segs[segs.length - 1];
-    if (last && last.type === type) last.text += ch;
-    else segs.push({ type, text: ch });
+    if (last && last.type === type) {
+      last.text += chOld;
+      if (type === 'same') last.textNew = (last.textNew ?? last.text) + (chNew ?? chOld);
+    } else {
+      const seg = { type, text: chOld };
+      if (type === 'same') seg.textNew = chNew ?? chOld;
+      segs.push(seg);
+    }
   };
   let i = 0; let j = 0;
   while (i < n && j < m) {
-    if (a[i] === b[j]) { push('same', a[i]); i += 1; j += 1; }
+    if (ka[i] === kb[j]) { push('same', a[i], b[j]); i += 1; j += 1; }
     else if (dp[i + 1][j] >= dp[i][j + 1]) { push('del', a[i]); i += 1; }
     else { push('add', b[j]); j += 1; }
   }
@@ -128,7 +148,7 @@ export function diffChars(oldStr, newStr) {
  * 配对行附带行内字符高亮（oldSegs/newSegs）。
  * @returns {Array<{left:object|null, right:object|null, type:'same'|'change'|'del'|'add'}>}
  */
-export function pairRows(rows) {
+export function pairRows(rows, options = {}) {
   const pairs = [];
   let k = 0;
   while (k < rows.length) {
@@ -145,9 +165,9 @@ export function pairRows(rows) {
       const left = dels[t] || null; const right = adds[t] || null;
       const pair = { left, right, type: left && right ? 'change' : (left ? 'del' : 'add') };
       if (left && right) {
-        const segs = diffChars(left.text, right.text);
-        pair.oldSegs = segs.filter(s => s.type !== 'add');
-        pair.newSegs = segs.filter(s => s.type !== 'del');
+        const segs = diffChars(left.text, right.text, options);
+        pair.oldSegs = segs.filter(s => s.type !== 'add').map(s => ({ type: s.type, text: s.text }));
+        pair.newSegs = segs.filter(s => s.type !== 'del').map(s => ({ type: s.type, text: s.type === 'same' ? (s.textNew ?? s.text) : s.text }));
       }
       pairs.push(pair);
     }
@@ -158,6 +178,63 @@ export function pairRows(rows) {
 /** 生成 unified diff 文本（供复制） */
 export function toUnifiedText(rows) {
   return rows.map(r => `${r.type === 'add' ? '+' : r.type === 'del' ? '-' : ' '} ${r.text}`).join('\n');
+}
+
+/**
+ * 折叠长段未变行：只保留每处差异上下 context 行上下文，其余未变行合并为折叠标记。
+ * @returns {Array<{kind:'row', row:object}|{kind:'fold', count:number}>}
+ */
+export function foldRows(rows, context = 3) {
+  const ctx = Math.max(0, Math.floor(context) || 0);
+  const keep = new Array(rows.length).fill(false);
+  rows.forEach((r, idx) => {
+    if (r.type !== 'same') {
+      for (let k = Math.max(0, idx - ctx); k <= Math.min(rows.length - 1, idx + ctx); k += 1) keep[k] = true;
+    }
+  });
+  const out = [];
+  let i = 0;
+  while (i < rows.length) {
+    if (keep[i]) { out.push({ kind: 'row', row: rows[i] }); i += 1; continue; }
+    let j = i;
+    while (j < rows.length && !keep[j]) j += 1;
+    out.push({ kind: 'fold', count: j - i });
+    i = j;
+  }
+  return out;
+}
+
+/**
+ * 生成标准 unified diff（带 --- / +++ 文件头与 @@ -a,b +c,d @@ 段头），
+ * 长段未变行按 context 折叠成多个 hunk，可直接喂给 patch / 代码评审工具。
+ */
+export function toUnifiedDiff(rows, options = {}) {
+  const context = options.context ?? 3;
+  const oldLabel = options.oldLabel ?? '原文';
+  const newLabel = options.newLabel ?? '新文';
+  if (!rows.some(r => r.type !== 'same')) {
+    return `--- ${oldLabel}\n+++ ${newLabel}\n（无差异）`;
+  }
+  const folded = foldRows(rows, context);
+  const lines = [`--- ${oldLabel}`, `+++ ${newLabel}`];
+  let hunk = null;
+  const flush = () => {
+    if (!hunk) return;
+    const oldCount = hunk.filter(r => r.type !== 'add').length;
+    const newCount = hunk.filter(r => r.type !== 'del').length;
+    const oldStart = hunk.find(r => r.type !== 'add')?.oldNo ?? 0;
+    const newStart = hunk.find(r => r.type !== 'del')?.newNo ?? 0;
+    lines.push(`@@ -${oldCount === 0 ? 0 : oldStart},${oldCount} +${newCount === 0 ? 0 : newStart},${newCount} @@`);
+    hunk.forEach(r => lines.push(`${r.type === 'add' ? '+' : r.type === 'del' ? '-' : ' '}${r.text}`));
+    hunk = null;
+  };
+  folded.forEach(item => {
+    if (item.kind === 'fold') { flush(); return; }
+    if (!hunk) hunk = [];
+    hunk.push(item.row);
+  });
+  flush();
+  return lines.join('\n');
 }
 
 /** 相似度：未变更行占总行数（两侧取大）的百分比 0-100 */

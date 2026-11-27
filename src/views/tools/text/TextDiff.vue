@@ -17,6 +17,9 @@
         <button @click="copyUnified" class="btn btn-success" :disabled="!rows.length">
           <span class="icon">📋</span> 复制对比结果
         </button>
+        <button @click="downloadDiff" class="btn btn-secondary" :disabled="!rows.length">
+          <span class="icon">⬇️</span> 下载 .diff
+        </button>
       </ToolToolbar>
 
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
@@ -40,6 +43,9 @@
         <label class="opt-chip" :class="{ active: onlyChanges }">
           <input type="checkbox" v-model="onlyChanges" class="opt-check" /> 只看差异行
         </label>
+        <label class="opt-chip" :class="{ active: foldUnchanged }" v-show="!onlyChanges">
+          <input type="checkbox" v-model="foldUnchanged" class="opt-check" /> 折叠未变行
+        </label>
         <div class="view-switch" role="group" aria-label="视图模式">
           <button class="view-btn" :class="{ active: viewMode === 'unified' }" @click="viewMode = 'unified'">统一视图</button>
           <button class="view-btn" :class="{ active: viewMode === 'split' }" @click="viewMode = 'split'">双栏视图</button>
@@ -52,19 +58,22 @@
           <span class="stat del">− {{ stats.deleted }} 删除</span>
           <span class="stat same">{{ stats.unchanged }} 未变</span>
           <span class="stat">相似度 {{ sim }}%</span>
-          <span v-if="isIdentical" class="stat ok">两段文本完全一致 ✓</span>
+          <span v-if="isIdentical" class="stat ok">{{ (ignoreWhitespace || ignoreCase) ? '按当前忽略选项，两段文本无差异 ✓' : '两段文本完全一致 ✓' }}</span>
         </div>
         <p v-if="truncated" class="limit-note">文本过长，仅对比前 {{ MAX_LINES }} 行。</p>
         <p v-if="fallback" class="limit-note">行数较多，已切换为按行号逐行对比模式。</p>
 
         <div v-if="viewMode === 'unified'" class="diff-box" aria-label="统一对比结果">
-          <div v-for="(row, i) in visibleRows" :key="i" class="diff-line" :class="row.type">
-            <span class="ln">{{ row.oldNo ?? '' }}</span>
-            <span class="ln">{{ row.newNo ?? '' }}</span>
-            <span class="sign">{{ row.type === 'add' ? '+' : row.type === 'del' ? '−' : ' ' }}</span>
-            <span class="line-text">{{ row.text || ' ' }}</span>
-          </div>
-          <p v-if="!visibleRows.length" class="no-diff">没有差异行</p>
+          <template v-for="(item, i) in visibleItems" :key="i">
+            <div v-if="item.kind === 'fold'" class="fold-line">··· 已折叠 {{ item.count }} 行未变更 ···</div>
+            <div v-else class="diff-line" :class="item.row.type">
+              <span class="ln">{{ item.row.oldNo ?? '' }}</span>
+              <span class="ln">{{ item.row.newNo ?? '' }}</span>
+              <span class="sign">{{ item.row.type === 'add' ? '+' : item.row.type === 'del' ? '−' : ' ' }}</span>
+              <span class="line-text">{{ item.row.text || ' ' }}</span>
+            </div>
+          </template>
+          <p v-if="!visibleItems.length" class="no-diff">没有差异行</p>
         </div>
 
         <div v-else class="diff-box split" aria-label="双栏对比结果">
@@ -100,7 +109,7 @@ import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
-import { diffLines, pairRows, toUnifiedText, similarity, splitLines, MAX_LINES } from '@/utils/textDiff.js';
+import { diffLines, pairRows, toUnifiedDiff, foldRows, similarity, splitLines, MAX_LINES } from '@/utils/textDiff.js';
 
 const features = [
   { icon: '📊', title: '行级对比', description: '基于最长公共子序列，准确识别新增、删除与未变行' },
@@ -113,7 +122,7 @@ const usageSteps = [
   '把原文粘贴到左框、修改后的文本粘贴到右框',
   '下方实时显示行级差异：绿色为新增、红色为删除',
   '切到双栏视图可看到修改行内的字符级高亮',
-  '点「复制对比结果」可把 +/- 格式的对比文本带走'
+  '点「复制对比结果」可把标准 unified diff 带走，也可下载为 .diff 文件'
 ];
 
 const faqs = [
@@ -132,12 +141,37 @@ const faqs = [
   {
     question: '最多能对比多长文本？',
     answer: `单侧最多对比前 ${MAX_LINES} 行；行数特别多时会自动切换为按行号逐行对比，保证页面不卡顿。`
+  },
+  {
+    question: '复制的对比结果是什么格式？',
+    answer: '标准 unified diff：带 ---/+++ 文件头与 @@ 段头，长段未变行会按上下文 3 行折叠成多个段，可直接粘贴到代码评审或 patch 工具中使用。'
+  },
+  {
+    question: '开启忽略选项后，为什么还提示有差异？',
+    answer: '行级判定与双栏行内高亮口径一致：忽略空白时空格与制表符互换、行首行尾与连续空白差异不算改动；忽略大小写时仅大小写不同的字符也不会被高亮。'
   }
 ];
 
+const EXAMPLE_CONFIG_OLD = '服务器配置\n端口: 8080\n超时: 30 秒\n重试次数: 3\n日志级别: info';
+const EXAMPLE_CONFIG_NEW = '服务器配置\n端口: 9090\n超时: 30 秒\n日志级别: debug\n缓存: 开启';
+const EXAMPLE_CODE_OLD = 'function greet(name) {\n  return "Hello, " + name;\n}\nconsole.log(greet("World"));';
+const EXAMPLE_CODE_NEW = 'function greet(name) {\n  return `Hello, ${name}!`;\n}\nconsole.log(greet("World"));\nconsole.log("done");';
+
 const examples = [
-  { input: '原文一行被修改', output: '双栏视图高亮改动的字', description: '修改行示例' },
-  { input: '配置项增删', output: '新增行显示 +，删除行显示 −', description: '增删行示例' }
+  {
+    input: '端口: 8080 / 日志级别: info',
+    output: '端口: 9090 / 日志级别: debug / +缓存: 开启',
+    description: '配置修改示例',
+    oldText: EXAMPLE_CONFIG_OLD,
+    newText: EXAMPLE_CONFIG_NEW
+  },
+  {
+    input: '字符串拼接写法的 greet 函数',
+    output: '改模板字符串并多一行日志',
+    description: '代码改动示例',
+    oldText: EXAMPLE_CODE_OLD,
+    newText: EXAMPLE_CODE_NEW
+  }
 ];
 
 const oldText = ref('');
@@ -145,6 +179,7 @@ const newText = ref('');
 const ignoreWhitespace = ref(false);
 const ignoreCase = ref(false);
 const onlyChanges = ref(false);
+const foldUnchanged = ref(true);
 const viewMode = ref('unified');
 const statusMessage = ref('');
 const statusType = ref('');
@@ -159,29 +194,53 @@ const stats = computed(() => result.value.stats);
 const truncated = computed(() => result.value.truncated);
 const fallback = computed(() => result.value.fallback);
 const isIdentical = computed(() => hasBoth.value && stats.value.added === 0 && stats.value.deleted === 0 && rows.value.length > 0);
-const sim = computed(() => similarity(stats.value, oldLines.value, newLines.value));
-const visibleRows = computed(() => (onlyChanges.value ? rows.value.filter(r => r.type !== 'same') : rows.value));
-const pairs = computed(() => pairRows(rows.value));
+const sim = computed(() => similarity(stats.value, result.value.oldCount ?? oldLines.value, result.value.newCount ?? newLines.value));
+const visibleItems = computed(() => {
+  if (onlyChanges.value) return rows.value.filter(r => r.type !== 'same').map(row => ({ kind: 'row', row }));
+  if (foldUnchanged.value) return foldRows(rows.value, 3);
+  return rows.value.map(row => ({ kind: 'row', row }));
+});
+const pairs = computed(() => pairRows(rows.value, { ignoreWhitespace: ignoreWhitespace.value, ignoreCase: ignoreCase.value }));
 const visiblePairs = computed(() => (onlyChanges.value ? pairs.value.filter(p => p.type !== 'same') : pairs.value));
 
 const loadExample = () => {
-  oldText.value = '服务器配置\n端口: 8080\n超时: 30 秒\n重试次数: 3\n日志级别: info';
-  newText.value = '服务器配置\n端口: 9090\n超时: 30 秒\n日志级别: debug\n缓存: 开启';
+  oldText.value = EXAMPLE_CONFIG_OLD;
+  newText.value = EXAMPLE_CONFIG_NEW;
   statusMessage.value = '✓ 示例已载入';
   statusType.value = 'success';
 };
-const useExample = () => loadExample();
+const useExample = (example) => {
+  if (example && typeof example.oldText === 'string') {
+    oldText.value = example.oldText;
+    newText.value = example.newText;
+    statusMessage.value = '✓ 示例已载入';
+    statusType.value = 'success';
+  } else {
+    loadExample();
+  }
+};
 const swapTexts = () => { const t = oldText.value; oldText.value = newText.value; newText.value = t; };
 const clearAll = () => { oldText.value = ''; newText.value = ''; statusMessage.value = ''; };
 const copyUnified = async () => {
   try {
-    await navigator.clipboard.writeText(toUnifiedText(rows.value));
-    statusMessage.value = '✓ 对比结果已复制到剪贴板';
+    await navigator.clipboard.writeText(toUnifiedDiff(rows.value, { context: 3 }));
+    statusMessage.value = '✓ 对比结果已复制（unified diff 格式）';
     statusType.value = 'success';
   } catch {
     statusMessage.value = '✗ 复制失败，请手动复制';
     statusType.value = 'error';
   }
+};
+const downloadDiff = () => {
+  const blob = new Blob([toUnifiedDiff(rows.value, { context: 3 })], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'text-diff.diff';
+  a.click();
+  URL.revokeObjectURL(url);
+  statusMessage.value = '✓ 已下载 text-diff.diff';
+  statusType.value = 'success';
 };
 </script>
 
@@ -221,6 +280,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .hl-del { background: var(--danger-soft); color: var(--danger-text); border-radius: 2px; padding: 0 1px; }
 .hl-add { background: var(--success-soft); color: var(--success-text); border-radius: 2px; padding: 0 1px; }
 .no-diff { color: var(--text-2); font-size: 13px; padding: 10px; margin: 0; font-family: inherit; }
+.fold-line { padding: 3px 10px; text-align: center; color: var(--text-3); background: var(--bg-soft); font-size: 12px; user-select: none; }
 @media (max-width: 640px) {
   h1 { font-size: 2rem; }
   .tool-container { padding: 20px; }
