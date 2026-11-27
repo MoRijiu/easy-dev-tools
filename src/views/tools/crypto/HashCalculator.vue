@@ -578,7 +578,7 @@ h1 {
 }
 
 .result-card.matched {
-  border-color: var(--success, #2f9e44);
+  border-color: var(--success);
 }
 
 .result-header {
@@ -684,7 +684,7 @@ h1 {
 }
 
 .verify-message.error {
-  color: var(--danger-text, #e03131);
+  color: var(--danger-text);
 }
 
 /* 响应式设计 */

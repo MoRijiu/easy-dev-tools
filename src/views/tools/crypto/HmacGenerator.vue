@@ -152,7 +152,7 @@ td { padding: 6px 8px; color: var(--text); }
 td.mono { font-family: monospace; word-break: break-all; }
 .muted { font-size: 12px; color: var(--text-2); }
 .verify-box { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
-.verify-ok { color: var(--success-text, #15803d); font-size: 14px; }
+.verify-ok { color: var(--success-text); font-size: 14px; }
 .verify-bad { color: var(--danger-text); font-size: 14px; }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

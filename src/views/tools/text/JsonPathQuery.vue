@@ -162,7 +162,7 @@ textarea { resize: vertical; }
 .empty { color: var(--text-2); font-size: 13px; }
 .results { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }
 .match { position: relative; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--bg-softer); }
-.mpath { font-size: 12px; color: var(--accent, #667eea); word-break: break-all; }
+.mpath { font-size: 12px; color: var(--accent-text); word-break: break-all; }
 .mvalue { margin: 4px 0 0; font-size: 13px; color: var(--text); white-space: pre-wrap; word-break: break-word; max-height: 160px; overflow: auto; }
 .copy-one { position: absolute; top: 6px; right: 6px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .more { font-size: 12px; color: var(--text-2); }

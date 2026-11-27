@@ -207,8 +207,8 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; background: var(--bg-softer); margin-bottom: 12px; }
-.drop-zone.dragging { border-color: var(--accent, #4f46e5); }
-.drop-zone:focus-visible { outline: 2px solid var(--accent, #4f46e5); outline-offset: 2px; }
+.drop-zone.dragging { border-color: var(--accent); }
+.drop-zone:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .drop-hint { color: var(--text-2); font-size: 14px; margin: 12px 0; }
 .drop-hint span { font-size: 12px; }
 .preview { max-width: 260px; max-height: 260px; width: auto; height: auto; border-radius: 8px; }
