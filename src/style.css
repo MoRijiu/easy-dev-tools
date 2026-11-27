@@ -280,6 +280,58 @@ button:disabled {
   opacity: 0.6;
 }
 
+/* .btn 按钮组全局兜底（R9av）：此前 .btn 基础与变体样式只存在于 ToolToolbar 的
+   :deep 作用域内，工具栏外使用 .btn 的按钮（颜色转换「解析」、Chmod「解析到勾选表」、
+   图片工具批量操作、URL 解析「添加参数」等）没有任何样式、渲染成原生灰钮（实测高约 19px）。
+   此处按 ToolToolbar 同值下沉为全局样式：工具栏内仍由 :deep 规则（特异性更高）接管、
+   组件内自有 .btn 定义（scoped）同样优先，本组只兜底无本地定义处。 */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary { background: var(--btn-primary); color: var(--on-accent); }
+.btn-secondary { background: var(--btn-secondary); color: var(--on-accent); }
+.btn-info { background: var(--btn-info); color: var(--on-accent); }
+.btn-success { background: var(--btn-success); color: var(--on-accent); }
+.btn-danger { background: var(--btn-danger); color: var(--on-accent); }
+
+.btn-primary:hover:not(:disabled),
+.btn-secondary:hover:not(:disabled),
+.btn-info:hover:not(:disabled),
+.btn-success:hover:not(:disabled),
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.btn-tool {
+  padding: 8px 12px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.btn-tool:hover { background: var(--border); }
+
+@media (max-width: 640px) {
+  .btn { padding: 8px 16px; font-size: 13px; }
+  .btn-tool { padding: 6px 10px; }
+}
+
 /* 通用输入框样式 */
 input, textarea, select {
   font-family: inherit;
