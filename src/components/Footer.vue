@@ -25,7 +25,7 @@
             <router-link to="/about#support" class="footer-link support-highlight">
               <span class="link-icon" aria-hidden="true">☕</span> 赞赏支持
             </router-link>
-            <a href="https://github.com/MoRijiu/easy-dev-tools" target="_blank" rel="noopener noreferrer" class="footer-link">
+            <a href="https://github.com/MoRijiu/easy-dev-tools" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="GitHub（在新窗口打开）">
               <span class="link-icon" aria-hidden="true">💻</span> GitHub
             </a>
           </div>
@@ -37,10 +37,10 @@
             <a href="mailto:1092257069@qq.com" class="footer-link">
               <span class="link-icon" aria-hidden="true">📧</span> 邮箱联系
             </a>
-            <a href="https://tools.morijiu.cn" target="_blank" rel="noopener noreferrer" class="footer-link">
+            <a href="https://tools.morijiu.cn" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="官方网站（在新窗口打开）">
               <span class="link-icon" aria-hidden="true">🌐</span> 官方网站
             </a>
-            <a href="https://github.com/MoRijiu/easy-dev-tools/issues" target="_blank" rel="noopener noreferrer" class="footer-link">
+            <a href="https://github.com/MoRijiu/easy-dev-tools/issues" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="问题反馈（在新窗口打开）">
               <span class="link-icon" aria-hidden="true">💬</span> 问题反馈
             </a>
           </div>
@@ -54,10 +54,10 @@
           <p class="copyright">
             © {{ currentYear }} morijiu.cn · 极速开发工具箱 · Made with
             <span class="heart" :class="{ beating: isHeartBeating }">❤️</span>
-            by <a href="https://github.com/MoRijiu" target="_blank" rel="noopener noreferrer" class="dev-link">Mo_Rijiu</a>
+            by <a href="https://github.com/MoRijiu" target="_blank" rel="noopener noreferrer" class="dev-link" aria-label="Mo_Rijiu 的 GitHub 主页（在新窗口打开）">Mo_Rijiu</a>
           </p>
           <p class="icp">
-            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="icp-link">
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="icp-link" aria-label="辽ICP备2023000877号-1（在新窗口打开）">
               辽ICP备2023000877号-1
             </a>
           </p>

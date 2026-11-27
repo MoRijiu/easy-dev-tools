@@ -44,7 +44,7 @@
         <div class="row actions">
           <button class="btn" type="button" @click="copyText(result.text)">复制内容</button>
           <button class="btn ghost" type="button" @click="copyText(result.summary)">复制摘要</button>
-          <a v-if="result.info.link" class="btn ghost link-btn" :href="result.info.link" target="_blank" rel="noopener noreferrer">打开链接</a>
+          <a v-if="result.info.link" class="btn ghost link-btn" :href="result.info.link" target="_blank" rel="noopener noreferrer" aria-label="打开识别到的链接（在新窗口打开）">打开链接</a>
         </div>
       </template>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />

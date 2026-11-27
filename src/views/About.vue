@@ -101,7 +101,7 @@
             <li>🔧 贡献代码和改进</li>
           </ul>
           <div class="github-link">
-            <a href="https://github.com/MoRijiu/easy-dev-tools" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/MoRijiu/easy-dev-tools" target="_blank" rel="noopener noreferrer" aria-label="查看 GitHub 仓库（在新窗口打开）">
               <span class="github-icon" aria-hidden="true">📦</span>
               <span>查看GitHub仓库</span>
             </a>
@@ -151,7 +151,7 @@
               <span class="contact-icon" aria-hidden="true">📧</span>
               <span>邮箱：1092257069@qq.com</span>
             </a>
-            <a href="https://github.com/MoRijiu" target="_blank" rel="noopener noreferrer" class="contact-item">
+            <a href="https://github.com/MoRijiu" target="_blank" rel="noopener noreferrer" class="contact-item" aria-label="GitHub：@Mo_Rijiu（在新窗口打开）">
               <span class="contact-icon" aria-hidden="true">🐙</span>
               <span>GitHub：@Mo_Rijiu</span>
             </a>
