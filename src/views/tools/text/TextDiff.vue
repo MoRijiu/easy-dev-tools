@@ -47,8 +47,8 @@
           <input type="checkbox" v-model="foldUnchanged" class="opt-check" /> 折叠未变行
         </label>
         <div class="view-switch" role="group" aria-label="视图模式">
-          <button class="view-btn" :class="{ active: viewMode === 'unified' }" @click="viewMode = 'unified'">统一视图</button>
-          <button class="view-btn" :class="{ active: viewMode === 'split' }" @click="viewMode = 'split'">双栏视图</button>
+          <button class="view-btn" :class="{ active: viewMode === 'unified' }" :aria-pressed="viewMode === 'unified'" @click="viewMode = 'unified'">统一视图</button>
+          <button class="view-btn" :class="{ active: viewMode === 'split' }" :aria-pressed="viewMode === 'split'" @click="viewMode = 'split'">双栏视图</button>
         </div>
       </div>
 

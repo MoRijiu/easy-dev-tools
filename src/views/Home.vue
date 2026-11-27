@@ -10,8 +10,8 @@
         <button v-if="query" class="search-clear" type="button" aria-label="清空搜索" @click="query = ''">✕</button>
       </div>
       <nav class="cat-nav" aria-label="分类快速导航">
-        <button type="button" class="cat-chip" :class="{ active: activeGroup === 'all' }" @click="activeGroup = 'all'">全部</button>
-        <button v-for="g in toolGroups" :key="g.id" type="button" class="cat-chip" :class="{ active: activeGroup === g.id }" @click="activeGroup = g.id">{{ g.icon }} {{ g.name }} <span class="cat-count">{{ g.tools.length }}</span></button>
+        <button type="button" class="cat-chip" :class="{ active: activeGroup === 'all' }" :aria-pressed="activeGroup === 'all'" @click="activeGroup = 'all'">全部</button>
+        <button v-for="g in toolGroups" :key="g.id" type="button" class="cat-chip" :class="{ active: activeGroup === g.id }" :aria-pressed="activeGroup === g.id" @click="activeGroup = g.id">{{ g.icon }} {{ g.name }} <span class="cat-count">{{ g.tools.length }}</span></button>
       </nav>
     </section>
 

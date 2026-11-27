@@ -11,7 +11,7 @@
         <button
           v-for="category in categories"
           :key="category.id"
-          :class="['tab-btn', { active: currentCategory === category.id }]"
+          :class="['tab-btn', { active: currentCategory === category.id }]" :aria-pressed="currentCategory === category.id"
           @click="switchCategory(category.id)"
         >
           <span class="tab-icon" aria-hidden="true">{{ category.icon }}</span>

@@ -46,7 +46,7 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="搜索键表，如 Enter / 13 / 方向 / f5" aria-label="搜索键表" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in KEY_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} {{ counts[c.id] || 0 }}</button>
+          <button v-for="c in KEY_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id">{{ c.name }} {{ counts[c.id] || 0 }}</button>
         </div>
       </div>
       <p class="count">键表共 {{ counts.all }} 项，当前显示 {{ results.length }} 项<span v-if="query.trim()">（纯数字按 keyCode 精确命中优先、全角输入自动转半角）</span></p>

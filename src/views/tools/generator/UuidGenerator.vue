@@ -22,8 +22,8 @@
         
         <div class="options">
           <div class="version-switch" role="group" aria-label="UUID 版本">
-            <button type="button" :class="{ active: options.version === 'v4' }" @click="options.version = 'v4'">v4 随机</button>
-            <button type="button" :class="{ active: options.version === 'v7' }" @click="options.version = 'v7'">v7 时间有序</button>
+            <button type="button" :class="{ active: options.version === 'v4' }" :aria-pressed="options.version === 'v4'" @click="options.version = 'v4'">v4 随机</button>
+            <button type="button" :class="{ active: options.version === 'v7' }" :aria-pressed="options.version === 'v7'" @click="options.version = 'v7'">v7 时间有序</button>
           </div>
           <label>
             生成数量:

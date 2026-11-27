@@ -6,10 +6,10 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="输入端口或服务，如 3306 / redis / 远程桌面" aria-label="搜索常用端口" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in PORT_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} {{ categoryCounts[c.id] || 0 }}</button>
+          <button v-for="c in PORT_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id">{{ c.name }} {{ categoryCounts[c.id] || 0 }}</button>
         </div>
         <div class="chips" role="group" aria-label="按协议筛选">
-          <button v-for="p in PROTOCOLS" :key="p.id" :class="{ active: protocol === p.id }" @click="protocol = p.id">{{ p.name }}</button>
+          <button v-for="p in PROTOCOLS" :key="p.id" :class="{ active: protocol === p.id }" :aria-pressed="protocol === p.id" @click="protocol = p.id">{{ p.name }}</button>
         </div>
       </div>
       <div v-if="exactInfo" class="exact">

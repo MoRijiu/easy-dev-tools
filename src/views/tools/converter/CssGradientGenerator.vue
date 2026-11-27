@@ -6,7 +6,7 @@
       <div class="preview" :style="{ background: gradientCss || 'transparent' }" aria-label="渐变预览"></div>
       <div class="row">
         <div class="seg" role="group" aria-label="渐变类型">
-          <button v-for="t in GRADIENT_TYPES" :key="t.id" :class="{ active: form.type === t.id }" @click="form.type = t.id">{{ t.name }}</button>
+          <button v-for="t in GRADIENT_TYPES" :key="t.id" :class="{ active: form.type === t.id }" :aria-pressed="form.type === t.id" @click="form.type = t.id">{{ t.name }}</button>
         </div>
         <label class="check"><input v-model="form.repeating" type="checkbox" /> 重复渐变</label>
       </div>

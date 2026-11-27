@@ -12,8 +12,8 @@
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="mode-row" role="group" aria-label="转换方向与播放">
         <div class="seg">
-          <button :class="{ active: mode === 'encode' }" @click="mode = 'encode'">编码（文本 → 电码）</button>
-          <button :class="{ active: mode === 'decode' }" @click="mode = 'decode'">解码（电码 → 文本）</button>
+          <button :class="{ active: mode === 'encode' }" :aria-pressed="mode === 'encode'" @click="mode = 'encode'">编码（文本 → 电码）</button>
+          <button :class="{ active: mode === 'decode' }" :aria-pressed="mode === 'decode'" @click="mode = 'decode'">解码（电码 → 文本）</button>
         </div>
         <label class="wpm">速度
           <select v-model.number="wpm" aria-label="播放速度">

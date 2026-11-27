@@ -6,7 +6,7 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="输入状态码或关键词，如 404 / 网关 / 限流" aria-label="搜索状态码" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in HTTP_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} · {{ counts[c.id] || 0 }}</button>
+          <button v-for="c in HTTP_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id">{{ c.name }} · {{ counts[c.id] || 0 }}</button>
         </div>
       </div>
       <p class="count">共 {{ results.length }} 个状态码<span class="hint">支持搜「4xx」看整类、全角数字会自动转半角</span></p>

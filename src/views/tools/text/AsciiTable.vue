@@ -26,7 +26,7 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="搜索：如 65 / A / 换行 / LF / 0x0A" aria-label="搜索 ASCII 码表" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in ASCII_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} {{ counts[c.id] ?? '' }}</button>
+          <button v-for="c in ASCII_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id">{{ c.name }} {{ counts[c.id] ?? '' }}</button>
         </div>
       </div>
       <p class="count">共 128 条，当前显示 {{ results.length }} 条 · 控制字符（0–31 与 127，共 33 条）多不可见，表中以缩写展示；空格（32）是可打印字符</p>

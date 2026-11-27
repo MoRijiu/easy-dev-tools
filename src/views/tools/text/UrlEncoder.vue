@@ -28,9 +28,9 @@
       <!-- 编码模式 -->
       <div class="options-row">
         <div class="segmented" role="group" aria-label="编码模式">
-          <button type="button" :class="{ active: mode === 'component' }" @click="mode = 'component'">参数 encodeURIComponent</button>
-          <button type="button" :class="{ active: mode === 'uri' }" @click="mode = 'uri'">完整 URL encodeURI</button>
-          <button type="button" :class="{ active: mode === 'form' }" @click="mode = 'form'">表单 form</button>
+          <button type="button" :class="{ active: mode === 'component' }" :aria-pressed="mode === 'component'" @click="mode = 'component'">参数 encodeURIComponent</button>
+          <button type="button" :class="{ active: mode === 'uri' }" :aria-pressed="mode === 'uri'" @click="mode = 'uri'">完整 URL encodeURI</button>
+          <button type="button" :class="{ active: mode === 'form' }" :aria-pressed="mode === 'form'" @click="mode = 'form'">表单 form</button>
         </div>
         <label class="check-option">
           <input type="checkbox" v-model="plusAsSpace" />
