@@ -56,7 +56,9 @@ const usageSteps = ['输入前景与背景颜色（支持 #hex、rgb()、hsl()�
 const faqs = [
   { question: 'AA 和 AAA 有什么区别？', answer: 'AA 是 WCAG 的常规达标线：普通文本对比度 ≥ 4.5:1、大字 ≥ 3:1；AAA 更严格：普通文本 ≥ 7:1、大字 ≥ 4.5:1。多数产品以 AA 为验收标准。' },
   { question: '什么算「大字」？', answer: 'WCAG 定义大字为 ≥ 24px 的常规字重，或 ≥ 18.66px（约 14pt）的粗体字。大字对对比度要求更低，因为笔画更粗更易辨认。' },
-  { question: '灰色文字为什么总不达标？', answer: '#767676 在白底上是 4.54:1，刚好压线 AA；再浅一点的 #999999 只有 2.85:1，连大字都不达标。浅灰小字是无障碍审计最常见的问题。' }
+  { question: '灰色文字为什么总不达标？', answer: '#767676 在白底上是 4.54:1，刚好压线 AA；再浅一点的 #999999 只有 2.85:1，连大字都不达标。浅灰小字是无障碍审计最常见的问题。' },
+  { question: '支持哪些颜色写法？', answer: '支持 #rgb/#rgba/#rrggbb/#rrggbbaa、rgb()/rgba()（含百分比与空格斜杠写法）、hsl()/hsla()（色相可带 deg、负数与超 360 按色环归一）、常用英文名与 transparent；整段全角输入（如 ＃ＦＦ００００）会自动转半角识别。通道带多余字符（如 10abc）会点名报错，不会静默截断。' },
+  { question: '输入写错时为什么还显示上一次结果？', answer: '出错时保留上次有效的预览与判定、只更新红色错误提示，方便对照着改；改对后结果自动刷新。半透明色会按白色底合成后计算，摘要处会注明。' }
 ];
 const examples = [
   { label: '黑 / 白', fg: '#000000', bg: '#ffffff' },
@@ -75,8 +77,12 @@ watch(bgPicker, (v) => { bgInput.value = v; });
 const fixApplying = ref(false);
 watch(fgInput, (v) => { const p = parseColor(v); if (p.ok) fgPicker.value = p.hex; if (!fixApplying.value) fixNote.value = ''; });
 watch(bgInput, (v) => { const p = parseColor(v); if (p.ok) bgPicker.value = p.hex; if (!fixApplying.value) fixNote.value = ''; });
-const result = computed(() => { const r = checkContrast(fgInput.value, bgInput.value); return r.ok ? r : null; });
-const error = computed(() => { if (!fgInput.value && !bgInput.value) return ''; const r = checkContrast(fgInput.value, bgInput.value); return r.ok ? '' : r.error; });
+const result = ref(null); const error = ref('');
+watch([fgInput, bgInput], () => {
+  if (!fgInput.value.trim() && !bgInput.value.trim()) { result.value = null; error.value = ''; return; }
+  const r = checkContrast(fgInput.value, bgInput.value);
+  if (r.ok) { result.value = r; error.value = ''; } else { error.value = r.error; } // 出错保留上次有效结果，不清空预览与判定
+}, { immediate: true });
 const levelRows = computed(() => (result.value ? [
   { key: 'nAA', label: '普通文本 AA', need: WCAG_THRESHOLDS.normalAA, pass: result.value.levels.normalAA },
   { key: 'nAAA', label: '普通文本 AAA', need: WCAG_THRESHOLDS.normalAAA, pass: result.value.levels.normalAAA },
@@ -104,7 +110,7 @@ const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt)
 .cc-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 .row label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); flex: 1; min-width: 200px; }
 .field { display: flex; gap: 6px; }
