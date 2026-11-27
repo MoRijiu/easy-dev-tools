@@ -126,7 +126,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .text-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; }
 .prefix-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 3px 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; }
-.chip.active { background: var(--accent); color: #fff; border-color: transparent; }
+.chip.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .summary { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--text-strong); }
 .kv { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
 .kv th, .kv td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }

@@ -184,7 +184,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .mode-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); color: var(--text); font-size: 13px; cursor: pointer; }
 .mode-btn:hover { border-color: var(--accent); }
-.mode-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.mode-btn.active { background: var(--accent-solid); color: var(--on-accent); border-color: var(--accent); }
 .option-row { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
 .check-label { display: flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 13px; }
 .small-select { padding: 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-size: 13px; }

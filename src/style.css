@@ -28,6 +28,10 @@
   --text-3: #646c78;
   --accent: #667eea;
   --accent-2: #764ba2;
+  /* 实心强调底（R9t 校准）：--accent 纯色底配白字仅 3.66:1，凡纯色底承载白字/--on-accent 文字
+     （主按钮、选中态 chip、::selection 等）一律走此变量（白字 6.26:1，两套主题共用）；
+     --accent 本体只作渐变、边框、图标底与图形填充 */
+  --accent-solid: #4a54c4;
   /* 强调文字色（R9p 校准）：--accent 本体作文字仅 3.33–3.66:1、--accent-2 暗色仅 2.56:1，
      文字一律走这两个变量，主背景上均 ≥4.5:1；--accent/--accent-2 只作背景/渐变/边框 */
   --accent-text: #4a54c4;
@@ -233,12 +237,12 @@ body::after {
 
 /* 选中文本样式 */
 ::selection {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
 }
 
 ::-moz-selection {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
 }
 

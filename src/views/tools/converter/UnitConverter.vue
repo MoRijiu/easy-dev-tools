@@ -544,7 +544,7 @@ h1 {
 }
 
 .quick-btn:hover {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
 }
 

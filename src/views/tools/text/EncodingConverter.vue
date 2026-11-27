@@ -105,7 +105,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .mode-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
-.seg button.active { background: var(--accent, #4f46e5); color: #fff; border-color: transparent; }
+.seg button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .check { font-size: 13px; color: var(--text); display: inline-flex; gap: 4px; align-items: center; }
 .hint { font-size: 13px; color: var(--text-2); margin: 4px 0 12px; }
 .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

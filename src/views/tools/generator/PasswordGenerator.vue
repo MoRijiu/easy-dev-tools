@@ -493,7 +493,7 @@ h1 {
 }
 
 .copy-btn {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: #fff;
   border: none;
   padding: 8px 12px;

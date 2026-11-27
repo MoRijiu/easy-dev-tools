@@ -164,7 +164,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .mode-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
-.seg button.active { background: var(--accent, #4f46e5); color: #fff; border-color: transparent; }
+.seg button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .wpm { font-size: 13px; color: var(--text); display: inline-flex; gap: 4px; align-items: center; }
 .wpm select { padding: 5px 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 13px; }
 .play-btn { font-size: 13px; padding: 6px 10px; }

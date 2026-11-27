@@ -444,7 +444,7 @@ h1 {
 }
 
 .mode-btn.active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: #fff;
 }
 
@@ -494,7 +494,7 @@ h1 {
 }
 
 .algo-btn.active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
   border-color: transparent;
 }
@@ -619,7 +619,7 @@ h1 {
 }
 
 .case-btn.active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
   border-color: var(--accent);
 }

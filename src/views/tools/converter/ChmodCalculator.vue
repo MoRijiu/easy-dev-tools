@@ -135,7 +135,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .desc-list { margin: 6px 0 0; padding-left: 18px; color: var(--text-2); font-size: 13px; }
 .preset-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 3px 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; }
-.chip.active { background: var(--accent); color: #fff; border-color: transparent; }
+.chip.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .mini { padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; white-space: nowrap; }
 .umask-box { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
 .umask-box h2 { font-size: 15px; color: var(--text-strong); margin: 0 0 8px; }

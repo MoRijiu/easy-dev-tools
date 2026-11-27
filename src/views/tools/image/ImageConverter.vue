@@ -527,7 +527,7 @@ h1 {
 }
 
 .example-btn:hover {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
 }
 
