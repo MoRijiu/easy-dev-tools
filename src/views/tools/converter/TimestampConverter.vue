@@ -2,7 +2,7 @@
   <div class="timestamp-converter">
     <h1>时间戳转换工具</h1>
     <p class="description">
-      在线时间戳转换工具，支持 Unix 时间戳与日期时间互转，毫秒/秒级时间戳
+      在线时间戳转换工具，支持 Unix 时间戳与日期时间互转，秒/毫秒/微秒自动识别，输入即转换
     </p>
 
     <div class="tool-container">
@@ -69,11 +69,24 @@
                 <label>
                   <input type="radio" v-model="timestampUnit" value="auto" /> 自动识别
                 </label>
+                <label>
+                  <input type="radio" v-model="timestampUnit" value="us" /> 微秒
+                </label>
               </div>
+              <p v-if="detectedHint" class="unit-hint">{{ detectedHint }}</p>
             </div>
             <div class="divider">或</div>
             <div class="input-group">
-              <label>日期时间输入</label>
+              <label>日期时间输入（文本，按本地时区）</label>
+              <input
+                v-model="dateTextInput"
+                type="text"
+                class="text-input-field"
+                placeholder="如: 2024-12-05 08:30:00，输入后自动转换"
+              />
+            </div>
+            <div class="input-group">
+              <label>或用日期选择器</label>
               <input
                 v-model="dateInput"
                 type="datetime-local"
@@ -89,14 +102,31 @@
             <div class="result-item">
               <span class="result-label">时间戳 (秒)</span>
               <span class="result-value">{{ result.timestampS }}</span>
+              <button class="row-copy" @click="copyToClipboard(String(result.timestampS))">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">时间戳 (毫秒)</span>
               <span class="result-value">{{ result.timestampMs }}</span>
+              <button class="row-copy" @click="copyToClipboard(String(result.timestampMs))">复制</button>
+            </div>
+            <div class="result-item">
+              <span class="result-label">时间戳 (微秒)</span>
+              <span class="result-value">{{ result.timestampUs }}</span>
+              <button class="row-copy" @click="copyToClipboard(String(result.timestampUs))">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">本地时间</span>
               <span class="result-value">{{ result.localTime }}</span>
+              <button class="row-copy" @click="copyToClipboard(result.localTime)">复制</button>
+            </div>
+            <div class="result-item">
+              <span class="result-label">本地时间 (毫秒)</span>
+              <span class="result-value">{{ result.localTimeMs }}</span>
+              <button class="row-copy" @click="copyToClipboard(result.localTimeMs)">复制</button>
+            </div>
+            <div class="result-item">
+              <span class="result-label">星期 / 今年第几天</span>
+              <span class="result-value">{{ result.weekday }} · 第 {{ result.dayOfYear }} 天</span>
             </div>
             <div class="result-item">
               <span class="result-label">UTC 时间</span>
@@ -131,7 +161,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { parseTimestampInput, parseDateText, buildResult, formatLocal } from "@/utils/timestamp.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -144,10 +175,12 @@ import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
 // 响应式状态
 const timestampInput = ref("");
 const dateInput = ref("");
+const dateTextInput = ref("");
 const timestampUnit = ref("auto");
 const statusMessage = ref("");
 const statusType = ref("");
 const result = ref(null);
+const detectedHint = ref("");
 
 // 当前时间
 const currentTimestamp = ref(0);
@@ -160,136 +193,105 @@ const updateCurrentTime = () => {
   const now = new Date();
   currentTimestampMs.value = now.getTime();
   currentTimestamp.value = Math.floor(now.getTime() / 1000);
-  currentDateTime.value = formatDateTime(now);
-};
-
-// 格式化日期时间
-const formatDateTime = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-// 计算相对时间
-const getRelativeTime = (date) => {
-  const now = new Date();
-  const diff = date.getTime() - now.getTime();
-  const absDiff = Math.abs(diff);
-  const isPast = diff < 0;
-
-  const seconds = Math.floor(absDiff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
-
-  let timeStr;
-  if (years > 0) timeStr = `${years} 年`;
-  else if (months > 0) timeStr = `${months} 个月`;
-  else if (days > 0) timeStr = `${days} 天`;
-  else if (hours > 0) timeStr = `${hours} 小时`;
-  else if (minutes > 0) timeStr = `${minutes} 分钟`;
-  else timeStr = `${seconds} 秒`;
-
-  return isPast ? `${timeStr}前` : `${timeStr}后`;
+  currentDateTime.value = formatLocal(now);
 };
 
 // 信息显示
 const inputInfo = computed(() => timestampInput.value ? `${timestampInput.value.length} 字符` : '');
 const outputInfo = computed(() => result.value ? '转换成功' : '');
 
-// 时间戳转日期
+const applyResult = (ms, usRemainder = 0) => {
+  result.value = buildResult(ms, Date.now(), usRemainder);
+};
+
+// 时间戳转日期（逐字校验 + 秒/毫秒/微秒自动识别）
 const timestampToDate = () => {
   if (!timestampInput.value.trim()) {
     statusMessage.value = "✗ 请输入时间戳";
     statusType.value = "error";
+    detectedHint.value = "";
     return;
   }
-
-  try {
-    let ts = parseInt(timestampInput.value.trim());
-    if (isNaN(ts)) {
-      throw new Error("无效的时间戳");
-    }
-
-    // 自动识别单位
-    if (timestampUnit.value === "auto") {
-      if (ts > 9999999999999) {
-        throw new Error("时间戳过大");
-      } else if (ts > 9999999999) {
-        ts = ts; // 毫秒
-      } else {
-        ts = ts * 1000; // 秒转毫秒
-      }
-    } else if (timestampUnit.value === "s") {
-      ts = ts * 1000;
-    }
-
-    const date = new Date(ts);
-    if (isNaN(date.getTime())) {
-      throw new Error("无效的时间戳");
-    }
-
-    result.value = {
-      timestampS: Math.floor(ts / 1000),
-      timestampMs: ts,
-      localTime: formatDateTime(date),
-      utcTime: date.toUTCString(),
-      isoTime: date.toISOString(),
-      relativeTime: getRelativeTime(date)
-    };
-
-    statusMessage.value = "✓ 转换成功！";
-    statusType.value = "success";
-  } catch (error) {
-    statusMessage.value = `✗ 转换失败: ${error.message}`;
+  const parsed = parseTimestampInput(timestampInput.value, timestampUnit.value);
+  if (!parsed.ok) {
+    statusMessage.value = `✗ 转换失败: ${parsed.error.message}`;
     statusType.value = "error";
     result.value = null;
+    detectedHint.value = "";
+    return;
   }
+  detectedHint.value = parsed.auto
+    ? `自动识别：共 ${parsed.digits} 位，按${parsed.unitLabel}级时间戳处理`
+    : `按${parsed.unitLabel}级时间戳处理`;
+  applyResult(parsed.ms, parsed.usRemainder);
+  statusMessage.value = "✓ 转换成功！";
+  statusType.value = "success";
 };
 
-// 日期转时间戳
+// 日期转时间戳（文本严格校验，不静默滚动日期）
 const dateToTimestamp = () => {
+  if (dateTextInput.value.trim()) {
+    const parsed = parseDateText(dateTextInput.value);
+    if (!parsed.ok) {
+      statusMessage.value = `✗ 转换失败: ${parsed.error.message}`;
+      statusType.value = "error";
+      result.value = null;
+      return;
+    }
+    applyResult(parsed.ms);
+    statusMessage.value = "✓ 转换成功！";
+    statusType.value = "success";
+    return;
+  }
   if (!dateInput.value) {
-    statusMessage.value = "✗ 请选择日期时间";
+    statusMessage.value = "✗ 请输入日期时间文本或用选择器选择";
     statusType.value = "error";
     return;
   }
-
-  try {
-    const date = new Date(dateInput.value);
-    if (isNaN(date.getTime())) {
-      throw new Error("无效的日期时间");
-    }
-
-    const ts = date.getTime();
-    result.value = {
-      timestampS: Math.floor(ts / 1000),
-      timestampMs: ts,
-      localTime: formatDateTime(date),
-      utcTime: date.toUTCString(),
-      isoTime: date.toISOString(),
-      relativeTime: getRelativeTime(date)
-    };
-
-    statusMessage.value = "✓ 转换成功！";
-    statusType.value = "success";
-  } catch (error) {
-    statusMessage.value = `✗ 转换失败: ${error.message}`;
+  const parsed = parseDateText(dateInput.value);
+  if (!parsed.ok) {
+    statusMessage.value = `✗ 转换失败: ${parsed.error.message}`;
     statusType.value = "error";
     result.value = null;
+    return;
   }
+  applyResult(parsed.ms);
+  statusMessage.value = "✓ 转换成功！";
+  statusType.value = "success";
 };
+
+// 输入即转换（防抖 250ms，避免逐字打字时频繁报错闪烁：有内容且校验通过才更新结果）
+let liveTimer = null;
+watch([timestampInput, timestampUnit], () => {
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(() => {
+    if (!timestampInput.value.trim()) return;
+    const parsed = parseTimestampInput(timestampInput.value, timestampUnit.value);
+    if (parsed.ok) {
+      detectedHint.value = parsed.auto
+        ? `自动识别：共 ${parsed.digits} 位，按${parsed.unitLabel}级时间戳处理`
+        : `按${parsed.unitLabel}级时间戳处理`;
+      applyResult(parsed.ms, parsed.usRemainder);
+      if (statusType.value === "error") { statusMessage.value = ""; statusType.value = ""; }
+    }
+  }, 250);
+});
+watch(dateTextInput, () => {
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(() => {
+    if (!dateTextInput.value.trim()) return;
+    const parsed = parseDateText(dateTextInput.value);
+    if (parsed.ok) applyResult(parsed.ms);
+  }, 250);
+});
+watch(dateInput, () => { if (dateInput.value) dateToTimestamp(); });
 
 // 清空
 const clearAll = () => {
   timestampInput.value = "";
   dateInput.value = "";
+  dateTextInput.value = "";
+  detectedHint.value = "";
   result.value = null;
   statusMessage.value = "";
 };
@@ -314,13 +316,14 @@ const copyOutput = async () => {
     statusType.value = "error";
     return;
   }
-  const text = `时间戳(秒): ${result.value.timestampS}\n时间戳(毫秒): ${result.value.timestampMs}\n本地时间: ${result.value.localTime}\nUTC时间: ${result.value.utcTime}\nISO 8601: ${result.value.isoTime}`;
+  const text = `时间戳(秒): ${result.value.timestampS}\n时间戳(毫秒): ${result.value.timestampMs}\n时间戳(微秒): ${result.value.timestampUs}\n本地时间: ${result.value.localTime}\nUTC时间: ${result.value.utcTime}\nISO 8601: ${result.value.isoTime}\n相对时间: ${result.value.relativeTime}`;
   await copyToClipboard(text);
 };
 
 // 使用当前时间
 const useCurrentTimestamp = () => {
   timestampInput.value = currentTimestamp.value.toString();
+  timestampUnit.value = "s";
   timestampToDate();
 };
 
@@ -375,6 +378,14 @@ const faqs = [
     answer: "请注意时区的影响。本工具显示的本地时间是基于您浏览器的时区设置的。如果您需要特定时区的时间，请参考 UTC 时间进行换算。",
   },
   {
+    question: "微秒级时间戳也能转吗？",
+    answer: "能。16 位数字会自动识别为微秒（Java、Go 等后端常见）；17 位以上的纳秒级请先除以 1000 转成微秒再粘贴，本工具会明确提示而不是截断。",
+  },
+  {
+    question: "输入 2023-02-29 为什么报错？",
+    answer: "2023 年不是闰年，2 月只有 28 天。旧工具会把非法日期静默滚到 3 月 1 日，本工具改为严格校验并指出具体哪个字段不合法。",
+  },
+  {
     question: "时间戳有什么限制？",
     answer: "32位系统的 Unix 时间戳最大值是 2147483647（2038年1月19日），这就是著名的「2038年问题」。64位系统和 JavaScript 可以处理更大范围的时间戳。",
   },
@@ -385,6 +396,8 @@ const examples = [
   { input: "1733356800", output: "2024-12-05 00:00:00", description: "极速工具箱上线日期" },
   { input: "1733356800000", output: "2024-12-05 00:00:00", description: "毫秒级时间戳转换" },
   { input: "1704038400", output: "2024-01-01 00:00:00", description: "2024年元旦" },
+  { input: "1733356800000123", output: "2024-12-05 00:00:00", description: "微秒级时间戳（16 位自动识别）" },
+  { input: "-1", output: "1969-12-31 23:59:59 (UTC)", description: "负时间戳（1970 年之前）" },
 ];
 </script>
 
@@ -425,7 +438,7 @@ h1 {
 }
 
 .current-time-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: white;
   padding: 16px 20px;
   border-radius: 10px;
@@ -491,7 +504,7 @@ h1 {
 
 .text-input-field:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .unit-select {
@@ -574,6 +587,10 @@ h1 {
   justify-content: center;
   background: var(--bg);
 }
+
+.unit-hint { margin-top: 8px; font-size: 12px; color: var(--text-2); }
+.row-copy { margin-left: 10px; padding: 3px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text-2); cursor: pointer; white-space: nowrap; }
+.row-copy:hover { color: var(--accent); border-color: var(--accent); }
 
 /* 响应式设计 */
 @media (max-width: 640px) {
