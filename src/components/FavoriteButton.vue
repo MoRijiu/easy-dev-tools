@@ -24,7 +24,7 @@ const { isFavorite, toggleFavorite } = useToolPrefs()
 .fav-btn {
   border: none;
   background: transparent;
-  color: #b6bec9;
+  color: var(--text-3);
   font-size: 1.15rem;
   line-height: 1;
   cursor: pointer;

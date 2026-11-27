@@ -422,7 +422,7 @@ h1 {
 }
 
 .color-input-card:hover {
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .input-label {
@@ -452,7 +452,7 @@ h1 {
 
 .color-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .rgb-inputs input,
@@ -473,11 +473,11 @@ h1 {
 .hsv-inputs input:focus,
 .cmyk-inputs input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .copy-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   border: none;
   padding: 10px 14px;
   border-radius: 8px;

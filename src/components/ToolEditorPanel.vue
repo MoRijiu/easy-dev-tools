@@ -45,7 +45,7 @@ defineProps({
 }
 
 .panel-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: white;
   padding: 12px 20px;
   display: flex;

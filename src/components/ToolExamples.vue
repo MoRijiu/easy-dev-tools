@@ -49,9 +49,9 @@ const handleUseExample = (example) => {
 .examples {
   margin-top: 30px;
   padding: 25px;
-  background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fb 100%);
+  background: var(--info-soft);
   border-radius: 12px;
-  border: 1px solid #d1e7ed;
+  border: 1px solid var(--info-border);
 }
 
 .examples h2 {
@@ -90,7 +90,7 @@ const handleUseExample = (example) => {
 }
 
 .example-number {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: white;
   padding: 4px 10px;
   border-radius: 20px;
@@ -138,14 +138,14 @@ const handleUseExample = (example) => {
 
 .output-value {
   background: var(--success-soft);
-  border: 1px solid #c8e6c9;
-  color: #2e7d32;
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .use-btn {
   width: 100%;
   padding: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: white;
   border: none;
   border-radius: 6px;

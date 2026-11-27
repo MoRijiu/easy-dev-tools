@@ -44,7 +44,7 @@
 }
 
 :deep(.btn-primary) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   color: white;
 }
 
@@ -111,7 +111,7 @@
 :deep(.toolbar-divider) {
   width: 1px;
   height: 30px;
-  background: #ddd;
+  background: var(--border-strong);
   margin: 0 10px;
 }
 

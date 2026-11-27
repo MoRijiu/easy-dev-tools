@@ -230,7 +230,7 @@ const openPalette = () => {
 }
 
 .nav-link.router-link-active {
-  color: #667eea;
+  color: var(--accent);
 }
 
 .nav-link.router-link-active::after {
@@ -240,7 +240,7 @@ const openPalette = () => {
   left: 0;
   right: 0;
   height: 2px;
-  background: #667eea;
+  background: var(--accent);
 }
 
 .support-link {
@@ -290,8 +290,8 @@ const openPalette = () => {
 }
 
 .tools-trigger:hover {
-  background: #667eea;
-  border-color: #667eea;
+  background: var(--accent);
+  border-color: var(--accent);
   color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -390,12 +390,12 @@ const openPalette = () => {
 
 .tool-item:hover {
   background: var(--surface);
-  color: #667eea;
+  color: var(--accent);
   transform: translateX(4px);
 }
 
 .tool-item.active {
-  background: #667eea;
+  background: var(--accent);
   color: #ffffff;
   font-weight: 500;
 }

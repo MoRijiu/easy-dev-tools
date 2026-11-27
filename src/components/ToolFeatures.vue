@@ -52,7 +52,7 @@ defineProps({
 .feature-item {
   text-align: center;
   padding: 25px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--bg-soft) 0%, var(--border) 100%);
   border-radius: 12px;
   transition: transform 0.3s;
 }

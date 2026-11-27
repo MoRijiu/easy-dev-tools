@@ -144,8 +144,8 @@ onMounted(() => {
 .danmaku-item:hover {
   transform: scale(1.08);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  background: rgba(255, 255, 255, 1);
-  color: #667eea;
+  background: var(--surface);
+  color: var(--accent);
 }
 
 .danmaku-icon {
