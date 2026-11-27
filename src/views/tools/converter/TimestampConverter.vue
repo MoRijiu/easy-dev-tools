@@ -503,7 +503,6 @@ h1 {
 }
 
 .text-input-field:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

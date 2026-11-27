@@ -451,7 +451,6 @@ h1 {
 }
 
 .color-input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -472,7 +471,6 @@ h1 {
 .hsl-inputs input:focus,
 .hsv-inputs input:focus,
 .cmyk-inputs input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

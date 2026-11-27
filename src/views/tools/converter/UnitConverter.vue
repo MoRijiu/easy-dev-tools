@@ -468,7 +468,6 @@ h1 {
 }
 
 .unit-select:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -483,7 +482,6 @@ h1 {
 }
 
 .value-input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

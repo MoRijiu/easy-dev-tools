@@ -427,7 +427,6 @@ h1 {
 }
 
 .config-item select:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -492,7 +491,6 @@ h1 {
 
 .key-input:focus,
 .iv-input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

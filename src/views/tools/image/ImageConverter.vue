@@ -573,7 +573,6 @@ h1 {
 }
 
 .setting-item select:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -589,7 +588,6 @@ h1 {
   border-radius: 4px;
   -webkit-appearance: none;
   appearance: none;
-  outline: none;
   cursor: pointer;
 }
 
@@ -637,7 +635,6 @@ h1 {
 }
 
 .resize-control input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

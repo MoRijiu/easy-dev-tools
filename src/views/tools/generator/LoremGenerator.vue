@@ -274,7 +274,6 @@ h1 {
 
 .setting-item select:focus,
 .setting-item input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

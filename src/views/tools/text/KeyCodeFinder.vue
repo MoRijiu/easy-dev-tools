@@ -122,7 +122,7 @@ const copyRow = (k) => copyText('key: ' + displayKey(k.key) + '\ncode: ' + k.cod
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
-.capture { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 16px; border: 2px dashed var(--border); border-radius: 12px; background: var(--bg-softer); cursor: pointer; outline: none; }
+.capture { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 16px; border: 2px dashed var(--border); border-radius: 12px; background: var(--bg-softer); cursor: pointer; }
 .capture.focused { border-style: solid; border-color: var(--accent); }
 .big-key { font-size: 34px; font-weight: 700; color: var(--text-strong); line-height: 1.2; word-break: break-all; text-align: center; }
 .big-key.placeholder { font-size: 30px; }
