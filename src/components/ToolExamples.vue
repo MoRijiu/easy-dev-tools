@@ -71,13 +71,13 @@ const handleUseExample = (example) => {
   background: var(--surface);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .example-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .example-header {

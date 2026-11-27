@@ -113,7 +113,7 @@ const openPalette = () => {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .container {
@@ -315,7 +315,7 @@ const openPalette = () => {
   transform: translateX(-50%);
   background: var(--surface);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
   padding: 20px;
   min-width: 400px;
   max-width: 500px;

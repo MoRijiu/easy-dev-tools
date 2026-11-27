@@ -232,7 +232,7 @@ useSeo({
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card-hover);
   animation: slideUp 0.6s ease-out;
 }
 
@@ -405,7 +405,7 @@ useSeo({
   padding: 12px;
   background: var(--surface);
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-card-hover);
   transition: transform 0.3s ease;
   display: block;
 }

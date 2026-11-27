@@ -368,7 +368,7 @@ h1 {
   width: 120px;
   height: 120px;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-card-hover);
   display: flex;
   align-items: flex-end;
   justify-content: center;

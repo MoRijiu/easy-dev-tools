@@ -32,6 +32,7 @@
 - 移动端优先保证单列可用、点击目标不小于 40px；桌面端再做多列增强。
 - 暗色模式自 R4a 起落地：颜色一律走 `src/style.css` 的 CSS 变量（`--bg` / `--surface` / `--border` / `--text` / `--text-2` / `--text-3` / `--accent-soft` 等），组件内禁止再写死中性色；强调色（`#667eea` 渐变）与成功/危险等语义色可保留。主题由 `src/composables/useTheme.js` 管理（亮 / 暗 / 跟随系统，持久化键 `edt:theme`，生效值写入 `<html data-theme>`），`index.html` 有首屏防闪烁脚本与之保持一致。
 - 工具页主容器（`.tool-container`）阴影一律用 `var(--shadow-md)`（R9a 起全站统一）：该变量亮/暗两套主题取值不同（暗色更深），写死 `rgba(0,0,0,0.1)` 类字面量会在暗色下几乎不可见、与其它工具页不一致。
+- 中性卡片/浮层阴影同样禁止写死黑色字面量（R9b 起）：小卡片与图片用 `var(--shadow-card)`、hover 与强调浮层用 `var(--shadow-card-hover)`、细边阴影用 `var(--shadow-sm)`，取值均在 `src/style.css` 按亮/暗两套主题定义；强调色渐变按钮的彩色辉光阴影为有意设计，不在此列。
 - 键盘与无障碍自 R5 起落地：命令面板 `src/components/CommandPalette.vue` 全局挂载，`Ctrl+K` / `Cmd+K` 开关、非输入区按 `/` 打开、`Esc` 关闭，支持方向键 + Enter 选择；Header 搜索按钮通过 `edt:open-command-palette` 事件唤起。新增交互控件须带 `aria-label`，键盘焦点统一走全局 `:focus-visible` 焦点环，不要单独移除 outline；页面保留「跳到主要内容」跳过链接（`#main-content`）。
 
 ## 5. 构建与发布纪律

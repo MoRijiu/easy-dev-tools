@@ -133,7 +133,7 @@ onMounted(() => {
   margin: 0 0.5rem;
   background: var(--danmaku-bg);
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   font-size: 0.95rem;
   color: var(--text-strong);
   transition: all 0.3s ease;

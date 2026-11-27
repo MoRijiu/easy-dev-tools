@@ -683,7 +683,7 @@ h1 {
   padding: 8px 16px;
   background: var(--surface);
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .total-original {
@@ -706,7 +706,7 @@ h1 {
   padding: 8px 16px;
   background: var(--surface);
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .format-label {
@@ -732,7 +732,7 @@ h1 {
   overflow: hidden;
   border: 2px solid var(--border);
   transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .image-card:hover {

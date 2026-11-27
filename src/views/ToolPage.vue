@@ -129,7 +129,7 @@ const goBack = () => {
   background: var(--surface);
   border-radius: 12px;
   padding: 3rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   min-height: 400px;
   display: flex;
   align-items: center;

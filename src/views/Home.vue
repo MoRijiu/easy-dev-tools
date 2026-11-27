@@ -122,19 +122,19 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .group-info p { font-size: .88rem; color: var(--text-2); margin: 0; }
 .tools-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: .85rem; }
 .tool-card { background: var(--bg); border-radius: 8px; padding: 1rem; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; border: 1px solid var(--border); }
-.tool-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); border-color: var(--accent); background: var(--surface-hover); }
+.tool-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); border-color: var(--accent); background: var(--surface-hover); }
 .tool-card:active { transform: translateY(0); }
 .tool-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tool-icon { font-size: 1.5rem; margin-bottom: .45rem; }
 .tool-card h3 { font-size: 1rem; color: var(--text-strong); margin: 0 0 .35rem; }
 .tool-card p { font-size: .86rem; color: var(--text-2); margin: 0; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.empty-state { text-align: center; background: var(--surface); border-radius: 12px; padding: 2rem 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.empty-state { text-align: center; background: var(--surface); border-radius: 12px; padding: 2rem 1rem; box-shadow: var(--shadow-card); }
 .empty-title { font-size: 1.1rem; color: var(--text-strong); margin: 0 0 .5rem; }
 .empty-desc { color: var(--text-2); margin: 0 0 1rem; font-size: .92rem; }
 .empty-suggest { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .card-top .tool-icon { margin-bottom: .5rem; }
-.pref-section { background: var(--surface); border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1rem; }
+.pref-section { background: var(--surface); border-radius: 12px; padding: 1rem 1.25rem; box-shadow: var(--shadow-card); margin-bottom: 1rem; }
 .pref-title { font-size: 1rem; color: var(--text-strong); margin: 0 0 .6rem; display: flex; align-items: center; gap: .4rem; }
 .pref-count { color: var(--text-3); font-size: .82rem; font-weight: normal; }
 .pref-chips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
