@@ -3,7 +3,7 @@
     <h1>CSS 渐变生成器</h1>
     <p class="description">可视化调线性 / 径向 / 锥形渐变：多色标、角度与重复条纹，实时预览并一键复制 CSS，全程本地、不上传</p>
     <div class="tool-container">
-      <div class="preview" :style="{ background: gradientCss || 'transparent' }" aria-label="渐变预览"></div>
+      <div class="preview" :style="{ background: gradientCss || 'transparent' }" role="img" aria-label="渐变预览"></div>
       <div class="row">
         <div class="seg" role="group" aria-label="渐变类型">
           <button v-for="t in GRADIENT_TYPES" :key="t.id" :class="{ active: form.type === t.id }" :aria-pressed="form.type === t.id" @click="form.type = t.id">{{ t.name }}</button>

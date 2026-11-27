@@ -3,7 +3,7 @@
     <section class="hero-section">
       <h1>极速开发工具箱</h1>
       <p>提供各类实用的开发工具，提升您的工作效率</p>
-      <p class="stats" aria-label="工具统计">共 {{ totalCount }} 个工具 · {{ toolGroups.length }} 个分类 · 全部本地运行，数据不上传</p>
+      <p class="stats">共 {{ totalCount }} 个工具 · {{ toolGroups.length }} 个分类 · 全部本地运行，数据不上传</p>
       <div class="search-box">
         <span class="search-icon" aria-hidden="true">🔍</span>
         <input v-model="query" type="search" class="search-input" placeholder="搜索工具：试试 json、二维码、md5、geshihua…" aria-label="搜索工具" @keydown.esc="query = ''" />

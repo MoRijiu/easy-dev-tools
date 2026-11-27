@@ -30,7 +30,7 @@
               aria-label="正则表达式输入"
             />
             <span class="slash" aria-hidden="true">/</span>
-            <span class="flags-text" aria-label="当前标志">{{ flagsString || '（无标志）' }}</span>
+            <span class="flags-text">{{ flagsString || '（无标志）' }}</span>
           </div>
           <div class="flags-row" role="group" aria-label="正则标志">
             <label v-for="f in flagDefs" :key="f.key" class="flag-chip" :class="{ active: flags[f.key] }">
@@ -67,7 +67,7 @@
         <h2 class="section-title">匹配高亮</h2>
         <div v-if="errorMessage" class="no-match">正则有误，修正后将实时显示高亮</div>
         <p v-else-if="!matches.length" class="no-match">没有匹配到任何内容</p>
-        <div v-else class="highlight-box" aria-label="匹配高亮预览"><template v-for="(seg, i) in segments" :key="i"><mark v-if="seg.isMatch && !seg.zeroWidth" class="hl">{{ seg.text }}</mark><span v-else-if="seg.isMatch" class="hl-zero" title="零宽匹配"></span><template v-else>{{ seg.text }}</template></template></div>
+        <div v-else class="highlight-box"><template v-for="(seg, i) in segments" :key="i"><mark v-if="seg.isMatch && !seg.zeroWidth" class="hl">{{ seg.text }}</mark><span v-else-if="seg.isMatch" class="hl-zero" title="零宽匹配"></span><template v-else>{{ seg.text }}</template></template></div>
       </div>
 
       <div v-if="matches.length" class="matches-section">

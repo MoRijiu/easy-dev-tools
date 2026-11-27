@@ -63,7 +63,7 @@
         <p v-if="truncated" class="limit-note" role="status" aria-live="polite">文本过长，仅对比前 {{ MAX_LINES }} 行。</p>
         <p v-if="fallback" class="limit-note" role="status" aria-live="polite">行数较多，已切换为按行号逐行对比模式。</p>
 
-        <div v-if="viewMode === 'unified'" class="diff-box" aria-label="统一对比结果">
+        <div v-if="viewMode === 'unified'" class="diff-box">
           <template v-for="(item, i) in visibleItems" :key="i">
             <div v-if="item.kind === 'fold'" class="fold-line">··· 已折叠 {{ item.count }} 行未变更 ···</div>
             <div v-else class="diff-line" :class="item.row.type">
@@ -76,7 +76,7 @@
           <p v-if="!visibleItems.length" class="no-diff">没有差异行</p>
         </div>
 
-        <div v-else class="diff-box split" aria-label="双栏对比结果">
+        <div v-else class="diff-box split">
           <div v-for="(pair, i) in visiblePairs" :key="i" class="split-row" :class="pair.type">
             <div class="split-cell left" :class="{ changed: pair.type === 'change' || pair.type === 'del' }">
               <span class="ln">{{ pair.left?.oldNo ?? '' }}</span>

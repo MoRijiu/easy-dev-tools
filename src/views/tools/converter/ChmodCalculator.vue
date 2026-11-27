@@ -32,7 +32,7 @@
       </table>
       <p class="summary">chmod <code>{{ octal }}</code> · 符号 <code>{{ symbolic }}</code> · 命令 <code>chmod {{ octal }} 文件名</code> <button class="mini" @click="copyText(octal)">复制数字</button> <button class="mini" @click="copyText(symbolic)">复制符号</button></p>
       <ul class="desc-list"><li v-for="d in describeBits(bits)" :key="d">{{ d }}</li></ul>
-      <div class="preset-row" aria-label="常用预设">
+      <div class="preset-row" role="group" aria-label="常用预设">
         <span>常用：</span>
         <button v-for="p in PRESETS" :key="p.octal" class="chip" :class="{ active: octal === p.octal }" :aria-pressed="octal === p.octal" :title="p.note" @click="loadPreset(p)">{{ p.octal }}</button>
       </div>
