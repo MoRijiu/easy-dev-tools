@@ -47,9 +47,9 @@
           </div>
         </header>
         <div class="tools-grid" role="list">
-          <article v-for="tool in group.tools" :key="tool.id" class="tool-card" role="listitem" @click="navigateToTool(tool)" @keypress.enter="navigateToTool(tool)" tabindex="0" :aria-label="`${tool.name}: ${tool.description}`">
-            <div class="card-top"><div class="tool-icon" aria-hidden="true">{{ tool.icon }}</div><FavoriteButton :tool-id="tool.id" :tool-name="tool.name" /></div>
-            <h3>{{ tool.name }}</h3>
+          <article v-for="tool in group.tools" :key="tool.id" class="tool-card" role="listitem">
+            <div class="card-top"><div class="tool-icon" aria-hidden="true">{{ tool.icon }}</div><span class="fav-wrap"><FavoriteButton :tool-id="tool.id" :tool-name="tool.name" /></span></div>
+            <h3><router-link class="tool-card-link" :to="tool.path" :aria-label="`${tool.name}：${tool.description}`">{{ tool.name }}</router-link></h3>
             <p>{{ tool.description }}</p>
           </article>
         </div>
@@ -121,10 +121,14 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .group-info h2 { font-size: 1.2rem; color: var(--text-strong); margin: 0 0 .15rem; }
 .group-info p { font-size: .88rem; color: var(--text-2); margin: 0; }
 .tools-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: .85rem; }
-.tool-card { background: var(--bg); border-radius: 8px; padding: 1rem; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; border: 1px solid var(--border); }
+.tool-card { position: relative; background: var(--bg); border-radius: 8px; padding: 1rem; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; border: 1px solid var(--border); }
 .tool-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); border-color: var(--accent); background: var(--surface-hover); }
 .tool-card:active { transform: translateY(0); }
-.tool-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tool-card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tool-card-link { color: inherit; text-decoration: none; }
+.tool-card-link::after { content: ""; position: absolute; inset: 0; border-radius: 8px; }
+.tool-card-link:focus-visible { outline: none; }
+.fav-wrap { position: relative; z-index: 1; }
 .tool-icon { font-size: 1.5rem; margin-bottom: .45rem; }
 .tool-card h3 { font-size: 1rem; color: var(--text-strong); margin: 0 0 .35rem; }
 .tool-card p { font-size: .86rem; color: var(--text-2); margin: 0; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
