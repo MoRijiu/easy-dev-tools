@@ -14,8 +14,11 @@
         <span>常用前缀：</span>
         <button v-for="p in [8, 16, 24, 25, 26, 27, 28, 29, 30, 32]" :key="p" class="chip" :class="{ active: result && result.prefix === p }" @click="applyPrefix(p)">/{{ p }}</button>
       </div>
+      <ul v-if="result && result.warnings.length" class="warnings-list">
+        <li v-for="(w, i) in result.warnings" :key="i">⚠️ {{ w }}</li>
+      </ul>
       <template v-if="result">
-        <p class="summary">网段 {{ result.cidr }} · {{ result.scope }} · 可用主机 {{ result.usableHosts }} 个</p>
+        <p class="summary">网段 {{ result.cidr }} · {{ result.scope }} · 可用主机 {{ result.usableHostsFormatted }} 个</p>
         <table class="kv" aria-label="子网计算结果">
           <tbody>
             <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value }}</code></td><td><button class="mini" @click="copyText(row.value)">复制</button></td></tr>
@@ -49,12 +52,16 @@ const features = [
 const usageSteps = ['输入 IP/前缀，如 192.168.1.10/24（也支持点分掩码写法）', '结果实时计算，点常用前缀 chips 可快速换前缀试算', '逐项复制，或点「复制摘要」得到一行结论'];
 const faqs = [
   { question: '/31 为什么可用主机是 2 个？', answer: '按 RFC 3021，/31 用于点对点链路时两端地址都可分配主机，不再保留网络与广播地址；/32 则只有 1 个地址。' },
-  { question: '可用主机数为什么比总数少 2？', answer: '常规网段里网络地址标识网段本身、广播地址用于广播，两者不能分给主机，所以可用数 = 总数 − 2。' },
-  { question: '支持 IPv6 吗？', answer: '暂不支持。本工具只处理 IPv4 CIDR，输入 IPv6 地址会给出明确提示。' }
+  { question: '可用主机数为什么比总数少 2？', answer: '常规网段里网络地址标识网段本身、广播地址用于广播，两者不能分给主机，所以可用数 = 总数 − 2。输入的 IP 若正好是网络或广播地址，页面会给出警告。' },
+  { question: '支持 IPv6 吗？', answer: '暂不支持。本工具只处理 IPv4 CIDR，输入 IPv6 地址会给出明确提示。' },
+  { question: '输入带空格可以吗？', answer: '首尾空格与 / 两侧的空格（如 192.168.1.10 / 24）会自动容忍；IP 内部出现空格会报错，避免把两段无关文本拼在一起误算。' },
+  { question: '0.x、198.18.x 这类地址是什么性质？', answer: '0.0.0.0/8 是本网络地址段，198.18.0.0/15 是 RFC 2544 基准测试段，192.0.0.0/24 是 IETF 协议分配段——都不是普通公网或私网地址，本工具会单独点名并给出提示。' }
 ];
 const examples = [
   { input: '192.168.1.10/24', output: '网段 192.168.1.0/24 · 可用 192.168.1.1 – 192.168.1.254', description: '家庭/办公常见网段' },
-  { input: '10.20.30.40/22', output: '网段 10.20.28.0/22 · 可用 1022 个', description: '非整字节前缀' }
+  { input: '10.20.30.40/22', output: '网段 10.20.28.0/22 · 可用 1,022 个', description: '非整字节前缀' },
+  { input: '192.168.1.10/255.255.255.128', output: '网段 192.168.1.0/25 · 可用 126 个', description: '点分掩码写法，等价 /25' },
+  { input: '192.168.1.0/24', output: '网段 192.168.1.0/24 · 提示：输入正好是网络地址', description: '网络地址会触发警告' }
 ];
 const inputText = ref('');
 const result = ref(null);
@@ -71,8 +78,8 @@ const rows = computed(() => {
     { label: '网络地址', value: r.network },
     { label: '广播地址', value: r.broadcast },
     { label: '可用范围', value: `${r.firstUsable} – ${r.lastUsable}` },
-    { label: '地址总数', value: r.totalHosts },
-    { label: '可用主机', value: r.usableHosts },
+    { label: '地址总数', value: r.totalHostsFormatted },
+    { label: '可用主机', value: r.usableHostsFormatted },
     { label: '地址类别', value: `${r.ipClass} 类` },
     { label: '地址性质', value: r.scope },
     { label: '整数形式', value: r.ipInteger },
@@ -82,8 +89,7 @@ const rows = computed(() => {
   ];
 });
 const calculate = () => {
-  result.value = null;
-  if (!inputText.value.trim()) { statusMessage.value = ''; return; }
+  if (!inputText.value.trim()) { result.value = null; statusMessage.value = ''; return; }
   try {
     result.value = parseCidr(inputText.value);
     statusMessage.value = '✓ 计算完成';
@@ -91,8 +97,9 @@ const calculate = () => {
   } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
 };
 const applyPrefix = (p) => {
-  const ipPart = inputText.value.trim().split('/')[0];
-  if (!/^\d+\.\d+\.\d+\.\d+$/.test(ipPart)) { statusMessage.value = '✗ 请先输入一个 IPv4 地址'; statusType.value = 'error'; return; }
+  const ipPart = inputText.value.trim().split('/')[0].trim();
+  if (!ipPart) { statusMessage.value = '✗ 请先输入一个 IPv4 地址'; statusType.value = 'error'; return; }
+  try { parseCidr(ipPart); } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; return; }
   inputText.value = `${ipPart}/${p}`;
   calculate();
 };
@@ -106,7 +113,7 @@ const copyText = async (t) => {
 const copySummary = () => {
   if (!result.value) return;
   const r = result.value;
-  copyText(`${r.cidr} 掩码 ${r.netmask}，可用 ${r.firstUsable} – ${r.lastUsable}（${r.usableHosts} 个），广播 ${r.broadcast}`);
+  copyText(`${r.cidr} 掩码 ${r.netmask}，可用 ${r.firstUsable} – ${r.lastUsable}（${r.usableHostsFormatted} 个），广播 ${r.broadcast}`);
 };
 </script>
 
@@ -114,7 +121,8 @@ const copySummary = () => {
 .cidr-calculator { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.warnings-list { margin: 12px 0 0; padding: 10px 14px 10px 30px; background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.7; }
 .text-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; }
 .prefix-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 3px 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; }
