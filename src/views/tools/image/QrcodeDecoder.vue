@@ -9,6 +9,8 @@
         tabindex="0"
         role="button"
         aria-label="上传二维码图片，或把图片拖放到这里"
+        :aria-invalid="error ? 'true' : undefined"
+        :aria-describedby="error ? 'qr-decoder-error' : undefined"
         @click="fileInput.click()"
         @keydown.enter.prevent="fileInput.click()"
         @keydown.space.prevent="fileInput.click()"
@@ -28,7 +30,7 @@
         <button class="btn ghost" type="button" :disabled="!previewUrl" @click="clearAll">清空</button>
         <span v-if="imageInfo" class="meta">{{ imageInfo }}</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="qr-decoder-error" class="error" role="alert">{{ error }}</p>
       <p v-if="decoding" class="hint" role="status" aria-live="polite">正在识别…</p>
       <template v-if="result">
         <p class="verdict pass">✓ 识别成功 · {{ result.info.typeName }}</p>

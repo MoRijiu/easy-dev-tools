@@ -5,7 +5,7 @@
     <div class="tool-container">
       <section class="convert">
         <div class="row">
-          <label>文本 <textarea v-model="textInput" rows="2" placeholder="输入文本，如 Hello" aria-label="待转文本"></textarea></label>
+          <label>文本 <textarea v-model="textInput" rows="2" placeholder="输入文本，如 Hello" aria-label="待转文本" :aria-invalid="convertError && convertErrorSource === 'text' ? 'true' : undefined" :aria-describedby="convertError && convertErrorSource === 'text' ? 'ascii-convert-error' : undefined"></textarea></label>
           <label>格式
             <select v-model="format" aria-label="码值格式">
               <option value="dec">十进制</option><option value="hex">十六进制</option><option value="escape">\xHH 转义</option>
@@ -15,11 +15,11 @@
           <button class="btn ghost" @click="loadExample">示例</button>
         </div>
         <div class="row">
-          <label>ASCII 码 <textarea v-model="codeInput" rows="2" placeholder="输入码值，如 72 101 108 108 111" aria-label="待转码值"></textarea></label>
+          <label>ASCII 码 <textarea v-model="codeInput" rows="2" placeholder="输入码值，如 72 101 108 108 111" aria-label="待转码值" :aria-invalid="convertError && convertErrorSource === 'code' ? 'true' : undefined" :aria-describedby="convertError && convertErrorSource === 'code' ? 'ascii-convert-error' : undefined"></textarea></label>
           <button class="btn" @click="doDecode">码 → 文本</button>
           <button v-if="convertOutput" class="btn ghost" @click="copyText(convertOutput)">复制结果</button>
         </div>
-        <p v-if="convertError" class="error" role="alert">{{ convertError }}</p>
+        <p v-if="convertError" id="ascii-convert-error" class="error" role="alert">{{ convertError }}</p>
         <pre v-if="convertOutput" class="output">{{ convertOutput }}</pre>
         <p v-if="convertNote" class="count">{{ convertNote }}</p>
       </section>
@@ -76,10 +76,10 @@ const faqs = [
 const query = ref(''); const category = ref('all');
 const results = computed(() => searchAscii(query.value, category.value));
 const textInput = ref(''); const codeInput = ref(''); const format = ref('dec');
-const convertOutput = ref(''); const convertError = ref(''); const convertNote = ref('');
+const convertOutput = ref(''); const convertError = ref(''); const convertNote = ref(''); const convertErrorSource = ref('');
 const statusMessage = ref(''); const statusType = ref('');
-const doEncode = () => { const r = textToAscii(textInput.value, format.value); if (!r.ok) { convertError.value = r.error; return; } convertError.value = ''; convertOutput.value = r.output; convertNote.value = r.count ? `共 ${r.count} 个字符` : ''; codeInput.value = r.output; };
-const doDecode = () => { const r = asciiToText(codeInput.value, format.value); if (!r.ok) { convertError.value = r.error; return; } convertError.value = ''; convertOutput.value = r.output; convertNote.value = r.count ? `共 ${r.count} 个字符（控制字符可能不可见）` : ''; textInput.value = r.output; };
+const doEncode = () => { const r = textToAscii(textInput.value, format.value); if (!r.ok) { convertError.value = r.error; convertErrorSource.value = 'text'; return; } convertError.value = ''; convertErrorSource.value = ''; convertOutput.value = r.output; convertNote.value = r.count ? `共 ${r.count} 个字符` : ''; codeInput.value = r.output; };
+const doDecode = () => { const r = asciiToText(codeInput.value, format.value); if (!r.ok) { convertError.value = r.error; convertErrorSource.value = 'code'; return; } convertError.value = ''; convertErrorSource.value = ''; convertOutput.value = r.output; convertNote.value = r.count ? `共 ${r.count} 个字符（控制字符可能不可见）` : ''; textInput.value = r.output; };
 const loadExample = () => { textInput.value = 'Hello'; format.value = 'dec'; doEncode(); };
 const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制结果'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
 const copyItem = async (t) => { try { await navigator.clipboard.writeText(buildAsciiSummary(t)); statusMessage.value = '✓ 已复制 ' + t.code; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };

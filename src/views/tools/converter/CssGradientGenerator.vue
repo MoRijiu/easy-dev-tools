@@ -14,7 +14,7 @@
         <label class="grow">方向角度 {{ form.angle }}°
           <input v-model.number="form.angle" type="range" min="0" max="360" step="1" aria-label="线性渐变角度" />
         </label>
-        <label class="num">角度 <input v-model.number="form.angle" type="number" min="0" max="360" aria-label="角度数值" /></label>
+        <label class="num">角度 <input v-model.number="form.angle" type="number" min="0" max="360" aria-label="角度数值" :aria-invalid="errorField === 'angle' ? 'true' : undefined" :aria-describedby="errorField === 'angle' ? 'css-gradient-error' : undefined" /></label>
         <div class="dirs">
           <button v-for="d in DIRECTIONS" :key="d.deg" class="chip" @click="form.angle = d.deg">{{ d.name }}</button>
         </div>
@@ -34,7 +34,7 @@
         <label class="grow">起始角度 {{ form.angle }}°
           <input v-model.number="form.angle" type="range" min="0" max="360" step="1" aria-label="锥形起始角度" />
         </label>
-        <label class="num">角度 <input v-model.number="form.angle" type="number" min="0" max="360" aria-label="角度数值" /></label>
+        <label class="num">角度 <input v-model.number="form.angle" type="number" min="0" max="360" aria-label="角度数值" :aria-invalid="errorField === 'angle' ? 'true' : undefined" :aria-describedby="errorField === 'angle' ? 'css-gradient-error' : undefined" /></label>
         <label>中心位置
           <select v-model="form.position" aria-label="锥形中心位置"><option v-for="p in POSITIONS" :key="p" :value="p">{{ p }}</option></select>
         </label>
@@ -46,15 +46,15 @@
       </div>
       <div v-for="(stop, i) in form.stops" :key="i" class="stop-row">
         <input type="color" :value="pickerValue(stop.color)" :aria-label="`第 ${i + 1} 个色标取色器`" @input="onPick(i, $event.target.value)" />
-        <input v-model="stop.color" type="text" class="color-text mono" :aria-label="`第 ${i + 1} 个色标颜色值`" spellcheck="false" />
-        <input v-model.number="stop.position" type="range" min="0" max="100" step="1" class="grow" :aria-label="`第 ${i + 1} 个色标位置`" />
-        <input v-model.number="stop.position" type="number" min="0" max="100" class="pos-num" :aria-label="`第 ${i + 1} 个色标位置数值`" />
+        <input v-model="stop.color" type="text" class="color-text mono" :aria-label="`第 ${i + 1} 个色标颜色值`" spellcheck="false" :aria-invalid="errorStopField(i, 'color') ? 'true' : undefined" :aria-describedby="errorStopField(i, 'color') ? 'css-gradient-error' : undefined" />
+        <input v-model.number="stop.position" type="range" min="0" max="100" step="1" class="grow" :aria-label="`第 ${i + 1} 个色标位置`" :aria-invalid="errorStopField(i, 'position') ? 'true' : undefined" :aria-describedby="errorStopField(i, 'position') ? 'css-gradient-error' : undefined" />
+        <input v-model.number="stop.position" type="number" min="0" max="100" class="pos-num" :aria-label="`第 ${i + 1} 个色标位置数值`" :aria-invalid="errorStopField(i, 'position') ? 'true' : undefined" :aria-describedby="errorStopField(i, 'position') ? 'css-gradient-error' : undefined" />
         <span class="pct">%</span>
         <button class="del" :disabled="form.stops.length <= 2" :aria-label="`删除第 ${i + 1} 个色标`" @click="removeStop(i)">✕</button>
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in GRADIENT_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
-      <p v-if="error" class="error" role="alert">{{ error }}<span v-if="gradientCss">（已保留上一次成功结果）</span></p>
+      <p v-if="error" id="css-gradient-error" class="error" role="alert">{{ error }}<span v-if="gradientCss">（已保留上一次成功结果）</span></p>
       <template v-if="gradientCss">
         <div class="code-head"><span>CSS 代码</span>
           <span class="code-btns">
@@ -102,6 +102,21 @@ const form = reactive({
 const statusMessage = ref(''); const statusType = ref('');
 const built = computed(() => buildGradient(form));
 const error = computed(() => (built.value.ok ? '' : built.value.error));
+const errorTarget = computed(() => {
+  const e = error.value;
+  if (!e) return null;
+  const stopPos = e.match(/^第 (\d+) 个色标的位置/);
+  if (stopPos) return { kind: 'stop', index: Number(stopPos[1]) - 1, field: 'position' };
+  const stopColor = e.match(/^第 (\d+) 个色标：/);
+  if (stopColor) return { kind: 'stop', index: Number(stopColor[1]) - 1, field: 'color' };
+  if (e.startsWith('角度') || e.startsWith('起始角度')) return { kind: 'angle' };
+  return null;
+});
+const errorField = computed(() => (errorTarget.value && errorTarget.value.kind === 'angle' ? 'angle' : ''));
+const errorStopField = (i, field) => {
+  const t = errorTarget.value;
+  return !!(t && t.kind === 'stop' && t.index === i && t.field === field);
+};
 const notes = computed(() => (built.value.ok ? built.value.notes || [] : []));
 const lastGoodCss = ref('');
 watch(built, (v) => { if (v.ok) lastGoodCss.value = v.css; }, { immediate: true });

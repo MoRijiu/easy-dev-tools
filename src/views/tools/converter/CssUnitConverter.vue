@@ -5,7 +5,7 @@
     <div class="tool-container">
       <div class="row">
         <label>CSS 长度
-          <input v-model="input" type="text" placeholder="如 16px / 1.5rem / 2vw" aria-label="CSS 长度输入" @keyup.enter="analyze" />
+          <input v-model="input" type="text" placeholder="如 16px / 1.5rem / 2vw" aria-label="CSS 长度输入" :aria-invalid="error && !errorCtxField ? 'true' : undefined" :aria-describedby="error && !errorCtxField ? 'css-unit-error' : undefined" @keyup.enter="analyze" />
         </label>
         <label class="unit-label">无单位时按
           <select v-model="defaultUnit" aria-label="默认单位"><option v-for="u in unitSymbols" :key="u" :value="u">{{ u }}</option></select>
@@ -15,13 +15,13 @@
       </div>
       <div class="examples"><span>示例：</span><button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button></div>
       <div class="ctx-row">
-        <label>根字号 rem <input v-model="ctxForm.rootFontSize" type="text" inputmode="decimal" aria-label="根字号" @change="analyze" /></label>
-        <label>父字号 em <input v-model="ctxForm.parentFontSize" type="text" inputmode="decimal" aria-label="父元素字号" @change="analyze" /></label>
-        <label>% 基准 <input v-model="ctxForm.percentBase" type="text" inputmode="decimal" aria-label="百分比基准" @change="analyze" /></label>
-        <label>视口宽 <input v-model="ctxForm.viewportWidth" type="text" inputmode="decimal" aria-label="视口宽度" @change="analyze" /></label>
-        <label>视口高 <input v-model="ctxForm.viewportHeight" type="text" inputmode="decimal" aria-label="视口高度" @change="analyze" /></label>
+        <label>根字号 rem <input v-model="ctxForm.rootFontSize" type="text" inputmode="decimal" aria-label="根字号" :aria-invalid="errorCtxField === 'rootFontSize' ? 'true' : undefined" :aria-describedby="errorCtxField === 'rootFontSize' ? 'css-unit-error' : undefined" @change="analyze" /></label>
+        <label>父字号 em <input v-model="ctxForm.parentFontSize" type="text" inputmode="decimal" aria-label="父元素字号" :aria-invalid="errorCtxField === 'parentFontSize' ? 'true' : undefined" :aria-describedby="errorCtxField === 'parentFontSize' ? 'css-unit-error' : undefined" @change="analyze" /></label>
+        <label>% 基准 <input v-model="ctxForm.percentBase" type="text" inputmode="decimal" aria-label="百分比基准" :aria-invalid="errorCtxField === 'percentBase' ? 'true' : undefined" :aria-describedby="errorCtxField === 'percentBase' ? 'css-unit-error' : undefined" @change="analyze" /></label>
+        <label>视口宽 <input v-model="ctxForm.viewportWidth" type="text" inputmode="decimal" aria-label="视口宽度" :aria-invalid="errorCtxField === 'viewportWidth' ? 'true' : undefined" :aria-describedby="errorCtxField === 'viewportWidth' ? 'css-unit-error' : undefined" @change="analyze" /></label>
+        <label>视口高 <input v-model="ctxForm.viewportHeight" type="text" inputmode="decimal" aria-label="视口高度" :aria-invalid="errorCtxField === 'viewportHeight' ? 'true' : undefined" :aria-describedby="errorCtxField === 'viewportHeight' ? 'css-unit-error' : undefined" @change="analyze" /></label>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="css-unit-error" class="error" role="alert">{{ error }}</p>
       <p v-if="notes.length" class="note" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>
@@ -65,6 +65,12 @@ const input = ref('16px'); const defaultUnit = ref('px');
 const ctxForm = reactive({ ...DEFAULT_CONTEXT });
 const parsed = ref(null); const activeCtx = ref({ ...DEFAULT_CONTEXT }); const error = ref(''); const notes = ref([]);
 const statusMessage = ref(''); const statusType = ref('');
+const CTX_LABELS = { rootFontSize: '根字号', parentFontSize: '父元素字号', percentBase: '百分比基准', viewportWidth: '视口宽度', viewportHeight: '视口高度' };
+const errorCtxField = computed(() => {
+  if (!error.value) return '';
+  for (const [key, label] of Object.entries(CTX_LABELS)) if (error.value.startsWith(label)) return key;
+  return '';
+});
 const rows = computed(() => (parsed.value ? convertCssLength(parsed.value, activeCtx.value) : []));
 const summary = computed(() => buildCssSummary(parsed.value, rows.value, activeCtx.value));
 const analyze = () => {
