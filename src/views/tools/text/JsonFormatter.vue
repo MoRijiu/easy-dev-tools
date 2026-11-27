@@ -28,6 +28,12 @@
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputJson">
           <span class="icon">📋</span> 复制结果
         </button>
+        <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!outputJson">
+          结果作输入
+        </button>
+        <button @click="downloadOutput" class="btn btn-secondary" :disabled="!outputJson">
+          下载 .json
+        </button>
 
         <div class="options">
           <label>
@@ -41,6 +47,20 @@
 
       <!-- 状态信息 -->
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
+
+      <!-- 错误定位详情 -->
+      <div v-if="errorDetail" class="error-detail">
+        <div class="error-detail-head">
+          <span v-if="errorDetail.line != null">第 {{ errorDetail.line }} 行第 {{ errorDetail.column }} 列（字符 {{ errorDetail.position }}）</span>
+          <button class="mini-btn" @click="copyError">复制诊断</button>
+        </div>
+        <pre v-if="errorDetail.lineText" class="error-line">{{ errorDetail.lineText }}
+{{ ' '.repeat(Math.max(0, errorDetail.column - 1)) }}↑ 出错位置</pre>
+        <p v-for="(hint, i) in errorDetail.hints" :key="i" class="error-hint">可能原因：{{ hint }}</p>
+      </div>
+
+      <!-- 结构统计 -->
+      <p v-if="statsSummary" class="stats-line">{{ statsSummary }}</p>
 
       <!-- 编辑器区域 -->
       <ToolEditorLayout>
@@ -89,6 +109,7 @@ import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
+import { parseJsonDetailed, sortObjectKeys, jsonStats, buildJsonStatsSummary, buildJsonErrorSummary } from '@/utils/jsonFormat.js';
 
 // 功能特点数据
 const features = [
@@ -122,7 +143,7 @@ const faqs = [
   },
   {
     question: '如何修复 JSON 语法错误？',
-    answer: '常见错误包括：缺少引号、多余的逗号、括号不匹配等。使用验证功能可以快速定位错误位置。'
+    answer: '常见错误包括：缺少引号、多余的尾随逗号、括号不匹配等。本工具会在报错时标出第几行第几列、展示出错行并给出最可能的原因提示，照着改即可；诊断信息还能一键复制发给同事。'
   },
   {
     question: '是否支持大文件？',
@@ -153,6 +174,8 @@ const inputJson = ref('');
 const outputJson = ref('');
 const statusMessage = ref('');
 const statusType = ref(''); // 'success', 'error', 'info'
+const errorDetail = ref(null);
+const statsSummary = ref('');
 const options = ref({
   indent: 2,
   sortKeys: false
@@ -163,6 +186,7 @@ let debounceTimer = null;
 // 输入变化时的处理
 const onInputChange = () => {
   statusMessage.value = '';
+  errorDetail.value = null;
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     if (inputJson.value.trim()) {
@@ -171,19 +195,25 @@ const onInputChange = () => {
   }, 1000);
 };
 
+// 统一处理解析失败：状态行 + 定位详情面板
+const applyError = (error) => {
+  statusMessage.value = `✗ JSON 格式错误: ${error.message}`;
+  statusType.value = 'error';
+  errorDetail.value = error;
+  statsSummary.value = '';
+  outputJson.value = '';
+};
+
 // 格式化 JSON
 const formatJson = () => {
-  try {
-    const parsed = JSON.parse(inputJson.value);
-    const sorted = options.value.sortKeys ? sortObjectKeys(parsed) : parsed;
-    outputJson.value = JSON.stringify(sorted, null, options.value.indent);
-    statusMessage.value = '✓ JSON 格式化成功！';
-    statusType.value = 'success';
-  } catch (error) {
-    statusMessage.value = `✗ JSON 格式错误: ${error.message}`;
-    statusType.value = 'error';
-    outputJson.value = '';
-  }
+  const result = parseJsonDetailed(inputJson.value);
+  if (!result.ok) { applyError(result.error); return; }
+  const sorted = options.value.sortKeys ? sortObjectKeys(result.value) : result.value;
+  outputJson.value = JSON.stringify(sorted, null, options.value.indent);
+  errorDetail.value = null;
+  statsSummary.value = buildJsonStatsSummary(jsonStats(result.value));
+  statusMessage.value = '✓ JSON 格式化成功！';
+  statusType.value = 'success';
 };
 
 // 使用示例
@@ -194,30 +224,25 @@ const useExample = (example) => {
 
 // 压缩 JSON
 const minifyJson = () => {
-  try {
-    const parsed = JSON.parse(inputJson.value);
-    outputJson.value = JSON.stringify(parsed);
-    statusMessage.value = `✓ JSON 压缩成功！从 ${inputJson.value.length} 字符压缩到 ${outputJson.value.length} 字符`;
-    statusType.value = 'success';
-  } catch (error) {
-    statusMessage.value = `✗ JSON 格式错误: ${error.message}`;
-    statusType.value = 'error';
-    outputJson.value = '';
-  }
+  const result = parseJsonDetailed(inputJson.value);
+  if (!result.ok) { applyError(result.error); return; }
+  outputJson.value = JSON.stringify(result.value);
+  errorDetail.value = null;
+  statsSummary.value = buildJsonStatsSummary(jsonStats(result.value));
+  const ratio = inputJson.value.length ? Math.round((1 - outputJson.value.length / inputJson.value.length) * 100) : 0;
+  statusMessage.value = `✓ JSON 压缩成功！从 ${inputJson.value.length} 字符压缩到 ${outputJson.value.length} 字符（-${ratio}%）`;
+  statusType.value = 'success';
 };
 
 // 验证 JSON
 const validateJson = () => {
-  try {
-    JSON.parse(inputJson.value);
-    statusMessage.value = '✓ JSON 格式正确！';
-    statusType.value = 'success';
-    return true;
-  } catch (error) {
-    statusMessage.value = `✗ JSON 格式错误: ${error.message}`;
-    statusType.value = 'error';
-    return false;
-  }
+  const result = parseJsonDetailed(inputJson.value);
+  if (!result.ok) { applyError(result.error); return false; }
+  errorDetail.value = null;
+  statsSummary.value = buildJsonStatsSummary(jsonStats(result.value));
+  statusMessage.value = '✓ JSON 格式正确！';
+  statusType.value = 'success';
+  return true;
 };
 
 // 清空所有内容
@@ -225,6 +250,40 @@ const clearAll = () => {
   inputJson.value = '';
   outputJson.value = '';
   statusMessage.value = '';
+  errorDetail.value = null;
+  statsSummary.value = '';
+};
+
+// 结果作输入（便于二次格式化/改缩进/排序）
+const useOutputAsInput = () => {
+  if (!outputJson.value) return;
+  inputJson.value = outputJson.value;
+  statusMessage.value = '已把输出填回输入框';
+  statusType.value = 'info';
+};
+
+// 下载输出为 .json 文件（纯本地生成）
+const downloadOutput = () => {
+  if (!outputJson.value) return;
+  const blob = new Blob([outputJson.value], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'formatted.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// 复制错误诊断（原文行 + 位置 + 可能原因）
+const copyError = async () => {
+  try {
+    await navigator.clipboard.writeText(buildJsonErrorSummary(errorDetail.value));
+    statusMessage.value = '✓ 诊断信息已复制';
+    statusType.value = 'success';
+  } catch {
+    statusMessage.value = '✗ 复制失败，请手动复制';
+    statusType.value = 'error';
+  }
 };
 
 // 复制输出结果
@@ -240,21 +299,6 @@ const copyOutput = async () => {
     statusMessage.value = '✗ 复制失败，请手动复制';
     statusType.value = 'error';
   }
-};
-
-// 递归排序对象键
-const sortObjectKeys = (obj) => {
-  if (Array.isArray(obj)) {
-    return obj.map(item => sortObjectKeys(item));
-  } else if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj)
-      .sort()
-      .reduce((sorted, key) => {
-        sorted[key] = sortObjectKeys(obj[key]);
-        return sorted;
-      }, {});
-  }
-  return obj;
 };
 
 // 语法高亮
@@ -322,6 +366,57 @@ h1 {
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-detail {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--danger-border, #f3c2c2);
+  background: var(--danger-soft, #fdf2f2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.error-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--danger-text, #b42318);
+}
+
+.mini-btn {
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-1);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.error-line {
+  margin: 8px 0 0;
+  padding: 8px;
+  background: var(--surface);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-1);
+}
+
+.error-hint {
+  margin: 6px 0 0;
+  color: var(--text-2);
+}
+
+.stats-line {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-2);
 }
 
 /* 语法高亮样式 */
