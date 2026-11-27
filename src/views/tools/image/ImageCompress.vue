@@ -79,6 +79,7 @@
                   class="action-btn compress-btn"
                   @click="compressImage(index)"
                   :disabled="img.compressing"
+                  :aria-label="`压缩 ${img.name}`"
                 >
                   {{ img.compressing ? '压缩中...' : (img.compressedBlob ? '重新压缩' : '压缩') }}
                 </button>
@@ -86,6 +87,7 @@
                   class="action-btn download-btn"
                   @click="downloadImage(index)"
                   :disabled="!img.compressedBlob"
+                  :aria-label="`下载 ${img.name} 的压缩结果`"
                 >
                   下载
               </button>

@@ -77,6 +77,7 @@
                   class="action-btn convert-btn"
                   @click="convertImage(index)"
                   :disabled="img.converting"
+                  :aria-label="`转换 ${img.name}`"
                 >
                   {{ img.converting ? '转换中...' : (img.convertedBlob ? '重新转换' : '转换') }}
                 </button>
@@ -84,6 +85,7 @@
                   class="action-btn download-btn"
                   @click="downloadImage(index)"
                   :disabled="!img.convertedBlob"
+                  :aria-label="`下载 ${img.name} 的转换结果`"
                 >
                   下载
                 </button>
