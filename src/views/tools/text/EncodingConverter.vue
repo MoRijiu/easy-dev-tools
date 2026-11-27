@@ -23,7 +23,7 @@
       </div>
       <p class="hint">{{ currentFormat.hint }}</p>
       <div class="panels">
-        <ToolEditorPanel :title="mode === 'encode' ? '输入文本' : '输入编码'" :info="input ? `${input.length} 字符` : ''">
+        <ToolEditorPanel :title="mode === 'encode' ? '输入文本' : '输入编码'" :info="input ? `${[...input].length} 字符` : ''">
           <textarea v-model="input" class="ta" rows="7" spellcheck="false" :placeholder="mode === 'encode' ? '输入要编码的文本，如 hello 世界' : '粘贴编码字符串，如 68656c6c6f'" aria-label="输入"></textarea>
         </ToolEditorPanel>
         <ToolEditorPanel :title="mode === 'encode' ? '编码结果' : '解码结果'" :info="info">
@@ -42,7 +42,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -59,34 +59,37 @@ const features = [
 const usageSteps = ['选择方向（编码/解码）与格式', '输入内容，结果实时生成', '编码时下方一屏对照可直接切换格式', '点「复制结果」带走，或「结果作输入」继续转换'];
 const faqs = [
   { question: 'Base58 为什么没有 0、O、I、l？', answer: 'Base58（Bitcoin 字母表）特意去掉这四个易混字符，避免手抄与肉眼辨认出错；解码遇到它们会明确报错。' },
-  { question: 'Base32 的 = 是什么？', answer: '是填充符：输出长度补齐到 8 的倍数。解码时可省略结尾填充，本工具会自动处理。' },
-  { question: 'Hex 解码粘贴 0x 前缀或带空格可以吗？', answer: '可以，0x 前缀、空格与下划线分隔都会被自动忽略。' },
-  { question: '解码报错「不是合法的 UTF-8」是什么意思？', answer: '说明解出的字节不是文本（可能是二进制数据），或编码格式选错了，本工具面向文本互转。' }
+  { question: 'Base32 的 = 是什么？', answer: '是填充符：输出长度补齐到 8 的倍数。解码时可省略结尾填充；带填充时个数必须与数据长度匹配，且结尾多余比特须为 0（规范编码），不对会点名报错。' },
+  { question: 'Hex 解码粘贴 0x 前缀或带空格可以吗？', answer: '可以，开头的 0x 前缀与空格会被忽略；下划线只能夹在两个数字之间（如 68_65），开头、结尾或连写的下划线会定位报错。报错位置按原文计算（含前缀与空格）。' },
+  { question: '解码报错「不是合法的 UTF-8」是什么意思？', answer: '说明解出的字节不是文本（可能是二进制数据），或编码格式选错了，本工具面向文本互转。' },
+  { question: '全角字符能解码吗？', answer: '能。中文输入法下粘来的全角字母数字（如 ６８６５、ＮＢＳＷ）会自动转半角再解码，三种格式都支持。' },
+  { question: '输入长度有限制吗？', answer: 'Hex/Base32 上限 100 万字符；Base58 是平方级换算，上限 2 万字符（编码按 UTF-8 字节计），超限会点名报错而不是把页面算死。出错时保留上一次成功结果，不会清空。' }
 ];
 const input = ref(''); const mode = ref('encode'); const format = ref('hex');
 const hexUpper = ref(false); const hexSpaced = ref(false);
 const statusMessage = ref(''); const statusType = ref('');
 const currentFormat = computed(() => ENCODING_FORMATS.find((f) => f.id === format.value));
-const result = computed(() => {
-  if (!input.value) return { output: '', error: '' };
+const output = ref(''); const error = ref('');
+watch([input, mode, format, hexUpper, hexSpaced], () => {
+  if (!input.value) { output.value = ''; error.value = ''; return; }
   try {
-    const out = mode.value === 'encode'
+    output.value = mode.value === 'encode'
       ? encodeText(input.value, format.value, { uppercase: hexUpper.value, spaced: hexSpaced.value })
       : decodeText(input.value, format.value);
-    return { output: out, error: '' };
-  } catch (e) { return { output: '', error: e.message }; }
-});
-const output = computed(() => result.value.output);
-const error = computed(() => result.value.error);
+    error.value = '';
+  } catch (e) { error.value = e.message; /* 出错保留旧结果 */ }
+}, { immediate: true });
 const info = computed(() => {
   if (!input.value || error.value) return '';
   if (mode.value === 'encode') return `${textToBytes(input.value).length} 字节 → ${output.value.length} 字符`;
   return `解出 ${textToBytes(output.value).length} 字节`;
 });
 const allRows = computed(() => {
-  if (mode.value !== 'encode' || !input.value) return [];
-  const all = encodeAll(input.value, { uppercase: hexUpper.value, spaced: hexSpaced.value });
-  return ENCODING_FORMATS.map((f) => ({ id: f.id, name: f.name, value: all[f.id] }));
+  if (mode.value !== 'encode' || !input.value || error.value) return [];
+  try {
+    const all = encodeAll(input.value, { uppercase: hexUpper.value, spaced: hexSpaced.value });
+    return ENCODING_FORMATS.map((f) => ({ id: f.id, name: f.name, value: all[f.id] }));
+  } catch { return []; }
 });
 const pickFormat = (id) => { format.value = id; };
 const loadExample = () => { input.value = mode.value === 'encode' ? 'hello 世界' : encodeText('hello 世界', format.value, { uppercase: hexUpper.value, spaced: hexSpaced.value }); };
@@ -98,7 +101,7 @@ const copyOutput = async () => { try { await navigator.clipboard.writeText(outpu
 .enc-converter { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
