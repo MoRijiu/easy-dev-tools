@@ -31,6 +31,7 @@
         <h2>版本比较</h2>
         <div class="row">
           <label class="grow">版本 A <input v-model="versionA" placeholder="如 1.0.0-alpha" aria-label="版本 A" /></label>
+          <button type="button" class="swap-btn" @click="swapCompare" title="交换 A / B">⇄ 交换</button>
           <label class="grow">版本 B <input v-model="versionB" placeholder="如 1.0.0" aria-label="版本 B" /></label>
         </div>
         <p v-if="compareError" class="error">✗ {{ compareError }}</p>
@@ -74,7 +75,9 @@ const usageSteps = [
 const faqs = [
   { question: '1.0.0-alpha 和 1.0.0 谁更新？', answer: '1.0.0 更新。带预发布标识的版本优先级低于同号正式版：1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0-beta < 1.0.0。' },
   { question: '^1.2.3 和 ~1.2.3 有什么区别？', answer: '^1.2.3 允许次版本与修订变化（>=1.2.3 <2.0.0）；~1.2.3 只允许修订变化（>=1.2.3 <1.3.0）。主版本为 0 时 ^ 的范围会收紧到次版本。' },
-  { question: '构建元数据（+build）影响比较吗？', answer: '不影响。SemVer 规定构建元数据不参与优先级，1.0.0+build1 与 1.0.0+build2 优先级相等。' }
+  { question: '构建元数据（+build）影响比较吗？', answer: '不影响。SemVer 规定构建元数据不参与优先级，1.0.0+build1 与 1.0.0+build2 优先级相等。' },
+  { question: '为什么 ^1.2.3 不放行 1.5.0-beta？', answer: '这是 npm 的预发布门控规则：带预发布标识的版本，只有当范围里有某个比较器同样带预发布标识、且主/次/修订三段与它相同时才算满足。所以 ^1.2.3 只放行正式版，想放行 1.2.3 的预发布要用 ^1.2.3-beta 这类带预发布的下限。' },
+  { question: '版本号段特别大时会怎样？', answer: '主/次/修订超过 JavaScript 安全整数（9007199254740991）时无法精确比较，本工具会点名报错而不是给出可能错误的结果；预发布里的纯数字标识符则按任意大整数精确比较。中文输入法打出的全角数字（如 １.２.３）会自动转半角再解析。' }
 ];
 const versionInput = ref(''); const versionA = ref(''); const versionB = ref('');
 const rangeVersion = ref(''); const rangeExpr = ref('');
@@ -107,6 +110,7 @@ const rangeError = computed(() => {
   if (!rangeVersion.value.trim() || !rangeExpr.value.trim()) return '';
   try { satisfiesRange(rangeVersion.value, rangeExpr.value); return ''; } catch (e) { return e.message; }
 });
+const swapCompare = () => { const t = versionA.value; versionA.value = versionB.value; versionB.value = t; };
 const loadExample = () => { versionInput.value = '1.2.3-rc.1+build.5'; versionA.value = '1.0.0-beta.11'; versionB.value = '1.0.0-rc.1'; rangeVersion.value = '1.4.2'; rangeExpr.value = '^1.2.3'; process(); };
 const copySummary = async () => { if (!parsed.value) return; try { await navigator.clipboard.writeText(buildSemverSummary(parsed.value)); statusMessage.value = '✓ 已复制解析摘要'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
 loadExample();
@@ -115,7 +119,7 @@ loadExample();
 .semver-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .block { margin-bottom: 20px; } .block h2 { font-size: 16px; color: var(--text-strong); margin: 0 0 10px; }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
@@ -126,7 +130,7 @@ input { padding: 8px; border: 1px solid var(--border); border-radius: 8px; backg
 .num { font-size: 20px; font-weight: 700; color: var(--text-strong); word-break: break-all; } .num.small { font-size: 15px; } .label { font-size: 12px; color: var(--text-2); }
 .error { color: var(--danger, #d33); font-size: 13px; margin-top: 8px; }
 .bump { margin-top: 12px; align-items: center; } .bump-label { font-size: 13px; color: var(--text-2); }
-.bump button, .quick button { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
+.bump button, .quick button, .swap-btn { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; white-space: nowrap; }
 .quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 .result-line { margin-top: 12px; font-size: 14px; color: var(--text); background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .grid { grid-template-columns: repeat(2, 1fr); } }
