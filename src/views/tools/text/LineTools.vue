@@ -10,7 +10,7 @@
         <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <div class="options" aria-label="处理选项">
+      <div class="options" role="group" aria-label="处理选项">
         <label>修剪
           <select v-model="options.trim" @change="process">
             <option value="both">首尾空格</option>

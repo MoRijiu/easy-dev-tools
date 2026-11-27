@@ -17,7 +17,7 @@
     
     <section class="tool-content">
       <div class="placeholder">
-        <p aria-label="工具开发中">🚧 工具开发中...</p>
+        <p>🚧 工具开发中...</p>
         <p class="hint">此工具页面即将上线</p>
       </div>
     </section>

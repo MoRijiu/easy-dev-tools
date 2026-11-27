@@ -10,7 +10,7 @@
         <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <div class="options" aria-label="格式化选项">
+      <div class="options" role="group" aria-label="格式化选项">
         <label>模式
           <select v-model="mode" @change="process">
             <option value="format">美化</option>

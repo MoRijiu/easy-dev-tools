@@ -11,7 +11,7 @@
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="panes">
         <textarea v-model="inputText" class="text-input" placeholder="粘贴或输入文本，右侧实时统计…" spellcheck="false" aria-label="输入文本" @input="process"></textarea>
-        <div class="panel" aria-label="统计结果">
+        <div class="panel">
           <div v-if="stats" class="grid">
             <div class="card"><span class="num">{{ fmt(stats.chars) }}</span><span class="label">字符数</span></div>
             <div class="card"><span class="num">{{ fmt(stats.charsNoSpaces) }}</span><span class="label">不含空白</span></div>
