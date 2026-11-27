@@ -14,6 +14,9 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(summary)">复制摘要</button>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功校验的结果。</p>
+      <p v-for="note in (result ? result.notes || [] : [])" :key="note" class="note">{{ note }}</p>
+      <p v-for="w in (result ? result.warnings || [] : [])" :key="w" class="warn">{{ w }}</p>
       <template v-if="result">
         <p class="verdict" :class="result.valid ? 'pass' : 'fail'">{{ result.valid ? '✓ Luhn 校验通过' : '✗ Luhn 校验不通过' }}</p>
         <table class="kv">
@@ -36,6 +39,8 @@
         <input v-model="payload" type="text" inputmode="numeric" spellcheck="false" placeholder="如：7992739871" aria-label="载荷号码" />
       </label>
       <p v-if="payloadError" class="error">{{ payloadError }}</p>
+      <p v-if="payloadError && completed" class="muted">当前载荷有误，下面保留的是上一次成功生成的结果。</p>
+      <p v-for="note in (completed ? completed.notes || [] : [])" :key="note" class="note">{{ note }}</p>
       <p v-if="completed" class="complete-row">
         校验位 <strong class="mono">{{ completed.checkDigit }}</strong>，完整号码
         <strong class="mono">{{ completed.complete }}</strong>
@@ -48,7 +53,7 @@
         <textarea v-model="batch" rows="4" spellcheck="false" placeholder="每行一个号码" aria-label="批量校验输入"></textarea>
       </label>
       <template v-if="batchResult">
-        <p class="summary">共 {{ batchResult.total }} 个 · 通过 {{ batchResult.validCount }} · 不通过 {{ batchResult.invalidCount }}</p>
+        <p class="summary">共 {{ batchResult.total }} 个 · 通过 {{ batchResult.validCount }} · 不通过 {{ batchResult.invalidCount }}<span v-if="batchResult.errorCount"> · 格式错误 {{ batchResult.errorCount }}</span></p>
         <ul class="batch-list">
           <li v-for="r in batchResult.results" :key="r.line">
             <span class="mono">{{ r.raw }}</span>
@@ -57,7 +62,8 @@
           </li>
         </ul>
       </template>
-      <p v-else-if="batchError" class="error">{{ batchError }}</p>
+      <p v-if="batchError" class="error">{{ batchError }}</p>
+      <p v-if="batchError && batchResult" class="muted">当前批量输入有误，上面保留的是上一次成功校验的结果。</p>
 
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <ToolFeatures :features="features" />
@@ -67,7 +73,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -83,21 +89,30 @@ const usageSteps = ['粘贴号码（空格、连字符分组可直接粘贴）',
 const faqs = [
   { question: 'Luhn 校验通过说明卡号是真的吗？', answer: '不能。Luhn 只能发现一位抄错或相邻两位抄反这类录入错误，校验通过只说明号码符合编号规则，不代表卡真实存在、有余额或能支付。' },
   { question: '哪些号码用 Luhn 校验？', answer: '主流银行卡（Visa、Mastercard、银联、运通、JCB 等）、移动设备 IMEI、部分会员卡与条码编号。中国居民身份证用的是 ISO 7064 MOD 11-2 校验，不是 Luhn。' },
-  { question: '算法怎么算？', answer: '从右往左，校验位（最右一位）不变，其后隔一位翻倍，翻倍结果大于 9 时减 9（等同于各位相加），全部相加后能被 10 整除即通过。' }
+  { question: '算法怎么算？', answer: '从右往左，校验位（最右一位）不变，其后隔一位翻倍，翻倍结果大于 9 时减 9（等同于各位相加），全部相加后能被 10 整除即通过。' },
+  { question: '粘贴时要注意什么？', answer: '全角数字会自动按半角处理并给出提示；空格、换行、不换行空格、全角空格和连字符（包括 – / —）都可作分组分隔直接粘贴。字母等其他字符会按 Unicode 码点定位到第几个报错。批量校验中格式错误与 Luhn 不通过分开计数，孤 CR 换行也会分行。' },
+  { question: '生成校验位时载荷可以多短、多长？', answer: '载荷不含校验位，1 位即可计算；完整号码上限 32 位，所以载荷最长 31 位，生成的完整号码能直接送回上方校验。' },
+  { question: '输错了为什么还显示上一次的结果？', answer: '这是故意的：报错时页面保留上一次成功的结果并给出提示，方便对照修改，不会一输错就清空。清空输入会连保留结果一起清掉。单次输入上限 10 万字符，批量上限 1 万行。' }
 ];
 const input = ref('4111 1111 1111 1111');
 const payload = ref('7992739871');
 const batch = ref('');
 const statusMessage = ref(''); const statusType = ref('');
 const parsed = computed(() => (!input.value ? null : analyzeNumber(input.value)));
-const result = computed(() => (parsed.value && parsed.value.ok ? parsed.value : null));
+const lastValid = ref(null);
+watch(parsed, (v) => { if (v && v.ok) lastValid.value = v; }, { immediate: true });
+const result = computed(() => (parsed.value && parsed.value.ok ? parsed.value : (parsed.value ? lastValid.value : null)));
 const error = computed(() => (parsed.value && !parsed.value.ok ? parsed.value.error : ''));
 const summary = computed(() => buildSummary(result.value));
 const completedParsed = computed(() => (!payload.value ? null : computeCheckDigit(payload.value)));
-const completed = computed(() => (completedParsed.value && completedParsed.value.ok ? completedParsed.value : null));
+const lastCompleted = ref(null);
+watch(completedParsed, (v) => { if (v && v.ok) lastCompleted.value = v; }, { immediate: true });
+const completed = computed(() => (completedParsed.value && completedParsed.value.ok ? completedParsed.value : (completedParsed.value ? lastCompleted.value : null)));
 const payloadError = computed(() => (completedParsed.value && !completedParsed.value.ok ? completedParsed.value.error : ''));
 const batchParsed = computed(() => (!batch.value ? null : validateBatch(batch.value)));
-const batchResult = computed(() => (batchParsed.value && batchParsed.value.ok ? batchParsed.value : null));
+const lastBatch = ref(null);
+watch(batchParsed, (v) => { if (v && v.ok) lastBatch.value = v; }, { immediate: true });
+const batchResult = computed(() => (batchParsed.value && batchParsed.value.ok ? batchParsed.value : (batchParsed.value ? lastBatch.value : null)));
 const batchError = computed(() => (batchParsed.value && !batchParsed.value.ok ? batchParsed.value.error : ''));
 function loadExample(v) { input.value = v; }
 async function copyText(text) {
@@ -110,7 +125,7 @@ async function copyText(text) {
 .luhn-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .section-title { font-size: 1.1rem; color: var(--text-strong); margin: 22px 0 10px; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
@@ -121,6 +136,9 @@ input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger, #dc2626); font-size: 14px; }
+.muted { color: var(--text-2); font-size: 13px; }
+.note { color: var(--text-2); font-size: 13px; }
+.warn { color: var(--warning, #b45309); font-size: 13px; }
 .verdict { font-size: 15px; font-weight: 600; margin: 8px 0; }
 .verdict.pass, .pass-text { color: var(--success, #16a34a); }
 .verdict.fail, .fail-text { color: var(--danger, #dc2626); }
