@@ -117,6 +117,7 @@
 
 :deep(.options) {
   display: flex;
+  flex-wrap: wrap;
   gap: 15px;
   margin-left: auto;
   align-items: center;

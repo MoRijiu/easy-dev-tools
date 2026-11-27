@@ -458,6 +458,8 @@ h1 {
 .hsl-inputs input,
 .hsv-inputs input,
 .cmyk-inputs input {
+  flex: 1;
+  min-width: 0;
   width: 70px;
   padding: 10px;
   border: 2px solid var(--border);

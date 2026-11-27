@@ -133,8 +133,9 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
 .row label, .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
 .block { margin-bottom: 10px; }
-.secret-wrap { display: flex; gap: 6px; }
-.secret-wrap input { flex: 1; }
+.secret-wrap { display: flex; gap: 6px; max-width: 100%; }
+.secret-wrap input { flex: 1; min-width: 0; }
+.secret-wrap select { flex: none; max-width: 45%; }
 input, select, textarea { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; box-sizing: border-box; }
 textarea { width: 100%; font-family: monospace; font-size: 13px; resize: vertical; }
 .mini { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; white-space: nowrap; }

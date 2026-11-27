@@ -104,8 +104,8 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
-.options label { font-size: 13px; color: var(--text-2); display: inline-flex; gap: 6px; align-items: center; }
-.options select, .options .dt { padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
+.options label { font-size: 13px; color: var(--text-2); display: inline-flex; gap: 6px; align-items: center; max-width: 100%; min-width: 0; }
+.options select, .options .dt { padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; min-width: 0; max-width: 100%; }
 .options .dt { width: 160px; font-family: monospace; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
