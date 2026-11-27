@@ -20,11 +20,13 @@
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample">示例</button>
+        <button class="chip" type="button" @click="loadCsvExample">CSV 示例</button>
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.markdown)">复制 Markdown</button>
         <span class="muted">输入后实时生成</span>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="result && result.notes && result.notes.length" class="note">{{ result.notes.join('；') }}</p>
       <template v-if="result">
         <label class="block">Markdown 输出
           <textarea :value="result.markdown" rows="7" readonly spellcheck="false" aria-label="Markdown 输出"></textarea>
@@ -39,7 +41,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -54,19 +56,25 @@ const features = [
 const usageSteps = ['从 Excel 复制区域，或手写 Tab / 逗号分隔的内容粘贴进来', '按需勾选首行表头、补齐对齐与对齐方式，输出实时更新', '点「复制 Markdown」粘贴到 README、文档或笔记里'];
 const faqs = [
   { question: '从 Excel 复制过来是什么格式？', answer: '剪贴板里是 Tab 分隔的文本（TSV），本工具自动识别，不需要先另存为 CSV。含逗号的单元格若来自 CSV 文件，请保留引号，引号内的逗号不会被误拆。' },
-  { question: '「自动」对齐是怎么判断的？', answer: '某一列的数据行全部是数字（允许千分位、百分号与正负号）时该列右对齐，其余列左对齐，与常见的表格阅读习惯一致。' },
-  { question: '补齐对齐和紧凑模式有什么区别？', answer: '渲染效果完全一样。补齐模式会把源码用空格补到等宽，适合在源码里直接读；紧凑模式每行最短，适合表格很大时减小体积。' }
+  { question: '「自动」对齐是怎么判断的？', answer: '某一列的数据行全部是数字（允许千分位、百分号、正负号、小数与科学计数法如 1e5）时该列右对齐，其余列左对齐，与常见的表格阅读习惯一致。粘贴已有 Markdown 表格时，分隔行里写好的 :---:、---: 对齐会被保留。' },
+  { question: '补齐对齐和紧凑模式有什么区别？', answer: '渲染效果完全一样。补齐模式会把源码用空格补到等宽，适合在源码里直接读；紧凑模式每行最短，适合表格很大时减小体积。' },
+  { question: '粘贴内容有什么讲究？', answer: 'CSV 引号内的换行会被拼回同一单元格（输出为 <br>）；没有英文分隔符时，全角逗号/竖线（，｜）也能当分隔符；报错行号按原文物理行计，空行不影响定位。' },
+  { question: '改错了为什么旧结果还在？', answer: '输入暂时不合法时保留上一次成功生成的结果，方便对照着改；修正输入后会自动刷新，清空输入则会一并清掉。' }
 ];
 const EXAMPLE = '工具\t分类\t工具数\n文本处理\ttext\t21\n格式转换\tconverter\t23\n生成器\tgenerator\t6';
+const CSV_EXAMPLE = '名称,说明,价格\n"键盘, 87 键",紧凑布局，适合桌面,299\n鼠标,"支持 2.4G / 蓝牙\n双模连接",159';
 const input = ref(EXAMPLE);
 const hasHeader = ref(true);
 const pretty = ref(true);
 const align = ref('auto');
 const statusMessage = ref(''); const statusType = ref('');
 const parsed = computed(() => (!input.value ? null : generateMarkdownTable(input.value, { hasHeader: hasHeader.value, pretty: pretty.value, align: align.value })));
-const result = computed(() => (parsed.value && parsed.value.ok ? parsed.value : null));
+const lastResult = ref(null);
+watch(parsed, (p) => { if (p && p.ok) lastResult.value = p; else if (!p) lastResult.value = null; }, { immediate: true });
+const result = computed(() => lastResult.value);
 const error = computed(() => (parsed.value && !parsed.value.ok ? parsed.value.error : ''));
 function loadExample() { input.value = EXAMPLE; }
+function loadCsvExample() { input.value = CSV_EXAMPLE; }
 function clearAll() { input.value = ''; }
 async function copyText(text) {
   try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
@@ -77,7 +85,7 @@ async function copyText(text) {
 .md-table { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .options .check { display: inline-flex; gap: 4px; align-items: center; font-size: 13px; color: var(--text-2); }
 .options select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
@@ -89,6 +97,7 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger, #dc2626); font-size: 14px; }
+.note { color: var(--text-2); font-size: 13px; margin: 4px 0; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
