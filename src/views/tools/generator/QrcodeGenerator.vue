@@ -80,19 +80,28 @@
             <h2>🖼️ Logo 设置</h2>
             <div class="logo-section">
               <div class="logo-upload">
-                <label class="logo-upload-btn" :class="{ 'has-logo': logoDataUrl }">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    @change="onLogoUpload"
-                    ref="logoInput"
-                    style="display: none;"
-                  />
-                  <span v-if="!logoDataUrl">📤 上传 Logo</span>
-                  <span v-else>🔄 更换 Logo</span>
-                </label>
-                <button v-if="logoDataUrl" class="btn btn-sm btn-danger" @click="removeLogo">
-                  🗑️ 移除
+                <!-- 上传触发必须是真按钮：label 包 display:none 的 file input 时
+                     label 本身不可聚焦、input 又不在 Tab 顺序里，键盘用户无法上传 Logo（R9aw） -->
+                <button
+                  type="button"
+                  class="logo-upload-btn"
+                  :class="{ 'has-logo': logoDataUrl }"
+                  :aria-label="logoDataUrl ? '更换 Logo 图片' : '上传 Logo 图片'"
+                  @click="logoInput?.click()"
+                >
+                  <span aria-hidden="true">{{ logoDataUrl ? '🔄' : '📤' }}</span>
+                  {{ logoDataUrl ? '更换 Logo' : '上传 Logo' }}
+                </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  aria-label="选择 Logo 图片"
+                  @change="onLogoUpload"
+                  ref="logoInput"
+                  style="display: none;"
+                />
+                <button v-if="logoDataUrl" type="button" class="btn btn-sm btn-danger" aria-label="移除 Logo" @click="removeLogo">
+                  <span aria-hidden="true">🗑️</span> 移除
                 </button>
               </div>
 
@@ -705,9 +714,12 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 10px 20px;
   background: var(--accent-solid);
   color: white;
+  border: none;
+  font: inherit;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
