@@ -16,7 +16,7 @@
         </div>
         <div class="color-picker-wrapper">
           <label>选择颜色:</label>
-          <input 
+          <input aria-label="选择颜色" 
             type="color" 
             v-model="pickerColor"
             @input="onColorPickerChange"
@@ -64,7 +64,7 @@
         <div class="color-input-card">
           <label class="input-label">HEX</label>
           <div class="input-row">
-            <input 
+            <input aria-label="HEX 颜色值" 
               v-model="hexInput" 
               type="text" 
               class="color-input"
@@ -81,9 +81,9 @@
         <div class="color-input-card">
           <label class="input-label">RGB</label>
           <div class="input-row rgb-inputs">
-            <input v-model.number="rgb.r" type="number" min="0" max="255" placeholder="R" @input="onRgbChange" />
-            <input v-model.number="rgb.g" type="number" min="0" max="255" placeholder="G" @input="onRgbChange" />
-            <input v-model.number="rgb.b" type="number" min="0" max="255" placeholder="B" @input="onRgbChange" />
+            <input aria-label="RGB 红色分量 R" v-model.number="rgb.r" type="number" min="0" max="255" placeholder="R" @input="onRgbChange" />
+            <input aria-label="RGB 绿色分量 G" v-model.number="rgb.g" type="number" min="0" max="255" placeholder="G" @input="onRgbChange" />
+            <input aria-label="RGB 蓝色分量 B" v-model.number="rgb.b" type="number" min="0" max="255" placeholder="B" @input="onRgbChange" />
             <button class="copy-btn" aria-label="复制 RGB 值" @click="copyValue(rgbString, 'RGB')">📋</button>
           </div>
           <span class="format-hint">范围: 0-255</span>
@@ -93,9 +93,9 @@
         <div class="color-input-card">
           <label class="input-label">HSL</label>
           <div class="input-row hsl-inputs">
-            <input v-model.number="hsl.h" type="number" min="0" max="360" placeholder="H" @input="onHslChange" />
-            <input v-model.number="hsl.s" type="number" min="0" max="100" placeholder="S" @input="onHslChange" />
-            <input v-model.number="hsl.l" type="number" min="0" max="100" placeholder="L" @input="onHslChange" />
+            <input aria-label="HSL 色相 H" v-model.number="hsl.h" type="number" min="0" max="360" placeholder="H" @input="onHslChange" />
+            <input aria-label="HSL 饱和度 S" v-model.number="hsl.s" type="number" min="0" max="100" placeholder="S" @input="onHslChange" />
+            <input aria-label="HSL 亮度 L" v-model.number="hsl.l" type="number" min="0" max="100" placeholder="L" @input="onHslChange" />
             <button class="copy-btn" aria-label="复制 HSL 值" @click="copyValue(hslString, 'HSL')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, S/L: 0-100%</span>
@@ -105,9 +105,9 @@
         <div class="color-input-card">
           <label class="input-label">HSV / HSB</label>
           <div class="input-row hsv-inputs">
-            <input v-model.number="hsv.h" type="number" min="0" max="360" placeholder="H" @input="onHsvChange" />
-            <input v-model.number="hsv.s" type="number" min="0" max="100" placeholder="S" @input="onHsvChange" />
-            <input v-model.number="hsv.v" type="number" min="0" max="100" placeholder="V" @input="onHsvChange" />
+            <input aria-label="HSV 色相 H" v-model.number="hsv.h" type="number" min="0" max="360" placeholder="H" @input="onHsvChange" />
+            <input aria-label="HSV 饱和度 S" v-model.number="hsv.s" type="number" min="0" max="100" placeholder="S" @input="onHsvChange" />
+            <input aria-label="HSV 明度 V" v-model.number="hsv.v" type="number" min="0" max="100" placeholder="V" @input="onHsvChange" />
             <button class="copy-btn" aria-label="复制 HSV 值" @click="copyValue(hsvString, 'HSV')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, S/V: 0-100%</span>
@@ -117,10 +117,10 @@
         <div class="color-input-card">
           <label class="input-label">CMYK</label>
           <div class="input-row cmyk-inputs">
-            <input v-model.number="cmyk.c" type="number" min="0" max="100" placeholder="C" @input="onCmykChange" />
-            <input v-model.number="cmyk.m" type="number" min="0" max="100" placeholder="M" @input="onCmykChange" />
-            <input v-model.number="cmyk.y" type="number" min="0" max="100" placeholder="Y" @input="onCmykChange" />
-            <input v-model.number="cmyk.k" type="number" min="0" max="100" placeholder="K" @input="onCmykChange" />
+            <input aria-label="CMYK 青色 C" v-model.number="cmyk.c" type="number" min="0" max="100" placeholder="C" @input="onCmykChange" />
+            <input aria-label="CMYK 品红 M" v-model.number="cmyk.m" type="number" min="0" max="100" placeholder="M" @input="onCmykChange" />
+            <input aria-label="CMYK 黄色 Y" v-model.number="cmyk.y" type="number" min="0" max="100" placeholder="Y" @input="onCmykChange" />
+            <input aria-label="CMYK 黑色 K" v-model.number="cmyk.k" type="number" min="0" max="100" placeholder="K" @input="onCmykChange" />
             <button class="copy-btn" aria-label="复制 CMYK 值" @click="copyValue(cmykString, 'CMYK')">📋</button>
           </div>
           <span class="format-hint">范围: 0-100%</span>
@@ -130,9 +130,9 @@
         <div class="color-input-card">
           <label class="input-label">HWB（CSS Color 4）</label>
           <div class="input-row hsv-inputs">
-            <input v-model.number="hwb.h" type="number" min="0" max="360" placeholder="H" @input="onHwbChange" />
-            <input v-model.number="hwb.w" type="number" min="0" max="100" placeholder="W" @input="onHwbChange" />
-            <input v-model.number="hwb.b" type="number" min="0" max="100" placeholder="B" @input="onHwbChange" />
+            <input aria-label="HWB 色相 H" v-model.number="hwb.h" type="number" min="0" max="360" placeholder="H" @input="onHwbChange" />
+            <input aria-label="HWB 白度 W" v-model.number="hwb.w" type="number" min="0" max="100" placeholder="W" @input="onHwbChange" />
+            <input aria-label="HWB 黑度 B" v-model.number="hwb.b" type="number" min="0" max="100" placeholder="B" @input="onHwbChange" />
             <button class="copy-btn" aria-label="复制 HWB 值" @click="copyValue(hwbString, 'HWB')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, W/B: 0-100%（两者之和 ≤100）</span>

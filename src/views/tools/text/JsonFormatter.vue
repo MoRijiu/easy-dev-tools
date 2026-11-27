@@ -66,7 +66,7 @@
       <ToolEditorLayout>
         <!-- 输入区 -->
         <ToolEditorPanel title="输入 JSON" :info="`${inputJson.length} 字符`">
-          <textarea
+          <textarea aria-label="输入 JSON"
             v-model="inputJson"
             class="json-input"
             placeholder='请输入 JSON 数据，例如：{"name": "张三", "age": 25}'

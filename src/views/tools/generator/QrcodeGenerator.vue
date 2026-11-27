@@ -26,7 +26,7 @@
         <div class="input-section">
           <div class="input-card">
             <label class="input-label">输入内容</label>
-            <textarea 
+            <textarea aria-label="输入内容" 
               v-model="inputText"
               class="text-input"
               placeholder="请输入文本、网址或其他内容..."
@@ -43,29 +43,29 @@
             <div class="options-grid">
               <div class="option-item">
                 <label>尺寸 (px)</label>
-                <input type="number" v-model.number="options.width" min="100" max="1000" step="50" />
+                <input aria-label="尺寸 (px)" type="number" v-model.number="options.width" min="100" max="1000" step="50" />
               </div>
               <div class="option-item">
                 <label>边距</label>
-                <input type="number" v-model.number="options.margin" min="0" max="10" />
+                <input aria-label="边距" type="number" v-model.number="options.margin" min="0" max="10" />
               </div>
               <div class="option-item">
                 <label>前景色</label>
                 <div class="color-input-wrapper">
-                  <input type="color" v-model="options.darkColor" class="color-picker" />
+                  <input aria-label="前景色" type="color" v-model="options.darkColor" class="color-picker" />
                   <span>{{ options.darkColor }}</span>
                 </div>
               </div>
               <div class="option-item">
                 <label>背景色</label>
                 <div class="color-input-wrapper">
-                  <input type="color" v-model="options.lightColor" class="color-picker" />
+                  <input aria-label="背景色" type="color" v-model="options.lightColor" class="color-picker" />
                   <span>{{ options.lightColor }}</span>
                 </div>
               </div>
               <div class="option-item">
                 <label>容错级别</label>
-                <select v-model="options.errorCorrectionLevel">
+                <select aria-label="容错级别" v-model="options.errorCorrectionLevel">
                   <option value="L">L - 7%</option>
                   <option value="M">M - 15%</option>
                   <option value="Q">Q - 25%</option>
@@ -103,7 +103,7 @@
               <div v-if="logoDataUrl" class="logo-options">
                 <div class="option-item">
                   <label>Logo 大小 (%)</label>
-                  <input
+                  <input aria-label="Logo 大小 (%)"
                     type="range"
                     v-model.number="logoOptions.size"
                     min="10"
@@ -114,7 +114,7 @@
                 </div>
                 <div class="option-item">
                   <label>圆角</label>
-                  <input
+                  <input aria-label="Logo 圆角"
                     type="range"
                     v-model.number="logoOptions.borderRadius"
                     min="0"
@@ -125,7 +125,7 @@
                 </div>
                 <div class="option-item">
                   <label>边框宽度</label>
-                  <input
+                  <input aria-label="Logo 边框宽度"
                     type="range"
                     v-model.number="logoOptions.padding"
                     min="0"
