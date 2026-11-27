@@ -398,7 +398,7 @@ h1 {
   background: var(--surface);
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 /* 编辑/预览区定高内部滚动，同步滚动才有作用对象（原实现两区随内容撑高、无内部滚动） */

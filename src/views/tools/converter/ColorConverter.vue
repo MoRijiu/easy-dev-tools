@@ -350,7 +350,7 @@ h1 {
   background: var(--surface);
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 /* 颜色预览区域 */
