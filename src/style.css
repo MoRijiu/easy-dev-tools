@@ -37,6 +37,12 @@
   --warning-soft: #fff7e6;
   --warning-border: #f0d48a;
   --on-accent: #ffffff;
+  /* 工具栏按钮底色：与白字对比度均 ≥4.5:1（暗色主题继承同一组，独立于背景） */
+  --btn-primary: #4f5fd0;
+  --btn-secondary: #b83280;
+  --btn-info: #0369a1;
+  --btn-success: #1e7e34;
+  --btn-danger: #c0392b;
   --danger-soft: #f8d7da;
   --danger-text: #721c24;
   --danger-border: #f5c6cb;
