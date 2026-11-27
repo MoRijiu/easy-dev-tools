@@ -46,7 +46,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="json-formatter-status" :message="statusMessage" :type="statusType" />
 
       <!-- 错误定位详情 -->
       <div v-if="errorDetail" class="error-detail" role="alert">
@@ -66,7 +66,7 @@
       <ToolEditorLayout>
         <!-- 输入区 -->
         <ToolEditorPanel title="输入 JSON" :info="`${inputJson.length} 字符`">
-          <textarea aria-label="输入 JSON"
+          <textarea aria-label="输入 JSON" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'json-formatter-status' : undefined"
             v-model="inputJson"
             class="json-input"
             placeholder='请输入 JSON 数据，例如：{"name": "张三", "age": 25}'
@@ -175,6 +175,8 @@ const outputJson = ref('');
 const statusMessage = ref('');
 const statusType = ref(''); // 'success', 'error', 'info'
 const errorDetail = ref(null);
+const inputErrorText = ref('');
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const statsSummary = ref('');
 const options = ref({
   indent: 2,
@@ -199,6 +201,7 @@ const onInputChange = () => {
 const applyError = (error) => {
   statusMessage.value = `✗ JSON 格式错误: ${error.message}`;
   statusType.value = 'error';
+  inputErrorText.value = statusMessage.value;
   errorDetail.value = error;
   statsSummary.value = '';
   outputJson.value = '';

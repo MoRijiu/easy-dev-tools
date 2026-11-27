@@ -20,9 +20,9 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="toml-json-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
-        <textarea v-model="inputText" class="text-input" :placeholder="mode === 'toml2json' ? '粘贴 TOML，如：\ntitle = &quot;app&quot;\n[server]\nport = 8080' : '粘贴 JSON，如 {&quot;title&quot;:&quot;app&quot;,&quot;server&quot;:{&quot;port&quot;:8080}}'" spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
+        <textarea v-model="inputText" class="text-input" :placeholder="mode === 'toml2json' ? '粘贴 TOML，如：\ntitle = &quot;app&quot;\n[server]\nport = 8080' : '粘贴 JSON，如 {&quot;title&quot;:&quot;app&quot;,&quot;server&quot;:{&quot;port&quot;:8080}}'" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'toml-json-status' : undefined" @input="convert"></textarea>
         <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'toml2json' ? 'JSON 结果会显示在这里' : 'TOML 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -73,6 +73,9 @@ const outputText = ref('');
 const stats = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const countLines = (s) => (s ? s.split('\n').length : 0);
 const convert = () => {
   if (!inputText.value.trim()) { outputText.value = ''; stats.value = ''; statusMessage.value = ''; return; }
@@ -90,8 +93,7 @@ const convert = () => {
     statusType.value = 'success';
   } catch (e) {
     // 出错保留上一次的成功结果，只更新状态提示
-    statusMessage.value = '✗ ' + e.message;
-    statusType.value = 'error';
+    setInputError('✗ ' + e.message);
   }
 };
 const setMode = (m) => { mode.value = m; convert(); };
