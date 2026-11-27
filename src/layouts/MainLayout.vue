@@ -10,7 +10,7 @@
         <span class="tool-bar-fav"><FavoriteButton :tool-id="currentTool.id" :tool-name="currentTool.name" />{{ isFavorite(currentTool.id) ? '已收藏' : '收藏' }}</span>
       </div>
       <router-view v-slot="{ Component }">
-        <Transition name="page" mode="out-in">
+        <Transition name="page" mode="out-in" @after-enter="onPageEntered">
           <component :is="Component" />
         </Transition>
       </router-view>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
@@ -32,6 +32,41 @@ import { useToolPrefs } from '../composables/useToolPrefs'
 const route = useRoute()
 const { isFavorite } = useToolPrefs()
 const currentTool = computed(() => getToolByPath(route.path))
+
+// 路由切换焦点管理（R9al）：SPA 切页后被点击的链接随旧页卸载，焦点会丢失到
+// body、标题变化也不播报，读屏/键盘用户无从知道已到新页。路径变化（非首屏、
+// 非纯锚点跳转）后把焦点移到新页面的 h1（临时 tabindex="-1"），读屏随即播报
+// 新页标题，后续 Tab 从页面顶部开始。过渡完成（after-enter）时执行，另加
+// 300ms 定时兜底防止过渡事件未触发时焦点管理失效。
+let focusPending = false
+let focusTimer = null
+const focusPageHeading = () => {
+  if (!focusPending) return
+  focusPending = false
+  if (focusTimer) {
+    clearTimeout(focusTimer)
+    focusTimer = null
+  }
+  const heading = document.querySelector('.main-content h1')
+  if (heading) {
+    heading.setAttribute('tabindex', '-1')
+    heading.focus({ preventScroll: true })
+  }
+}
+const onPageEntered = () => focusPageHeading()
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    if (oldPath === undefined || newPath === oldPath) return
+    if (route.hash) return
+    focusPending = true
+    if (focusTimer) clearTimeout(focusTimer)
+    focusTimer = setTimeout(focusPageHeading, 300)
+  }
+)
+onBeforeUnmount(() => {
+  if (focusTimer) clearTimeout(focusTimer)
+})
 </script>
 
 <style scoped>
@@ -82,6 +117,10 @@ const currentTool = computed(() => getToolByPath(route.path))
 .tool-bar-back:hover { text-decoration: underline; }
 .tool-bar-name { color: var(--text-strong); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tool-bar-fav { display: inline-flex; align-items: center; gap: .15rem; color: var(--text-2); white-space: nowrap; }
+
+/* 路由切换时被程序聚焦的页面标题不画焦点环（R9al）：h1 非交互元素，
+   焦点只用于读屏播报与重置 Tab 起点，属 R9y 的例外口径 */
+:global(.main-content h1[tabindex="-1"]:focus) { outline: none; }
 
 .page-enter-active, .page-leave-active { transition: opacity .16s ease, transform .16s ease; }
 .page-enter-from { opacity: 0; transform: translateY(4px); }
