@@ -7,8 +7,48 @@ export const TIME_CHARS = 10;
 export const RANDOM_CHARS = 16;
 export const MAX_TIMESTAMP = 281474976710655; // 2^48 - 1
 export const MAX_COUNT = 1000;
+export const MAX_INPUT_LENGTH = 4096;
 
 const DECODE_MAP = new Map([...CROCKFORD].map((ch, i) => [ch, i]));
+// Crockford Base32 解码容错（规范 Decoding 节）：I/L 读作 1、O 读作 0。
+const ALIAS_MAP = new Map([['I', '1'], ['L', '1'], ['O', '0']]);
+
+export function normalizeFullwidthText(text) {
+  let count = 0;
+  const out = String(text ?? '').replace(/[\uFF01-\uFF5E\u3000]/g, (ch) => {
+    count++;
+    return ch === '\u3000' ? ' ' : String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+  });
+  return { text: out, count };
+}
+
+// 严格整数解析（数量/时间戳共用）：全角转半角；小数/科学计数法/千分位/下划线分别点名，不再 Number() 静默强转。
+export function parseStrictIntInput(value, label, { min, max }) {
+  if (typeof value === 'number') {
+    if (!Number.isInteger(value)) throw new Error(`${label}必须是整数，收到「${value}」`);
+    if (value < min || value > max) throw new Error(`${label}须在 ${min}–${max} 之间，收到 ${value}`);
+    return { value, notes: [] };
+  }
+  const raw = String(value ?? '');
+  if ([...raw].length > 64) throw new Error(`${label}输入过长（上限 64 个字符）`);
+  const { text: fw, count } = normalizeFullwidthText(raw);
+  const notes = count ? [`已将 ${count} 个全角字符转为半角`] : [];
+  const s = fw.trim();
+  if (s === '') throw new Error(`${label}不能为空`);
+  if (/^-/.test(s)) throw new Error(`${label}不能为负数，收到「${s}」`);
+  if (/^\+/.test(s)) throw new Error(`${label}不要带 + 号，收到「${s}」`);
+  if (/[eE]/.test(s)) throw new Error(`${label}不支持科学计数法，收到「${s}」，请写完整数字`);
+  if (s.includes(',')) throw new Error(`${label}不支持千分位分隔符，收到「${s}」，请去掉逗号`);
+  if (s.includes('_')) throw new Error(`${label}不支持下划线分隔符，收到「${s}」，请去掉下划线`);
+  if (s.includes('.')) throw new Error(`${label}必须是整数，不能带小数点，收到「${s}」`);
+  if (!/^\d+$/.test(s)) {
+    const bad = [...s].find((ch) => !/\d/.test(ch));
+    throw new Error(`${label}只能包含数字，收到「${s}」，其中「${bad}」不是数字`);
+  }
+  const big = BigInt(s);
+  if (big < BigInt(min) || big > BigInt(max)) throw new Error(`${label}须在 ${min}–${max} 之间，收到 ${s}`);
+  return { value: Number(big), notes };
+}
 
 function defaultRandomBytes(n) {
   const c = globalThis.crypto;
@@ -57,11 +97,10 @@ export function generateUlid(timestampMs = Date.now(), randomBytes = defaultRand
 
 // 批量生成：monotonic=true 时同一毫秒内随机部分按 80 位整数逐个 +1，保证不重复且严格递增（与官方 monotonicFactory 语义一致）。
 export function generateUlidBatch({ count = 10, timestampMs = null, monotonic = true } = {}, randomBytes = defaultRandomBytes) {
-  const n = Number(count);
-  if (!Number.isInteger(n) || n < 1 || n > MAX_COUNT) {
-    throw new Error(`生成数量须在 1–${MAX_COUNT} 之间`);
-  }
-  const baseTime = timestampMs === null || timestampMs === undefined || timestampMs === '' ? Date.now() : Number(timestampMs);
+  const n = parseStrictIntInput(count, '生成数量', { min: 1, max: MAX_COUNT }).value;
+  const baseTime = timestampMs === null || timestampMs === undefined || timestampMs === ''
+    ? Date.now()
+    : parseStrictIntInput(timestampMs, '时间戳', { min: 0, max: MAX_TIMESTAMP }).value;
   const timePart = encodeTime(baseTime);
   const seed = randomBytes(10);
   let rand = 0n;
@@ -86,24 +125,64 @@ export function generateUlidBatch({ count = 10, timestampMs = null, monotonic = 
   return out;
 }
 
-export function normalizeUlid(input) {
-  const raw = String(input ?? '').trim();
-  if (raw === '') throw new Error('请输入 ULID');
-  const upper = raw.toUpperCase();
-  if (upper.length !== ULID_LENGTH) {
-    throw new Error(`ULID 须为 ${ULID_LENGTH} 个字符，收到 ${upper.length} 个`);
+// 生成区输入体检：供页面在调用 generateUlidBatch 前收集 notes（全角转换提示）。
+export function collectGenerateNotes({ count, timestampMs } = {}) {
+  const notes = [];
+  try { notes.push(...parseStrictIntInput(count ?? 10, '生成数量', { min: 1, max: MAX_COUNT }).notes); } catch { /* 报错由生成流程给出 */ }
+  if (timestampMs !== null && timestampMs !== undefined && String(timestampMs).trim() !== '') {
+    try { notes.push(...parseStrictIntInput(timestampMs, '时间戳', { min: 0, max: MAX_TIMESTAMP }).notes); } catch { /* 同上 */ }
   }
+  return [...new Set(notes)];
+}
+
+export function normalizeUlidDetailed(input) {
+  const original = String(input ?? '');
+  if ([...original].length > MAX_INPUT_LENGTH) throw new Error(`输入过长（上限 ${MAX_INPUT_LENGTH} 个字符）`);
+  const notes = [];
+  let s = original;
+  if (s.charCodeAt(0) === 0xFEFF) { s = s.slice(1); notes.push('已忽略开头的 BOM'); }
+  const lines = s.split(/\r\n|\r|\n/).map((l) => l.trim()).filter((l) => l !== '');
+  if (lines.length > 1) throw new Error(`检测到 ${lines.length} 行内容，一次只能解析一个 ULID，请只保留一行`);
+  s = (lines[0] ?? '').trim();
+  if (s === '') throw new Error('请输入 ULID');
+  const fw = normalizeFullwidthText(s);
+  if (fw.count) { s = fw.text; notes.push(`已将 ${fw.count} 个全角字符转为半角`); }
+  s = s.trim();
+  // 内部空白（复制折断）与连字符：去掉后恰为 26 位才容忍，并明示处理项。
+  if (/[\s-]/.test(s)) {
+    const compact = s.replace(/[\s-]/g, '');
+    if (compact.length === ULID_LENGTH) {
+      if (/\s/.test(s)) notes.push('已忽略内部空白（复制时被折断）');
+      if (s.includes('-')) notes.push('已忽略连字符（ULID 标准形式无连字符）');
+      s = compact;
+    }
+  }
+  let upper = s.toUpperCase();
+  if (upper.length !== ULID_LENGTH) {
+    throw new Error(`ULID 须为 ${ULID_LENGTH} 个字符，收到 ${[...upper].length} 个`);
+  }
+  // I/L/O 别名按 Crockford 解码规范读作 1/1/0，明示替换个数。
+  let aliasCount = 0;
+  upper = [...upper].map((ch) => {
+    if (ALIAS_MAP.has(ch)) { aliasCount++; return ALIAS_MAP.get(ch); }
+    return ch;
+  }).join('');
+  if (aliasCount) notes.push(`已按 Crockford 解码规范将 ${aliasCount} 个 I/L/O 读作 1/1/0（原样粘贴含易混字母）`);
   for (let i = 0; i < upper.length; i++) {
     const ch = upper[i];
     if (!DECODE_MAP.has(ch)) {
-      const hint = 'ILOU'.includes(ch) ? '（Crockford Base32 不含 I/L/O/U，易与 1/0 混淆）' : '';
-      throw new Error(`第 ${i + 1} 个字符「${raw[i]}」不在 Crockford Base32 字母表中${hint}`);
+      const hint = ch === 'U' ? '（Crockford Base32 不含 U，以免随机拼出英文脏话）' : '';
+      throw new Error(`第 ${i + 1} 个字符「${s[i] ?? ch}」不在 Crockford Base32 字母表中${hint}`);
     }
   }
   if (DECODE_MAP.get(upper[0]) > 7) {
     throw new Error('首字符超过 7：48 位时间戳溢出，不是合法 ULID');
   }
-  return upper;
+  return { ulid: upper, notes };
+}
+
+export function normalizeUlid(input) {
+  return normalizeUlidDetailed(input).ulid;
 }
 
 export function isValidUlid(input) {
@@ -121,8 +200,8 @@ export function decodeTime(segment) {
   return value;
 }
 
-export function parseUlid(input) {
-  const ulid = normalizeUlid(input);
+export function parseUlid(input, nowMs = Date.now()) {
+  const { ulid, notes } = normalizeUlidDetailed(input);
   const timeSegment = ulid.slice(0, TIME_CHARS);
   const randomSegment = ulid.slice(TIME_CHARS);
   const timestampMs = decodeTime(timeSegment);
@@ -130,6 +209,10 @@ export function parseUlid(input) {
   for (const ch of randomSegment) rand = (rand << 5n) | BigInt(DECODE_MAP.get(ch));
   const randomnessHex = rand.toString(16).padStart(20, '0');
   const date = new Date(timestampMs);
+  const warnings = [];
+  if (timestampMs === 0) warnings.push('内嵌时间为 0（1970-01-01），多半是占位/测试值，不是真实生成的 ULID');
+  else if (typeof nowMs === 'number' && Number.isFinite(nowMs) && timestampMs > nowMs) warnings.push('内嵌时间在未来，请复核来源时钟或它是否为随机字符串');
+  if (rand === 0n) warnings.push('随机段全为 0，真实随机生成的概率极低，多半是手工构造值');
   return {
     ulid,
     timeSegment,
@@ -137,15 +220,19 @@ export function parseUlid(input) {
     timestampMs,
     iso: date.toISOString(),
     randomnessHex,
-    entropyBits: 80
+    entropyBits: 80,
+    notes,
+    warnings
   };
 }
 
 export function buildSummary(parsed) {
-  return [
+  const lines = [
     `ULID：${parsed.ulid}`,
     `内嵌时间：${parsed.iso}（${parsed.timestampMs} ms）`,
     `时间段：${parsed.timeSegment}`,
     `随机段：${parsed.randomSegment}（80 位，十六进制 ${parsed.randomnessHex}）`
-  ].join('\n');
+  ];
+  if (parsed.warnings?.length) lines.push(`提示：${parsed.warnings.join('；')}`);
+  return lines.join('\n');
 }
