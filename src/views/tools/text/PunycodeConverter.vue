@@ -23,6 +23,9 @@
         <span class="muted">输入后实时转换</span>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功转换的结果。</p>
+      <p v-for="note in (result ? result.notes : [])" :key="note" class="note">{{ note }}</p>
+      <p v-for="warn in (result && result.warnings ? result.warnings : [])" :key="warn" class="warn">{{ warn }}</p>
       <template v-if="result">
         <label class="block">输出
           <textarea :value="result.text" rows="6" readonly spellcheck="false" aria-label="转换输出"></textarea>
@@ -37,7 +40,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -53,20 +56,26 @@ const usageSteps = ['粘贴域名（每行一个，可混排多个）', '选择�
 const faqs = [
   { question: '什么是 Punycode？', answer: 'Punycode（RFC 3492）把 Unicode 字符编码成 ASCII 字母数字与连字符的方案，国际化域名（IDN）靠它落地：含非 ASCII 的标签编码后加 xn-- 前缀，如 中文.com 实际注册与解析的是 xn--fiq228c.com。' },
   { question: '为什么纯英文域名转换后没变化？', answer: '纯 ASCII 标签不需要编码，编码方向原样保留（并转小写）；解码方向也只处理 xn-- 开头的标签，其余标签保持不变。' },
-  { question: '浏览器地址栏里为什么有时显示中文、有时显示 xn--？', answer: '浏览器按顶级域与语言策略决定展示形式：符合本地域名规则时显示原文，出于防钓鱼等考虑时会显示 xn-- 编码形式，两者指向同一个域名。' }
+  { question: '浏览器地址栏里为什么有时显示中文、有时显示 xn--？', answer: '浏览器按顶级域与语言策略决定展示形式：符合本地域名规则时显示原文，出于防钓鱼等考虑时会显示 xn-- 编码形式，两者指向同一个域名。' },
+  { question: '粘贴时要注意什么？', answer: '直接粘 URL 也行，会自动只取主机名（端口会被忽略并提示）；中文输入法打出的全角字母、全角句点 ． 和中文句号 。 都会按半角与点处理并给出提示；末尾带点的完全限定域名（FQDN）会保留末尾点。含组合字符的标签会先做 NFC 规范化再编码，与预组合字符写法得到同一结果。' },
+  { question: '哪些输入会被拒绝？', answer: '单段标签超过 63 字符、域名总长超过 253 字符（编码与解码都查）、下划线等非法字符（会定位到第几个）、未配对代理字符与零宽等不可见字符、解出纯 ASCII 却带 xn-- 前缀的非正规编码（会给出警告）。报错时回显会截断，不会把超长原文整段塞进提示。' },
+  { question: '输错了为什么还显示上一次的结果？', answer: '这是故意的：报错时页面保留上一次成功转换的结果并给出提示，方便对照修改，不会一输错就把之前的结果清空。点「清空」会连保留结果一起清掉。输入上限为 10 万字符。' }
 ];
 const EXAMPLE = '中文.com\nbücher.de\n💩.la';
 const input = ref(EXAMPLE);
 const direction = ref('encode');
 const statusMessage = ref(''); const statusType = ref('');
 const parsed = computed(() => (!input.value ? null : convertPunycode(input.value, direction.value)));
-const result = computed(() => (parsed.value && parsed.value.ok ? parsed.value : null));
+// 出错保留上一次成功结果：改错一行时输出不消失，改对自动恢复
+const lastValid = ref(null);
+watch(parsed, (v) => { if (v && v.ok) lastValid.value = v; }, { immediate: true });
+const result = computed(() => (parsed.value && parsed.value.ok ? parsed.value : (parsed.value ? lastValid.value : null)));
 const error = computed(() => (parsed.value && !parsed.value.ok ? parsed.value.error : ''));
 function loadExample() {
   direction.value = 'encode';
   input.value = EXAMPLE;
 }
-function clearAll() { input.value = ''; }
+function clearAll() { input.value = ''; lastValid.value = null; }
 function useAsInput() {
   if (!result.value) return;
   input.value = result.value.text;
@@ -81,7 +90,7 @@ async function copyText(text) {
 .puny-conv { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .options select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
 .options label { font-size: 13px; color: var(--text-2); display: inline-flex; gap: 6px; align-items: center; }
@@ -92,6 +101,8 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger, #dc2626); font-size: 14px; }
+.note { color: var(--info-text, var(--text-2)); background: var(--info-soft); border: 1px solid var(--info-border); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.warn { color: var(--warning-text, var(--text-2)); background: var(--warning-soft, var(--info-soft)); border: 1px solid var(--warning-border, var(--info-border)); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
