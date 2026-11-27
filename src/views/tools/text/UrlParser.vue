@@ -11,7 +11,7 @@
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 URL，如 https://example.com:8080/path?a=1&amp;b=2#top（可省略协议）" spellcheck="false" aria-label="URL输入" @input="parse"></textarea>
       <template v-if="result">
-        <p v-for="(w, i) in result.warnings" :key="i" class="warn">⚠ {{ w }}</p>
+        <p v-for="(w, i) in result.warnings" :key="i" class="warn" role="status" aria-live="polite">⚠ {{ w }}</p>
         <table class="kv" aria-label="URL组件">
           <tbody>
             <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value || '—' }}</code></td><td><button class="mini" :disabled="!row.value" @click="copyText(row.value)">复制</button></td></tr>

@@ -27,7 +27,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
-      <div v-if="result && result.warnings && result.warnings.length" class="warn-box">
+      <div v-if="result && result.warnings && result.warnings.length" class="warn-box" role="status" aria-live="polite">
         <p v-for="(w, i) in result.warnings" :key="i">⚠ {{ w }}</p>
       </div>
       <template v-if="result">

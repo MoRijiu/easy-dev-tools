@@ -73,7 +73,7 @@
                   <input type="radio" v-model="timestampUnit" value="us" /> 微秒
                 </label>
               </div>
-              <p v-if="detectedHint" class="unit-hint">{{ detectedHint }}</p>
+              <p v-if="detectedHint" class="unit-hint" role="status" aria-live="polite">{{ detectedHint }}</p>
             </div>
             <div class="divider">或</div>
             <div class="input-group">

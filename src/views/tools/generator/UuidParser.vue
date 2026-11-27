@@ -16,8 +16,8 @@
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功解析的结果。</p>
-      <p v-for="note in (result?.notes || [])" :key="note" class="note">{{ note }}</p>
-      <p v-for="warn in (result?.warnings || [])" :key="warn" class="warn">⚠ {{ warn }}</p>
+      <p v-for="note in (result?.notes || [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
+      <p v-for="warn in (result?.warnings || [])" :key="warn" class="warn" role="status" aria-live="polite">⚠ {{ warn }}</p>
       <template v-if="result">
         <p class="summary">合法 UUID · {{ result.versionName }} · 变体 {{ result.variant.label }}<span v-if="result.special"> · {{ result.special }}</span></p>
         <div class="table-wrap"><table><tbody>

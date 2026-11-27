@@ -30,7 +30,7 @@
           <button v-if="!result.levels.normalAAA" class="btn ghost" @click="fixToAAA">调整到 AAA</button>
           <button class="btn ghost" @click="copyText(summary)">复制摘要</button>
         </div>
-        <p v-if="fixNote" class="fix-note">{{ fixNote }}</p>
+        <p v-if="fixNote" class="fix-note" role="status" aria-live="polite">{{ fixNote }}</p>
       </template>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <ToolFeatures :features="features" />

@@ -14,7 +14,7 @@
         <span>常用前缀：</span>
         <button v-for="p in [8, 16, 24, 25, 26, 27, 28, 29, 30, 32]" :key="p" class="chip" :class="{ active: result && result.prefix === p }" @click="applyPrefix(p)">/{{ p }}</button>
       </div>
-      <ul v-if="result && result.warnings.length" class="warnings-list">
+      <ul v-if="result && result.warnings.length" class="warnings-list" role="status" aria-live="polite">
         <li v-for="(w, i) in result.warnings" :key="i">⚠️ {{ w }}</li>
       </ul>
       <template v-if="result">

@@ -22,7 +22,7 @@
         <label>视口高 <input v-model="ctxForm.viewportHeight" type="text" inputmode="decimal" aria-label="视口高度" @change="analyze" /></label>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
-      <p v-if="notes.length" class="note">{{ notes.join('；') }}</p>
+      <p v-if="notes.length" class="note" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>
         <div class="table-wrap"><table><tbody>

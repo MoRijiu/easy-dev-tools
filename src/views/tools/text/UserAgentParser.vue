@@ -13,7 +13,7 @@
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 User Agent，如 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 … Chrome/120.0 Safari/537.36" spellcheck="false" aria-label="User Agent输入" @input="parse"></textarea>
       <template v-if="result">
         <p class="summary">{{ result.summary }}<span v-if="result.isBot" class="bot-tag">机器人：{{ result.botName }}</span></p>
-        <ul v-if="result.notes && result.notes.length" class="notes">
+        <ul v-if="result.notes && result.notes.length" class="notes" role="status" aria-live="polite">
           <li v-for="(n, i) in result.notes" :key="i">⚠ {{ n }}</li>
         </ul>
         <table class="kv" aria-label="解析结果">

@@ -53,7 +53,7 @@
         <button class="del" :disabled="form.stops.length <= 2" aria-label="删除色标" @click="removeStop(i)">✕</button>
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in GRADIENT_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
-      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
+      <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <p v-if="error" class="error">{{ error }}<span v-if="gradientCss">（已保留上一次成功结果）</span></p>
       <template v-if="gradientCss">
         <div class="code-head"><span>CSS 代码</span>

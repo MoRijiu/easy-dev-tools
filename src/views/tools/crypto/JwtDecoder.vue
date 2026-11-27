@@ -39,10 +39,10 @@
         <span class="claim-chip" v-if="issuedText">签发：{{ issuedText }}</span>
       </div>
 
-      <ul v-if="warnings.length" class="warnings-list">
+      <ul v-if="warnings.length" class="warnings-list" role="status" aria-live="polite">
         <li v-for="(w, i) in warnings" :key="i">⚠️ {{ w }}</li>
       </ul>
-      <p v-if="notes.length" class="notes-line">输入已自动处理：{{ notes.join('；') }}</p>
+      <p v-if="notes.length" class="notes-line" role="status" aria-live="polite">输入已自动处理：{{ notes.join('；') }}</p>
 
       <ToolEditorLayout v-if="decoded">
         <ToolEditorPanel title="Header（头部）">

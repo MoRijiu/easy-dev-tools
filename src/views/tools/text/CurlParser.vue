@@ -42,10 +42,10 @@
           <h2 class="sub">请求 Body</h2>
           <textarea :value="prettyBody" class="text-input output" readonly aria-label="请求Body"></textarea>
         </template>
-        <ul v-if="result.warnings.length" class="warnings-list">
+        <ul v-if="result.warnings.length" class="warnings-list" role="status" aria-live="polite">
           <li v-for="(w, i) in result.warnings" :key="i">⚠️ {{ w }}</li>
         </ul>
-        <p v-if="result.ignored.length" class="hint">已忽略与请求内容无关的选项：{{ result.ignored.join('、') }}</p>
+        <p v-if="result.ignored.length" class="hint" role="status" aria-live="polite">已忽略与请求内容无关的选项：{{ result.ignored.join('、') }}</p>
         <h2 class="sub">生成代码</h2>
         <div class="mode-switch" role="tablist" aria-label="代码类型">
           <button :class="['mode-btn', { active: codeKind === 'fetch' }]" @click="codeKind = 'fetch'">JavaScript fetch</button>

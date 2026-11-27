@@ -28,8 +28,8 @@
         <button @click="clearParse" class="btn btn-danger">清空</button>
       </div>
       <ToolStatusMessage :message="parseMessage" :type="parseType" />
-      <p v-if="parseNotes.length" class="notes">{{ parseNotes.join('；') }}</p>
-      <p v-if="parsed?.warnings?.length" class="notes warn">{{ parsed.warnings.join('；') }}</p>
+      <p v-if="parseNotes.length" class="notes" role="status" aria-live="polite">{{ parseNotes.join('；') }}</p>
+      <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="result-table">
         <tbody>
           <tr><th>生成时间（UTC）</th><td>{{ parsed.iso ?? '超出可表示范围' }}</td><td><button class="copy-btn" @click="copyText(String(parsed.timestampMs))">复制时间戳</button></td></tr>

@@ -43,7 +43,7 @@
         <span class="desc-text">{{ description }}</span>
       </div>
 
-      <ul v-if="parsed && parsed.warnings.length" class="warnings-list">
+      <ul v-if="parsed && parsed.warnings.length" class="warnings-list" role="status" aria-live="polite">
         <li v-for="(w, i) in parsed.warnings" :key="i">⚠️ {{ w }}</li>
       </ul>
 

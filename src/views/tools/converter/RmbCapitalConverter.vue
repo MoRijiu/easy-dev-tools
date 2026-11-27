@@ -12,7 +12,7 @@
       </div>
       <div class="examples"><span>示例：</span><button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button></div>
       <p v-if="error" class="error">{{ error }}</p>
-      <p v-if="notes.length" class="note">{{ notes.join('；') }}</p>
+      <p v-if="notes.length" class="note" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <template v-if="result">
         <p class="capital">{{ result.capital }}</p>
         <p class="summary">格式化：{{ result.formatted }}</p>

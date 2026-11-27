@@ -15,8 +15,8 @@
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功校验的结果。</p>
-      <p v-for="note in (result ? result.notes || [] : [])" :key="note" class="note">{{ note }}</p>
-      <p v-for="w in (result ? result.warnings || [] : [])" :key="w" class="warn">{{ w }}</p>
+      <p v-for="note in (result ? result.notes || [] : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
+      <p v-for="w in (result ? result.warnings || [] : [])" :key="w" class="warn" role="status" aria-live="polite">{{ w }}</p>
       <template v-if="result">
         <p class="verdict" :class="result.valid ? 'pass' : 'fail'">{{ result.valid ? '✓ Luhn 校验通过' : '✗ Luhn 校验不通过' }}</p>
         <table class="kv">
@@ -40,7 +40,7 @@
       </label>
       <p v-if="payloadError" class="error">{{ payloadError }}</p>
       <p v-if="payloadError && completed" class="muted">当前载荷有误，下面保留的是上一次成功生成的结果。</p>
-      <p v-for="note in (completed ? completed.notes || [] : [])" :key="note" class="note">{{ note }}</p>
+      <p v-for="note in (completed ? completed.notes || [] : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-if="completed" class="complete-row">
         校验位 <strong class="mono">{{ completed.checkDigit }}</strong>，完整号码
         <strong class="mono">{{ completed.complete }}</strong>
