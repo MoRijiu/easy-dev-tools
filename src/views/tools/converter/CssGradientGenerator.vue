@@ -133,7 +133,7 @@ const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt)
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
-.notes { color: var(--warning, #b45309); font-size: 13px; }
+.notes { color: var(--warning); font-size: 13px; }
 .preview { height: 180px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 16px; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
 .row label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }

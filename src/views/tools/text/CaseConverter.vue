@@ -104,7 +104,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .stats-line { color: var(--text-2); font-size: 12px; margin: 0 0 6px; }
-.warning-line { color: var(--warning-text, #b45309); background: var(--warning-soft, transparent); font-size: 12px; margin: 0 0 6px; padding: 6px 8px; border-radius: 6px; }
+.warning-line { color: var(--warning-text); background: var(--warning-soft); font-size: 12px; margin: 0 0 6px; padding: 6px 8px; border-radius: 6px; }
 .text-input { width: 100%; min-height: 96px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; resize: vertical; margin-bottom: 14px; }
 .result-list { display: flex; flex-direction: column; gap: 6px; }
 .result-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); }

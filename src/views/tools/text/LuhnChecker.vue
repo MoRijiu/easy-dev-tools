@@ -138,7 +138,7 @@ input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid
 .error { color: var(--danger, #dc2626); font-size: 14px; }
 .muted { color: var(--text-2); font-size: 13px; }
 .note { color: var(--text-2); font-size: 13px; }
-.warn { color: var(--warning, #b45309); font-size: 13px; }
+.warn { color: var(--warning); font-size: 13px; }
 .verdict { font-size: 15px; font-weight: 600; margin: 8px 0; }
 .verdict.pass, .pass-text { color: var(--success, #16a34a); }
 .verdict.fail, .fail-text { color: var(--danger, #dc2626); }

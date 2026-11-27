@@ -313,7 +313,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-separator {
-  color: #cbd5e1;
+  color: var(--text-3);
   margin: 0 4px;
 }
 

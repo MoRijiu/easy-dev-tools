@@ -229,7 +229,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .results-table tr.is-source tbody th, .results-table tr.is-source th { color: var(--accent); }
 .src-tag { margin-left: 6px; font-size: 11px; color: var(--text-2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 6px; }
 .result-value { font-size: 14px; word-break: break-all; }
-.approx-tag { margin-left: 8px; font-size: 12px; color: var(--warning-text, var(--text-2)); white-space: nowrap; }
+.approx-tag { margin-left: 8px; font-size: 12px; color: var(--warning-text); white-space: nowrap; }
 .copy-col { width: 56px; text-align: center !important; }
 .copy-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 14px; }
 .copy-btn:hover { border-color: var(--accent); }
