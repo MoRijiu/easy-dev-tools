@@ -6,11 +6,28 @@
           <img src="/favicon.svg" alt="" class="logo-icon" />
           <span class="logo-text">极速开发工具箱</span>
         </router-link>
-        <div class="tools-dropdown" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
-          <button class="tools-trigger" aria-label="全部工具" aria-haspopup="true" title="全部工具">
+        <div
+          ref="dropdownRef"
+          class="tools-dropdown"
+          @mouseenter="handleMouseEnter"
+          @mouseleave="handleMouseLeave"
+          @focusout="handleFocusOut"
+          @keydown.esc="closeDropdown(true)"
+        >
+          <button
+            ref="triggerRef"
+            class="tools-trigger"
+            type="button"
+            aria-label="全部工具"
+            aria-haspopup="true"
+            :aria-expanded="showDropdown"
+            aria-controls="tools-dropdown-menu"
+            title="全部工具"
+            @click="toggleDropdown"
+          >
             <span class="tools-text">全部工具</span>
           </button>
-          <div v-show="showDropdown" class="dropdown-menu" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+          <div v-show="showDropdown" id="tools-dropdown-menu" class="dropdown-menu" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
             <div class="dropdown-content">
               <div v-for="group in toolGroups" :key="group.id" class="tool-group">
                 <div class="group-header">
@@ -24,6 +41,7 @@
                     :to="tool.path"
                     class="tool-item"
                     :class="{ active: isCurrentTool(tool.path) }"
+                    @click="closeDropdown(false)"
                   >
                     <span class="tool-icon" aria-hidden="true">{{ tool.icon }}</span>
                     <span class="tool-name">{{ tool.name }}</span>
@@ -67,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { toolGroups } from '../router/tools-config'
 import { useTheme } from '../composables/useTheme'
@@ -79,23 +97,81 @@ const themeLabel = computed(() =>
   mode.value === 'dark' ? '暗色' : mode.value === 'light' ? '亮色' : '跟随系统'
 )
 const showDropdown = ref(false)
+// pinned：点击/键盘打开后钉住，鼠标离开也不关；悬停打开未钉住时移开即关
+const pinned = ref(false)
+const dropdownRef = ref(null)
+const triggerRef = ref(null)
 let hideTimeout = null
 
-const handleMouseEnter = () => {
-  // 清除之前的隐藏定时器
+const clearHideTimeout = () => {
   if (hideTimeout) {
     clearTimeout(hideTimeout)
     hideTimeout = null
   }
+}
+
+const handleMouseEnter = () => {
+  // 清除之前的隐藏定时器
+  clearHideTimeout()
   showDropdown.value = true
 }
 
 const handleMouseLeave = () => {
+  if (pinned.value) return
+  // 焦点仍在下拉内（键盘用户）时不因鼠标离开而关闭
+  if (dropdownRef.value?.contains(document.activeElement)) return
   // 延长延迟时间，给用户更多时间移动到下拉菜单
+  clearHideTimeout()
   hideTimeout = setTimeout(() => {
     showDropdown.value = false
   }, 300)
 }
+
+const toggleDropdown = () => {
+  clearHideTimeout()
+  if (!showDropdown.value) {
+    showDropdown.value = true
+    pinned.value = true
+  } else if (pinned.value) {
+    showDropdown.value = false
+    pinned.value = false
+  } else {
+    // 悬停已打开时点击是「钉住」，不关（否则移入+点击必定误关）
+    pinned.value = true
+  }
+}
+
+const closeDropdown = (refocus) => {
+  clearHideTimeout()
+  showDropdown.value = false
+  pinned.value = false
+  if (refocus) triggerRef.value?.focus()
+}
+
+// 焦点离开整个下拉区域时关闭（键盘 Tab 走完最后一个链接后自然收起）
+const handleFocusOut = (event) => {
+  if (!dropdownRef.value?.contains(event.relatedTarget)) {
+    closeDropdown(false)
+  }
+}
+
+// 点击页面其它区域时关闭
+const handleDocumentClick = (event) => {
+  if (showDropdown.value && !dropdownRef.value?.contains(event.target)) {
+    closeDropdown(false)
+  }
+}
+document.addEventListener('click', handleDocumentClick)
+
+watch(
+  () => route.path,
+  () => closeDropdown(false)
+)
+
+onBeforeUnmount(() => {
+  clearHideTimeout()
+  document.removeEventListener('click', handleDocumentClick)
+})
 
 const isCurrentTool = (path) => {
   return route.path === path
