@@ -186,7 +186,7 @@ useSeo({
 <style scoped>
 .about-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   padding: 2rem 1rem;
 }
 
@@ -277,7 +277,7 @@ useSeo({
 }
 
 .content-card strong {
-  color: #667eea;
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -312,7 +312,7 @@ useSeo({
 
 .tech-card:hover {
   transform: translateY(-5px);
-  border-color: #667eea;
+  border-color: var(--accent);
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
 }
 
@@ -345,8 +345,8 @@ useSeo({
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #2c3e50;
-  color: #ffffff;
+  background: var(--text-strong);
+  color: var(--surface);
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
@@ -354,7 +354,7 @@ useSeo({
 }
 
 .github-link a:hover {
-  background: #667eea;
+  background: var(--accent);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -422,7 +422,7 @@ useSeo({
 
 .support-thanks {
   font-size: 1rem;
-  color: #667eea;
+  color: var(--accent);
   font-weight: 600;
   margin-top: 2rem;
   margin-bottom: 0;
@@ -450,7 +450,7 @@ useSeo({
 }
 
 .contact-item:hover {
-  border-color: #667eea;
+  border-color: var(--accent);
   transform: translateX(5px);
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }

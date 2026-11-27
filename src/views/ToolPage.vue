@@ -87,19 +87,19 @@ const goBack = () => {
 
 .back-button {
   background: var(--bg);
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.95rem;
-  color: #495057;
+  color: var(--text-2);
   transition: all 0.2s;
   margin-bottom: 1.5rem;
 }
 
 .back-button:hover {
   background: var(--bg-soft);
-  border-color: #adb5bd;
+  border-color: var(--border-strong);
 }
 
 .tool-title {
