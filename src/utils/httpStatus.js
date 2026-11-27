@@ -29,6 +29,7 @@ export const HTTP_STATUS_CODES = [
   C(303, 'See Other', '查看其他', '应使用 GET 到另一个 URL 获取响应，常用于 POST 提交后跳转结果页。', 'redirect post get'),
   C(304, 'Not Modified', '未修改', '资源未修改，客户端可直接使用缓存副本，响应无主体。', 'cache 缓存 etag'),
   C(305, 'Use Proxy', '使用代理', '所请求资源必须通过代理访问，已基本废弃。', 'proxy deprecated'),
+  C(306, 'Unused', '已保留未用', '原名 Switch Proxy，已被保留、现行规范不再使用，服务器不应返回这个码。', 'reserved switch proxy 保留'),
   C(307, 'Temporary Redirect', '临时重定向（保方法）', '临时重定向且不允许改变请求方法与请求体。', 'redirect 临时'),
   C(308, 'Permanent Redirect', '永久重定向（保方法）', '永久重定向且不允许改变请求方法与请求体。', 'redirect 永久'),
   C(400, 'Bad Request', '请求错误', '请求语法或参数不合法，服务器无法理解。接口联调最先排查参数与 JSON 格式。', 'bad request 参数 错误'),
@@ -67,22 +68,69 @@ export const HTTP_STATUS_CODES = [
   C(504, 'Gateway Timeout', '网关超时', '网关/代理等待上游响应超时。常见于后端处理太慢或不可达。', 'gateway timeout 超时 nginx 上游'),
   C(505, 'HTTP Version Not Supported', 'HTTP 版本不支持', '服务器不支持请求所用的 HTTP 协议版本。', 'version'),
   C(507, 'Insufficient Storage', '存储空间不足', 'WebDAV：服务器存储空间不足，无法完成请求。', 'webdav storage'),
+  C(508, 'Loop Detected', '检测到死循环', 'WebDAV：服务器在处理 Depth: infinity 请求时检测到无限循环。', 'webdav loop 循环'),
+  C(510, 'Not Extended', '未扩展', '服务器需要客户端发送进一步的扩展请求才能完成处理，现已很少使用。', 'extended'),
   C(511, 'Network Authentication Required', '需要网络认证', '需要先完成网络接入认证，常见于公共 Wi-Fi 强制门户。', 'wifi captive')
 ];
 export function getStatusByCode(code) {
-  const n = Number(code);
+  // 严格口径：数字须为整数，字符串须为纯数字（旧版 Number() 会把 '0x194' 当 404、'' 当 0）
+  let n;
+  if (typeof code === 'number') n = code;
+  else if (typeof code === 'string' && /^\d+$/.test(code.trim())) n = Number(code.trim());
+  else return null;
   if (!Number.isInteger(n)) return null;
   return HTTP_STATUS_CODES.find((s) => s.code === n) || null;
 }
+// 全角数字/字母转半角（中文输入法粘过来的 ４０４ 也能查）
+function normalizeQueryText(text) {
+  return String(text || '').replace(/[！-～]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/　/g, ' ');
+  // 范围为 U+FF01–U+FF5E 全角字符与 U+3000 全角空格
+}
+function tokenMatches(s, token, hay) {
+  const classToken = /^([1-5])xx$/.exec(token);
+  if (classToken) return s.category === Number(classToken[1]);
+  return hay.includes(token);
+}
 export function searchHttpStatus(query = '', category = 0) {
-  const q = String(query || '').trim().toLowerCase();
+  const q = normalizeQueryText(query).trim().toLowerCase();
   const cat = Number(category) || 0;
-  return HTTP_STATUS_CODES.filter((s) => {
+  const filtered = HTTP_STATUS_CODES.filter((s) => {
     if (cat && s.category !== cat) return false;
     if (!q) return true;
     const hay = `${s.code} ${s.name} ${s.nameZh} ${s.description} ${s.keywords}`.toLowerCase();
-    return q.split(/\s+/).every((part) => hay.includes(part));
+    return q.split(/\s+/).every((part) => tokenMatches(s, part, hay));
   });
+  // 排序：纯数字查询时 精确码 > 码前缀 > 其他命中（如描述里提到该数字）
+  if (/^\d+$/.test(q)) {
+    const rank = (s) => (String(s.code) === q ? 0 : String(s.code).startsWith(q) ? 1 : 2);
+    return [...filtered].sort((a, b) => rank(a) - rank(b) || a.code - b.code);
+  }
+  return filtered;
+}
+// 查不到的三位码给解释：未登记 / 已保留 / 厂商自定义 / 超出范围
+export function describeUnknownCode(input) {
+  const text = normalizeQueryText(input).trim();
+  if (!/^\d{3}$/.test(text)) return null;
+  const code = Number(text);
+  if (getStatusByCode(code)) return null;
+  if (code < 100 || code > 599) {
+    return { code, category: 0, categoryName: '', note: `HTTP 状态码的范围是 100–599，${code} 不是合法的状态码，多半是业务自定义的错误码或看错了数字。` };
+  }
+  const category = Math.floor(code / 100);
+  const catMeta = HTTP_CATEGORIES.find((c) => c.id === category);
+  const categoryName = catMeta ? catMeta.name : `${category}xx`;
+  let note = `${code} 没有在 IANA 登记的官方含义，属于 ${categoryName} 区段的未分配码，遇到时多半是框架、网关或厂商的自定义扩展。`;
+  if (code >= 520 && code <= 527) note = `${code} 是 Cloudflare 自定义的 5xx 码（如 520 未知错误、522 连接超时、524 上游响应超时），不是 HTTP 官方状态码，先看 Cloudflare 与源站两边的状态。`;
+  else if (code === 419) note = '419 不是官方状态码，Laravel / Spring 等框架用它表示「页面已过期」（CSRF Token 失效），刷新页面重新提交即可。';
+  else if (code === 420) note = '420 不是官方状态码，少数接口用它表示「请求太频繁」或当彩蛋用，官方的限流码是 429。';
+  else if (code === 509) note = '509 不是官方状态码，部分主机商用它表示「带宽超限」，官方没有对应的登记含义。';
+  else if (code === 499) note = '499 不是官方状态码，Nginx 用它记录「客户端在响应完成前主动断开」，只出现在访问日志里。';
+  return { code, category, categoryName, note };
+}
+export function countByCategory() {
+  const counts = { 0: HTTP_STATUS_CODES.length };
+  for (const s of HTTP_STATUS_CODES) counts[s.category] = (counts[s.category] || 0) + 1;
+  return counts;
 }
 export function buildStatusSummary(s) {
   if (!s) return '';
