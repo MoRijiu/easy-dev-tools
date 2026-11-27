@@ -524,7 +524,10 @@ h1 {
   color: var(--accent-text);
   cursor: pointer;
   font-size: 14px;
-  padding: 0;
+  padding: 2px 4px;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .link-btn:hover {
