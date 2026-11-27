@@ -35,7 +35,7 @@
         <!-- 图片列表 - 紧跟上传区域 -->
         <div class="images-section" v-if="images.length > 0">
           <div class="images-header">
-            <h3>🖼️ 已选择 {{ images.length }} 张图片</h3>
+            <h2>🖼️ 已选择 {{ images.length }} 张图片</h2>
             <div class="images-summary" v-if="summary.doneCount > 0">
               <span class="total-original">已压缩 {{ summary.doneCount }}/{{ summary.totalCount }} 张 · 原始 {{ formatSize(summary.original) }}</span>
               <span class="total-arrow">→</span>
@@ -93,7 +93,7 @@
 
       <!-- 压缩设置 -->
       <div class="settings-section" v-if="images.length > 0">
-        <h3>⚙️ 压缩设置</h3>
+        <h2>⚙️ 压缩设置</h2>
         <div class="settings-grid">
           <div class="setting-item">
             <label>压缩质量</label>
@@ -470,7 +470,7 @@ h1 {
   border-radius: 10px;
 }
 
-.settings-section h3 {
+.settings-section h2 {
   margin-bottom: 16px;
   color: var(--text-strong);
 }
@@ -584,7 +584,7 @@ h1 {
   margin-bottom: 16px;
 }
 
-.images-section h3 {
+.images-section h2 {
   margin: 0;
   color: var(--text-strong);
   font-size: 1.1rem;

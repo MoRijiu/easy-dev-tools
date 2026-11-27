@@ -1,5 +1,5 @@
 <template>
-  <main class="tool-page">
+  <div class="tool-page">
     <header class="tool-header">
       <button
         class="back-button"
@@ -15,13 +15,13 @@
       <p class="tool-description">{{ toolDescription }}</p>
     </header>
     
-    <section class="tool-content" role="main">
+    <section class="tool-content">
       <div class="placeholder">
         <p aria-label="工具开发中">🚧 工具开发中...</p>
         <p class="hint">此工具页面即将上线</p>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <script setup>

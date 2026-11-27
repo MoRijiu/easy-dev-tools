@@ -61,7 +61,7 @@
       </div>
 
       <div v-if="claimRows.length" class="claims-section">
-        <h3 class="claims-title">常用声明（Claims）</h3>
+        <h2 class="claims-title">常用声明（Claims）</h2>
         <table class="claims-table">
           <tbody>
             <tr v-for="row in claimRows" :key="row.key">

@@ -39,7 +39,7 @@
 
           <!-- 选项设置 -->
           <div class="options-card">
-            <h3>⚙️ 选项设置</h3>
+            <h2>⚙️ 选项设置</h2>
             <div class="options-grid">
               <div class="option-item">
                 <label>尺寸 (px)</label>
@@ -77,7 +77,7 @@
 
           <!-- Logo 设置 -->
           <div class="options-card">
-            <h3>🖼️ Logo 设置</h3>
+            <h2>🖼️ Logo 设置</h2>
             <div class="logo-section">
               <div class="logo-upload">
                 <label class="logo-upload-btn" :class="{ 'has-logo': logoDataUrl }">
@@ -152,7 +152,7 @@
         <!-- 右侧预览区 -->
         <div class="preview-section">
           <div class="preview-card">
-            <h3>📷 二维码预览</h3>
+            <h2>📷 二维码预览</h2>
             <div class="preview-box">
               <img v-if="qrcodeDataUrl" :src="qrcodeDataUrl" alt="QR Code" class="qrcode-image" />
               <div v-else class="placeholder">
@@ -578,7 +578,7 @@ h1 {
 .contrast-hint.error { background: var(--danger-soft); color: var(--danger-text); }
 
 /* 选项卡片 */
-.options-card h3 {
+.options-card h2 {
   margin: 0 0 16px 0;
   font-size: 1.1rem;
   color: var(--text-strong);
@@ -649,7 +649,7 @@ h1 {
   flex-direction: column;
 }
 
-.preview-card h3 {
+.preview-card h2 {
   margin: 0 0 16px 0;
   font-size: 1.1rem;
   color: var(--text-strong);

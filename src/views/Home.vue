@@ -1,5 +1,5 @@
 <template>
-  <main class="home">
+  <div class="home">
     <section class="hero-section">
       <h1>极速开发工具箱</h1>
       <p>提供各类实用的开发工具，提升您的工作效率</p>
@@ -64,7 +64,7 @@
       </div>
       <button type="button" class="reset-link" @click="resetFilter">清除搜索，浏览全部工具</button>
     </section>
-  </main>
+  </div>
 </template>
 
 <script setup>

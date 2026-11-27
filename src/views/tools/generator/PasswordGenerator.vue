@@ -85,7 +85,7 @@
       <!-- 输出区域 -->
       <div class="output-section">
         <div class="output-header">
-          <h3>生成的密码</h3>
+          <h2>生成的密码</h2>
           <span class="password-count">{{ passwords.length }} 个密码</span>
         </div>
         <div class="password-list" v-if="passwords.length">
@@ -458,7 +458,7 @@ h1 {
   margin-bottom: 16px;
 }
 
-.output-header h3 {
+.output-header h2 {
   margin: 0;
   color: var(--text-strong);
 }

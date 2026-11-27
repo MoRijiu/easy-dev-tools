@@ -14,7 +14,7 @@
         </div>
         
         <div class="footer-section">
-          <h3 class="footer-title">快速链接</h3>
+          <h2 class="footer-title">快速链接</h2>
           <div class="footer-links">
             <router-link to="/" class="footer-link">
               <span class="link-icon">🏠</span> 首页
@@ -32,7 +32,7 @@
         </div>
 
         <div class="footer-section">
-          <h3 class="footer-title">联系方式</h3>
+          <h2 class="footer-title">联系方式</h2>
           <div class="footer-links">
             <a href="mailto:1092257069@qq.com" class="footer-link">
               <span class="link-icon">📧</span> 邮箱联系

@@ -48,7 +48,7 @@
       </ul>
 
       <div v-if="parsed" class="fields-section">
-        <h3 class="section-title">字段解析</h3>
+        <h2 class="section-title">字段解析</h2>
         <table class="fields-table">
           <thead>
             <tr><th scope="col">字段</th><th scope="col">原值</th><th scope="col">匹配值</th></tr>
@@ -65,7 +65,7 @@
       </div>
 
       <div v-if="parsed" class="runs-section">
-        <h3 class="section-title">未来 {{ runs.length }} 次执行（本地时间）</h3>
+        <h2 class="section-title">未来 {{ runs.length }} 次执行（本地时间）</h2>
         <ol v-if="runs.length" class="runs-list">
           <li v-for="(t, i) in runs" :key="i"><code>{{ formatTime(t) }}</code><span class="run-week">周{{ weekLabel(t) }}</span></li>
         </ol>
