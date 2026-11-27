@@ -12,6 +12,20 @@ const NAMED = {
 function fail(error) { return { ok: false, error }; }
 function clamp255(n) { return Math.min(255, Math.max(0, Math.round(n))); }
 
+// 全角转半角：＃ＦＦ００００、ｒｇｂ（255，0，0）等整段全角输入按半角识别（U+FF01–FF5E 1:1 对应 ASCII !–~，全角空格转普通空格）
+export function normalizeColorInput(input) {
+  return String(input).replace(/[！-～　]/g, (c) => (c === '　' ? ' ' : String.fromCharCode(c.charCodeAt(0) - 0xFEE0)));
+}
+// 报错回显用户输入时截断，避免超长输入把整段原文塞进错误信息
+function showInput(input) { const t = String(input).trim(); return t.length > 40 ? `${t.slice(0, 40)}…` : t; }
+// 严格数字（可带 %）：拒绝 parseFloat 式的尾随垃圾（10abc、0x10、0.5turn 静默吞字符）
+const NUM_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+function parseStrictNumber(text) { return NUM_RE.test(text) ? Number(text) : NaN; }
+function parseAlpha(text) {
+  if (text.endsWith('%')) { const n = parseStrictNumber(text.slice(0, -1)); return Number.isNaN(n) ? NaN : n / 100; }
+  return parseStrictNumber(text);
+}
+
 function hslToRgb(h, s, l) {
   const hh = ((h % 360) + 360) % 360 / 360;
   const ss = Math.min(100, Math.max(0, s)) / 100;
@@ -32,50 +46,66 @@ function hslToRgb(h, s, l) {
 // 解析颜色：支持 #rgb/#rgba/#rrggbb/#rrggbbaa、rgb()/rgba()、hsl()/hsla()、常用英文名
 export function parseColor(input) {
   if (typeof input !== 'string' || !input.trim()) return fail('颜色不能为空，请输入如 #2563eb 或 rgb(37, 99, 235)');
-  const s = input.trim().toLowerCase();
+  if (input.length > 1024) return fail(`颜色输入过长（${input.length} 字符，上限 1024），请粘贴单个颜色值`);
+  const s = normalizeColorInput(input).trim().toLowerCase();
+  if (s === 'transparent') return makeColor(0, 0, 0, 0);
   if (NAMED[s]) { const [r, g, b] = NAMED[s]; return makeColor(r, g, b, 1); }
-  const hexMatch = s.match(/^#([0-9a-f]{3,8})$/);
   if (s.startsWith('#')) {
-    if (!hexMatch) return fail(`「${input.trim()}」不是合法的十六进制颜色（应为 #rgb、#rrggbb 或带透明度的 #rrggbbaa）`);
-    const h = hexMatch[1];
-    if (![3, 4, 6, 8].includes(h.length)) return fail(`十六进制颜色长度应为 3、4、6 或 8 位，当前 ${h.length} 位`);
-    if (h.length <= 4) {
-      const [r, g, b, a] = [...h].map((c) => parseInt(c + c, 16));
-      return makeColor(r, g, b, h.length === 4 ? a / 255 : 1);
+    const body = s.slice(1);
+    const bad = body.search(/[^0-9a-f]/);
+    if (bad !== -1) return fail(`十六进制颜色第 ${bad + 1} 位「${body[bad]}」不是 0–9/a–f 字符`);
+    if (![3, 4, 6, 8].includes(body.length)) return fail(`十六进制颜色长度应为 3、4、6 或 8 位，当前 ${body.length} 位`);
+    if (body.length <= 4) {
+      const [r, g, b, a] = [...body].map((c) => parseInt(c + c, 16));
+      return makeColor(r, g, b, body.length === 4 ? a / 255 : 1);
     }
-    const r = parseInt(h.slice(0, 2), 16); const g = parseInt(h.slice(2, 4), 16); const b = parseInt(h.slice(4, 6), 16);
-    return makeColor(r, g, b, h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1);
+    const r = parseInt(body.slice(0, 2), 16); const g = parseInt(body.slice(2, 4), 16); const b = parseInt(body.slice(4, 6), 16);
+    return makeColor(r, g, b, body.length === 8 ? parseInt(body.slice(6, 8), 16) / 255 : 1);
   }
-  const rgbMatch = s.match(/^rgba?\(\s*([^)]+)\)$/);
+  const rgbMatch = s.match(/^rgba?\(\s*([^)]*)\)$/);
   if (rgbMatch) {
+    if (!rgbMatch[1].trim()) return fail('rgb() 内为空，需要 3 个通道值，可选第 4 个为透明度');
+    if (rgbMatch[1].includes('/') && !rgbMatch[1].split('/').pop().trim()) return fail('rgb() 斜杠 / 后须给出透明度（如 rgb(255 0 0 / 0.5)）');
     const parts = rgbMatch[1].split(/[\s,/]+/).filter(Boolean);
     if (parts.length < 3 || parts.length > 4) return fail('rgb() 需要 3 个通道值，可选第 4 个为透明度');
     const nums = [];
     for (let i = 0; i < 3; i++) {
       const p = parts[i];
-      const v = p.endsWith('%') ? parseFloat(p) * 2.55 : parseFloat(p);
-      if (Number.isNaN(v) || v < 0 || v > 255) return fail(`rgb() 第 ${i + 1} 个通道「${p}」不合法，应在 0–255（或 0%–100%）之间`);
+      const isPct = p.endsWith('%');
+      const v0 = parseStrictNumber(isPct ? p.slice(0, -1) : p);
+      if (Number.isNaN(v0)) return fail(`rgb() 第 ${i + 1} 个通道「${p}」不是合法数字，应为 0–255 或 0%–100%`);
+      const v = isPct ? v0 * 2.55 : v0;
+      if (v0 < 0 || (isPct ? v0 > 100 : v0 > 255)) return fail(`rgb() 第 ${i + 1} 个通道「${p}」不合法，应在 0–255（或 0%–100%）之间`);
       nums.push(clamp255(v));
     }
     let a = 1;
-    if (parts.length === 4) { a = parts[3].endsWith('%') ? parseFloat(parts[3]) / 100 : parseFloat(parts[3]); if (Number.isNaN(a) || a < 0 || a > 1) return fail('透明度应在 0–1 之间'); }
+    if (parts.length === 4) { a = parseAlpha(parts[3]); if (Number.isNaN(a) || a < 0 || a > 1) return fail(`透明度「${parts[3]}」应在 0–1（或 0%–100%）之间`); }
     return makeColor(nums[0], nums[1], nums[2], a);
   }
-  const hslMatch = s.match(/^hsla?\(\s*([^)]+)\)$/);
+  const hslMatch = s.match(/^hsla?\(\s*([^)]*)\)$/);
   if (hslMatch) {
+    if (!hslMatch[1].trim()) return fail('hsl() 内为空，需要色相、饱和度、亮度 3 个值，可选第 4 个为透明度');
+    if (hslMatch[1].includes('/') && !hslMatch[1].split('/').pop().trim()) return fail('hsl() 斜杠 / 后须给出透明度（如 hsl(120 50% 50% / 0.5)）');
     const parts = hslMatch[1].split(/[\s,/]+/).filter(Boolean);
     if (parts.length < 3 || parts.length > 4) return fail('hsl() 需要色相、饱和度、亮度 3 个值，可选第 4 个为透明度');
-    const hDeg = parseFloat(parts[0]);
-    const sat = parseFloat(parts[1]); const lig = parseFloat(parts[2]);
-    if (Number.isNaN(hDeg)) return fail('hsl() 色相不合法，应为 0–360 的数字');
-    if (Number.isNaN(sat) || sat < 0 || sat > 100) return fail('hsl() 饱和度应在 0%–100% 之间');
-    if (Number.isNaN(lig) || lig < 0 || lig > 100) return fail('hsl() 亮度应在 0%–100% 之间');
+    const hueText = parts[0].endsWith('deg') ? parts[0].slice(0, -3) : parts[0];
+    const hDeg = parseStrictNumber(hueText);
+    if (Number.isNaN(hDeg)) return fail(`hsl() 色相「${parts[0]}」不合法，应为数字（可带 deg 后缀，负数与超 360 会按色环归一）`);
+    const pct = (text, label) => {
+      if (!text.endsWith('%')) return { error: `hsl() ${label}「${text}」须带 %（如 50%）` };
+      const n = parseStrictNumber(text.slice(0, -1));
+      if (Number.isNaN(n)) return { error: `hsl() ${label}「${text}」不是合法数字` };
+      if (n < 0 || n > 100) return { error: `hsl() ${label}应在 0%–100% 之间，当前「${text}」` };
+      return { value: n };
+    };
+    const sat = pct(parts[1], '饱和度'); if (sat.error) return fail(sat.error);
+    const lig = pct(parts[2], '亮度'); if (lig.error) return fail(lig.error);
     let a = 1;
-    if (parts.length === 4) { a = parts[3].endsWith('%') ? parseFloat(parts[3]) / 100 : parseFloat(parts[3]); if (Number.isNaN(a) || a < 0 || a > 1) return fail('透明度应在 0–1 之间'); }
-    const [r, g, b] = hslToRgb(hDeg, sat, lig);
+    if (parts.length === 4) { a = parseAlpha(parts[3]); if (Number.isNaN(a) || a < 0 || a > 1) return fail(`透明度「${parts[3]}」应在 0–1（或 0%–100%）之间`); }
+    const [r, g, b] = hslToRgb(hDeg, sat.value, lig.value);
     return makeColor(r, g, b, a);
   }
-  return fail(`无法识别颜色「${input.trim()}」，支持 #hex、rgb()、hsl() 与常用英文名（如 white）`);
+  return fail(`无法识别颜色「${showInput(input)}」，支持 #hex、rgb()、hsl() 与常用英文名（如 white）`);
 }
 
 function makeColor(r, g, b, a) {
@@ -132,6 +162,7 @@ export function checkContrast(fgInput, bgInput) {
 
 // 把前景色沿「向黑/向白」方向二分调整到目标对比度（选改动较小的一侧）；无解返回 null
 export function adjustForeground(fgInput, bgInput, target = WCAG_THRESHOLDS.normalAA) {
+  if (typeof target !== 'number' || !Number.isFinite(target) || target < 1 || target > 21) return fail(`目标对比度应在 1–21 之间，当前 ${target}`);
   const base = checkContrast(fgInput, bgInput);
   if (!base.ok) return fail(base.error);
   if (base.ratio >= target) return { ok: true, changed: false, color: base.fg, ratio: base.ratio };
