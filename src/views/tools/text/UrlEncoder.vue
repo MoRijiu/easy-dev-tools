@@ -40,13 +40,13 @@
       </div>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="url-encoder-status" :message="statusMessage" :type="statusType" />
       <p v-if="statsText" class="stats-line">{{ statsText }}</p>
 
       <!-- 编辑器区域 -->
       <ToolEditorLayout>
         <ToolEditorPanel title="输入内容" :info="`${inputText.length} 字符`">
-          <textarea aria-label="输入需要编码或解码的内容"
+          <textarea aria-label="输入需要编码或解码的内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'url-encoder-status' : undefined"
             v-model="inputText"
             class="text-input"
             placeholder="在此输入需要编码或解码的内容..."
@@ -92,6 +92,9 @@ const inputText = ref("");
 const outputText = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
+const inputErrorText = ref("");
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = "error"; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === "error" && inputErrorText.value !== "" && statusMessage.value === inputErrorText.value);
 const mode = ref("component");
 const plusAsSpace = ref(false);
 const statsText = ref("");
@@ -195,14 +198,12 @@ const examples = [
 // URL 编码
 const encodeUrl = () => {
   if (!inputText.value.trim()) {
-    statusMessage.value = "✗ 请输入需要编码的内容";
-    statusType.value = "error";
+    setInputError("✗ 请输入需要编码的内容");
     return;
   }
   const result = encodeUrlText(inputText.value, { mode: mode.value });
   if (!result.ok) {
-    statusMessage.value = `✗ 编码失败：${result.error.message}`;
-    statusType.value = "error";
+    setInputError(`✗ 编码失败：${result.error.message}`);
     outputText.value = "";
     statsText.value = "";
     return;
@@ -223,8 +224,7 @@ const useExample = (example) => {
 // URL 解码
 const decodeUrl = () => {
   if (!inputText.value.trim()) {
-    statusMessage.value = "✗ 请输入需要解码的 URL 编码字符串";
-    statusType.value = "error";
+    setInputError("✗ 请输入需要解码的 URL 编码字符串");
     return;
   }
   const result = decodeUrlText(inputText.value, {
@@ -232,8 +232,7 @@ const decodeUrl = () => {
     plusAsSpace: plusAsSpace.value,
   });
   if (!result.ok) {
-    statusMessage.value = `✗ 解码失败：${result.error.message}`;
-    statusType.value = "error";
+    setInputError(`✗ 解码失败：${result.error.message}`);
     outputText.value = "";
     statsText.value = "";
     return;

@@ -8,8 +8,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copySummary" class="btn btn-success"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <input v-model="parseInput" class="text-input" placeholder="反向解析：755 / 4755 / rwxr-xr-x / drwxr-xr-x+ / 符号模式 u+x、a=rwx（回车解析）" spellcheck="false" aria-label="反向解析输入" @keyup.enter="doParse" />
+      <ToolStatusMessage id="chmod-status" :message="statusMessage" :type="statusType" />
+      <input v-model="parseInput" class="text-input" placeholder="反向解析：755 / 4755 / rwxr-xr-x / drwxr-xr-x+ / 符号模式 u+x、a=rwx（回车解析）" spellcheck="false" aria-label="反向解析输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'chmod-status' : undefined" @keyup.enter="doParse" />
       <div class="parse-row"><button class="btn btn-primary" @click="doParse">解析到勾选表</button></div>
       <table class="perm-table" aria-label="权限勾选表">
         <thead><tr><th scope="col"></th><th scope="col">读 r（4）</th><th scope="col">写 w（2）</th><th scope="col">执行 x（1）</th><th scope="col">八进制</th></tr></thead>
@@ -87,6 +87,9 @@ const bits = reactive(parseOctal('755'));
 const parseInput = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const umaskInput = ref('022');
 const specialDigit = computed(() => (bits.setuid ? 4 : 0) + (bits.setgid ? 2 : 0) + (bits.sticky ? 1 : 0));
 const digitOf = (key) => { const p = bits[key]; return (p.r ? 4 : 0) + (p.w ? 2 : 0) + (p.x ? 1 : 0); };
@@ -104,7 +107,7 @@ const doParse = () => {
     } else { assign(parseChmod(parseInput.value)); statusMessage.value = '✓ 解析完成'; }
     statusType.value = 'success';
   }
-  catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  catch (e) { setInputError('✗ ' + e.message); }
 };
 const loadPreset = (p) => { assign(parseOctal(p.octal)); parseInput.value = p.octal; statusMessage.value = `✓ 已套用 ${p.octal}：${p.note}`; statusType.value = 'success'; };
 const useExample = (ex) => { parseInput.value = ex.input; doParse(); };

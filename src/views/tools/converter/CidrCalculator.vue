@@ -8,8 +8,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copySummary" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <input v-model="inputText" class="text-input" placeholder="如 192.168.1.10/24，也支持 /255.255.255.0 掩码写法或纯 IP" spellcheck="false" aria-label="CIDR 输入" @input="calculate" />
+      <ToolStatusMessage id="cidr-status" :message="statusMessage" :type="statusType" />
+      <input v-model="inputText" class="text-input" placeholder="如 192.168.1.10/24，也支持 /255.255.255.0 掩码写法或纯 IP" spellcheck="false" aria-label="CIDR 输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'cidr-status' : undefined" @input="calculate" />
       <div class="prefix-row" role="group" aria-label="常用前缀">
         <span>常用前缀：</span>
         <button v-for="p in [8, 16, 24, 25, 26, 27, 28, 29, 30, 32]" :key="p" class="chip" :class="{ active: result && result.prefix === p }" :aria-pressed="!!result && result.prefix === p" @click="applyPrefix(p)">/{{ p }}</button>
@@ -67,6 +67,9 @@ const inputText = ref('');
 const result = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const rows = computed(() => {
   if (!result.value) return [];
   const r = result.value;
@@ -94,12 +97,12 @@ const calculate = () => {
     result.value = parseCidr(inputText.value);
     statusMessage.value = '✓ 计算完成';
     statusType.value = 'success';
-  } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  } catch (e) { setInputError('✗ ' + e.message); }
 };
 const applyPrefix = (p) => {
   const ipPart = inputText.value.trim().split('/')[0].trim();
-  if (!ipPart) { statusMessage.value = '✗ 请先输入一个 IPv4 地址'; statusType.value = 'error'; return; }
-  try { parseCidr(ipPart); } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; return; }
+  if (!ipPart) { setInputError('✗ 请先输入一个 IPv4 地址'); return; }
+  try { parseCidr(ipPart); } catch (e) { setInputError('✗ ' + e.message); return; }
   inputText.value = `${ipPart}/${p}`;
   calculate();
 };
