@@ -439,9 +439,9 @@ h1 {
   .strength-text { white-space: normal; }
 }
 
-.strength-text.weak { color: #e74c3c; }
-.strength-text.medium { color: #f39c12; }
-.strength-text.strong { color: #27ae60; }
+.strength-text.weak { color: var(--danger-text); }
+.strength-text.medium { color: var(--warning-text); }
+.strength-text.strong { color: var(--success-text); }
 
 /* 输出区域 */
 .output-section {
