@@ -473,6 +473,8 @@ h1 {
   display: flex;
   align-items: center;
   gap: 4px;
+  min-height: 24px;
+  padding: 2px 4px;
 }
 
 .link-btn:hover {

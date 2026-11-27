@@ -299,6 +299,9 @@ const openPalette = () => {
   font-weight: 500;
   transition: color 0.2s;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
 }
 
 .nav-link:hover {

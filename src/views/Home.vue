@@ -106,14 +106,14 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .search-box { display: flex; align-items: center; gap: .5rem; max-width: 560px; margin: 1rem auto 0; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: .45rem .75rem; }
 .search-box:focus-within { border-color: var(--accent); }
 .search-input { flex: 1; border: none; outline: none; font-size: .95rem; background: transparent; min-width: 0; }
-.search-clear { border: none; background: var(--bg-soft); border-radius: 999px; width: 22px; height: 22px; cursor: pointer; line-height: 1; }
+.search-clear { border: none; background: var(--bg-soft); border-radius: 999px; width: 24px; height: 24px; cursor: pointer; line-height: 1; }
 .cat-nav { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: .85rem; }
 .cat-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: .32rem .7rem; font-size: .85rem; cursor: pointer; }
 .cat-chip:hover { border-color: var(--accent); }
 .cat-chip.active { background: var(--accent-solid); color: #fff; border-color: var(--accent); }
 .cat-count { opacity: .75; font-size: .78rem; }
 .result-hint { text-align: center; color: var(--text-2); font-size: .9rem; margin: .5rem 0 1rem; }
-.reset-link { border: none; background: none; color: var(--accent-text); cursor: pointer; font-size: .9rem; margin-left: .5rem; text-decoration: underline; }
+.reset-link { border: none; background: none; color: var(--accent-text); cursor: pointer; font-size: .9rem; margin-left: .5rem; text-decoration: underline; display: inline-flex; align-items: center; min-height: 24px; padding: 1px 4px; }
 .tools-container { display: flex; flex-direction: column; gap: 1.5rem; }
 .tool-group { background: var(--surface); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm); }
 .group-header { display: flex; align-items: center; gap: .85rem; margin-bottom: 1rem; padding-bottom: .7rem; border-bottom: 1px solid var(--border); }

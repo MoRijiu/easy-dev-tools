@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
   margin-bottom: 1rem;
   font-size: .9rem;
 }
-.tool-bar-back { color: var(--accent-text); text-decoration: none; white-space: nowrap; }
+.tool-bar-back { color: var(--accent-text); text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; min-height: 24px; padding: 1px 4px; margin: -1px -4px; }
 .tool-bar-back:hover { text-decoration: underline; }
 .tool-bar-name { color: var(--text-strong); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tool-bar-fav { display: inline-flex; align-items: center; gap: .15rem; color: var(--text-2); white-space: nowrap; }
