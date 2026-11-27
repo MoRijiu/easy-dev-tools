@@ -23,7 +23,8 @@
   --text: #1f2937;
   --text-strong: #2c3e50;
   --text-2: #6b7280;
-  --text-3: #9ca3af;
+  /* 三级文字在 surface/bg/bg-soft 上对比度均 ≥4.5:1（R9o 校准，勿调浅） */
+  --text-3: #646c78;
   --accent: #667eea;
   --accent-2: #764ba2;
   --accent-soft: #f0f4ff;
@@ -83,7 +84,7 @@
   --text: #e5e7eb;
   --text-strong: #f1f5f9;
   --text-2: #9aa3b2;
-  --text-3: #6b7280;
+  --text-3: #8b94a5;
   --accent-soft: #262c47;
   --success-soft: #14301f;
   --danmaku-bg: rgba(28, 32, 42, 0.92);
