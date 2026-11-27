@@ -57,7 +57,10 @@ const usageSteps = ['粘贴 CSS 到左侧输入框', '右侧实时出美化结�
 const faqs = [
   { question: '压缩会不会改坏 calc() 里的空格？', answer: '不会。压缩只折叠空白并去掉逗号、组合器旁的空格，calc(100% - 10px) 中运算符两侧的空格会保留，字符串内容也原样不动。' },
   { question: '它校验到什么程度？', answer: '校验结构良构：大括号配平、声明含冒号且有值、选择器非空、注释与字符串闭合。不校验属性名与取值是否符合 CSS 规范。' },
-  { question: '支持 CSS 嵌套和 @media 吗？', answer: '支持。解析按通用块结构递归处理，@media/@supports/@keyframes 与原生嵌套规则都能正确分层缩进。' }
+  { question: '支持 CSS 嵌套和 @media 吗？', answer: '支持。解析按通用块结构递归处理，@media/@supports/@keyframes 与原生嵌套规则都能正确分层缩进。' },
+  { question: '用中文输入法粘贴的全角符号能处理吗？', answer: '能。字符串与注释之外，全角标点与字母数字（如 ｛｝：；ｒｅｄ）会自动转成半角再解析；字符串里的全角字符原样保留。' },
+  { question: '只粘贴几条声明（如 color:red）可以吗？', answer: '可以。顶层裸声明片段末尾分号可省略；自定义属性（如 --empty:;）允许空值，这是合法 CSS，不会误报缺值。' },
+  { question: '改错了为什么还显示旧结果？', answer: '报错时保留上一次成功结果方便对照行号修正，修正后会自动刷新；嵌套超过 100 层或输入超过 100 万字符会明确提示而非卡死。' }
 ];
 const examples = [
   { input: '.card{color:#333;margin:0 auto;padding:8px 16px}.card:hover{color:#000}@media (max-width:600px){.card{margin:0;padding:4px}}', output: '.card {\n  color: #333;\n  margin: 0 auto;\n  padding: 8px 16px;\n}\n.card:hover {\n  color: #000;\n}\n@media (max-width:600px) {\n  .card {\n    margin: 0;\n    padding: 4px;\n  }\n}', description: '卡片样式美化（含 @media 嵌套）' },
@@ -78,8 +81,8 @@ const process = () => {
     statusMessage.value = '✓ 校验通过，处理完成';
     statusType.value = 'success';
   } catch (e) {
-    result.value = null;
-    statusMessage.value = '✗ ' + e.message;
+    // 出错保留上一次成功结果，方便对照行号修正输入
+    statusMessage.value = '✗ ' + e.message + (result.value ? '（已保留上次结果）' : '');
     statusType.value = 'error';
   }
 };
@@ -98,7 +101,7 @@ const copyOutput = async () => {
 .css-formatter { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .options { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; font-size: 13px; color: var(--text-2); }
 .options select { margin-left: 4px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
 .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
