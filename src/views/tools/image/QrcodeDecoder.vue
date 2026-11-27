@@ -28,7 +28,7 @@
         <button class="btn ghost" type="button" :disabled="!previewUrl" @click="clearAll">清空</button>
         <span v-if="imageInfo" class="meta">{{ imageInfo }}</span>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="decoding" class="hint" role="status" aria-live="polite">正在识别…</p>
       <template v-if="result">
         <p class="verdict pass">✓ 识别成功 · {{ result.info.typeName }}</p>

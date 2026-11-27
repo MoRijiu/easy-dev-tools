@@ -43,7 +43,7 @@
           <button class="btn ghost" type="button" @click="copyText(summary)">复制摘要</button>
         </div>
       </template>
-      <p v-else-if="analysisError" class="error-text">{{ analysisError }}</p>
+      <p v-else-if="analysisError" class="error-text" role="alert">{{ analysisError }}</p>
       <p v-else class="muted">在上方输入密码后，这里会显示强度、问题与破解耗时估算。</p>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <ToolFeatures :features="features" />

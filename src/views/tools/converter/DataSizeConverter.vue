@@ -14,7 +14,7 @@
         <button class="btn ghost" @click="clearAll">清空</button>
       </div>
       <div class="examples"><span>示例：</span><button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button></div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>
         <div class="table-wrap"><table><tbody>
@@ -24,7 +24,7 @@
           <label>网速 <input v-model="speed" type="text" inputmode="decimal" aria-label="网速数值" /></label>
           <select v-model="speedUnit" aria-label="网速单位"><option v-for="u in speedUnits" :key="u" :value="u">{{ u }}</option></select>
           <span v-if="estimate?.ok" class="est">预计耗时约 <strong>{{ estimate.text }}</strong>（实际受协议开销与波动影响会更久）</span>
-          <span v-else-if="estimate" class="error">{{ estimate.error }}</span>
+          <span v-else-if="estimate" class="error" role="alert">{{ estimate.error }}</span>
         </div>
         <button class="btn ghost" @click="copyText(summary)">复制摘要</button>
       </template>

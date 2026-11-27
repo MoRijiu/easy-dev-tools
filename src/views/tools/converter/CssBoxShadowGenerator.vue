@@ -35,7 +35,7 @@
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in SHADOW_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="shadowCss">
         <div class="code-head"><span>CSS 代码</span>
           <span class="code-btns">

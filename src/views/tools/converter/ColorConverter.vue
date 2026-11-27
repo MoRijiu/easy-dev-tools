@@ -33,7 +33,7 @@
           <button class="btn btn-primary" @click="parseAny">解析</button>
         </div>
         <span class="format-hint">支持 #HEX（3/4/6/8 位）、rgb()/rgba()、hsl()/hsla() 与常用英文名；错误会定位到具体字符。</span>
-        <p v-if="parseError" class="field-error">{{ parseError }}</p>
+        <p v-if="parseError" class="field-error" role="alert">{{ parseError }}</p>
         <div class="alpha-row">
           <label for="alpha-range">透明度 Alpha：{{ alphaPct }}%</label>
           <input id="alpha-range" v-model.number="alphaPct" type="range" min="0" max="100" @input="onAlphaChange" />
@@ -74,7 +74,7 @@
             <button class="copy-btn" aria-label="复制 HEX 值" @click="copyValue(hexInput, 'HEX')">📋</button>
           </div>
           <span class="format-hint">格式: #RGB / #RRGGBB / 带透明度 #RGBA / #RRGGBBAA</span>
-          <p v-if="hexError" class="field-error">{{ hexError }}</p>
+          <p v-if="hexError" class="field-error" role="alert">{{ hexError }}</p>
         </div>
 
         <!-- RGB 输入 -->

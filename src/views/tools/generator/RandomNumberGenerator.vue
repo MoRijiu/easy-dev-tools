@@ -31,7 +31,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
       <p v-if="note" class="note" role="status" aria-live="polite">{{ note }}</p>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="results.length">
         <p class="summary">已生成 {{ summary.count }} 个 · 最小 {{ summary.min }} · 最大 {{ summary.max }} · 平均 {{ averageText }}</p>
         <label class="block">结果（每行一个）

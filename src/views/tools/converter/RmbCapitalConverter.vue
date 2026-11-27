@@ -11,7 +11,7 @@
         <button class="btn ghost" @click="clearAll">清空</button>
       </div>
       <div class="examples"><span>示例：</span><button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button></div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="notes.length" class="note" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <template v-if="result">
         <p class="capital">{{ result.capital }}</p>

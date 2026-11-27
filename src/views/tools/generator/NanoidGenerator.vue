@@ -26,7 +26,7 @@
         <button class="btn ghost" type="button" @click="loadBatch">示例：批量 50 个</button>
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="results.length">
         <label class="block">结果（每行一个，共 {{ results.length }} 个）
           <textarea :value="resultText" rows="8" readonly spellcheck="false" aria-label="Nano ID 结果"></textarea>

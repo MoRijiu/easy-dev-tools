@@ -49,7 +49,7 @@
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
 
       <!-- 错误定位详情 -->
-      <div v-if="errorDetail" class="error-detail">
+      <div v-if="errorDetail" class="error-detail" role="alert">
         <div class="error-detail-head">
           <span v-if="errorDetail.line != null">第 {{ errorDetail.line }} 行第 {{ errorDetail.column }} 列（字符 {{ errorDetail.position }}）</span>
           <button class="mini-btn" @click="copyError">复制诊断</button>

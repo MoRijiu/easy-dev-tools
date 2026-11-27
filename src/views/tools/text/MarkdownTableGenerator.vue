@@ -25,7 +25,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.markdown)">复制 Markdown</button>
         <span class="muted">输入后实时生成</span>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="result && result.notes && result.notes.length" class="note" role="status" aria-live="polite">{{ result.notes.join('；') }}</p>
       <template v-if="result">
         <label class="block">Markdown 输出

@@ -14,7 +14,7 @@
         <span>示例：</span>
         <button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="info">
         <ul v-if="info.warnings && info.warnings.length" class="warnings-list" role="status" aria-live="polite">
           <li v-for="(w, i) in info.warnings" :key="i">⚠️ {{ w }}</li>

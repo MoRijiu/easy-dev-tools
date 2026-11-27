@@ -26,7 +26,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <span class="muted">改动输入后自动重新计算</span>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="result">
         <p class="summary">{{ result.label }} · 密钥 {{ result.keyBytes }} 字节 · 消息 {{ result.messageBytes }} 字节 · 签名 {{ result.digestBytes }} 字节</p>
         <div class="table-wrap"><table><tbody>
@@ -40,7 +40,7 @@
             <span class="secret-wrap"><input v-model="expectedText" placeholder="粘贴对方给出的签名，自动与上方结果比对" aria-label="期望签名" autocomplete="off" spellcheck="false" />
             <select v-model="expectedEncoding" aria-label="期望签名编码"><option v-for="e in EXPECTED_ENCODINGS" :key="e.id" :value="e.id">{{ e.label }}</option></select></span>
           </label>
-          <p v-if="verifyError" class="error">{{ verifyError }}</p>
+          <p v-if="verifyError" class="error" role="alert">{{ verifyError }}</p>
           <p v-else-if="verifyResult" :class="verifyResult.match ? 'verify-ok' : 'verify-bad'">{{ verifyResult.match ? '✓ 签名一致，验签通过' : `✕ ${verifyResult.reason}` }}</p>
         </div>
       </template>

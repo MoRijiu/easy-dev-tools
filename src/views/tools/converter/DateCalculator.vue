@@ -23,7 +23,7 @@
           <div class="card"><span class="num">{{ fmtNum(diff.workdays) }}</span><span class="label">工作日 (周一至周五)</span></div>
           <div class="card"><span class="num">{{ fmtNum(diff.weekends) }}</span><span class="label">周末天数</span></div>
         </div>
-        <p v-if="diffError" class="error-line">✗ {{ diffError }}</p>
+        <p v-if="diffError" class="error-line" role="alert">✗ {{ diffError }}</p>
         <p v-if="diff" class="hint">{{ diff.from }}（{{ startInfo.weekday }}）到 {{ diff.to }}（{{ endInfo.weekday }}）<span v-if="diff.reversed"> · 已自动按先后排序</span></p>
       </section>
       <section class="block">
@@ -36,7 +36,7 @@
           </label>
           <div class="quick"><button @click="setQuick(7,'days')">+7天</button><button @click="setQuick(30,'days')">+30天</button><button @click="setQuick(90,'days')">+90天</button><button @click="setQuick(1,'years')">+1年</button><button @click="setQuick(-30,'days')">-30天</button></div>
         </div>
-        <p v-if="addError" class="error-line">✗ {{ addError }}</p>
+        <p v-if="addError" class="error-line" role="alert">✗ {{ addError }}</p>
         <div v-if="added" class="result-line">结果：<strong>{{ added.date }}</strong>（{{ added.weekday }}） · 实际相隔 {{ fmtNum(added.deltaDays) }} 天 · ISO 第 {{ added.isoWeek }} 周 · 今年第 {{ added.dayOfYear }} 天 · Q{{ added.quarter }}{{ added.isLeap ? ' · 闰年' : '' }}</div>
       </section>
       <ToolExamples :examples="examples" @use-example="useExample" />

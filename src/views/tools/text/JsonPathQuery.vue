@@ -13,11 +13,11 @@
         <section class="block grow">
           <h2>JSON 数据</h2>
           <textarea v-model="jsonInput" rows="12" spellcheck="false" placeholder="粘贴 JSON，如 {&quot;store&quot;: {&quot;book&quot;: [...]}}" aria-label="JSON 数据" @input="process"></textarea>
-          <p v-if="jsonError" class="error">✗ {{ jsonError }}</p>
+          <p v-if="jsonError" class="error" role="alert">✗ {{ jsonError }}</p>
         </section>
         <section class="block grow">
           <h2>查询结果 <span v-if="result" class="count">命中 {{ result.matches.length }} 条{{ result.truncated ? '（已达上限截断）' : '' }}</span></h2>
-          <p v-if="pathError" class="error">✗ {{ pathError }}</p>
+          <p v-if="pathError" class="error" role="alert">✗ {{ pathError }}</p>
           <div v-if="result && result.matches.length" class="results">
             <div v-for="(m, i) in shownMatches" :key="i" class="match">
               <code class="mpath">{{ m.path }}</code>
