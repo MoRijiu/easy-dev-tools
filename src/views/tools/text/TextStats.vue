@@ -13,22 +13,22 @@
         <textarea v-model="inputText" class="text-input" placeholder="粘贴或输入文本，右侧实时统计…" spellcheck="false" aria-label="输入文本" @input="process"></textarea>
         <div class="panel" aria-label="统计结果">
           <div v-if="stats" class="grid">
-            <div class="card"><span class="num">{{ stats.chars }}</span><span class="label">字符数</span></div>
-            <div class="card"><span class="num">{{ stats.charsNoSpaces }}</span><span class="label">不含空白</span></div>
-            <div class="card"><span class="num">{{ stats.words }}</span><span class="label">词数</span></div>
-            <div class="card"><span class="num">{{ stats.cjkChars }}</span><span class="label">中日韩字</span></div>
-            <div class="card"><span class="num">{{ stats.englishWords }}</span><span class="label">英文单词</span></div>
-            <div class="card"><span class="num">{{ stats.lines }}</span><span class="label">行数</span></div>
-            <div class="card"><span class="num">{{ stats.paragraphs }}</span><span class="label">段落数</span></div>
-            <div class="card"><span class="num">{{ stats.sentences }}</span><span class="label">句子数</span></div>
-            <div class="card"><span class="num">{{ stats.bytes }}</span><span class="label">字节 (UTF-8)</span></div>
-            <div class="card"><span class="num">{{ stats.digits }}</span><span class="label">数字</span></div>
-            <div class="card"><span class="num">{{ stats.letters }}</span><span class="label">英文字母</span></div>
-            <div class="card"><span class="num">{{ stats.longestLine }}</span><span class="label">最长行字符</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.chars) }}</span><span class="label">字符数</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.charsNoSpaces) }}</span><span class="label">不含空白</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.words) }}</span><span class="label">词数</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.cjkChars) }}</span><span class="label">中日韩字</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.englishWords) }}</span><span class="label">英文单词</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.lines) }}</span><span class="label">行数</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.paragraphs) }}</span><span class="label">段落数</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.sentences) }}</span><span class="label">句子数</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.bytes) }}</span><span class="label">字节 (UTF-8)</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.digits) }}</span><span class="label">数字</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.letters) }}</span><span class="label">英文字母</span></div>
+            <div class="card"><span class="num">{{ fmt(stats.longestLine) }}</span><span class="label">最长行字符</span></div>
           </div>
           <p v-else class="empty">输入文本后这里会显示统计结果</p>
           <div v-if="stats" class="times">
-            <span>预计阅读：{{ stats.readingText }}</span><span>预计朗读：{{ stats.speakingText }}</span><span>不重复词：{{ stats.uniqueWords }}</span>
+            <span>预计阅读：{{ stats.readingText }}</span><span>预计朗读：{{ stats.speakingText }}</span><span>不重复词：{{ fmt(stats.uniqueWords) }}</span>
           </div>
           <div v-if="stats && stats.topWords.length" class="top">
             <h3>高频词 Top {{ stats.topWords.length }}</h3>
@@ -54,7 +54,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
-import { analyzeText, buildSummary } from '@/utils/textStats.js';
+import { analyzeText, buildSummary, formatCount } from '@/utils/textStats.js';
+const fmt = formatCount;
 
 const features = [
   { icon: '🔢', title: '多维统计', description: '字符、词数、行段句、数字字母与 UTF-8 字节一屏看清' },
@@ -66,10 +67,13 @@ const usageSteps = ['粘贴文本到左侧输入框，右侧实时出统计', '�
 const faqs = [
   { question: '词数怎么算？', answer: '词数 = 中日韩单字数 + 英文单词数，混合文本也能给出合理总数。' },
   { question: '字符数为什么和编辑器不一样？', answer: '本工具按 Unicode 码点计数，一个 Emoji 算 1 个字符；部分编辑器按 UTF-16 单元计数会算 2。' },
-  { question: '高频词里的中文为什么是两个字？', answer: '中文没有空格分词，这里用双字组合近似统计高频搭配，适合快速看主题词。' }
+  { question: '高频词里的中文为什么是两个字？', answer: '中文没有空格分词，这里用双字组合近似统计高频搭配，适合快速看主题词。日语假名、韩语谚文同样按双字组合统计，与词数口径一致。' },
+  { question: '句子数怎么算？', answer: '连续的终止标点（。！？.!?…）只算一处句末；数字间的小数点（如 3.14、版本号 1.0.0）不算句末；纯标点不算句子，没有标点结尾但有实际内容的残段算一句。英文缩写（如 e.g.）里的点仍会被计为句末，属已知近似。' },
+  { question: '一次能统计多长的文本？', answer: '最多 100 万个字符（按 Unicode 码点计），超出会点名报错并保留上一次的统计结果。' }
 ];
 const examples = [
-  { input: 'Hello world. Hello tools!\n工具箱让开发更简单，工具虽小，效率很高。', output: '字符 43 · 词数以统计面板为准', description: '中英混合示例' }
+  { input: 'Hello world. Hello tools!\n工具箱让开发更简单，工具虽小，效率很高。', output: '字符 46 · 词数 21 · 句子 3 · 行数 2', description: '中英混合示例' },
+  { input: '圆周率约 3.14159，版本 1.0.0 已发布！真的吗？！是的……新功能包括 Faster loading 与 better search。', output: '字符 72 · 词数 29 · 句子 4 · 行数 1', description: '小数点/版本号不误判句末、连续标点只算一处' }
 ];
 const inputText = ref('');
 const stats = ref(null);
@@ -77,9 +81,14 @@ const statusMessage = ref('');
 const statusType = ref('');
 const process = () => {
   if (!inputText.value) { stats.value = null; statusMessage.value = ''; return; }
-  stats.value = analyzeText(inputText.value);
-  statusMessage.value = '✓ 统计完成';
-  statusType.value = 'success';
+  try {
+    stats.value = analyzeText(inputText.value);
+    statusMessage.value = '✓ 统计完成';
+    statusType.value = 'success';
+  } catch (e) {
+    statusMessage.value = `✗ ${e.message || '统计失败'}`;
+    statusType.value = 'error';
+  }
 };
 const loadExample = () => { inputText.value = examples[0].input; process(); };
 const useExample = (ex) => { inputText.value = ex.input; process(); };
@@ -95,7 +104,7 @@ const copySummary = async () => {
 .text-stats { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .text-input { width: 100%; min-height: 260px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; line-height: 1.6; box-sizing: border-box; resize: vertical; }
 .panel { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); padding: 12px; }
