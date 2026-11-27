@@ -9,7 +9,7 @@
         <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!result"><span class="icon" aria-hidden="true">↩️</span> 结果作输入</button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="css-formatter-status" :message="statusMessage" :type="statusType" />
       <div class="options" role="group" aria-label="格式化选项">
         <label>模式
           <select v-model="mode" @change="process">
@@ -25,7 +25,7 @@
         </label>
       </div>
       <div class="panes">
-        <textarea v-model="inputText" class="text-input" placeholder="粘贴 CSS，如 .card{color:#333;margin:0 auto}" spellcheck="false" aria-label="输入 CSS" @input="process"></textarea>
+        <textarea v-model="inputText" class="text-input" placeholder="粘贴 CSS，如 .card{color:#333;margin:0 auto}" spellcheck="false" aria-label="输入 CSS" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'css-formatter-status' : undefined" @input="process"></textarea>
         <textarea :value="result ? result.text : ''" class="text-input" placeholder="格式化结果将显示在这里" spellcheck="false" aria-label="格式化结果" readonly></textarea>
       </div>
       <p v-if="result" class="stats">✓ 校验通过 · {{ result.stats.rules }} 条规则 · {{ result.stats.declarations }} 条声明 · 最大嵌套 {{ result.stats.maxDepth }} 层 · 输出 {{ result.stats.lines }} 行<template v-if="mode === 'minify'"> · 体积减少约 {{ result.stats.saved }}%</template></p>
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -70,6 +70,9 @@ const inputText = ref('');
 const result = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const mode = ref('format');
 const indentSize = ref(2);
 const process = () => {
@@ -82,8 +85,7 @@ const process = () => {
     statusType.value = 'success';
   } catch (e) {
     // 出错保留上一次成功结果，方便对照行号修正输入
-    statusMessage.value = '✗ ' + e.message + (result.value ? '（已保留上次结果）' : '');
-    statusType.value = 'error';
+    setInputError('✗ ' + e.message + (result.value ? '（已保留上次结果）' : ''));
   }
 };
 const loadExample = () => { inputText.value = examples[0].input; process(); };

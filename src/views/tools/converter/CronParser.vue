@@ -16,7 +16,7 @@
         </button>
       </ToolToolbar>
 
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="cron-parser-status" :message="statusMessage" :type="statusType" />
 
       <div class="input-section">
         <ToolEditorPanel title="Cron 表达式" :info="parsed ? (parsed.hasSeconds ? '含秒字段' : '标准 5 字段') : ''">
@@ -26,6 +26,7 @@
             placeholder="例如：30 9 * * 1-5（工作日 9:30），支持 5/6/7 字段与 @daily 等别名"
             spellcheck="false"
             aria-label="Cron 表达式输入"
+            :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'cron-parser-status' : undefined"
             @input="parse"
           />
           <div class="field-hint" aria-hidden="true">
@@ -153,6 +154,9 @@ const parsed = ref(null);
 const runs = ref([]);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 
 const FIELD_HINT_SETS = {
   5: ['分钟', '小时', '日', '月', '星期'],
@@ -183,8 +187,7 @@ const parse = () => {
     statusMessage.value = '✓ 解析成功';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = `✗ ${e.message}`;
-    statusType.value = 'error';
+    setInputError(`✗ ${e.message}`);
   }
 };
 

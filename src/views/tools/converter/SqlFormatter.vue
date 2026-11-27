@@ -9,7 +9,7 @@
         <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!result"><span class="icon" aria-hidden="true">↩️</span> 结果作输入</button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="sql-formatter-status" :message="statusMessage" :type="statusType" />
       <div class="options" role="group" aria-label="格式化选项">
         <label>模式
           <select v-model="mode" @change="process">
@@ -32,7 +32,7 @@
         </label>
       </div>
       <div class="panes">
-        <textarea v-model="inputText" class="text-input" placeholder="粘贴 SQL，如 select id, name from users where age > 18 order by name limit 10" spellcheck="false" aria-label="输入 SQL" @input="process"></textarea>
+        <textarea v-model="inputText" class="text-input" placeholder="粘贴 SQL，如 select id, name from users where age > 18 order by name limit 10" spellcheck="false" aria-label="输入 SQL" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'sql-formatter-status' : undefined" @input="process"></textarea>
         <textarea :value="result ? result.text : ''" class="text-input" placeholder="格式化结果将显示在这里" spellcheck="false" aria-label="格式化结果" readonly></textarea>
       </div>
       <p v-if="result" class="stats">共 {{ result.stats.statements }} 条语句 · 输出 {{ result.stats.lines }} 行</p>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -77,6 +77,9 @@ const inputText = ref('');
 const result = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const mode = ref('format');
 const options = reactive({ keywordCase: 'upper', indentSize: 2 });
 const process = () => {
@@ -89,8 +92,7 @@ const process = () => {
     statusType.value = 'success';
   } catch (e) {
     // 出错保留上一次结果，只更新提示，避免改坏一处就丢掉已排好的版本
-    statusMessage.value = '✗ ' + (e?.message || '处理失败');
-    statusType.value = 'error';
+    setInputError('✗ ' + (e?.message || '处理失败'));
   }
 };
 const loadExample = () => { inputText.value = examples[0].input; process(); };
