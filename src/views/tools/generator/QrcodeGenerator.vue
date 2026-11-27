@@ -33,7 +33,8 @@
               rows="6"
               @input="onInputChange"
             ></textarea>
-            <span class="char-count">{{ inputText.length }} 字符</span>
+            <span class="char-count">{{ statsText }}</span>
+            <span v-if="contrastHint" :class="['contrast-hint', contrastLevel]">{{ contrastHint }}</span>
           </div>
 
           <!-- 选项设置 -->
@@ -179,8 +180,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import QRCode from "qrcode";
+import { validateQrOptions, analyzeContent, checkQrContrast, validateLogoFile, friendlyQrError, buildQrSummary } from "@/utils/qrcodeGenerate.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -211,18 +213,38 @@ const logoOptions = ref({
   whiteBackground: true
 });
 
+// 内容统计（按 Unicode 码点与 UTF-8 字节计，旧版 String.length 会把 Emoji 算成 2 个字符且不反映真实容量）
+const analysis = computed(() => analyzeContent(inputText.value, options.value.errorCorrectionLevel));
+const statsText = computed(() => {
+  const a = analysis.value;
+  if (!inputText.value) return "0 字符";
+  return `${a.chars} 字符 · ${a.bytes} 字节（UTF-8）· 占 ${a.level} 级容量 ${a.usagePercent}%（上限 ${a.capacity} 字节）`;
+});
+const contrastResult = computed(() => {
+  try { return checkQrContrast(options.value.darkColor, options.value.lightColor); } catch { return null; }
+});
+const contrastHint = computed(() => (contrastResult.value && contrastResult.value.level !== "ok" ? contrastResult.value.message : ""));
+const contrastLevel = computed(() => (contrastResult.value ? contrastResult.value.level : ""));
+
 // 上传 Logo
 const onLogoUpload = (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  if (!file.type.startsWith("image/")) {
-    statusMessage.value = "✗ 请上传图片文件";
+  try {
+    validateLogoFile(file);
+  } catch (e) {
+    statusMessage.value = `✗ ${e.message}`;
     statusType.value = "error";
+    event.target.value = "";
     return;
   }
 
   const reader = new FileReader();
+  reader.onerror = () => {
+    statusMessage.value = "✗ Logo 读取失败，请换一张图片重试";
+    statusType.value = "error";
+  };
   reader.onload = (e) => {
     logoDataUrl.value = e.target.result;
     // 上传 Logo 后自动提高容错级别
@@ -253,10 +275,11 @@ const removeLogo = () => {
 
 // 将 Logo 绘制到二维码上
 const addLogoToQrcode = (qrDataUrl) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const qrImg = new Image();
+    qrImg.onerror = () => reject(new Error("二维码图片加载失败，无法嵌入 Logo"));
 
     qrImg.onload = () => {
       canvas.width = qrImg.width;
@@ -264,6 +287,7 @@ const addLogoToQrcode = (qrDataUrl) => {
       ctx.drawImage(qrImg, 0, 0);
 
       const logoImg = new Image();
+      logoImg.onerror = () => reject(new Error("Logo 图片加载失败，请换一张图片重试"));
       logoImg.onload = () => {
         const logoSize = (canvas.width * logoOptions.value.size) / 100;
         const logoX = (canvas.width - logoSize) / 2;
@@ -295,23 +319,48 @@ const addLogoToQrcode = (qrDataUrl) => {
   });
 };
 
-// 生成二维码
+// 生成二维码（序号防竞态：连续输入时只采纳最后一次生成结果）
+let generateSeq = 0;
 const generateQrcode = async () => {
+  const seq = ++generateSeq;
   if (!inputText.value.trim()) {
     statusMessage.value = "✗ 请输入需要生成二维码的内容";
     statusType.value = "error";
     return;
   }
 
+  let opts;
+  try {
+    opts = validateQrOptions(options.value);
+  } catch (e) {
+    statusMessage.value = `✗ ${e.message}`;
+    statusType.value = "error";
+    return;
+  }
+
+  const a = analyzeContent(inputText.value, opts.errorCorrectionLevel);
+  if (a.overCapacity) {
+    statusMessage.value = `✗ ${friendlyQrError(new Error("The amount of data is too big"), a)}`;
+    statusType.value = "error";
+    return;
+  }
+
+  const contrast = checkQrContrast(opts.darkColor, opts.lightColor);
+  if (contrast.level === "error") {
+    statusMessage.value = `✗ ${contrast.message}`;
+    statusType.value = "error";
+    return;
+  }
+
   try {
     let dataUrl = await QRCode.toDataURL(inputText.value, {
-      width: options.value.width,
-      margin: options.value.margin,
+      width: opts.width,
+      margin: opts.margin,
       color: {
-        dark: options.value.darkColor,
-        light: options.value.lightColor
+        dark: opts.darkColor,
+        light: opts.lightColor
       },
-      errorCorrectionLevel: options.value.errorCorrectionLevel
+      errorCorrectionLevel: opts.errorCorrectionLevel
     });
 
     // 如果有 Logo，则添加到二维码上
@@ -319,12 +368,15 @@ const generateQrcode = async () => {
       dataUrl = await addLogoToQrcode(dataUrl);
     }
 
+    if (seq !== generateSeq) return;
     qrcodeDataUrl.value = dataUrl;
     const logoText = logoDataUrl.value ? "（含 Logo）" : "";
-    statusMessage.value = `✓ 二维码生成成功！尺寸: ${options.value.width}x${options.value.width}px ${logoText}`;
+    const warnText = contrast.level === "warn" ? `；注意：${contrast.message}` : "";
+    statusMessage.value = `✓ 二维码生成成功！尺寸: ${opts.width}x${opts.width}px ${logoText}${warnText}`;
     statusType.value = "success";
   } catch (error) {
-    statusMessage.value = `✗ 生成失败: ${error.message}`;
+    if (seq !== generateSeq) return;
+    statusMessage.value = `✗ ${friendlyQrError(error, a)}`;
     statusType.value = "error";
   }
 };
@@ -366,13 +418,15 @@ const clearAll = () => {
   };
 };
 
-// 输入变化时自动生成
+// 输入变化时自动生成（250ms 防抖，避免逐字触发整码重绘）
+let inputTimer = null;
 const onInputChange = () => {
-  if (inputText.value.trim()) {
-    generateQrcode();
-  } else {
+  if (inputTimer) clearTimeout(inputTimer);
+  if (!inputText.value.trim()) {
     qrcodeDataUrl.value = "";
+    return;
   }
+  inputTimer = setTimeout(() => generateQrcode(), 250);
 };
 
 // 监听选项变化自动重新生成
@@ -415,7 +469,8 @@ const usageSteps = [
 
 // 常见问题
 const faqs = [
-  { question: "二维码可以存储多少内容？", answer: "取决于容错级别，一般文本最多可存储约3000个字符，建议内容控制在500字符以内以保证扫码识别率。" },
+  { question: "二维码可以存储多少内容？", answer: "容量按 UTF-8 字节计算（一个汉字占 3 字节、Emoji 占 4 字节）：L 级上限 2953 字节、M 级 2331、Q 级 1663、H 级 1273。输入框下方会实时显示字节数与容量占用，超限会直接提示。内容越短码越稀疏、越好扫，建议控制在几百字节内。" },
+  { question: "为什么提示对比度过低或反色？", answer: "扫码器靠前景与背景的明暗差识别：前景比背景亮（反色）或对比度低于 3:1 时大概率扫不出来，本工具会拦截生成；3:1–4.5:1 会生成但给出警告。经典黑白对比度为 21:1。" },
   { question: "容错级别是什么意思？", answer: "容错级别决定二维码损坏后仍能被识别的比例。L级7%、M级15%、Q级25%、H级30%。级别越高，二维码密度越大。" },
   { question: "为什么我的二维码扫不出来？", answer: "可能是内容过长导致二维码过于密集，尝试增大尺寸或降低容错级别。也要确保前景色与背景色有足够对比度。" },
   { question: "添加 Logo 后二维码还能扫出来吗？", answer: "可以，但需要选择较高的容错级别（建议 Q 或 H）。Logo 大小建议不超过二维码面积的 25%，上传 Logo 时会自动调整容错级别。" },
@@ -501,7 +556,7 @@ h1 {
 
 .text-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .char-count {
@@ -511,6 +566,16 @@ h1 {
   color: var(--text-3);
   margin-top: 6px;
 }
+
+.contrast-hint {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.contrast-hint.warn { background: var(--warn-soft); color: var(--text-2); }
+.contrast-hint.error { background: var(--danger-soft); color: var(--danger-text); }
 
 /* 选项卡片 */
 .options-card h3 {
@@ -548,7 +613,7 @@ h1 {
 .option-item input[type="number"]:focus,
 .option-item select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .color-input-wrapper {
@@ -643,7 +708,7 @@ h1 {
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -657,7 +722,7 @@ h1 {
 }
 
 .logo-upload-btn.has-logo {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: var(--success);
 }
 
 .btn-sm {
@@ -712,7 +777,7 @@ h1 {
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
-  background: #667eea;
+  background: var(--accent);
   border-radius: 50%;
   cursor: pointer;
 }
