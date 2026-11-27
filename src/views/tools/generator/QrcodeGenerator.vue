@@ -671,7 +671,7 @@ h1 {
   max-width: 100%;
   max-height: 400px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .placeholder {

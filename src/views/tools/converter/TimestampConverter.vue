@@ -561,7 +561,7 @@ h1 {
   background: var(--surface);
   border-radius: 8px;
   margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .result-label {
