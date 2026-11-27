@@ -124,7 +124,7 @@
             placeholder="粘贴官方公布的哈希值，自动与上方结果比对（大小写、空格不敏感）"
             @input="runVerify"
           />
-          <p v-if="verifyMessage" :class="['verify-message', verifyType]">{{ verifyMessage }}</p>
+          <p v-if="verifyMessage" :class="['verify-message', verifyType]" :role="verifyType === 'error' ? 'alert' : 'status'" :aria-live="verifyType === 'error' ? 'assertive' : 'polite'" aria-atomic="true">{{ verifyMessage }}</p>
         </div>
       </div>
 

@@ -5,7 +5,13 @@
 -->
 <template>
   <Transition name="fade">
-    <div v-if="message" :class="['status-message', type]">
+    <div
+      v-if="message"
+      :class="['status-message', type]"
+      :role="type === 'error' ? 'alert' : 'status'"
+      :aria-live="type === 'error' ? 'assertive' : 'polite'"
+      aria-atomic="true"
+    >
       {{ message }}
     </div>
   </Transition>
