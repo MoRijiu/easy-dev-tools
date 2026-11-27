@@ -120,8 +120,8 @@ const navigateToTool = (tool) => { if (tool.path) router.push(tool.path) }
 .group-icon { font-size: 1.6rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border-radius: 10px; }
 .group-info h2 { font-size: 1.2rem; color: var(--text-strong); margin: 0 0 .15rem; }
 .group-info p { font-size: .88rem; color: var(--text-2); margin: 0; }
-.tools-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: .85rem; }
-.tool-card { position: relative; background: var(--bg); border-radius: 8px; padding: 1rem; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; border: 1px solid var(--border); }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(210px, 100%),1fr)); gap: .85rem; }
+.tool-card { position: relative; min-width: 0; background: var(--bg); border-radius: 8px; padding: 1rem; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; border: 1px solid var(--border); }
 .tool-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); border-color: var(--accent); background: var(--surface-hover); }
 .tool-card:active { transform: translateY(0); }
 .tool-card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

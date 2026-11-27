@@ -297,7 +297,7 @@ useSeo({
 /* 技术栈网格 */
 .tech-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
   gap: 1rem;
 }
 

@@ -128,7 +128,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .big-key.placeholder { font-size: 30px; }
 .combo { font-size: 14px; color: var(--text-2); }
 .hint { font-size: 12px; color: var(--text-2); margin: 8px 0 0; }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 8px; margin-top: 14px; }
 .card { background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .card .label { font-size: 12px; color: var(--text-2); }
 .card .value { font-size: 15px; font-weight: 600; color: var(--text-strong); word-break: break-all; }

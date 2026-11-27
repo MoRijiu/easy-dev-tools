@@ -432,7 +432,7 @@ h1 {
 /* 当前时间卡片区域 */
 .current-time-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
