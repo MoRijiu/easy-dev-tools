@@ -21,7 +21,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="lorem-generator-status" :message="statusMessage" :type="statusType" />
 
       <!-- 设置区域 -->
       <div class="settings-section">
@@ -36,7 +36,7 @@
           </div>
           <div class="setting-item">
             <label for="lorem-count">数量（1–{{ COUNT_LIMITS[options.type] }}）</label>
-            <input id="lorem-count" aria-label="生成数量" type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" />
+            <input id="lorem-count" aria-label="生成数量" type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" :aria-invalid="genErrorField === 'count' ? 'true' : undefined" :aria-describedby="genErrorField === 'count' ? 'lorem-generator-status' : undefined" />
           </div>
           <div class="setting-item">
             <label for="lorem-style">文本风格</label>
@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -100,6 +100,14 @@ const stats = ref(null);
 const statusMessage = ref("");
 const statusType = ref("");
 const countRaw = ref("3");
+
+// 生成错误单独留存：状态区还兼报复制/下载结果，只有当前展示的正是这条生成错误时才做字段关联
+const genError = ref("");
+// 数量校验错误文案自带字段名（生成数量…/…数量最多为…），据此归到数量输入；未知类型等其他错误不归任何字段
+const genErrorField = computed(() => {
+  if (!genError.value || statusType.value !== "error" || statusMessage.value !== `✗ ${genError.value}`) return "";
+  return /生成数量|数量最多为/.test(genError.value) ? "count" : "";
+});
 
 const options = ref({
   type: "paragraphs",
@@ -118,9 +126,11 @@ const generateText = () => {
     });
     outputText.value = result.text;
     stats.value = result.stats;
+    genError.value = "";
     statusMessage.value = `✓ 已生成 ${countRaw.value.trim()} 个${TYPE_LABELS[options.value.type]}`;
     statusType.value = "success";
   } catch (e) {
+    genError.value = e.message;
     statusMessage.value = `✗ ${e.message}`;
     statusType.value = "error";
   }
@@ -164,6 +174,7 @@ const downloadOutput = () => {
 const clearAll = () => {
   outputText.value = "";
   stats.value = null;
+  genError.value = "";
   statusMessage.value = "";
 };
 
