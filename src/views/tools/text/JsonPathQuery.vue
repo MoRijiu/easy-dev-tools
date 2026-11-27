@@ -13,7 +13,7 @@
         <section class="block grow">
           <h2>JSON 数据</h2>
           <textarea v-model="jsonInput" rows="12" spellcheck="false" placeholder="粘贴 JSON，如 {&quot;store&quot;: {&quot;book&quot;: [...]}}" aria-label="JSON 数据" @input="process"></textarea>
-          <p v-if="jsonError" class="error">✗ JSON 解析失败：{{ jsonError }}</p>
+          <p v-if="jsonError" class="error">✗ {{ jsonError }}</p>
         </section>
         <section class="block grow">
           <h2>查询结果 <span v-if="result" class="count">命中 {{ result.matches.length }} 条{{ result.truncated ? '（已达上限截断）' : '' }}</span></h2>
@@ -57,6 +57,7 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import { queryJsonPath, buildJsonPathSummary } from '@/utils/jsonPath.js';
+import { parseJsonDetailed, buildJsonErrorSummary } from '@/utils/jsonFormat.js';
 const features = [
   { icon: '🧭', title: '完整常用语法', description: '子节点、通配、递归下降、切片、联合与 [?(...)] 过滤（含 && / || 与正则 =~）' },
   { icon: '📍', title: '带路径的结果', description: '每条命中都给出规范化路径，逐条复制值或一键复制全部摘要' },
@@ -71,7 +72,10 @@ const usageSteps = [
 const faqs = [
   { question: '$..price 和 $.price 有什么区别？', answer: '.. 是递归下降：$..price 会找出文档里所有层级的 price；$.price 只取根对象直接的 price 字段。' },
   { question: '过滤 [?(@.price < 10)] 里的 @ 是什么？', answer: '@ 代表当前被检查的节点。过滤作用在数组上时逐个元素检查，@.price 就是元素的 price 字段；也可以直接写 @ > 3 过滤纯数字数组。' },
-  { question: '支持哪些语法？有不支持的吗？', answer: '支持子节点/通配/递归/切片/联合/过滤（含正则 =~）。不支持脚本表达式 [(...)] 与自定义函数——这类语法各家实现差异大且有安全风险。' }
+  { question: '支持哪些语法？有不支持的吗？', answer: '支持子节点/通配/递归/切片/联合/过滤（含正则 =~）。不支持脚本表达式 [(...)] 与自定义函数——这类语法各家实现差异大且有安全风险。' },
+  { question: '键名是中文或带特殊字符怎么写？', answer: "中文等 Unicode 键名可以直接用点写法，如 $.用户.姓名；含空格、点号等特殊字符的键名用括号写法，如 $['my key']，两种写法等价。" },
+  { question: '为什么 $.toString 在空对象上没有结果？', answer: '查询只认 JSON 数据自身的键，不会把 JavaScript 对象原型上的 toString、constructor 等当成数据命中，避免假结果。' },
+  { question: '输入大小有限制吗？', answer: 'JSON 上限 100 万字符、表达式上限 1024 字符、命中上限 1000 条（递归遍历另有节点上限），超限会明确提示而不是卡死页面；输入出错时保留上一次的查询结果。' }
 ];
 const cheat = [
   { syntax: '$.a.b', desc: '逐级取子字段' },
@@ -109,15 +113,23 @@ const pathError = ref('');
 const statusMessage = ref('');
 const statusType = ref('info');
 const shownMatches = ref([]);
+const MAX_JSON_LENGTH = 1000000;
 const process = () => {
-  result.value = null; shownMatches.value = [];
   jsonError.value = ''; pathError.value = '';
-  if (!jsonInput.value.trim()) return;
-  let data;
-  try { data = JSON.parse(jsonInput.value); } catch (e) { jsonError.value = e.message; return; }
+  if (!jsonInput.value.trim()) { result.value = null; shownMatches.value = []; return; }
+  if (jsonInput.value.length > MAX_JSON_LENGTH) {
+    jsonError.value = `JSON 过长（${jsonInput.value.length} 字符，上限 ${MAX_JSON_LENGTH}），已保留上次结果`;
+    return;
+  }
+  const parsed = parseJsonDetailed(jsonInput.value);
+  if (!parsed.ok) {
+    // 出错保留旧结果，只更新错误提示（错误带行列定位与可能原因）
+    jsonError.value = buildJsonErrorSummary(parsed.error).replace('\n', '；');
+    return;
+  }
   if (!exprInput.value.trim()) return;
   try {
-    const r = queryJsonPath(data, exprInput.value);
+    const r = queryJsonPath(parsed.value, exprInput.value);
     result.value = r;
     shownMatches.value = r.matches.slice(0, 100);
   } catch (e) { pathError.value = e.message; }
@@ -138,7 +150,7 @@ loadExample();
 .jsonpath-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .block { margin-bottom: 20px; } .block h2 { font-size: 16px; color: var(--text-strong); margin: 0 0 10px; }
 .block h2 .count { font-size: 12px; color: var(--text-2); font-weight: 400; margin-left: 6px; }
 .cols { display: flex; gap: 16px; flex-wrap: wrap; }
