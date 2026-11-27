@@ -21,7 +21,7 @@
         <label>视口宽 <input v-model="ctxForm.viewportWidth" type="text" inputmode="decimal" aria-label="视口宽度" @change="analyze" /></label>
         <label>视口高 <input v-model="ctxForm.viewportHeight" type="text" inputmode="decimal" aria-label="视口高度" @change="analyze" /></label>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="notes.length" class="note" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>

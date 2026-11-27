@@ -19,7 +19,7 @@
           <button class="btn" @click="doDecode">码 → 文本</button>
           <button v-if="convertOutput" class="btn ghost" @click="copyText(convertOutput)">复制结果</button>
         </div>
-        <p v-if="convertError" class="error">{{ convertError }}</p>
+        <p v-if="convertError" class="error" role="alert">{{ convertError }}</p>
         <pre v-if="convertOutput" class="output">{{ convertOutput }}</pre>
         <p v-if="convertNote" class="count">{{ convertNote }}</p>
       </section>

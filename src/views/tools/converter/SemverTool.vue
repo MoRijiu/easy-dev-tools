@@ -13,7 +13,7 @@
         <div class="row">
           <label class="grow">版本号 <input v-model="versionInput" placeholder="如 1.2.3-rc.1+build.5，可带 v 前缀" aria-label="版本号" @input="process" /></label>
         </div>
-        <p v-if="error" class="error">✗ {{ error }}</p>
+        <p v-if="error" class="error" role="alert">✗ {{ error }}</p>
         <div v-if="parsed" class="grid">
           <div class="card"><span class="num">{{ parsed.major }}</span><span class="label">主版本 Major（不兼容变更）</span></div>
           <div class="card"><span class="num">{{ parsed.minor }}</span><span class="label">次版本 Minor（向后兼容功能）</span></div>
@@ -34,7 +34,7 @@
           <button type="button" class="swap-btn" @click="swapCompare" title="交换 A / B">⇄ 交换</button>
           <label class="grow">版本 B <input v-model="versionB" placeholder="如 1.0.0" aria-label="版本 B" /></label>
         </div>
-        <p v-if="compareError" class="error">✗ {{ compareError }}</p>
+        <p v-if="compareError" class="error" role="alert">✗ {{ compareError }}</p>
         <p v-else-if="compareText" class="result-line">{{ compareText }}</p>
       </section>
       <section class="block">
@@ -43,7 +43,7 @@
           <label class="grow">待校验版本 <input v-model="rangeVersion" placeholder="如 1.4.2" aria-label="待校验版本" /></label>
           <label class="grow">范围表达式 <input v-model="rangeExpr" placeholder="如 ^1.2.3、~1.2、>=1.0.0 <2.0.0、1.2.x" aria-label="范围表达式" /></label>
         </div>
-        <p v-if="rangeError" class="error">✗ {{ rangeError }}</p>
+        <p v-if="rangeError" class="error" role="alert">✗ {{ rangeError }}</p>
         <p v-else-if="rangeResult !== null" class="result-line">{{ rangeResult ? '✓ 满足范围' : '✗ 不满足范围' }}：{{ rangeVersion }} {{ rangeResult ? '∈' : '∉' }} {{ rangeExpr }}</p>
         <div class="quick"><button v-for="p in presets" :key="p" @click="rangeExpr = p">{{ p }}</button></div>
       </section>

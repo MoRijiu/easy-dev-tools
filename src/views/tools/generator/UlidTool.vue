@@ -17,7 +17,7 @@
         <button class="btn ghost" type="button" @click="clearGenerated">清空</button>
       </div>
       <p v-if="genNotes.length" class="notes" role="status" aria-live="polite">{{ genNotes.join('；') }}</p>
-      <p v-if="genError" class="error">{{ genError }}</p>
+      <p v-if="genError" class="error" role="alert">{{ genError }}</p>
       <template v-if="results.length">
         <label class="block">结果（每行一个，共 {{ results.length }} 个，本身已按时间有序）
           <textarea :value="resultText" rows="6" readonly spellcheck="false" aria-label="ULID 结果"></textarea>
@@ -33,7 +33,7 @@
       <label class="block">输入 ULID（不区分大小写）
         <input v-model="parseInput" type="text" spellcheck="false" placeholder="如 01ARZ3NDEKTSV4RRFFQ69G5FAV" aria-label="待解析的 ULID">
       </label>
-      <p v-if="parseError" class="error">{{ parseError }}</p>
+      <p v-if="parseError" class="error" role="alert">{{ parseError }}</p>
       <p v-if="parsed?.notes?.length" class="notes" role="status" aria-live="polite">{{ parsed.notes.join('；') }}</p>
       <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="kv">

@@ -14,7 +14,7 @@
         <button class="btn ghost" @click="clearAll">清空</button>
       </div>
       <div class="examples"><span>常用搭配：</span><button v-for="e in examples" :key="e.label" class="chip" @click="pick(e)">{{ e.label }}</button></div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="result">
         <div class="preview" :style="{ background: result.bg.hex, color: result.fg.hex }">
           <p class="pv-normal">普通文本示例：快速的棕色狐狸跳过懒狗 0123456789（16px）</p>

@@ -18,7 +18,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <button class="btn" type="button" :disabled="!result" @click="copySummary">复制摘要</button>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-for="note in displayNotes" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <template v-if="result">
         <p class="summary">{{ result.source.dateTime }} {{ result.source.weekday }}（{{ fromZone }}，{{ result.source.offset }}）= UTC {{ isoShort }}，共 {{ result.rows.length }} 个时区</p>

@@ -26,7 +26,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.text)">复制结果</button>
         <span class="muted">输入后实时转换</span>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="result && result.notes && result.notes.length" class="note" role="status" aria-live="polite">{{ result.notes.join('；') }}</p>
       <template v-if="result">
         <label class="block">输出

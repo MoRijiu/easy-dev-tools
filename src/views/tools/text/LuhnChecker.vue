@@ -13,7 +13,7 @@
         <button class="btn ghost" type="button" @click="input = ''">清空</button>
         <button class="btn" type="button" :disabled="!result" @click="copyText(summary)">复制摘要</button>
       </div>
-      <p v-if="error" class="error">{{ error }}</p>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功校验的结果。</p>
       <p v-for="note in (result ? result.notes || [] : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-for="w in (result ? result.warnings || [] : [])" :key="w" class="warn" role="status" aria-live="polite">{{ w }}</p>
@@ -38,7 +38,7 @@
       <label class="block">载荷号码（不含末位校验位）
         <input v-model="payload" type="text" inputmode="numeric" spellcheck="false" placeholder="如：7992739871" aria-label="载荷号码" />
       </label>
-      <p v-if="payloadError" class="error">{{ payloadError }}</p>
+      <p v-if="payloadError" class="error" role="alert">{{ payloadError }}</p>
       <p v-if="payloadError && completed" class="muted">当前载荷有误，下面保留的是上一次成功生成的结果。</p>
       <p v-for="note in (completed ? completed.notes || [] : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-if="completed" class="complete-row">
@@ -62,7 +62,7 @@
           </li>
         </ul>
       </template>
-      <p v-if="batchError" class="error">{{ batchError }}</p>
+      <p v-if="batchError" class="error" role="alert">{{ batchError }}</p>
       <p v-if="batchError && batchResult" class="muted">当前批量输入有误，上面保留的是上一次成功校验的结果。</p>
 
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
