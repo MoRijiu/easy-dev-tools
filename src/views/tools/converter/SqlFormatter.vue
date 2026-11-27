@@ -4,10 +4,10 @@
     <p class="description">美化或压缩 SQL：主子句分行、SELECT 列表与 AND/OR 缩进、子查询括号缩进，字符串与注释原样保留，全程本地处理、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!result"><span class="icon">↩️</span> 结果作输入</button>
-        <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon">📋</span> 复制结果</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!result"><span class="icon" aria-hidden="true">↩️</span> 结果作输入</button>
+        <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="options" aria-label="格式化选项">

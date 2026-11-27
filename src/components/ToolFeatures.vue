@@ -20,7 +20,7 @@ defineProps({
     <h2>功能特点</h2>
     <div class="feature-grid">
       <div v-for="(feature, index) in features" :key="index" class="feature-item">
-        <span class="feature-icon">{{ feature.icon }}</span>
+        <span class="feature-icon" aria-hidden="true">{{ feature.icon }}</span>
         <h3>{{ feature.title }}</h3>
         <p>{{ feature.description }}</p>
       </div>

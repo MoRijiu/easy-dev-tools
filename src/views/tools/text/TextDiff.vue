@@ -6,19 +6,19 @@
     <div class="tool-container">
       <ToolToolbar>
         <button @click="loadExample" class="btn btn-secondary">
-          <span class="icon">📝</span> 示例
+          <span class="icon" aria-hidden="true">📝</span> 示例
         </button>
         <button @click="swapTexts" class="btn btn-secondary" :disabled="!oldText && !newText">
-          <span class="icon">⇄</span> 交换
+          <span class="icon" aria-hidden="true">⇄</span> 交换
         </button>
         <button @click="clearAll" class="btn btn-danger">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button @click="copyUnified" class="btn btn-success" :disabled="!rows.length">
-          <span class="icon">📋</span> 复制对比结果
+          <span class="icon" aria-hidden="true">📋</span> 复制对比结果
         </button>
         <button @click="downloadDiff" class="btn btn-secondary" :disabled="!rows.length">
-          <span class="icon">⬇️</span> 下载 .diff
+          <span class="icon" aria-hidden="true">⬇️</span> 下载 .diff
         </button>
       </ToolToolbar>
 

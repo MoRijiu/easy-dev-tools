@@ -7,16 +7,16 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="generateText">
-          <span class="icon">🎲</span> 生成文本
+          <span class="icon" aria-hidden="true">🎲</span> 生成文本
         </button>
         <button class="btn btn-success" @click="copyOutput">
-          <span class="icon">📋</span> 复制全部
+          <span class="icon" aria-hidden="true">📋</span> 复制全部
         </button>
         <button class="btn" @click="downloadOutput" :disabled="!outputText">
-          <span class="icon">⬇️</span> 下载 .txt
+          <span class="icon" aria-hidden="true">⬇️</span> 下载 .txt
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
       </ToolToolbar>
 

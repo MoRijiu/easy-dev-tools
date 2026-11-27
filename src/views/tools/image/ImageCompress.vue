@@ -26,7 +26,7 @@
             style="display: none"
           />
           <div class="upload-content">
-            <span class="upload-icon">{{ images.length > 0 ? '➕' : '📁' }}</span>
+            <span class="upload-icon" aria-hidden="true">{{ images.length > 0 ? '➕' : '📁' }}</span>
             <p class="upload-text">{{ images.length > 0 ? '继续添加图片' : '拖拽图片到此处，或点击选择图片' }}</p>
             <p class="upload-hint" v-if="images.length === 0">支持 JPG、PNG、WebP 等格式，可多选（单张 ≤20MB、最多 20 张；GIF 只保留第一帧）</p>
           </div>
@@ -51,7 +51,7 @@
             >
               <div class="image-preview">
                 <img :src="img.preview" :alt="img.name" />
-                <button class="remove-btn" @click.stop="removeImage(index)" title="移除">×</button>
+                <button class="remove-btn" @click.stop="removeImage(index)" title="移除" :aria-label="`移除 ${img.name}`">×</button>
                 <div class="compress-status" v-if="img.compressedSize">
                   <span class="status-badge success">✓ 已压缩</span>
                 </div>
@@ -136,13 +136,13 @@
       <!-- 工具栏 -->
       <ToolToolbar v-if="images.length > 0">
         <button class="btn btn-primary" @click="compressAll" :disabled="images.length === 0">
-          <span class="icon">🗜️</span> 压缩全部
+          <span class="icon" aria-hidden="true">🗜️</span> 压缩全部
         </button>
         <button class="btn btn-success" @click="downloadAll" :disabled="!hasCompressedImages">
-          <span class="icon">📥</span> 下载全部
+          <span class="icon" aria-hidden="true">📥</span> 下载全部
         </button>
         <button class="btn btn-danger" @click="clearAll" :disabled="images.length === 0">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
       </ToolToolbar>
 

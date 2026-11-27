@@ -40,7 +40,7 @@
     <section v-if="visibleGroups.length" class="tools-container">
       <article v-for="group in visibleGroups" :key="group.id" class="tool-group">
         <header class="group-header">
-          <div class="group-icon" :aria-label="group.name">{{ group.icon }}</div>
+          <div class="group-icon" aria-hidden="true">{{ group.icon }}</div>
           <div class="group-info">
             <h2>{{ group.name }}</h2>
             <p>{{ group.description }} · {{ group.tools.length }} 个工具</p>

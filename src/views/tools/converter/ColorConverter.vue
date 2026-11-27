@@ -45,13 +45,13 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="randomColor">
-          <span class="icon">🎲</span> 随机颜色
+          <span class="icon" aria-hidden="true">🎲</span> 随机颜色
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-success" @click="copyAllFormats">
-          <span class="icon">📋</span> 复制所有格式
+          <span class="icon" aria-hidden="true">📋</span> 复制所有格式
         </button>
       </ToolToolbar>
 

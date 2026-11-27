@@ -4,9 +4,9 @@
     <p class="description">统计字数、词数、行数、段落、字节与阅读时长，并列出高频词，全程本地处理、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copySummary" class="btn btn-success" :disabled="!stats"><span class="icon">📋</span> 复制摘要</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copySummary" class="btn btn-success" :disabled="!stats"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="panes">

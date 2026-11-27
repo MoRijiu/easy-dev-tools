@@ -4,9 +4,9 @@
     <p class="description">把 URL 拆成协议、主机、路径与查询参数，参数可直接编辑并实时重组新 URL，全程本地处理</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copyRebuilt" class="btn btn-success" :disabled="!rebuilt"><span class="icon">📋</span> 复制重组URL</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copyRebuilt" class="btn btn-success" :disabled="!rebuilt"><span class="icon" aria-hidden="true">📋</span> 复制重组URL</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 URL，如 https://example.com:8080/path?a=1&amp;b=2#top（可省略协议）" spellcheck="false" aria-label="URL输入" @input="parse"></textarea>

@@ -4,10 +4,10 @@
     <p class="description">文本与摩尔斯电码互转，支持点画播放试听，全程本地、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="swap" class="btn btn-secondary" :disabled="!output"><span class="icon">🔄</span> 结果作输入</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copyOutput" class="btn btn-success" :disabled="!output"><span class="icon">📋</span> 复制结果</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="swap" class="btn btn-secondary" :disabled="!output"><span class="icon" aria-hidden="true">🔄</span> 结果作输入</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copyOutput" class="btn btn-success" :disabled="!output"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="mode-row" role="group" aria-label="转换方向与播放">

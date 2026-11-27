@@ -6,13 +6,13 @@
     <div class="tool-container">
       <ToolToolbar>
         <button @click="loadExample" class="btn btn-secondary">
-          <span class="icon">📝</span> 示例
+          <span class="icon" aria-hidden="true">📝</span> 示例
         </button>
         <button @click="clearAll" class="btn btn-danger">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button @click="copyNext" class="btn btn-success" :disabled="!runs.length">
-          <span class="icon">📋</span> 复制执行时间
+          <span class="icon" aria-hidden="true">📋</span> 复制执行时间
         </button>
       </ToolToolbar>
 

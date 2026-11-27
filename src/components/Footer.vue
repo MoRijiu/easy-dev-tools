@@ -5,7 +5,7 @@
         <div class="footer-section">
           <div class="footer-brand">
             <div class="brand-logo">
-              <img src="/favicon.svg" alt="极速开发工具箱" class="logo-icon" />
+              <img src="/favicon.svg" alt="" class="logo-icon" />
               <span class="footer-logo">极速开发工具箱</span>
             </div>
             <p class="footer-desc">让开发更简单，让工具更好用</p>
@@ -17,16 +17,16 @@
           <h2 class="footer-title">快速链接</h2>
           <div class="footer-links">
             <router-link to="/" class="footer-link">
-              <span class="link-icon">🏠</span> 首页
+              <span class="link-icon" aria-hidden="true">🏠</span> 首页
             </router-link>
             <router-link to="/about" class="footer-link">
-              <span class="link-icon">📖</span> 关于
+              <span class="link-icon" aria-hidden="true">📖</span> 关于
             </router-link>
             <router-link to="/about#support" class="footer-link support-highlight">
-              <span class="link-icon">☕</span> 赞赏支持
+              <span class="link-icon" aria-hidden="true">☕</span> 赞赏支持
             </router-link>
             <a href="https://github.com/MoRijiu/easy-dev-tools" target="_blank" rel="noopener noreferrer" class="footer-link">
-              <span class="link-icon">💻</span> GitHub
+              <span class="link-icon" aria-hidden="true">💻</span> GitHub
             </a>
           </div>
         </div>
@@ -35,13 +35,13 @@
           <h2 class="footer-title">联系方式</h2>
           <div class="footer-links">
             <a href="mailto:1092257069@qq.com" class="footer-link">
-              <span class="link-icon">📧</span> 邮箱联系
+              <span class="link-icon" aria-hidden="true">📧</span> 邮箱联系
             </a>
             <a href="https://tools.morijiu.cn" target="_blank" rel="noopener noreferrer" class="footer-link">
-              <span class="link-icon">🌐</span> 官方网站
+              <span class="link-icon" aria-hidden="true">🌐</span> 官方网站
             </a>
             <a href="https://github.com/MoRijiu/easy-dev-tools/issues" target="_blank" rel="noopener noreferrer" class="footer-link">
-              <span class="link-icon">💬</span> 问题反馈
+              <span class="link-icon" aria-hidden="true">💬</span> 问题反馈
             </a>
           </div>
         </div>

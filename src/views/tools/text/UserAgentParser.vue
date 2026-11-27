@@ -4,10 +4,10 @@
     <p class="description">把 User Agent 拆成浏览器、渲染引擎、操作系统与设备信息，全程本地解析、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="useCurrent" class="btn btn-secondary"><span class="icon">🖥️</span> 当前浏览器</button>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copySummary" class="btn btn-success" :disabled="!result"><span class="icon">📋</span> 复制摘要</button>
+        <button @click="useCurrent" class="btn btn-secondary"><span class="icon" aria-hidden="true">🖥️</span> 当前浏览器</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copySummary" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 User Agent，如 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 … Chrome/120.0 Safari/537.36" spellcheck="false" aria-label="User Agent输入" @input="parse"></textarea>

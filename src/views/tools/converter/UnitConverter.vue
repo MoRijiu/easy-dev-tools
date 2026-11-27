@@ -14,7 +14,7 @@
           :class="['tab-btn', { active: currentCategory === category.id }]"
           @click="switchCategory(category.id)"
         >
-          <span class="tab-icon">{{ category.icon }}</span>
+          <span class="tab-icon" aria-hidden="true">{{ category.icon }}</span>
           <span class="tab-name">{{ category.name }}</span>
         </button>
       </div>
@@ -22,16 +22,16 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="convert">
-          <span class="icon">🔄</span> 转换
+          <span class="icon" aria-hidden="true">🔄</span> 转换
         </button>
         <button class="btn btn-secondary" @click="swapUnits">
-          <span class="icon">⇄</span> 交换单位
+          <span class="icon" aria-hidden="true">⇄</span> 交换单位
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-success" @click="copyResult">
-          <span class="icon">📋</span> 复制结果
+          <span class="icon" aria-hidden="true">📋</span> 复制结果
         </button>
       </ToolToolbar>
 

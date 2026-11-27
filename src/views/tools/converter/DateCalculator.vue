@@ -4,9 +4,9 @@
     <p class="description">计算两日期间隔（年/月/日、工作日/周末）或给日期加减天/周/月/年，全程本地处理、不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="swapDates" class="btn btn-secondary"><span class="icon">🔄</span> 交换日期</button>
-        <button @click="copySummary" class="btn btn-success" :disabled="!diff"><span class="icon">📋</span> 复制摘要</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="swapDates" class="btn btn-secondary"><span class="icon" aria-hidden="true">🔄</span> 交换日期</button>
+        <button @click="copySummary" class="btn btn-success" :disabled="!diff"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <section class="block">

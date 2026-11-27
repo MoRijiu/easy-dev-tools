@@ -7,13 +7,13 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="generatePasswords">
-          <span class="icon">🎲</span> 生成密码
+          <span class="icon" aria-hidden="true">🎲</span> 生成密码
         </button>
         <button class="btn btn-success" @click="copyOutput">
-          <span class="icon">📋</span> 复制全部
+          <span class="icon" aria-hidden="true">📋</span> 复制全部
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-secondary" :disabled="!passwords.length" @click="downloadPasswords">⬇️ 下载 .txt</button>
       </ToolToolbar>
@@ -91,7 +91,7 @@
         <div class="password-list" v-if="passwords.length">
           <div class="password-item" v-for="(pwd, index) in passwords" :key="index">
             <code class="password-text">{{ pwd }}</code>
-            <button class="copy-btn" @click="copySingle(pwd)" title="复制">📋</button>
+            <button class="copy-btn" @click="copySingle(pwd)" title="复制" aria-label="复制此密码">📋</button>
           </div>
         </div>
         <div v-else class="placeholder">点击"生成密码"按钮生成随机密码</div>

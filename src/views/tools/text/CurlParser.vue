@@ -4,9 +4,9 @@
     <p class="description">把 curl 命令拆成方法、URL、请求头、参数与 Body，并一键生成 fetch / Python requests 代码，全程本地处理不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <button @click="loadExample" class="btn btn-secondary"><span class="icon">📝</span> 示例</button>
-        <button @click="clearAll" class="btn btn-danger"><span class="icon">🗑️</span> 清空</button>
-        <button @click="copyCode" class="btn btn-success" :disabled="!codeText"><span class="icon">📋</span> 复制代码</button>
+        <button @click="loadExample" class="btn btn-secondary"><span class="icon" aria-hidden="true">📝</span> 示例</button>
+        <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
+        <button @click="copyCode" class="btn btn-success" :disabled="!codeText"><span class="icon" aria-hidden="true">📋</span> 复制代码</button>
       </ToolToolbar>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 curl 命令，如：&#10;curl -X POST https://api.example.com/users -H 'Content-Type: application/json' -d '{&quot;name&quot;:&quot;tom&quot;}'" spellcheck="false" aria-label="curl命令输入" @input="parse"></textarea>

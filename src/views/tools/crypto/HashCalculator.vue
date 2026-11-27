@@ -34,13 +34,13 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="calculateHash">
-          <span class="icon">🔐</span> 计算哈希
+          <span class="icon" aria-hidden="true">🔐</span> 计算哈希
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         <button class="btn btn-success" @click="copyAllResults">
-          <span class="icon">📋</span> 复制所有结果
+          <span class="icon" aria-hidden="true">📋</span> 复制所有结果
         </button>
       </ToolToolbar>
 
@@ -101,7 +101,7 @@
                 >
                   Aa
                 </button>
-                <button class="copy-btn" @click="copyResult(key, value)" title="复制">
+                <button class="copy-btn" @click="copyResult(key, value)" title="复制" :aria-label="`复制 ${getAlgorithmName(key)} 哈希值`">
                   📋
                 </button>
               </div>

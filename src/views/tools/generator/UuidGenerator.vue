@@ -9,13 +9,13 @@
       <!-- 工具栏 -->
       <ToolToolbar>
         <button class="btn btn-primary" @click="generateUuids">
-          <span class="icon">🎲</span> 生成 UUID
+          <span class="icon" aria-hidden="true">🎲</span> 生成 UUID
         </button>
         <button class="btn btn-success" @click="copyOutput">
-          <span class="icon">📋</span> 复制全部
+          <span class="icon" aria-hidden="true">📋</span> 复制全部
         </button>
         <button class="btn btn-danger" @click="clearAll">
-          <span class="icon">🗑️</span> 清空
+          <span class="icon" aria-hidden="true">🗑️</span> 清空
         </button>
         
         <div class="toolbar-divider"></div>
@@ -66,7 +66,7 @@
                 class="uuid-item"
               >
                 <code class="uuid-text">{{ uuid }}</code>
-                <button class="copy-single-btn" @click="copySingle(uuid)" title="复制此 UUID">
+                <button class="copy-single-btn" @click="copySingle(uuid)" title="复制此 UUID" aria-label="复制此 UUID">
                   📋
                 </button>
               </div>

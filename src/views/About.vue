@@ -3,14 +3,14 @@
     <div class="about-container">
       <!-- 头部介绍 -->
       <section class="hero-section">
-        <div class="hero-icon">🚀</div>
+        <div class="hero-icon" aria-hidden="true">🚀</div>
         <h1>关于极速开发工具箱</h1>
         <p class="subtitle">一个为了更高效开发而诞生的工具集合</p>
       </section>
 
       <!-- 开发初衷 -->
       <section class="section">
-        <div class="section-icon">💡</div>
+        <div class="section-icon" aria-hidden="true">💡</div>
         <h2>开发初衷</h2>
         <div class="content-card">
           <p>
@@ -32,26 +32,26 @@
 
       <!-- 技术栈 -->
       <section class="section">
-        <div class="section-icon">🛠️</div>
+        <div class="section-icon" aria-hidden="true">🛠️</div>
         <h2>技术栈</h2>
         <div class="tech-grid">
           <div class="tech-card">
-            <span class="tech-icon">⚡</span>
+            <span class="tech-icon" aria-hidden="true">⚡</span>
             <h3>Vue 3</h3>
             <p>现代化的渐进式框架</p>
           </div>
           <div class="tech-card">
-            <span class="tech-icon">🚀</span>
+            <span class="tech-icon" aria-hidden="true">🚀</span>
             <h3>Vite</h3>
             <p>极速的构建工具</p>
           </div>
           <div class="tech-card">
-            <span class="tech-icon">🎨</span>
+            <span class="tech-icon" aria-hidden="true">🎨</span>
             <h3>CSS3</h3>
             <p>精美的界面设计</p>
           </div>
           <div class="tech-card">
-            <span class="tech-icon">🤖</span>
+            <span class="tech-icon" aria-hidden="true">🤖</span>
             <h3>AI 辅助</h3>
             <p>提升开发效率</p>
           </div>
@@ -60,7 +60,7 @@
 
       <!-- 开发过程 -->
       <section class="section">
-        <div class="section-icon">🎯</div>
+        <div class="section-icon" aria-hidden="true">🎯</div>
         <h2>开发过程</h2>
         <div class="content-card">
           <p>
@@ -84,7 +84,7 @@
 
       <!-- 开源说明 -->
       <section class="section">
-        <div class="section-icon">🌟</div>
+        <div class="section-icon" aria-hidden="true">🌟</div>
         <h2>开源项目</h2>
         <div class="content-card">
           <p>
@@ -102,7 +102,7 @@
           </ul>
           <div class="github-link">
             <a href="https://github.com/MoRijiu/easy-dev-tools" target="_blank" rel="noopener noreferrer">
-              <span class="github-icon">📦</span>
+              <span class="github-icon" aria-hidden="true">📦</span>
               <span>查看GitHub仓库</span>
             </a>
           </div>
@@ -111,7 +111,7 @@
 
       <!-- 打赏支持 -->
       <section id="support" class="section support-section">
-        <div class="section-icon">☕</div>
+        <div class="section-icon" aria-hidden="true">☕</div>
         <h2>支持一下</h2>
         <div class="content-card support-card">
           <p class="support-text">
@@ -142,17 +142,17 @@
 
       <!-- 联系方式 -->
       <section class="section">
-        <div class="section-icon">📮</div>
+        <div class="section-icon" aria-hidden="true">📮</div>
         <h2>联系我</h2>
         <div class="content-card">
           <p>有任何问题、建议或者想法，欢迎通过以下方式联系我：</p>
           <div class="contact-list">
             <a href="mailto:1092257069@qq.com" class="contact-item">
-              <span class="contact-icon">📧</span>
+              <span class="contact-icon" aria-hidden="true">📧</span>
               <span>邮箱：1092257069@qq.com</span>
             </a>
             <a href="https://github.com/MoRijiu" target="_blank" rel="noopener noreferrer" class="contact-item">
-              <span class="contact-icon">🐙</span>
+              <span class="contact-icon" aria-hidden="true">🐙</span>
               <span>GitHub：@Mo_Rijiu</span>
             </a>
           </div>
