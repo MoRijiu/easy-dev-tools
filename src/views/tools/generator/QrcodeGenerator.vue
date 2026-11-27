@@ -34,7 +34,7 @@
               @input="onInputChange"
             ></textarea>
             <span class="char-count">{{ statsText }}</span>
-            <span v-if="contrastHint" :class="['contrast-hint', contrastLevel]">{{ contrastHint }}</span>
+            <span v-if="contrastHint" :class="['contrast-hint', contrastLevel]" role="status" aria-live="polite">{{ contrastHint }}</span>
           </div>
 
           <!-- 选项设置 -->

@@ -28,13 +28,13 @@
         <span v-if="imageInfo" class="meta">{{ imageInfo }}</span>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
-      <p v-if="decoding" class="hint">正在识别…</p>
+      <p v-if="decoding" class="hint" role="status" aria-live="polite">正在识别…</p>
       <template v-if="result">
         <p class="verdict pass">✓ 识别成功 · {{ result.info.typeName }}</p>
         <label class="block">解码内容
           <textarea :value="result.text" rows="4" readonly spellcheck="false" aria-label="解码内容"></textarea>
         </label>
-        <p v-for="w in (result.info.warnings || [])" :key="w" class="warn">⚠ {{ w }}</p>
+        <p v-for="w in (result.info.warnings || [])" :key="w" class="warn" role="status" aria-live="polite">⚠ {{ w }}</p>
         <table v-if="result.info.rows.length" class="kv">
           <tbody>
             <tr v-for="row in result.info.rows" :key="row.label"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td></tr>

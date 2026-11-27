@@ -16,7 +16,7 @@
         <button class="btn ghost" type="button" @click="generateNow">用当前时间</button>
         <button class="btn ghost" type="button" @click="clearGenerated">清空</button>
       </div>
-      <p v-if="genNotes.length" class="notes">{{ genNotes.join('；') }}</p>
+      <p v-if="genNotes.length" class="notes" role="status" aria-live="polite">{{ genNotes.join('；') }}</p>
       <p v-if="genError" class="error">{{ genError }}</p>
       <template v-if="results.length">
         <label class="block">结果（每行一个，共 {{ results.length }} 个，本身已按时间有序）
@@ -34,8 +34,8 @@
         <input v-model="parseInput" type="text" spellcheck="false" placeholder="如 01ARZ3NDEKTSV4RRFFQ69G5FAV" aria-label="待解析的 ULID">
       </label>
       <p v-if="parseError" class="error">{{ parseError }}</p>
-      <p v-if="parsed?.notes?.length" class="notes">{{ parsed.notes.join('；') }}</p>
-      <p v-if="parsed?.warnings?.length" class="notes warn">{{ parsed.warnings.join('；') }}</p>
+      <p v-if="parsed?.notes?.length" class="notes" role="status" aria-live="polite">{{ parsed.notes.join('；') }}</p>
+      <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="kv">
         <tbody>
           <tr><th>规范形式</th><td class="mono">{{ parsed.ulid }}</td><td><button class="btn ghost sm" type="button" @click="copyText(parsed.ulid)">复制</button></td></tr>

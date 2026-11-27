@@ -24,8 +24,8 @@
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功转换的结果。</p>
-      <p v-for="note in (result ? result.notes : [])" :key="note" class="note">{{ note }}</p>
-      <p v-for="warn in (result && result.warnings ? result.warnings : [])" :key="warn" class="warn">{{ warn }}</p>
+      <p v-for="note in (result ? result.notes : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
+      <p v-for="warn in (result && result.warnings ? result.warnings : [])" :key="warn" class="warn" role="status" aria-live="polite">{{ warn }}</p>
       <template v-if="result">
         <label class="block">输出
           <textarea :value="result.text" rows="6" readonly spellcheck="false" aria-label="转换输出"></textarea>

@@ -60,8 +60,8 @@
           <span class="stat">相似度 {{ sim }}%</span>
           <span v-if="isIdentical" class="stat ok">{{ (ignoreWhitespace || ignoreCase) ? '按当前忽略选项，两段文本无差异 ✓' : '两段文本完全一致 ✓' }}</span>
         </div>
-        <p v-if="truncated" class="limit-note">文本过长，仅对比前 {{ MAX_LINES }} 行。</p>
-        <p v-if="fallback" class="limit-note">行数较多，已切换为按行号逐行对比模式。</p>
+        <p v-if="truncated" class="limit-note" role="status" aria-live="polite">文本过长，仅对比前 {{ MAX_LINES }} 行。</p>
+        <p v-if="fallback" class="limit-note" role="status" aria-live="polite">行数较多，已切换为按行号逐行对比模式。</p>
 
         <div v-if="viewMode === 'unified'" class="diff-box" aria-label="统一对比结果">
           <template v-for="(item, i) in visibleItems" :key="i">

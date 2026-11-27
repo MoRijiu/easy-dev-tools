@@ -25,7 +25,7 @@
         <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'json2csv' ? 'CSV 结果会显示在这里' : 'JSON 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
-      <p v-if="warningText" class="warning">⚠ {{ warningText }}</p>
+      <p v-if="warningText" class="warning" role="status" aria-live="polite">⚠ {{ warningText }}</p>
       <ToolExamples :examples="examples" @use-example="useExample" />
       <ToolFeatures :features="features" />
       <ToolUsageGuide :steps="usageSteps" />

@@ -41,7 +41,7 @@
         </ToolEditorPanel>
       </div>
 
-      <p v-if="literalNote" class="literal-note">{{ literalNote }}</p>
+      <p v-if="literalNote" class="literal-note" role="status" aria-live="polite">{{ literalNote }}</p>
       <div v-if="riskWarnings.length" class="risk-box" role="alert">
         <p v-for="(w, i) in riskWarnings" :key="i" class="risk-item">⚠️ {{ w }}</p>
       </div>
@@ -91,7 +91,7 @@
             </tbody>
           </table>
         </div>
-        <p v-if="truncated" class="limit-note">匹配数已达上限 {{ MAX_MATCHES }}，仅显示前 {{ MAX_MATCHES }} 处。</p>
+        <p v-if="truncated" class="limit-note" role="status" aria-live="polite">匹配数已达上限 {{ MAX_MATCHES }}，仅显示前 {{ MAX_MATCHES }} 处。</p>
       </div>
 
       <div class="replace-section">

@@ -48,7 +48,7 @@
       </div>
       <p v-if="mode === 'unicode-decode'" class="option-note">可识别 \uXXXX、\u&#123;...&#125; 与 \xXX，代理对会自动合并为完整字符；孤立代理会定位报错，\\ 表示一个字面反斜杠。</p>
       <p v-if="mode === 'html-decode'" class="option-note">支持命名实体（如 &amp;copy;，含 &amp;COPY; 等规范大写变体）、十进制与十六进制数字实体；未知实体会原样保留并在下方提示，码点 0 与代理区数字实体按 HTML 规范替换为 �。</p>
-      <p v-if="unknownNote" class="option-note warn-note">{{ unknownNote }}</p>
+      <p v-if="unknownNote" class="option-note warn-note" role="status" aria-live="polite">{{ unknownNote }}</p>
 
       <ToolEditorLayout>
         <ToolEditorPanel title="输入内容" :info="countChars(inputText) + ' 字符'">

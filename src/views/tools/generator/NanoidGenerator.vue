@@ -18,8 +18,8 @@
         <input v-model="alphabet" type="text" spellcheck="false" aria-label="字母表" @input="preset = 'custom'">
       </label>
       <p v-if="entropyText" class="summary">单条熵约 {{ entropyBitsValue }} 位 · {{ entropyDesc }}</p>
-      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
-      <p v-if="warnings.length" class="notes warn">{{ warnings.join('；') }}</p>
+      <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
+      <p v-if="warnings.length" class="notes warn" role="status" aria-live="polite">{{ warnings.join('；') }}</p>
       <div class="row actions">
         <button class="btn" type="button" @click="generate">生成 Nano ID</button>
         <button class="btn ghost" type="button" @click="loadShort">示例：8 位短 ID</button>

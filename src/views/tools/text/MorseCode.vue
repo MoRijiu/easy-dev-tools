@@ -35,7 +35,7 @@
           <textarea :value="output" class="ta" rows="6" readonly spellcheck="false" placeholder="结果实时显示" aria-label="输出"></textarea>
         </ToolEditorPanel>
       </div>
-      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
+      <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <p v-if="error" class="error" role="alert">✗ {{ error }}</p>
       <div class="ref">
         <div v-for="g in MORSE_GROUPS" :key="g.name" class="ref-group">

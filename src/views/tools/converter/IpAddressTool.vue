@@ -16,7 +16,7 @@
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <template v-if="info">
-        <ul v-if="info.warnings && info.warnings.length" class="warnings-list">
+        <ul v-if="info.warnings && info.warnings.length" class="warnings-list" role="status" aria-live="polite">
           <li v-for="(w, i) in info.warnings" :key="i">⚠️ {{ w }}</li>
         </ul>
         <p class="summary">{{ summary }}</p>

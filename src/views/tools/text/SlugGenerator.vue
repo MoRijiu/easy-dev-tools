@@ -27,7 +27,7 @@
         <span class="muted">输入后实时生成</span>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
-      <p v-if="result && result.notes && result.notes.length" class="notes">{{ result.notes.join("；") }}</p>
+      <p v-if="result && result.notes && result.notes.length" class="notes" role="status" aria-live="polite">{{ result.notes.join("；") }}</p>
       <template v-if="result">
         <label class="block">输出
           <textarea :value="result.text" rows="6" readonly spellcheck="false" aria-label="Slug 输出"></textarea>

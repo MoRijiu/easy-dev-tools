@@ -25,7 +25,7 @@
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功转换的结果。</p>
-      <p v-if="result && result.notes && result.notes.length" class="note">{{ result.notes.join('；') }}</p>
+      <p v-if="result && result.notes && result.notes.length" class="note" role="status" aria-live="polite">{{ result.notes.join('；') }}</p>
       <template v-if="result">
         <label class="block">输出
           <textarea :value="output" rows="7" readonly spellcheck="false" aria-label="输出"></textarea>
