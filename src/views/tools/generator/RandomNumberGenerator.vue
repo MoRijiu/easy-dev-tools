@@ -123,7 +123,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; resize: vertical; box-sizing: border-box; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .note { color: var(--info-text, var(--text-2)); background: var(--info-soft, var(--bg-soft)); border: 1px solid var(--info-border, var(--border)); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 .summary { font-size: 14px; margin: 10px 0 6px; color: var(--text); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .field input, .field select { width: 108px; } }

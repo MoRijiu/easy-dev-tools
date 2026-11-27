@@ -158,7 +158,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 textarea, .expr { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; }
 textarea { resize: vertical; }
 .expr { font-size: 14px; }
-.error { color: var(--danger, #d33); font-size: 13px; margin-top: 8px; word-break: break-word; }
+.error { color: var(--danger-text); font-size: 13px; margin-top: 8px; word-break: break-word; }
 .empty { color: var(--text-2); font-size: 13px; }
 .results { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }
 .match { position: relative; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--bg-softer); }

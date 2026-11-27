@@ -118,7 +118,7 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .summary { font-size: 14px; margin: 10px 0 6px; color: var(--text); }
 .sub { font-size: 15px; color: var(--text-strong); margin: 14px 0 6px; }
 .table-wrap { overflow-x: auto; margin-bottom: 10px; }

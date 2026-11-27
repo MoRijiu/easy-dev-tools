@@ -128,7 +128,7 @@ input { padding: 8px; border: 1px solid var(--border); border-radius: 8px; backg
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
 .card { background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 10px 6px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
 .num { font-size: 20px; font-weight: 700; color: var(--text-strong); word-break: break-all; } .num.small { font-size: 15px; } .label { font-size: 12px; color: var(--text-2); }
-.error { color: var(--danger, #d33); font-size: 13px; margin-top: 8px; }
+.error { color: var(--danger-text); font-size: 13px; margin-top: 8px; }
 .bump { margin-top: 12px; align-items: center; } .bump-label { font-size: 13px; color: var(--text-2); }
 .bump button, .quick button, .swap-btn { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; white-space: nowrap; }
 .quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }

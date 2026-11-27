@@ -140,6 +140,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .umask-box { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
 .umask-box h2 { font-size: 15px; color: var(--text-strong); margin: 0 0 8px; }
 .umask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); }
-.err { color: var(--danger, #c0392b); }
+.err { color: var(--danger-text); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .special-cell label { display: block; margin: 2px 0; } }
 </style>

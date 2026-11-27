@@ -73,7 +73,7 @@ input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; font-family: monospace; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .note { font-size: 13px; color: var(--info-text, var(--text-2)); margin: 6px 0; }
 .capital { font-size: 20px; font-weight: 600; color: var(--text-strong); margin: 16px 0 6px; word-break: break-all; }
 .summary { font-size: 14px; color: var(--text-2); margin: 0 0 10px; font-family: monospace; }

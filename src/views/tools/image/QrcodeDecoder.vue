@@ -219,11 +219,11 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .meta { font-size: 12px; color: var(--text-2); }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .warn { color: var(--text); background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; margin: 0 0 8px; }
 .hint { color: var(--text-2); font-size: 13px; }
 .verdict { font-size: 15px; font-weight: 600; margin: 8px 0; }
-.verdict.pass { color: var(--success, #16a34a); }
+.verdict.pass { color: var(--success-text); }
 .kv { border-collapse: collapse; width: 100%; font-size: 13px; margin-bottom: 8px; }
 .kv th { text-align: left; color: var(--text-2); font-weight: 500; padding: 5px 10px 5px 0; white-space: nowrap; vertical-align: top; }
 .kv td { padding: 5px 0; color: var(--text); word-break: break-all; }

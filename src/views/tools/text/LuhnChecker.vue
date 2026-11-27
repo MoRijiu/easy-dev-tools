@@ -135,13 +135,13 @@ input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid
 .btn.small { padding: 4px 10px; font-size: 12px; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .muted { color: var(--text-2); font-size: 13px; }
 .note { color: var(--text-2); font-size: 13px; }
 .warn { color: var(--warning); font-size: 13px; }
 .verdict { font-size: 15px; font-weight: 600; margin: 8px 0; }
-.verdict.pass, .pass-text { color: var(--success, #16a34a); }
-.verdict.fail, .fail-text { color: var(--danger, #dc2626); }
+.verdict.pass, .pass-text { color: var(--success-text); }
+.verdict.fail, .fail-text { color: var(--danger-text); }
 .kv { border-collapse: collapse; width: 100%; font-size: 13px; margin-bottom: 8px; }
 .kv th { text-align: left; color: var(--text-2); font-weight: 500; padding: 5px 10px 5px 0; white-space: nowrap; vertical-align: top; }
 .kv td { padding: 5px 0; color: var(--text); word-break: break-all; }

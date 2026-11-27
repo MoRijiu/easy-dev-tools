@@ -502,7 +502,7 @@ h1 {
 .alpha-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
 .alpha-row input[type="range"] { flex: 1; min-width: 120px; }
 .named-chip { font-size: 13px; color: var(--text-2); }
-.field-error { color: var(--danger, #dc2626); font-size: 13px; margin-top: 6px; }
+.field-error { color: var(--danger-text); font-size: 13px; margin-top: 6px; }
 
 /* 响应式设计 */
 @media (max-width: 640px) {

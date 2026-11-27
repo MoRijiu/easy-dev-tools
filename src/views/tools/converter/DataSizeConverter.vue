@@ -86,7 +86,7 @@ input, select { padding: 8px 10px; border: 1px solid var(--border); border-radiu
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; font-family: monospace; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .summary { font-size: 14px; color: var(--text-strong); margin: 16px 0 8px; }
 .table-wrap { overflow-x: auto; margin-bottom: 10px; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--text); }

@@ -701,7 +701,7 @@ h1 {
 }
 
 .remove-btn:hover {
-  background: var(--danger, #e74c3c);
+  background: var(--danger-solid);
   transform: scale(1.1);
 }
 

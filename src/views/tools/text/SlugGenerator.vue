@@ -97,7 +97,7 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .notes { color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }
