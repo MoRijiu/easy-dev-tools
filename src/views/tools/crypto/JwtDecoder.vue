@@ -35,8 +35,14 @@
         <span class="claim-chip">算法：{{ decoded.header.alg || '未知' }}</span>
         <span class="claim-chip" v-if="decoded.header.typ">类型：{{ decoded.header.typ }}</span>
         <span class="claim-chip" :class="expiryClass">{{ expiryText }}</span>
+        <span class="claim-chip" v-if="notBeforeText" :class="nbfClass">{{ notBeforeText }}</span>
         <span class="claim-chip" v-if="issuedText">签发：{{ issuedText }}</span>
       </div>
+
+      <ul v-if="warnings.length" class="warnings-list">
+        <li v-for="(w, i) in warnings" :key="i">⚠️ {{ w }}</li>
+      </ul>
+      <p v-if="notes.length" class="notes-line">输入已自动处理：{{ notes.join('；') }}</p>
 
       <ToolEditorLayout v-if="decoded">
         <ToolEditorPanel title="Header（头部）">
@@ -85,6 +91,7 @@ import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
+import { parseJwt, analyzeTimeClaims, buildWarnings, formatClaimValue } from '@/utils/jwtDecode.js';
 
 const features = [
   { icon: '🔍', title: '三段解析', description: '自动拆分 Header、Payload 与 Signature 并格式化展示' },
@@ -116,6 +123,18 @@ const faqs = [
   {
     question: '为什么提示已过期？',
     answer: 'Payload 里的 exp 是过期时间戳（秒）。当前时间超过 exp 时 Token 即失效，服务端会拒绝该 Token。'
+  },
+  {
+    question: '粘贴时带着 Bearer 前缀或换行能解析吗？',
+    answer: '可以。从请求头复制的「Bearer eyJ...」前缀、以及粘贴过程中混入的换行和空格都会被自动清理，页面会提示做过哪些处理；清理只在本地进行。'
+  },
+  {
+    question: 'alg 显示 none 是什么意思？',
+    answer: 'alg=none 表示该 Token 没有签名保护，任何人都能伪造内容，服务端不应信任这类 Token。页面会对此给出醒目警告；同样，有算法但签名段为空也会被点名提示。'
+  },
+  {
+    question: 'nbf 未生效是什么意思？',
+    answer: 'nbf（Not Before）是 Token 的生效时间戳。当前时间早于 nbf 时 Token 尚未生效，服务端应拒绝使用；本工具会在声明栏里标出该状态。'
   }
 ];
 
@@ -131,6 +150,8 @@ const examples = [
 
 const inputToken = ref('');
 const decoded = ref(null);
+const notes = ref([]);
+const warnings = ref([]);
 const statusMessage = ref('');
 const statusType = ref('');
 
@@ -142,16 +163,26 @@ const formatTs = (sec) => {
   return Number.isNaN(d.getTime()) ? String(sec) : d.toLocaleString('zh-CN', { hour12: false });
 };
 
+const timeInfo = computed(() => decoded.value ? analyzeTimeClaims(decoded.value.payload) : null);
+
 const expiryText = computed(() => {
   const exp = decoded.value?.payload?.exp;
-  if (typeof exp !== 'number') return '无 exp（不过期声明）';
-  return Date.now() / 1000 > exp ? `已过期（exp：${formatTs(exp)}）` : `未过期（exp：${formatTs(exp)}）`;
+  if (exp === undefined) return '无 exp（不过期声明）';
+  if (typeof exp !== 'number') return 'exp 不是数字时间戳';
+  return timeInfo.value.expState === 'expired' ? `已过期（exp：${formatTs(exp)}）` : `未过期（exp：${formatTs(exp)}）`;
 });
 const expiryClass = computed(() => {
-  const exp = decoded.value?.payload?.exp;
-  if (typeof exp !== 'number') return '';
-  return Date.now() / 1000 > exp ? 'chip-danger' : 'chip-success';
+  if (!timeInfo.value) return '';
+  if (timeInfo.value.expState === 'expired' || timeInfo.value.expState === 'invalid') return 'chip-danger';
+  if (timeInfo.value.expState === 'valid') return 'chip-success';
+  return '';
 });
+const notBeforeText = computed(() => {
+  const nbf = decoded.value?.payload?.nbf;
+  if (typeof nbf !== 'number') return '';
+  return timeInfo.value.nbfState === 'pending' ? `尚未生效（nbf：${formatTs(nbf)}）` : `已生效（nbf：${formatTs(nbf)}）`;
+});
+const nbfClass = computed(() => timeInfo.value?.nbfState === 'pending' ? 'chip-danger' : 'chip-success');
 const issuedText = computed(() => {
   const iat = decoded.value?.payload?.iat;
   return typeof iat === 'number' ? formatTs(iat) : '';
@@ -169,43 +200,31 @@ const claimRows = computed(() => {
       label: CLAIM_LABELS[k],
       value: ['exp', 'nbf', 'iat'].includes(k) && typeof decoded.value.payload[k] === 'number'
         ? `${decoded.value.payload[k]}（${formatTs(decoded.value.payload[k])}）`
-        : String(decoded.value.payload[k])
+        : formatClaimValue(decoded.value.payload[k])
     }));
 });
 
-const decodeBase64UrlJson = (segment) => {
-  const b64 = segment.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
-  const binary = atob(padded);
-  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-  return JSON.parse(new TextDecoder('utf-8').decode(bytes));
-};
-
 const decode = () => {
-  const token = inputToken.value.trim();
   decoded.value = null;
-  if (!token) { statusMessage.value = ''; return; }
-  const parts = token.split('.');
-  if (parts.length !== 3) {
-    statusMessage.value = `✗ JWT 应由 3 段以点号分隔，当前检测到 ${parts.length} 段`;
-    statusType.value = 'error';
-    return;
-  }
+  notes.value = [];
+  warnings.value = [];
+  if (!inputToken.value.trim()) { statusMessage.value = ''; return; }
   try {
-    const header = decodeBase64UrlJson(parts[0]);
-    const payload = decodeBase64UrlJson(parts[1]);
-    decoded.value = { header, payload, signature: parts[2] };
+    const result = parseJwt(inputToken.value);
+    decoded.value = result;
+    notes.value = result.notes;
+    warnings.value = buildWarnings(result.header, result.payload, result.signature, analyzeTimeClaims(result.payload));
     statusMessage.value = '✓ 解码成功';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = '✗ 解码失败：Header 或 Payload 不是合法的 Base64URL 编码 JSON';
+    statusMessage.value = `✗ 解码失败：${e.message}`;
     statusType.value = 'error';
   }
 };
 
 const loadExample = () => { inputToken.value = SAMPLE_TOKEN; decode(); };
 const useExample = (example) => { inputToken.value = example.input; decode(); };
-const clearAll = () => { inputToken.value = ''; decoded.value = null; statusMessage.value = ''; };
+const clearAll = () => { inputToken.value = ''; decoded.value = null; notes.value = []; warnings.value = []; statusMessage.value = ''; };
 const copyPayload = async () => {
   try {
     await navigator.clipboard.writeText(payloadText.value);
@@ -226,6 +245,8 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .input-section { margin-bottom: 16px; }
 .token-input { width: 100%; min-height: 110px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; word-break: break-all; resize: vertical; box-sizing: border-box; }
 .claims-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.warnings-list { margin: 0 0 12px; padding: 10px 14px 10px 30px; background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.7; }
+.notes-line { margin: 0 0 12px; color: var(--text-2); font-size: 13px; }
 .claim-chip { padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--text); font-size: 13px; border: 1px solid var(--border); }
 .chip-success { background: var(--success-soft); color: var(--success-text); border-color: var(--success-border); }
 .chip-danger { background: var(--danger-soft); color: var(--danger-text); border-color: var(--danger-border); }
