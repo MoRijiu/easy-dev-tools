@@ -9,6 +9,23 @@ export const MIME_CATEGORIES = [
   { id: 'font', name: '字体' }
 ];
 const M = (ext, mime, nameZh, category, note = '', keywords = '') => ({ ext, mime, nameZh, category, note, keywords });
+// 伪条目：本身不是文件扩展名（如表单 Content-Type），搜索可命中但按扩展名反查不应命中
+const P = (ext, mime, nameZh, category, note = '', keywords = '') => ({ ...M(ext, mime, nameZh, category, note, keywords), pseudo: true });
+export function normalizeMimeInput(input = '') {
+  return String(input || '').replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).replace(/　/g, ' ').trim().toLowerCase();
+}
+export function parseContentType(input = '') {
+  const raw = normalizeMimeInput(input);
+  if (!raw) return null;
+  const [mimePart, ...paramParts] = raw.split(';');
+  const mime = mimePart.trim();
+  const params = {};
+  for (const part of paramParts) {
+    const eq = part.indexOf('=');
+    if (eq > 0) params[part.slice(0, eq).trim()] = part.slice(eq + 1).trim().replace(/^"|"$/g, '');
+  }
+  return { mime, params };
+}
 export const MIME_TYPES = [
   M('html', 'text/html', 'HTML 文档', 'text', '网页文档，浏览器默认按此类型渲染', 'htm web page 网页'),
   M('htm', 'text/html', 'HTML 文档', 'text', '同 .html 的旧式扩展名', 'html 网页'),
@@ -19,6 +36,14 @@ export const MIME_TYPES = [
   M('xml', 'text/xml', 'XML 文档', 'text', '也常用 application/xml', 'xml 数据'),
   M('js', 'text/javascript', 'JavaScript 脚本', 'text', '现代标准写法，旧写法 application/javascript 已不推荐', 'javascript script 脚本 mjs'),
   M('mjs', 'text/javascript', 'JavaScript 模块', 'text', 'ES Module 文件', 'javascript module 脚本'),
+  M('yaml', 'application/yaml', 'YAML 配置', 'text', 'YAML 配置文件，旧写法 text/yaml / application/x-yaml 也常见，RFC 9512 标准为 application/yaml', 'yml yaml 配置 config'),
+  M('yml', 'application/yaml', 'YAML 配置', 'text', '与 .yaml 完全相同的 MIME 类型', 'yaml 配置 config'),
+  M('toml', 'application/toml', 'TOML 配置', 'text', 'TOML 配置文件', 'toml 配置 config cargo'),
+  M('ini', 'text/plain', 'INI 配置', 'text', 'INI 配置文件，无单独注册的 MIME，常按纯文本处理', 'ini 配置 config'),
+  M('log', 'text/plain', '日志文件', 'text', '程序日志文件，按纯文本处理', 'log 日志'),
+  M('sql', 'application/sql', 'SQL 脚本', 'application', 'SQL 脚本文件', 'sql 数据库 查询'),
+  M('ics', 'text/calendar', '日历文件', 'text', 'iCalendar 日历交换文件，可导入日历应用', 'calendar 日历 ical'),
+  M('vcf', 'text/vcard', '电子名片', 'text', 'vCard 联系人文件，也见 text/x-vcard', 'vcard 名片 联系人'),
   M('json', 'application/json', 'JSON 数据', 'application', '接口与配置文件最常用的数据格式', 'json api 数据'),
   M('map', 'application/json', 'Source Map', 'application', '源码映射文件，本质是 JSON', 'sourcemap 调试'),
   M('pdf', 'application/pdf', 'PDF 文档', 'application', '便携式文档格式', 'pdf 文档 adobe'),
@@ -26,6 +51,13 @@ export const MIME_TYPES = [
   M('gz', 'application/gzip', 'Gzip 压缩包', 'application', '常与 tar 组合为 .tar.gz', 'gzip tar 压缩'),
   M('tar', 'application/x-tar', 'Tar 归档', 'application', '本身不压缩，常配合 gzip', 'tar 归档 压缩'),
   M('7z', 'application/x-7z-compressed', '7-Zip 压缩包', 'application', '高压缩比归档格式', '7zip 压缩'),
+  M('xz', 'application/x-xz', 'XZ 压缩包', 'application', 'LZMA2 高压缩比归档，常配合 tar 为 .tar.xz', 'xz 压缩 tar'),
+  M('bz2', 'application/x-bzip2', 'Bzip2 压缩包', 'application', 'bzip2 压缩，常配合 tar 为 .tar.bz2', 'bzip2 压缩 tar'),
+  M('zst', 'application/zstd', 'Zstandard 压缩包', 'application', 'Zstandard 高速压缩格式', 'zstd 压缩'),
+  M('jar', 'application/java-archive', 'Java 归档', 'application', 'Java 应用归档，本质是 ZIP', 'java jar war 归档'),
+  M('deb', 'application/vnd.debian.binary-package', 'Debian 安装包', 'application', 'Debian/Ubuntu 软件包', 'debian ubuntu linux 安装包'),
+  M('rpm', 'application/x-rpm', 'RPM 安装包', 'application', 'Red Hat 系软件包', 'rpm redhat linux 安装包'),
+  M('epub', 'application/epub+zip', 'EPUB 电子书', 'application', '开放电子书格式，本质是 ZIP', 'epub 电子书 ebook'),
   M('rar', 'application/vnd.rar', 'RAR 压缩包', 'application', 'RAR 归档格式', 'rar 压缩 winrar'),
   M('wasm', 'application/wasm', 'WebAssembly', 'application', '浏览器可执行的二进制模块', 'webassembly wasm'),
   M('bin', 'application/octet-stream', '二进制流', 'application', '通用二进制兜底类型，下载时常用', 'binary octet stream 下载'),
@@ -62,6 +94,10 @@ export const MIME_TYPES = [
   M('aac', 'audio/aac', 'AAC 音频', 'audio', '高效有损音频，常用于视频伴音', 'aac 音频'),
   M('m4a', 'audio/mp4', 'M4A 音频', 'audio', 'MP4 容器中的音频文件', 'm4a mp4 音频'),
   M('opus', 'audio/opus', 'Opus 音频', 'audio', '低延迟音频，常用于语音与 WebRTC', 'opus 语音 webrtc'),
+  M('mpeg', 'video/mpeg', 'MPEG 视频', 'video', 'MPEG-1/2 视频，与 .mpg 同类型', 'mpg 视频'),
+  M('mpg', 'video/mpeg', 'MPEG 视频', 'video', '与 .mpeg 完全相同的 MIME 类型', 'mpeg 视频'),
+  M('m4v', 'video/x-m4v', 'M4V 视频', 'video', 'Apple 的 MP4 变体视频容器', 'm4v mp4 视频 apple'),
+  M('3gp', 'video/3gpp', '3GP 视频', 'video', '移动设备早期视频格式', '3gpp 视频 手机'),
   M('mp4', 'video/mp4', 'MP4 视频', 'video', '最普及的视频容器格式', 'mp4 视频 movie'),
   M('webm', 'video/webm', 'WebM 视频', 'video', '面向 Web 的开放视频格式', 'webm 视频 web'),
   M('mov', 'video/quicktime', 'QuickTime 视频', 'video', 'Apple QuickTime 视频格式', 'mov quicktime apple 视频'),
@@ -74,29 +110,54 @@ export const MIME_TYPES = [
   M('ttf', 'font/ttf', 'TrueType 字体', 'font', '最常见的字体文件格式', 'font 字体 truetype'),
   M('otf', 'font/otf', 'OpenType 字体', 'font', 'OpenType 字体格式', 'font 字体 opentype'),
   M('eot', 'application/vnd.ms-fontobject', 'EOT 字体', 'font', '旧 IE 专用的嵌入字体格式', 'font 字体 ie'),
-  M('form', 'application/x-www-form-urlencoded', '表单编码', 'application', '不是文件扩展名：HTML 表单默认提交的 Content-Type', 'form urlencoded 表单 content-type'),
-  M('multipart', 'multipart/form-data', '分段表单', 'application', '不是文件扩展名：含文件上传时表单的 Content-Type', 'multipart form-data 上传 文件')
+  P('form', 'application/x-www-form-urlencoded', '表单编码', 'application', '不是文件扩展名：HTML 表单默认提交的 Content-Type', 'form urlencoded 表单 content-type'),
+  P('multipart', 'multipart/form-data', '分段表单', 'application', '不是文件扩展名：含文件上传时表单的 Content-Type', 'multipart form-data 上传 文件')
 ];
 export function getByExtension(input = '') {
-  const raw = String(input || '').trim().toLowerCase();
+  const raw = normalizeMimeInput(input);
   const ext = raw.replace(/^\.+/, '').split('.').pop();
-  if (!ext) return null;
-  return MIME_TYPES.find((t) => t.ext === ext) || null;
+  if (!ext || ext.includes('/') || ext.includes(' ')) return null;
+  return MIME_TYPES.find((t) => !t.pseudo && t.ext === ext) || null;
 }
 export function getByMime(input = '') {
-  const q = String(input || '').trim().toLowerCase();
-  if (!q) return null;
-  return MIME_TYPES.find((t) => t.mime === q) || null;
+  const parsed = parseContentType(input);
+  if (!parsed || !parsed.mime) return null;
+  return MIME_TYPES.find((t) => t.mime === parsed.mime) || null;
 }
 export function searchMimeTypes(query = '', category = 'all') {
-  const q = String(query || '').trim().toLowerCase();
+  const q = normalizeMimeInput(query).split(';')[0].trim();
   const cat = category || 'all';
-  return MIME_TYPES.filter((t) => {
+  const filtered = MIME_TYPES.filter((t) => {
     if (cat !== 'all' && t.category !== cat) return false;
     if (!q) return true;
     const hay = `.${t.ext} ${t.ext} ${t.mime} ${t.nameZh} ${t.note} ${t.keywords}`.toLowerCase();
     return q.split(/\s+/).every((part) => hay.includes(part.replace(/^\./, '')) || hay.includes(part));
   });
+  // 单词查询时精确命中优先：扩展名精确 > MIME 精确 > 扩展名前缀，避免搜 jpeg 时 jpg 因关键词靠前
+  const parts = q.split(/\s+/).filter(Boolean);
+  if (parts.length === 1 && q) {
+    const token = parts[0].replace(/^\./, '');
+    const rank = (t) => (t.ext === token ? 0 : t.mime === q ? 1 : t.ext.startsWith(token) ? 2 : 3);
+    return filtered.map((t, i) => [rank(t), i, t]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map((x) => x[2]);
+  }
+  return filtered;
+}
+export function countByCategory() {
+  const counts = { all: MIME_TYPES.length };
+  for (const t of MIME_TYPES) counts[t.category] = (counts[t.category] || 0) + 1;
+  return counts;
+}
+export function describeUnknownQuery(query = '') {
+  const q = normalizeMimeInput(query).split(';')[0].trim();
+  if (!q || /\s/.test(q)) return '';
+  if (/^[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*$/.test(q)) {
+    return `「${q}」看起来是一个格式完整的 MIME 类型，但不在本速查表收录的常用类型里；它可能是厂商自定义类型（如 application/vnd.*）或较新登记的类型，兜底下载场景可用 application/octet-stream。`;
+  }
+  const ext = q.replace(/^\./, '');
+  if (/^[a-z0-9][a-z0-9-]{0,15}$/.test(ext)) {
+    return `扩展名「.${ext}」不在速查表收录范围内；冷门格式可按二进制兜底类型 application/octet-stream 提供下载，或查该格式官方文档确认登记的 MIME。`;
+  }
+  return '';
 }
 export function buildMimeSummary(t) {
   if (!t) return '';
