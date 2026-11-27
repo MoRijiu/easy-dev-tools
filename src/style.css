@@ -22,7 +22,8 @@
   --border-strong: #d1d5db;
   --text: #1f2937;
   --text-strong: #2c3e50;
-  --text-2: #6b7280;
+  /* 二级文字在 surface/bg/bg-soft 上对比度均 ≥4.5:1 且须深于 --text-3（R9q 校准，勿调浅） */
+  --text-2: #565e6a;
   /* 三级文字在 surface/bg/bg-soft 上对比度均 ≥4.5:1（R9o 校准，勿调浅） */
   --text-3: #646c78;
   --accent: #667eea;
@@ -60,7 +61,8 @@
   --syntax-number: #005cc5;
   --syntax-boolean: #d73a49;
   --syntax-null: #6f42c1;
-  --syntax-key: #e36209;
+  /* 键名色在 surface/bg-softer/bg-soft 上对比度均 ≥4.5:1（R9q 校准，旧值 #e36209 仅 3.49:1） */
+  --syntax-key: #bc4c00;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.15);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
