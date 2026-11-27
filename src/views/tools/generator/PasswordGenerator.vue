@@ -91,7 +91,7 @@
         <div class="password-list" v-if="passwords.length">
           <div class="password-item" v-for="(pwd, index) in passwords" :key="index">
             <code class="password-text">{{ pwd }}</code>
-            <button class="copy-btn" @click="copySingle(pwd)" title="复制" aria-label="复制此密码">📋</button>
+            <button class="copy-btn" @click="copySingle(pwd)" title="复制" :aria-label="`复制第 ${index + 1} 个密码`">📋</button>
           </div>
         </div>
         <div v-else class="placeholder">点击"生成密码"按钮生成随机密码</div>

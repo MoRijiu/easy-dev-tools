@@ -102,6 +102,7 @@
                   :class="['case-btn', { active: upperCase[key] }]" :aria-pressed="!!upperCase[key]"
                   @click="toggleCase(key)"
                   title="切换大小写"
+                  :aria-label="`切换 ${getAlgorithmName(key)} 哈希值大小写`"
                 >
                   Aa
                 </button>

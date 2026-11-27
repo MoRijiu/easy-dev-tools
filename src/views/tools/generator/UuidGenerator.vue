@@ -66,7 +66,7 @@
                 class="uuid-item"
               >
                 <code class="uuid-text">{{ uuid }}</code>
-                <button class="copy-single-btn" @click="copySingle(uuid)" title="复制此 UUID" aria-label="复制此 UUID">
+                <button class="copy-single-btn" @click="copySingle(uuid)" title="复制此 UUID" :aria-label="`复制第 ${index + 1} 个 UUID`">
                   📋
                 </button>
               </div>
