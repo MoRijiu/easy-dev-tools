@@ -63,6 +63,8 @@
           </div>
         </div>
         <input id="aes-secret-key" aria-label="密钥"
+          :aria-invalid="aesInvalid('key') ? 'true' : undefined"
+          :aria-describedby="aesInvalid('key') ? 'aes-status' : undefined"
           v-model="secretKey"
           :type="showKey ? 'text' : 'password'"
           class="key-input"
@@ -74,7 +76,9 @@
         </div>
         <div class="iv-row" v-if="cipherMode === 'CBC'">
           <label for="aes-iv">初始向量 (IV):</label>
-          <input id="aes-iv" aria-label="初始向量 (IV)" 
+          <input id="aes-iv" aria-label="初始向量 (IV)"
+            :aria-invalid="aesInvalid('iv') ? 'true' : undefined"
+            :aria-describedby="aesInvalid('iv') ? 'aes-status' : undefined"
             v-model="iv"
             type="text"
             class="iv-input"
@@ -102,12 +106,14 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="aes-status" :message="statusMessage" :type="statusType" />
 
       <!-- 编辑器布局 -->
       <ToolEditorLayout>
         <ToolEditorPanel :title="mode === 'encrypt' ? '明文输入' : '密文输入'" :info="inputInfo">
           <textarea aria-label="输入内容（明文或密文）"
+            :aria-invalid="aesInvalid('input') ? 'true' : undefined"
+            :aria-describedby="aesInvalid('input') ? 'aes-status' : undefined"
             v-model="inputText"
             class="text-input"
             :placeholder="mode === 'encrypt' ? '请输入需要加密的明文内容...' : '请输入需要解密的密文 (Base64/Hex)...'"
@@ -169,6 +175,19 @@ const cipherMode = ref("GCM");
 const outputEncoding = ref("base64");
 const statusMessage = ref("");
 const statusType = ref("");
+// 错误归属：留存出错原文与归属字段，仅当前展示的正是该错误时才关联；复制失败等其他状态消息不误绑
+const errorText = ref("");
+const errorTargets = ref([]);
+const setStatusError = (msg, targets) => { statusMessage.value = msg; statusType.value = "error"; errorText.value = msg; errorTargets.value = targets; };
+const aesInvalid = (field) => statusType.value === "error" && errorText.value !== "" && statusMessage.value === errorText.value && errorTargets.value.includes(field);
+// 按报错关键词归属：密钥→密钥框；IV→IV 框；密文/编码→输入框；解密失败可能源于密钥或密文，两端同绑；环境类不归字段
+const classifyAesError = (message) => {
+  if (/解密失败|解密结果不是/.test(message)) return ["input", "key"];
+  if (/密钥/.test(message)) return ["key"];
+  if (/^IV |IV 为/.test(message)) return ["iv"];
+  if (/密文|Base64|Hex/.test(message)) return ["input"];
+  return [];
+};
 const showKey = ref(false);
 
 // 获取密钥字节长度
@@ -213,8 +232,7 @@ const generateRandomIV = () => {
 // 处理加密/解密
 const processData = async () => {
   if (!inputText.value) {
-    statusMessage.value = `✗ 请输入需要${mode.value === 'encrypt' ? '加密' : '解密'}的内容`;
-    statusType.value = "error";
+    setStatusError(`✗ 请输入需要${mode.value === 'encrypt' ? '加密' : '解密'}的内容`, ["input"]);
     return;
   }
   try {
@@ -242,8 +260,7 @@ const processData = async () => {
     }
     statusType.value = "success";
   } catch (error) {
-    statusMessage.value = `✗ ${mode.value === 'encrypt' ? '加密' : '解密'}失败：${error.message}`;
-    statusType.value = "error";
+    setStatusError(`✗ ${mode.value === 'encrypt' ? '加密' : '解密'}失败：${error.message}`, classifyAesError(error.message));
     outputText.value = "";
   }
 };
@@ -253,6 +270,8 @@ const clearAll = () => {
   inputText.value = "";
   outputText.value = "";
   statusMessage.value = "";
+  errorText.value = "";
+  errorTargets.value = [];
 };
 
 // 复制输出
