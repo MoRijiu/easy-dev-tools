@@ -29,14 +29,14 @@
       </div>
       <div class="panels">
         <ToolEditorPanel :title="mode === 'encode' ? '输入文本' : '输入电码'" :info="input ? `${[...input].length} 字符` : ''">
-          <textarea v-model="input" class="ta" rows="6" spellcheck="false" :placeholder="mode === 'encode' ? '输入英文、数字或标点，如 SOS 或 Hello World' : '粘贴电码，如 ... --- ... ，字母间空格、单词间用 / 分隔'" aria-label="输入"></textarea>
+          <textarea v-model="input" class="ta" rows="6" spellcheck="false" :placeholder="mode === 'encode' ? '输入英文、数字或标点，如 SOS 或 Hello World' : '粘贴电码，如 ... --- ... ，字母间空格、单词间用 / 分隔'" aria-label="输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'morse-code-error' : undefined"></textarea>
         </ToolEditorPanel>
         <ToolEditorPanel :title="mode === 'encode' ? '电码结果' : '解码结果'" :info="info">
           <textarea :value="output" class="ta" rows="6" readonly spellcheck="false" placeholder="结果实时显示" aria-label="输出"></textarea>
         </ToolEditorPanel>
       </div>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
-      <p v-if="error" class="error" role="alert">✗ {{ error }}</p>
+      <p v-if="error" id="morse-code-error" class="error" role="alert">✗ {{ error }}</p>
       <div class="ref">
         <div v-for="g in MORSE_GROUPS" :key="g.name" class="ref-group">
           <span class="ref-title">{{ g.name }}</span>

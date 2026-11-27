@@ -16,7 +16,7 @@
         <label>最大长度 <input class="num" type="number" v-model.number="opts.maxLength" min="0" max="500" aria-label="最大长度，0 不限" /></label>
       </div>
       <label class="block">输入（每行一条）
-        <textarea v-model="input" rows="6" spellcheck="false" placeholder="如：Hello World! Café Guide 2026" aria-label="Slug 输入"></textarea>
+        <textarea v-model="input" rows="6" spellcheck="false" placeholder="如：Hello World! Café Guide 2026" aria-label="Slug 输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'slug-error' : undefined"></textarea>
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample(0)">示例</button>
@@ -26,7 +26,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.text)">复制全部</button>
         <span class="muted">输入后实时生成</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="slug-error" class="error" role="alert">{{ error }}</p>
       <p v-if="result && result.notes && result.notes.length" class="notes" role="status" aria-live="polite">{{ result.notes.join("；") }}</p>
       <template v-if="result">
         <label class="block">输出

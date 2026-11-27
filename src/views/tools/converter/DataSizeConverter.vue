@@ -5,7 +5,7 @@
     <div class="tool-container">
       <div class="row">
         <label>数据大小
-          <input v-model="input" type="text" placeholder="如 1.5 GB / 1024 MiB / 500" aria-label="数据大小输入" @keyup.enter="analyze" />
+          <input v-model="input" type="text" placeholder="如 1.5 GB / 1024 MiB / 500" aria-label="数据大小输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'data-size-error' : undefined" @keyup.enter="analyze" />
         </label>
         <label class="unit-label">无单位时按
           <select v-model="defaultUnit" aria-label="默认单位"><option v-for="u in unitOptions" :key="u" :value="u">{{ u }}</option></select>
@@ -14,7 +14,7 @@
         <button class="btn ghost" @click="clearAll">清空</button>
       </div>
       <div class="examples"><span>示例：</span><button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button></div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="data-size-error" class="error" role="alert">{{ error }}</p>
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>
         <div class="table-wrap"><table><tbody>

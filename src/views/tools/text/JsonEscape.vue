@@ -14,7 +14,7 @@
       </div>
       <p v-else class="muted">去转义支持带引号的完整 JSON 字符串，也支持不带引号的转义内容；非法转义会定位报错。</p>
       <label class="block">输入
-        <textarea v-model="input" rows="7" spellcheck="false" :placeholder="mode === 'escape' ? '粘贴普通文本，如带引号、换行或中文的内容' : '粘贴 JSON 字符串，如 &quot;hello\\nworld&quot;'" aria-label="输入"></textarea>
+        <textarea v-model="input" rows="7" spellcheck="false" :placeholder="mode === 'escape' ? '粘贴普通文本，如带引号、换行或中文的内容' : '粘贴 JSON 字符串，如 &quot;hello\\nworld&quot;'" aria-label="输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'json-escape-error' : undefined"></textarea>
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample">示例</button>
@@ -23,7 +23,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(output)">复制结果</button>
         <span class="muted">输入后实时转换</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="json-escape-error" class="error" role="alert">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功转换的结果。</p>
       <p v-if="result && result.notes && result.notes.length" class="note" role="status" aria-live="polite">{{ result.notes.join('；') }}</p>
       <template v-if="result">

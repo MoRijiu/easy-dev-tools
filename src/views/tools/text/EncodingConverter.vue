@@ -24,13 +24,13 @@
       <p class="hint">{{ currentFormat.hint }}</p>
       <div class="panels">
         <ToolEditorPanel :title="mode === 'encode' ? '输入文本' : '输入编码'" :info="input ? `${[...input].length} 字符` : ''">
-          <textarea v-model="input" class="ta" rows="7" spellcheck="false" :placeholder="mode === 'encode' ? '输入要编码的文本，如 hello 世界' : '粘贴编码字符串，如 68656c6c6f'" aria-label="输入"></textarea>
+          <textarea v-model="input" class="ta" rows="7" spellcheck="false" :placeholder="mode === 'encode' ? '输入要编码的文本，如 hello 世界' : '粘贴编码字符串，如 68656c6c6f'" aria-label="输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'encoding-converter-error' : undefined"></textarea>
         </ToolEditorPanel>
         <ToolEditorPanel :title="mode === 'encode' ? '编码结果' : '解码结果'" :info="info">
           <textarea :value="output" class="ta" rows="7" readonly spellcheck="false" placeholder="结果实时显示" aria-label="输出"></textarea>
         </ToolEditorPanel>
       </div>
-      <p v-if="error" class="error" role="alert">✗ {{ error }}</p>
+      <p v-if="error" id="encoding-converter-error" class="error" role="alert">✗ {{ error }}</p>
       <div v-if="mode === 'encode' && input && !error" class="all-row">
         <span class="all-title">一屏对照：</span>
         <button v-for="row in allRows" :key="row.id" class="all-chip" @click="pickFormat(row.id)" :title="'切换到 ' + row.name">{{ row.name }} <code>{{ row.value || '（空）' }}</code></button>

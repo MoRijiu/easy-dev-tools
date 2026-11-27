@@ -13,7 +13,7 @@
         <span class="muted">每行一个域名，纯 ASCII 标签原样保留</span>
       </div>
       <label class="block">输入
-        <textarea v-model="input" rows="6" spellcheck="false" placeholder="如：中文.com 或 xn--fiq228c.com" aria-label="转换输入"></textarea>
+        <textarea v-model="input" rows="6" spellcheck="false" placeholder="如：中文.com 或 xn--fiq228c.com" aria-label="转换输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'punycode-error' : undefined"></textarea>
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample">示例</button>
@@ -22,7 +22,7 @@
         <button class="btn" type="button" :disabled="!result" @click="copyText(result.text)">复制结果</button>
         <span class="muted">输入后实时转换</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="punycode-error" class="error" role="alert">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功转换的结果。</p>
       <p v-for="note in (result ? result.notes : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-for="warn in (result && result.warnings ? result.warnings : [])" :key="warn" class="warn" role="status" aria-live="polite">{{ warn }}</p>

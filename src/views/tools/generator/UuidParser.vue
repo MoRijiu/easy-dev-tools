@@ -4,7 +4,7 @@
     <p class="description">校验 UUID 并解析版本、变体与分段，v1 / v6 / v7 还能提取内嵌时间，支持大括号、URN 与无连字符写法，全程本地、不上传</p>
     <div class="tool-container">
       <label class="block">UUID
-        <textarea v-model="input" rows="3" spellcheck="false" placeholder="粘贴 UUID，如 550e8400-e29b-41d4-a716-446655440000" aria-label="UUID"></textarea>
+        <textarea v-model="input" rows="3" spellcheck="false" placeholder="粘贴 UUID，如 550e8400-e29b-41d4-a716-446655440000" aria-label="UUID" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'uuid-parser-error' : undefined"></textarea>
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample(EXAMPLES[0])">示例 v4</button>
@@ -14,7 +14,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <span class="muted">输入后实时解析</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="uuid-parser-error" class="error" role="alert">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功解析的结果。</p>
       <p v-for="note in (result?.notes || [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-for="warn in (result?.warnings || [])" :key="warn" class="warn" role="status" aria-live="polite">⚠ {{ warn }}</p>

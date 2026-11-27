@@ -5,7 +5,7 @@
     <div class="tool-container">
       <div class="row">
         <label>IP 地址或 IPv4 整数
-          <input v-model="input" type="text" placeholder="如 192.168.1.10 / 2001:db8::1 / 3232235786" aria-label="IP 地址输入" @keyup.enter="analyze" />
+          <input v-model="input" type="text" placeholder="如 192.168.1.10 / 2001:db8::1 / 3232235786" aria-label="IP 地址输入" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'ip-address-error' : undefined" @keyup.enter="analyze" />
         </label>
         <button class="btn" @click="analyze">解析</button>
         <button class="btn ghost" @click="clearAll">清空</button>
@@ -14,7 +14,7 @@
         <span>示例：</span>
         <button v-for="e in examples" :key="e" class="chip" @click="pick(e)">{{ e }}</button>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="ip-address-error" class="error" role="alert">{{ error }}</p>
       <template v-if="info">
         <ul v-if="info.warnings && info.warnings.length" class="warnings-list" role="status" aria-live="polite">
           <li v-for="(w, i) in info.warnings" :key="i">⚠️ {{ w }}</li>
