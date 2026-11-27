@@ -11,17 +11,17 @@
         <div class="current-time-card">
           <span class="label">当前时间戳 (秒)</span>
           <span class="value">{{ currentTimestamp }}</span>
-          <button class="copy-btn" @click="copyToClipboard(currentTimestamp.toString())">📋</button>
+          <button class="copy-btn" aria-label="复制当前时间戳（秒）" @click="copyToClipboard(currentTimestamp.toString())">📋</button>
         </div>
         <div class="current-time-card">
           <span class="label">当前时间戳 (毫秒)</span>
           <span class="value">{{ currentTimestampMs }}</span>
-          <button class="copy-btn" @click="copyToClipboard(currentTimestampMs.toString())">📋</button>
+          <button class="copy-btn" aria-label="复制当前时间戳（毫秒）" @click="copyToClipboard(currentTimestampMs.toString())">📋</button>
         </div>
         <div class="current-time-card">
           <span class="label">当前时间</span>
           <span class="value">{{ currentDateTime }}</span>
-          <button class="copy-btn" @click="copyToClipboard(currentDateTime)">📋</button>
+          <button class="copy-btn" aria-label="复制当前时间" @click="copyToClipboard(currentDateTime)">📋</button>
         </div>
       </div>
 

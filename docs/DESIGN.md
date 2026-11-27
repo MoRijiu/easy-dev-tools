@@ -36,6 +36,7 @@
 - 代码语法高亮色一律走 `--syntax-*` 变量（R9c 起）：亮色值为 GitHub 亮色口径，暗色值已按暗背景校准对比度（均 ≥6:1）；禁止在组件里写死单主题高亮色——亮色调色板（如 `#005cc5`）在暗背景上对比度只有约 2.6:1。语义徽标背景/文字同样用 `--danger-soft`/`--danger-text` 等成对变量，不写死浅色底（如 `#fee`）。
 - CSS 变量引用必须先在 `src/style.css` 定义（R9d 起）：禁止引用未定义变量（如已废弃的 `--text-1`）或靠 fallback 掩盖缺失——`--warning`/`--warning-text`/`--warning-soft`/`--warning-border` 警告色族与 `--on-accent` 已按亮/暗两套主题定义（暗色警告文字 `#fbbf24`，在暗背景上对比度 ≥7.8:1；旧 fallback `#b45309` 在暗色下仅约 2.6–3.5:1）；`--warn-soft` 为既有别名，与 `--warning-soft` 同值保留。页脚统计分隔点等中性元素用 `--text-3`，不写死单主题灰（如 `#cbd5e1` 亮色下对比度仅 1.33:1）。
 - 键盘与无障碍自 R5 起落地：命令面板 `src/components/CommandPalette.vue` 全局挂载，`Ctrl+K` / `Cmd+K` 开关、非输入区按 `/` 打开、`Esc` 关闭，支持方向键 + Enter 选择；Header 搜索按钮通过 `edt:open-command-palette` 事件唤起。新增交互控件须带 `aria-label`，键盘焦点统一走全局 `:focus-visible` 焦点环，不要单独移除 outline；页面保留「跳到主要内容」跳过链接（`#main-content`）。
+- SEO 与分享口径（R9e 起）：canonical / og:url 一律本站域名 `https://tools.morijiu.cn` + 工具真实路由路径（`tools-config` 的 `path`），禁止写其它域名或臆造路径（如已废弃的 `easy-dev-tools.com/tools/<id>`）；`og:image` / `twitter:image` 引用的图片文件必须真实存在于 `public/`（`og-image.png` / `twitter-image.png`，1200×630），改引用前先确认文件落地。纯图标/Emoji 按钮（如 📋 复制钮）必须带 `aria-label` 说明动作与对象，屏幕阅读器读不出 Emoji 含义。
 
 ## 5. 构建与发布纪律
 

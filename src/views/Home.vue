@@ -83,7 +83,7 @@ useSeo({
   title: '极速开发工具箱 - 在线开发者工具集合 | JSON格式化、Base64编解码、UUID生成器',
   description: '极速开发工具箱提供丰富的在线开发工具，包括JSON格式化、Base64编解码、URL编解码、时间戳转换、UUID生成、二维码生成、密码生成、哈希计算、图片压缩等实用工具，提升开发效率。',
   keywords: '开发工具,在线工具,JSON格式化,Base64编码,URL编码,时间戳转换,UUID生成器,二维码生成,密码生成器,哈希计算,图片压缩,开发者工具箱',
-  canonical: 'https://easy-dev-tools.com/'
+  canonical: 'https://tools.morijiu.cn/'
 })
 
 const query = ref('')
