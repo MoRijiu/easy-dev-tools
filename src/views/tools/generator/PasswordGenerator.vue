@@ -15,6 +15,7 @@
         <button class="btn btn-danger" @click="clearAll">
           <span class="icon">🗑️</span> 清空
         </button>
+        <button class="btn btn-secondary" :disabled="!passwords.length" @click="downloadPasswords">⬇️ 下载 .txt</button>
       </ToolToolbar>
 
       <!-- 状态信息 -->
@@ -26,13 +27,13 @@
           <div class="setting-item">
             <label>密码长度</label>
             <div class="length-control">
-              <input type="range" v-model.number="options.length" min="4" max="64" />
-              <input type="number" v-model.number="options.length" min="4" max="64" class="length-input" />
+              <input type="range" v-model.number="options.length" min="4" max="128" />
+              <input type="text" inputmode="numeric" v-model="options.length" class="length-input" aria-label="密码长度（4-128）" />
             </div>
           </div>
           <div class="setting-item">
-            <label>生成数量</label>
-            <input type="number" v-model.number="options.count" min="1" max="50" />
+            <label>生成数量（1-50）</label>
+            <input type="text" inputmode="numeric" v-model="options.count" />
           </div>
         </div>
 
@@ -55,15 +56,26 @@
           </label>
         </div>
 
+        <div class="char-options">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="options.requireEach" />
+            <span>每种类型至少出现一个</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="options.excludeAmbiguous" />
+            <span>排除易混字符 (0 O 1 l I |)</span>
+          </label>
+        </div>
+
         <div class="exclude-section">
           <label>排除字符</label>
           <input type="text" v-model="options.excludeChars" placeholder="输入要排除的字符，如: 0O1lI" />
         </div>
       </div>
 
-      <!-- 密码强度指示器 -->
+      <!-- 密码强度指示器（按真实熵：长度 × log2 字符池） -->
       <div class="strength-indicator">
-        <label>密码强度:</label>
+        <label>理论强度:</label>
         <div class="strength-bar">
           <div class="strength-fill" :class="strengthClass" :style="{ width: strengthPercent + '%' }"></div>
         </div>
@@ -102,6 +114,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { generatePasswords as generateCore, buildPool, validateLength, entropyOf, strengthForEntropy } from "@/utils/passwordGenerate.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -121,83 +134,61 @@ const options = ref({
   lowercase: true,
   numbers: true,
   symbols: true,
-  excludeChars: ""
+  excludeChars: "",
+  excludeAmbiguous: false,
+  requireEach: true
 });
 
-// 字符集
-const charSets = {
-  uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  lowercase: "abcdefghijklmnopqrstuvwxyz",
-  numbers: "0123456789",
-  symbols: "!@#$%^&*()_+-=[]{}|;:,.<>?"
-};
-
-// 构建可用字符集
-const getAvailableChars = () => {
-  let chars = "";
-  if (options.value.uppercase) chars += charSets.uppercase;
-  if (options.value.lowercase) chars += charSets.lowercase;
-  if (options.value.numbers) chars += charSets.numbers;
-  if (options.value.symbols) chars += charSets.symbols;
-  
-  // 排除指定字符
-  const excludeSet = new Set(options.value.excludeChars);
-  chars = chars.split("").filter(c => !excludeSet.has(c)).join("");
-  return chars;
-};
-
-// 生成单个密码
-const generateSinglePassword = () => {
-  const chars = getAvailableChars();
-  if (!chars) return "";
-  const array = new Uint32Array(options.value.length);
-  crypto.getRandomValues(array);
-  return Array.from(array, x => chars[x % chars.length]).join("");
-};
-
-// 生成多个密码
+// 生成密码（核心在 utils/passwordGenerate：无偏拒绝采样 + 保类 + 严格校验；出错保留旧列表）
 const generatePasswords = () => {
-  const chars = getAvailableChars();
-  if (!chars) {
-    statusMessage.value = "✗ 请至少选择一种字符类型";
+  try {
+    const result = generateCore({ ...options.value });
+    passwords.value = result.passwords;
+    statusMessage.value = `✓ 已生成 ${result.count} 个密码 · 字符池 ${result.poolSize} · 理论熵约 ${result.entropyBits} 位`;
+    statusType.value = "success";
+  } catch (e) {
+    statusMessage.value = `✗ ${e.message}`;
     statusType.value = "error";
-    return;
   }
-  passwords.value = [];
-  for (let i = 0; i < options.value.count; i++) {
-    passwords.value.push(generateSinglePassword());
-  }
-  statusMessage.value = `✓ 已生成 ${options.value.count} 个密码`;
+};
+
+const downloadPasswords = () => {
+  if (!passwords.value.length) return;
+  const blob = new Blob([passwords.value.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "passwords.txt";
+  a.click();
+  URL.revokeObjectURL(url);
+  statusMessage.value = "✓ 已下载 passwords.txt";
   statusType.value = "success";
 };
 
-// 密码强度计算
-const strengthPercent = computed(() => {
-  let score = 0;
-  const len = options.value.length;
-  if (len >= 8) score += 20;
-  if (len >= 12) score += 20;
-  if (len >= 16) score += 10;
-  if (options.value.uppercase) score += 15;
-  if (options.value.lowercase) score += 15;
-  if (options.value.numbers) score += 10;
-  if (options.value.symbols) score += 10;
-  return Math.min(100, score);
+// 理论强度：熵 = 长度 × log2(字符池)，配置非法时直接展示原因
+const strengthInfo = computed(() => {
+  try {
+    const length = validateLength(options.value.length);
+    const { poolSize } = buildPool(options.value);
+    const entropy = entropyOf(length, poolSize);
+    const s = strengthForEntropy(entropy);
+    return { percent: s.percent, label: `${s.label} · 约 ${entropy} 位熵 · 池 ${poolSize}`, invalid: false };
+  } catch (e) {
+    return { percent: 0, label: e.message, invalid: true };
+  }
 });
 
+const strengthPercent = computed(() => strengthInfo.value.percent);
+
 const strengthClass = computed(() => {
-  const p = strengthPercent.value;
-  if (p < 40) return "weak";
-  if (p < 70) return "medium";
+  if (strengthInfo.value.invalid) return "weak";
+  const label = strengthInfo.value.label;
+  if (label.startsWith("弱")) return "weak";
+  if (label.startsWith("中等")) return "medium";
   return "strong";
 });
 
-const strengthText = computed(() => {
-  const p = strengthPercent.value;
-  if (p < 40) return "弱";
-  if (p < 70) return "中等";
-  return "强";
-});
+const strengthText = computed(() => strengthInfo.value.label);
 
 // 复制功能
 const copyToClipboard = async (text) => {
@@ -245,7 +236,9 @@ const features = [
   { icon: "⚙️", title: "自定义选项", description: "可自定义密码长度和字符类型" },
   { icon: "📊", title: "强度评估", description: "实时显示密码强度评级" },
   { icon: "📋", title: "批量生成", description: "一次生成多个密码供选择" },
-  { icon: "🚫", title: "排除字符", description: "可排除容易混淆的字符" },
+  { icon: "🚫", title: "排除字符", description: "自定义排除 + 一键排除 0/O/1/l/I/| 易混字符" },
+  { icon: "✅", title: "每类必现", description: "勾选的每种字符类型至少出现一个并自检" },
+  { icon: "🎯", title: "无偏采样", description: "拒绝采样取字，每个字符概率严格相等" },
   { icon: "💾", title: "一键复制", description: "快速复制生成的密码" },
 ];
 
@@ -264,6 +257,10 @@ const faqs = [
   { question: "需要包含哪些字符类型？", answer: "建议同时包含大小写字母、数字和特殊符号，这样可以大大增加密码的复杂度。" },
   { question: "为什么要排除某些字符？", answer: "某些字符容易混淆，如0和O、1和l、I等。排除这些字符可以避免输入错误。" },
   { question: "生成的密码安全吗？", answer: "本工具使用浏览器的crypto.getRandomValues()API，这是加密安全的随机数生成器，生成的密码具有高随机性。" },
+  { question: "勾选了符号却可能一个符号都没有吗？", answer: "不会。默认开启「每种类型至少出现一个」：先从每类各抽一个字符再洗牌打散位置，生成后还会自检每类是否都出现。关掉该选项则完全随机，可能某类不出现。" },
+  { question: "强度条是怎么算的？", answer: "按理论熵计算：熵 ≈ 长度 × log2(字符池大小)。例如长度 16、字符池 88 时约 103 位熵。旧版按选项逐项加分的算法会高估短密码，已弃用。" },
+  { question: "随机取字为什么不用取模？", answer: "直接用随机数对字符池长度取模会让排在前面的字符概率略高（取模偏差）。本工具用拒绝采样：超出均匀区间的随机值直接丢弃重抽，每个字符概率严格相等。" },
+  { question: "长度和数量填错会怎样？", answer: "长度须为 4-128 的整数、数量须为 1-50 的整数；填小数、空值或越界会明确报错并保留上次生成的列表，不会静默截断或生成错误数量。排除字符把某一类排光时也会点名报错。" },
 ];
 
 // 使用示例
@@ -434,7 +431,12 @@ h1 {
 
 .strength-text {
   font-weight: 700;
-  min-width: 50px;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .strength-text { white-space: normal; }
 }
 
 .strength-text.weak { color: #e74c3c; }
@@ -491,7 +493,8 @@ h1 {
 }
 
 .copy-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
+  color: #fff;
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
