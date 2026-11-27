@@ -52,7 +52,7 @@
       <p class="count">键表共 {{ counts.all }} 项，当前显示 {{ results.length }} 项<span v-if="query.trim()">（纯数字按 keyCode 精确命中优先、全角输入自动转半角）</span></p>
       <div v-if="results.length" class="table-wrap">
         <table>
-          <thead><tr><th>key</th><th>code</th><th>keyCode</th><th>中文名</th><th></th></tr></thead>
+          <thead><tr><th scope="col">key</th><th scope="col">code</th><th scope="col">keyCode</th><th scope="col">中文名</th><th scope="col"></th></tr></thead>
           <tbody>
             <tr v-for="k in results" :key="k.code">
               <td><code>{{ displayKey(k.key) }}</code></td>

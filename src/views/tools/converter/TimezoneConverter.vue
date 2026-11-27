@@ -24,7 +24,7 @@
         <p class="summary">{{ result.source.dateTime }} {{ result.source.weekday }}（{{ fromZone }}，{{ result.source.offset }}）= UTC {{ isoShort }}，共 {{ result.rows.length }} 个时区</p>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>时区</th><th>当地时间</th><th>星期</th><th>UTC 偏移</th><th>与源时区时差</th><th></th></tr></thead>
+            <thead><tr><th scope="col">时区</th><th scope="col">当地时间</th><th scope="col">星期</th><th scope="col">UTC 偏移</th><th scope="col">与源时区时差</th><th scope="col"></th></tr></thead>
             <tbody>
               <tr v-for="row in result.rows" :key="row.timeZone" :class="{ self: row.timeZone === fromZone }">
                 <td>{{ row.label }}<span class="muted"> {{ row.timeZone }}</span></td>

@@ -14,14 +14,14 @@
         <p class="stats">{{ summary }}</p>
         <table class="kv" aria-label="解析概览">
           <tbody>
-            <tr><th>服务名</th><td><code>{{ result.serviceName }}</code></td></tr>
-            <tr><th>镜像</th><td><code>{{ result.image }}</code></td></tr>
-            <tr v-if="result.ports.length"><th>端口</th><td><code>{{ result.ports.join('，') }}</code></td></tr>
-            <tr v-if="result.restart"><th>重启策略</th><td><code>{{ result.restart }}</code></td></tr>
-            <tr v-if="result.networkMode"><th>网络模式</th><td><code>{{ result.networkMode }}</code></td></tr>
-            <tr v-if="result.healthCmd || result.healthDisable"><th>健康检查</th><td><code>{{ result.healthDisable ? '已禁用' : result.healthCmd }}</code></td></tr>
-            <tr v-if="result.logDriver"><th>日志驱动</th><td><code>{{ result.logDriver }}</code></td></tr>
-            <tr v-if="result.command.length"><th>启动命令</th><td><code>{{ result.command.join(' ') }}</code></td></tr>
+            <tr><th scope="row">服务名</th><td><code>{{ result.serviceName }}</code></td></tr>
+            <tr><th scope="row">镜像</th><td><code>{{ result.image }}</code></td></tr>
+            <tr v-if="result.ports.length"><th scope="row">端口</th><td><code>{{ result.ports.join('，') }}</code></td></tr>
+            <tr v-if="result.restart"><th scope="row">重启策略</th><td><code>{{ result.restart }}</code></td></tr>
+            <tr v-if="result.networkMode"><th scope="row">网络模式</th><td><code>{{ result.networkMode }}</code></td></tr>
+            <tr v-if="result.healthCmd || result.healthDisable"><th scope="row">健康检查</th><td><code>{{ result.healthDisable ? '已禁用' : result.healthCmd }}</code></td></tr>
+            <tr v-if="result.logDriver"><th scope="row">日志驱动</th><td><code>{{ result.logDriver }}</code></td></tr>
+            <tr v-if="result.command.length"><th scope="row">启动命令</th><td><code>{{ result.command.join(' ') }}</code></td></tr>
           </tbody>
         </table>
         <p v-for="(w, i) in result.warnings" :key="i" class="hint">⚠ {{ w }}</p>

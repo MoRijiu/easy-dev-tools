@@ -38,7 +38,7 @@
         <p v-for="w in (result.info.warnings || [])" :key="w" class="warn" role="status" aria-live="polite">⚠ {{ w }}</p>
         <table v-if="result.info.rows.length" class="kv">
           <tbody>
-            <tr v-for="row in result.info.rows" :key="row.label"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td></tr>
+            <tr v-for="row in result.info.rows" :key="row.label"><th scope="row">{{ row.label }}</th><td class="mono">{{ row.value }}</td></tr>
           </tbody>
         </table>
         <div class="row actions">

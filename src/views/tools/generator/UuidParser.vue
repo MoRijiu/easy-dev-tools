@@ -21,14 +21,14 @@
       <template v-if="result">
         <p class="summary">合法 UUID · {{ result.versionName }} · 变体 {{ result.variant.label }}<span v-if="result.special"> · {{ result.special }}</span></p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in outRows" :key="row.label"><th>{{ row.label }}</th><td class="mono">{{ row.value }}</td><td><button class="mini" type="button" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
+          <tr v-for="row in outRows" :key="row.label"><th scope="row">{{ row.label }}</th><td class="mono">{{ row.value }}</td><td><button class="mini" type="button" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
         </tbody></table></div>
         <div class="row actions">
           <button class="btn ghost" type="button" @click="copyText(summary)">复制摘要</button>
         </div>
         <h2 class="sub">分段结构</h2>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="seg in result.segments" :key="seg.label"><th>{{ seg.label }}</th><td class="mono">{{ seg.value }}</td></tr>
+          <tr v-for="seg in result.segments" :key="seg.label"><th scope="row">{{ seg.label }}</th><td class="mono">{{ seg.value }}</td></tr>
         </tbody></table></div>
       </template>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />

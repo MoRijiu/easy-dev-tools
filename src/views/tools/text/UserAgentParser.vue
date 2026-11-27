@@ -18,7 +18,7 @@
         </ul>
         <table class="kv" aria-label="解析结果">
           <tbody>
-            <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value || '—' }}</code></td><td><button class="mini" :disabled="!row.value" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
+            <tr v-for="row in rows" :key="row.label"><th scope="row">{{ row.label }}</th><td><code>{{ row.value || '—' }}</code></td><td><button class="mini" :disabled="!row.value" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
           </tbody>
         </table>
       </template>

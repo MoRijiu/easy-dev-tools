@@ -24,7 +24,7 @@
           <table>
             <tbody>
               <tr v-for="row in rows" :key="row.label">
-                <th>{{ row.label }}</th><td class="mono">{{ row.value }}</td>
+                <th scope="row">{{ row.label }}</th><td class="mono">{{ row.value }}</td>
                 <td><button class="copy" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td>
               </tr>
             </tbody>
