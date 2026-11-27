@@ -19,9 +19,9 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="json-csv-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
-        <textarea v-model="inputText" class="text-input" :placeholder="mode === 'json2csv' ? '粘贴 JSON 对象数组，如 [{&quot;name&quot;:&quot;张三&quot;,&quot;age&quot;:18}]' : '粘贴 CSV，第一行是表头，如 name,age\n张三,18'" spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
+        <textarea v-model="inputText" class="text-input" :placeholder="mode === 'json2csv' ? '粘贴 JSON 对象数组，如 [{&quot;name&quot;:&quot;张三&quot;,&quot;age&quot;:18}]' : '粘贴 CSV，第一行是表头，如 name,age\n张三,18'" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'json-csv-status' : undefined" @input="convert"></textarea>
         <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'json2csv' ? 'CSV 结果会显示在这里' : 'JSON 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -71,6 +71,9 @@ const stats = ref('');
 const warningText = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const convert = () => {
   outputText.value = ''; stats.value = ''; warningText.value = '';
   if (!inputText.value.trim()) { statusMessage.value = ''; return; }
@@ -88,8 +91,7 @@ const convert = () => {
     statusMessage.value = '✓ 转换成功';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = '✗ ' + e.message;
-    statusType.value = 'error';
+    setInputError('✗ ' + e.message);
   }
 };
 const setMode = (m) => { mode.value = m; convert(); };

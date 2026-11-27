@@ -8,14 +8,14 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="json-to-ts-status" :message="statusMessage" :type="statusType" />
       <div class="options">
-        <label>根类型名 <input v-model="rootName" class="name-input" placeholder="Root" spellcheck="false" aria-label="根类型名" @input="convert" /></label>
+        <label>根类型名 <input v-model="rootName" class="name-input" placeholder="Root" spellcheck="false" aria-label="根类型名" :aria-invalid="rootErrorActive ? 'true' : undefined" :aria-describedby="rootErrorActive ? 'json-to-ts-status' : undefined" @input="convert" /></label>
         <label class="check"><input type="checkbox" v-model="useExport" @change="convert" /> 带 export</label>
         <span v-if="stats" class="stats">生成 {{ stats.interfaceCount }} 个 interface · {{ stats.fieldCount }} 个字段</span>
       </div>
       <div class="panes">
-        <textarea v-model="inputText" class="io" placeholder="在此粘贴 JSON，如 {&quot;name&quot;:&quot;tom&quot;,&quot;age&quot;:18}" spellcheck="false" aria-label="JSON 输入" @input="convert"></textarea>
+        <textarea v-model="inputText" class="io" placeholder="在此粘贴 JSON，如 {&quot;name&quot;:&quot;tom&quot;,&quot;age&quot;:18}" spellcheck="false" aria-label="JSON 输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'json-to-ts-status' : undefined" @input="convert"></textarea>
         <textarea v-model="outputText" class="io" placeholder="生成的 TypeScript 类型将显示在这里" spellcheck="false" readonly aria-label="TypeScript 输出"></textarea>
       </div>
       <ToolExamples :examples="examples" @use-example="useExample" />
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -74,6 +74,11 @@ const useExport = ref(true);
 const stats = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const errorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
+const rootErrorActive = computed(() => errorActive.value && inputErrorText.value.includes('根类型名'));
+const inputErrorActive = computed(() => errorActive.value && !inputErrorText.value.includes('根类型名'));
 const convert = () => {
   if (!inputText.value.trim()) { outputText.value = ''; stats.value = null; statusMessage.value = ''; return; }
   try {
@@ -82,7 +87,7 @@ const convert = () => {
     stats.value = r;
     statusMessage.value = '✓ 生成完成';
     statusType.value = 'success';
-  } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  } catch (e) { setInputError('✗ ' + e.message); }
 };
 const loadExample = () => { inputText.value = examples[0].input; convert(); };
 const useExample = (ex) => { inputText.value = ex.input; convert(); };
