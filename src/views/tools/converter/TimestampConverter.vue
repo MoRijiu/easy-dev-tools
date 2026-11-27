@@ -52,8 +52,8 @@
         <ToolEditorPanel title="输入" :info="inputInfo">
           <div class="input-section">
             <div class="input-group">
-              <label>时间戳输入</label>
-              <input aria-label="时间戳输入"
+              <label for="ts-input">时间戳输入</label>
+              <input id="ts-input" aria-label="时间戳输入"
                 v-model="timestampInput"
                 type="text"
                 class="text-input-field"
@@ -77,8 +77,8 @@
             </div>
             <div class="divider">或</div>
             <div class="input-group">
-              <label>日期时间输入（文本，按本地时区）</label>
-              <input aria-label="日期时间输入（文本，按本地时区）"
+              <label for="ts-date-text">日期时间输入（文本，按本地时区）</label>
+              <input id="ts-date-text" aria-label="日期时间输入（文本，按本地时区）"
                 v-model="dateTextInput"
                 type="text"
                 class="text-input-field"
@@ -86,8 +86,8 @@
               />
             </div>
             <div class="input-group">
-              <label>或用日期选择器</label>
-              <input aria-label="日期选择器"
+              <label for="ts-date-picker">或用日期选择器</label>
+              <input id="ts-date-picker" aria-label="日期选择器"
                 v-model="dateInput"
                 type="datetime-local"
                 class="text-input-field"

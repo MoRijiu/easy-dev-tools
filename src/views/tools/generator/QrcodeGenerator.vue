@@ -25,8 +25,8 @@
         <!-- 左侧输入区 -->
         <div class="input-section">
           <div class="input-card">
-            <label class="input-label">输入内容</label>
-            <textarea aria-label="输入内容" 
+            <label class="input-label" for="qr-input-text">输入内容</label>
+            <textarea id="qr-input-text" aria-label="输入内容" 
               v-model="inputText"
               class="text-input"
               placeholder="请输入文本、网址或其他内容..."
@@ -42,30 +42,30 @@
             <h2>⚙️ 选项设置</h2>
             <div class="options-grid">
               <div class="option-item">
-                <label>尺寸 (px)</label>
-                <input aria-label="尺寸 (px)" type="number" v-model.number="options.width" min="100" max="1000" step="50" />
+                <label for="qr-size">尺寸 (px)</label>
+                <input id="qr-size" aria-label="尺寸 (px)" type="number" v-model.number="options.width" min="100" max="1000" step="50" />
               </div>
               <div class="option-item">
-                <label>边距</label>
-                <input aria-label="边距" type="number" v-model.number="options.margin" min="0" max="10" />
+                <label for="qr-margin">边距</label>
+                <input id="qr-margin" aria-label="边距" type="number" v-model.number="options.margin" min="0" max="10" />
               </div>
               <div class="option-item">
-                <label>前景色</label>
+                <label for="qr-dark-color">前景色</label>
                 <div class="color-input-wrapper">
-                  <input aria-label="前景色" type="color" v-model="options.darkColor" class="color-picker" />
+                  <input id="qr-dark-color" aria-label="前景色" type="color" v-model="options.darkColor" class="color-picker" />
                   <span>{{ options.darkColor }}</span>
                 </div>
               </div>
               <div class="option-item">
-                <label>背景色</label>
+                <label for="qr-light-color">背景色</label>
                 <div class="color-input-wrapper">
-                  <input aria-label="背景色" type="color" v-model="options.lightColor" class="color-picker" />
+                  <input id="qr-light-color" aria-label="背景色" type="color" v-model="options.lightColor" class="color-picker" />
                   <span>{{ options.lightColor }}</span>
                 </div>
               </div>
               <div class="option-item">
-                <label>容错级别</label>
-                <select aria-label="容错级别" v-model="options.errorCorrectionLevel">
+                <label for="qr-ecc-level">容错级别</label>
+                <select id="qr-ecc-level" aria-label="容错级别" v-model="options.errorCorrectionLevel">
                   <option value="L">L - 7%</option>
                   <option value="M">M - 15%</option>
                   <option value="Q">Q - 25%</option>
@@ -102,8 +102,8 @@
 
               <div v-if="logoDataUrl" class="logo-options">
                 <div class="option-item">
-                  <label>Logo 大小 (%)</label>
-                  <input aria-label="Logo 大小 (%)"
+                  <label for="qr-logo-size">Logo 大小 (%)</label>
+                  <input id="qr-logo-size" aria-label="Logo 大小 (%)"
                     type="range"
                     v-model.number="logoOptions.size"
                     min="10"
@@ -113,8 +113,8 @@
                   <span class="range-value">{{ logoOptions.size }}%</span>
                 </div>
                 <div class="option-item">
-                  <label>圆角</label>
-                  <input aria-label="Logo 圆角"
+                  <label for="qr-logo-radius">圆角</label>
+                  <input id="qr-logo-radius" aria-label="Logo 圆角"
                     type="range"
                     v-model.number="logoOptions.borderRadius"
                     min="0"
@@ -124,8 +124,8 @@
                   <span class="range-value">{{ logoOptions.borderRadius }}%</span>
                 </div>
                 <div class="option-item">
-                  <label>边框宽度</label>
-                  <input aria-label="Logo 边框宽度"
+                  <label for="qr-logo-padding">边框宽度</label>
+                  <input id="qr-logo-padding" aria-label="Logo 边框宽度"
                     type="range"
                     v-model.number="logoOptions.padding"
                     min="0"

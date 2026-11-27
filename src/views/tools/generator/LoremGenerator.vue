@@ -27,20 +27,20 @@
       <div class="settings-section">
         <div class="settings-grid">
           <div class="setting-item">
-            <label>生成类型</label>
-            <select aria-label="生成类型" v-model="options.type">
+            <label for="lorem-type">生成类型</label>
+            <select id="lorem-type" aria-label="生成类型" v-model="options.type">
               <option value="paragraphs">段落</option>
               <option value="sentences">句子</option>
               <option value="words">单词</option>
             </select>
           </div>
           <div class="setting-item">
-            <label>数量（1–{{ COUNT_LIMITS[options.type] }}）</label>
-            <input aria-label="生成数量" type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" />
+            <label for="lorem-count">数量（1–{{ COUNT_LIMITS[options.type] }}）</label>
+            <input id="lorem-count" aria-label="生成数量" type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" />
           </div>
           <div class="setting-item">
-            <label>文本风格</label>
-            <select aria-label="文本风格" v-model="options.style">
+            <label for="lorem-style">文本风格</label>
+            <select id="lorem-style" aria-label="文本风格" v-model="options.style">
               <option value="lorem">经典 Lorem Ipsum</option>
               <option value="chinese">中文占位文</option>
               <option value="hipster">Hipster Ipsum</option>

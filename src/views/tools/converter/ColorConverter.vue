@@ -15,8 +15,8 @@
           <span class="preview-label">颜色预览</span>
         </div>
         <div class="color-picker-wrapper">
-          <label>选择颜色:</label>
-          <input aria-label="选择颜色" 
+          <label for="color-picker-input">选择颜色:</label>
+          <input id="color-picker-input" aria-label="选择颜色" 
             type="color" 
             v-model="pickerColor"
             @input="onColorPickerChange"
