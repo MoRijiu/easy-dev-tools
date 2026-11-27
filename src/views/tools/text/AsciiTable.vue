@@ -32,7 +32,7 @@
       <p class="count">共 128 条，当前显示 {{ results.length }} 条 · 控制字符（0–31 与 127，共 33 条）多不可见，表中以缩写展示；空格（32）是可打印字符</p>
       <div v-if="results.length" class="table-wrap">
         <table>
-          <thead><tr><th>字符</th><th>十进制</th><th>十六进制</th><th>八进制</th><th>二进制</th><th>名称/说明</th><th></th></tr></thead>
+          <thead><tr><th scope="col">字符</th><th scope="col">十进制</th><th scope="col">十六进制</th><th scope="col">八进制</th><th scope="col">二进制</th><th scope="col">名称/说明</th><th scope="col"></th></tr></thead>
           <tbody>
             <tr v-for="t in results" :key="t.code">
               <td class="char">{{ t.display }}</td><td>{{ t.code }}</td><td>0x{{ t.hex }}</td><td>{{ t.oct }}</td><td class="mono">{{ t.binary }}</td>

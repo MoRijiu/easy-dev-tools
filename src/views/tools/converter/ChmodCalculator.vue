@@ -12,15 +12,15 @@
       <input v-model="parseInput" class="text-input" placeholder="反向解析：755 / 4755 / rwxr-xr-x / drwxr-xr-x+ / 符号模式 u+x、a=rwx（回车解析）" spellcheck="false" aria-label="反向解析输入" @keyup.enter="doParse" />
       <div class="parse-row"><button class="btn btn-primary" @click="doParse">解析到勾选表</button></div>
       <table class="perm-table" aria-label="权限勾选表">
-        <thead><tr><th></th><th>读 r（4）</th><th>写 w（2）</th><th>执行 x（1）</th><th>八进制</th></tr></thead>
+        <thead><tr><th scope="col"></th><th scope="col">读 r（4）</th><th scope="col">写 w（2）</th><th scope="col">执行 x（1）</th><th scope="col">八进制</th></tr></thead>
         <tbody>
           <tr v-for="g in GROUPS" :key="g.key">
-            <th>{{ g.label }}（{{ g.short }}）</th>
+            <th scope="row">{{ g.label }}（{{ g.short }}）</th>
             <td v-for="p in PERMS" :key="p.key"><input type="checkbox" v-model="bits[g.key][p.key]" :aria-label="`${g.label}${p.label}`" /></td>
             <td><code>{{ digitOf(g.key) }}</code></td>
           </tr>
           <tr>
-            <th>特殊位</th>
+            <th scope="row">特殊位</th>
             <td colspan="3" class="special-cell">
               <label><input type="checkbox" v-model="bits.setuid" /> setuid（4）</label>
               <label><input type="checkbox" v-model="bits.setgid" /> setgid（2）</label>

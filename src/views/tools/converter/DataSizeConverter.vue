@@ -18,7 +18,7 @@
       <template v-if="parsed">
         <p class="summary">{{ summary }}</p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in rows" :key="row.symbol"><th>{{ row.symbol }} <span class="muted">{{ row.name }}</span></th><td class="mono">{{ row.text }}</td><td><button class="copy" :aria-label="`复制 ${row.symbol} 换算结果`" @click="copyText(row.text + ' ' + row.symbol)">复制</button></td></tr>
+          <tr v-for="row in rows" :key="row.symbol"><th scope="row">{{ row.symbol }} <span class="muted">{{ row.name }}</span></th><td class="mono">{{ row.text }}</td><td><button class="copy" :aria-label="`复制 ${row.symbol} 换算结果`" @click="copyText(row.text + ' ' + row.symbol)">复制</button></td></tr>
         </tbody></table></div>
         <div class="speed-row">
           <label>网速 <input v-model="speed" type="text" inputmode="decimal" aria-label="网速数值" /></label>

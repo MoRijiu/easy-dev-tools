@@ -21,7 +21,7 @@
         <p class="summary">网段 {{ result.cidr }} · {{ result.scope }} · 可用主机 {{ result.usableHostsFormatted }} 个</p>
         <table class="kv" aria-label="子网计算结果">
           <tbody>
-            <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value }}</code></td><td><button class="mini" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
+            <tr v-for="row in rows" :key="row.label"><th scope="row">{{ row.label }}</th><td><code>{{ row.value }}</code></td><td><button class="mini" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
           </tbody>
         </table>
       </template>

@@ -32,14 +32,14 @@
       <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="result-table">
         <tbody>
-          <tr><th>生成时间（UTC）</th><td>{{ parsed.iso ?? '超出可表示范围' }}</td><td><button class="copy-btn" @click="copyText(String(parsed.timestampMs))">复制时间戳</button></td></tr>
-          <tr><th>生成时间（本地）</th><td>{{ localTime }}</td><td></td></tr>
-          <tr><th>距纪元</th><td>{{ parsed.deltaMs }} 毫秒</td><td></td></tr>
-          <tr v-if="parsed.datacenterId !== null"><th>数据中心 ID</th><td>{{ parsed.datacenterId }}</td><td></td></tr>
-          <tr><th>机器 ID</th><td>{{ parsed.workerId }}</td><td></td></tr>
-          <tr><th>序列号</th><td>{{ parsed.sequence }}（同一毫秒内第 {{ parsed.sequence + 1 }} 个）</td><td></td></tr>
-          <tr><th>十六进制</th><td>{{ parsed.hex }}</td><td><button class="copy-btn" aria-label="复制十六进制" @click="copyText(parsed.hex)">复制</button></td></tr>
-          <tr v-for="g in parsed.groups" :key="g.label"><th>{{ g.label }}</th><td class="mono">{{ g.bits }}</td><td></td></tr>
+          <tr><th scope="row">生成时间（UTC）</th><td>{{ parsed.iso ?? '超出可表示范围' }}</td><td><button class="copy-btn" @click="copyText(String(parsed.timestampMs))">复制时间戳</button></td></tr>
+          <tr><th scope="row">生成时间（本地）</th><td>{{ localTime }}</td><td></td></tr>
+          <tr><th scope="row">距纪元</th><td>{{ parsed.deltaMs }} 毫秒</td><td></td></tr>
+          <tr v-if="parsed.datacenterId !== null"><th scope="row">数据中心 ID</th><td>{{ parsed.datacenterId }}</td><td></td></tr>
+          <tr><th scope="row">机器 ID</th><td>{{ parsed.workerId }}</td><td></td></tr>
+          <tr><th scope="row">序列号</th><td>{{ parsed.sequence }}（同一毫秒内第 {{ parsed.sequence + 1 }} 个）</td><td></td></tr>
+          <tr><th scope="row">十六进制</th><td>{{ parsed.hex }}</td><td><button class="copy-btn" aria-label="复制十六进制" @click="copyText(parsed.hex)">复制</button></td></tr>
+          <tr v-for="g in parsed.groups" :key="g.label"><th scope="row">{{ g.label }}</th><td class="mono">{{ g.bits }}</td><td></td></tr>
         </tbody>
       </table>
       <p v-if="parsed" class="actions"><button @click="copySummary" class="btn btn-success">📋 复制解析摘要</button></p>

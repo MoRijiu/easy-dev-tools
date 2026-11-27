@@ -14,28 +14,28 @@
         <p class="stats">{{ summary }}</p>
         <table class="kv" aria-label="请求概览">
           <tbody>
-            <tr><th>方法</th><td><code>{{ result.method }}</code></td></tr>
-            <tr><th>URL</th><td><code>{{ result.url }}</code></td></tr>
-            <tr v-if="result.user"><th>Basic 认证</th><td><code>{{ result.user }}</code></td></tr>
-            <tr v-if="result.bodyType !== 'none'"><th>Body 类型</th><td><code>{{ result.bodyType }}</code></td></tr>
+            <tr><th scope="row">方法</th><td><code>{{ result.method }}</code></td></tr>
+            <tr><th scope="row">URL</th><td><code>{{ result.url }}</code></td></tr>
+            <tr v-if="result.user"><th scope="row">Basic 认证</th><td><code>{{ result.user }}</code></td></tr>
+            <tr v-if="result.bodyType !== 'none'"><th scope="row">Body 类型</th><td><code>{{ result.bodyType }}</code></td></tr>
           </tbody>
         </table>
         <template v-if="result.queryParams.length">
           <h2 class="sub">查询参数（{{ result.queryParams.length }}）</h2>
           <table class="kv" aria-label="查询参数"><tbody>
-            <tr v-for="(p, i) in result.queryParams" :key="'q' + i"><th>{{ p.name }}</th><td><code>{{ p.value }}</code></td></tr>
+            <tr v-for="(p, i) in result.queryParams" :key="'q' + i"><th scope="row">{{ p.name }}</th><td><code>{{ p.value }}</code></td></tr>
           </tbody></table>
         </template>
         <template v-if="result.headers.length">
           <h2 class="sub">请求头（{{ result.headers.length }}）</h2>
           <table class="kv" aria-label="请求头"><tbody>
-            <tr v-for="(h, i) in result.headers" :key="'h' + i"><th>{{ h.name }}</th><td><code>{{ h.value }}</code></td></tr>
+            <tr v-for="(h, i) in result.headers" :key="'h' + i"><th scope="row">{{ h.name }}</th><td><code>{{ h.value }}</code></td></tr>
           </tbody></table>
         </template>
         <template v-if="result.formFields.length">
           <h2 class="sub">表单字段（{{ result.formFields.length }}）</h2>
           <table class="kv" aria-label="表单字段"><tbody>
-            <tr v-for="(f, i) in result.formFields" :key="'f' + i"><th>{{ f.name }}</th><td><code>{{ f.file ? '📎 本地文件 ' + f.file + (f.fileType ? '（' + f.fileType + '）' : '') : f.contentFile ? '📄 本地文件内容 ' + f.contentFile : f.value }}</code></td></tr>
+            <tr v-for="(f, i) in result.formFields" :key="'f' + i"><th scope="row">{{ f.name }}</th><td><code>{{ f.file ? '📎 本地文件 ' + f.file + (f.fileType ? '（' + f.fileType + '）' : '') : f.contentFile ? '📄 本地文件内容 ' + f.contentFile : f.value }}</code></td></tr>
           </tbody></table>
         </template>
         <template v-else-if="result.body">

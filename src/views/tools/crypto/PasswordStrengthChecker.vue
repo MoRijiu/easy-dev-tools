@@ -23,7 +23,7 @@
         </div>
         <p class="summary">强度：<strong>{{ result.level.label }}（{{ result.score }}/4）</strong> · {{ result.level.hint }} · 有效熵约 {{ result.effectiveEntropy }} 位</p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in metricRows" :key="row.label"><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr v-for="row in metricRows" :key="row.label"><th scope="row">{{ row.label }}</th><td>{{ row.value }}</td></tr>
         </tbody></table></div>
         <template v-if="result.findings.length > 0">
           <h2 class="sub">发现的问题</h2>
@@ -33,7 +33,7 @@
         </template>
         <h2 class="sub">破解耗时估算（平均猜中所需）</h2>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="c in result.crackTimes" :key="c.id"><th>{{ c.label }}</th><td>{{ c.text }}</td></tr>
+          <tr v-for="c in result.crackTimes" :key="c.id"><th scope="row">{{ c.label }}</th><td>{{ c.text }}</td></tr>
         </tbody></table></div>
         <h2 class="sub">改进建议</h2>
         <ul class="findings">

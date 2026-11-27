@@ -21,11 +21,11 @@
         <p class="verdict" :class="result.valid ? 'pass' : 'fail'">{{ result.valid ? '✓ Luhn 校验通过' : '✗ Luhn 校验不通过' }}</p>
         <table class="kv">
           <tbody>
-            <tr><th>号码（分组）</th><td class="mono">{{ result.formatted }}</td></tr>
-            <tr><th>位数</th><td>{{ result.length }} 位</td></tr>
-            <tr><th>加权和</th><td>{{ result.sum }}（模 10 = {{ result.mod }}，为 0 才通过）</td></tr>
-            <tr><th>校验位</th><td>末位 {{ result.checkDigit }}<span v-if="!result.valid">，按当前载荷应为 {{ result.expectedCheckDigit }}</span></td></tr>
-            <tr v-if="result.issuers.length"><th>可能类型</th><td>{{ result.issuers.join('、') }}</td></tr>
+            <tr><th scope="row">号码（分组）</th><td class="mono">{{ result.formatted }}</td></tr>
+            <tr><th scope="row">位数</th><td>{{ result.length }} 位</td></tr>
+            <tr><th scope="row">加权和</th><td>{{ result.sum }}（模 10 = {{ result.mod }}，为 0 才通过）</td></tr>
+            <tr><th scope="row">校验位</th><td>末位 {{ result.checkDigit }}<span v-if="!result.valid">，按当前载荷应为 {{ result.expectedCheckDigit }}</span></td></tr>
+            <tr v-if="result.issuers.length"><th scope="row">可能类型</th><td>{{ result.issuers.join('、') }}</td></tr>
           </tbody>
         </table>
         <details class="steps">

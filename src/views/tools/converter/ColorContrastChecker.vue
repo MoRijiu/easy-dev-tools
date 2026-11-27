@@ -23,7 +23,7 @@
         </div>
         <p class="summary">对比度 <strong class="ratio">{{ result.ratioText }}:1</strong> · {{ result.grade }}<span v-if="result.composited" class="muted">（含透明度，已按白色底合成计算）</span></p>
         <div class="table-wrap"><table><tbody>
-          <tr v-for="row in levelRows" :key="row.key"><th>{{ row.label }}</th><td>要求 ≥ {{ row.need }}:1</td><td :class="row.pass ? 'pass' : 'fail'">{{ row.pass ? '✓ 通过' : '✗ 未通过' }}</td></tr>
+          <tr v-for="row in levelRows" :key="row.key"><th scope="row">{{ row.label }}</th><td>要求 ≥ {{ row.need }}:1</td><td :class="row.pass ? 'pass' : 'fail'">{{ row.pass ? '✓ 通过' : '✗ 未通过' }}</td></tr>
         </tbody></table></div>
         <div class="actions">
           <button v-if="!result.levels.normalAA" class="btn" @click="fixToAA">一键调整前景色到达 AA</button>
