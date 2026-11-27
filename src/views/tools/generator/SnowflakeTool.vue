@@ -28,6 +28,8 @@
         <button @click="clearParse" class="btn btn-danger">清空</button>
       </div>
       <ToolStatusMessage :message="parseMessage" :type="parseType" />
+      <p v-if="parseNotes.length" class="notes">{{ parseNotes.join('；') }}</p>
+      <p v-if="parsed?.warnings?.length" class="notes warn">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="result-table">
         <tbody>
           <tr><th>生成时间（UTC）</th><td>{{ parsed.iso ?? '超出可表示范围' }}</td><td><button class="copy-btn" @click="copyText(String(parsed.timestampMs))">复制时间戳</button></td></tr>
@@ -85,7 +87,10 @@ const faqs = [
   { question: '什么是雪花 ID？', answer: 'Twitter 提出的分布式 ID 方案：把 64 位整数按时间戳、机器编号、序列号分段拼装，天然按时间递增、全局不重复，数据库里常见到它。' },
   { question: '为什么要用字符串粘贴，不能直接填数字？', answer: '雪花 ID 通常超过 2^53，超出 JavaScript Number 的安全整数范围，直接当数字处理会丢精度。后端返回 ID 时也应序列化为字符串，接口里用数字传雪花 ID 是常见事故源。' },
   { question: 'Discord 示例解析出的机器 ID 为什么是 32？', answer: 'Discord 布局里 worker 与 process 各占 5 位，本工具合并为 10 位机器位展示：32 = worker 1 左移 5 位再拼 process 0。' },
-  { question: '解析出的时间明显不对怎么办？', answer: '多半是布局或纪元选错了：不同系统纪元不同（如 Twitter 2010 年、Discord 2015 年），自研系统常改纪元与位数，请切换预设或用自定义布局对齐。' }
+  { question: '解析出的时间明显不对怎么办？', answer: '多半是布局或纪元选错了：不同系统纪元不同（如 Twitter 2010 年、Discord 2015 年），自研系统常改纪元与位数，请切换预设或用自定义布局对齐。' },
+  { question: '粘贴时有什么讲究？', answer: '全角数字会自动按半角处理，复制时被空格或换行折断的 ID 会自动拼回；0X 大写前缀也可识别，十六进制非法字符会定位到第几个。负数、小数与科学计数法会点名报错，因为它们都会丢精度。' },
+  { question: '为什么解析成功还会给提示？', answer: 'ID 为 0 或解析出的生成时间在未来时，数值本身合法但几乎不可能是真实生成的 ID，多半是布局或纪元选错，页面会给出警告请你复核。' },
+  { question: '输入报错后旧结果为什么还在？', answer: '这是有意保留的：报错只提示问题，不清掉上一次成功解析，方便你对照着改输入；清空按钮可以手动清掉。生成区同理，生成失败保留上一个 ID。' }
 ];
 const presets = SNOWFLAKE_PRESETS;
 const presetId = ref('discord');
@@ -103,16 +108,22 @@ const idInput = ref('175928847299117063');
 const parsed = ref(null);
 const parseMessage = ref('');
 const parseType = ref('');
-const localTime = computed(() => (parsed.value ? new Date(parsed.value.timestampMs).toLocaleString('zh-CN', { hour12: false }) : ''));
+const parseNotes = ref([]);
+const localTime = computed(() => {
+  if (!parsed.value || !parsed.value.iso) return parsed.value ? '超出可表示范围' : '';
+  return new Date(parsed.value.timestampMs).toLocaleString('zh-CN', { hour12: false });
+});
 const reparse = () => {
-  parsed.value = null;
-  if (!idInput.value.trim()) { parseMessage.value = ''; return; }
+  if (!idInput.value.trim()) { parsed.value = null; parseNotes.value = []; parseMessage.value = ''; return; }
   try {
-    parsed.value = parseSnowflake(idInput.value, layout.value);
+    const r = parseSnowflake(idInput.value, layout.value);
+    parsed.value = r;
+    parseNotes.value = r.notes || [];
     parseMessage.value = '✓ 解析成功';
     parseType.value = 'success';
   } catch (e) {
-    parseMessage.value = '✗ ' + e.message;
+    parseNotes.value = [];
+    parseMessage.value = '✗ ' + e.message + '（已保留上一次结果）';
     parseType.value = 'error';
   }
 };
@@ -123,7 +134,7 @@ const loadTwitterExample = () => {
   try { idInput.value = generateSnowflake({ timestampMs: 1700000000000, datacenterId: 1, workerId: 2, sequence: 3 }, layout.value); } catch { idInput.value = ''; }
   reparse();
 };
-const clearParse = () => { idInput.value = ''; parsed.value = null; parseMessage.value = ''; };
+const clearParse = () => { idInput.value = ''; parsed.value = null; parseNotes.value = []; parseMessage.value = ''; };
 const gen = ref({ timestampMs: Date.now(), datacenterId: 1, workerId: 1, sequence: 0 });
 const generatedId = ref('');
 const genMessage = ref('');
@@ -131,13 +142,12 @@ const genType = ref('');
 const useNow = () => { gen.value.timestampMs = Date.now(); };
 const randomSeq = () => { gen.value.sequence = Math.floor(Math.random() * (2 ** layout.value.sequenceBits)); };
 const doGenerate = () => {
-  generatedId.value = '';
   try {
     generatedId.value = generateSnowflake({ ...gen.value }, layout.value);
     genMessage.value = '✓ 生成成功';
     genType.value = 'success';
   } catch (e) {
-    genMessage.value = '✗ ' + e.message;
+    genMessage.value = '✗ ' + e.message + (generatedId.value ? '（已保留上一次结果）' : '');
     genType.value = 'error';
   }
 };
@@ -154,7 +164,7 @@ reparse();
 .snowflake-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .section-title { font-size: 1.15rem; color: var(--text-strong); margin: 22px 0 10px; }
 .section-title:first-of-type { margin-top: 14px; }
 .layout-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
@@ -170,6 +180,8 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .result-table th { text-align: left; padding: 6px 10px; color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; width: 180px; }
 .result-table td { padding: 6px 10px; color: var(--text); border-bottom: 1px solid var(--border); word-break: break-all; }
 .mono { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+.notes { margin: 10px 0 0; color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
+.notes.warn { background: var(--warn-soft); }
 .copy-btn { padding: 3px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; white-space: nowrap; }
 .actions { margin: 12px 0 0; }
 .gen-result { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); font-size: 15px; }
