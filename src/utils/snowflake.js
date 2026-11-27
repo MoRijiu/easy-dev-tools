@@ -54,6 +54,7 @@ export function validateLayout(layout) {
   const total = layout.timestampBits + layout.datacenterBits + layout.workerBits + layout.sequenceBits;
   if (total > 64) throw new Error(`总位数 ${total} 超过 64 位（雪花 ID 为 64 位整数）`);
   if (!Number.isInteger(layout.epoch) || layout.epoch < 0) throw new Error('纪元（epoch）应为非负整数毫秒时间戳');
+  if (layout.epoch > 8640000000000000) throw new Error('纪元（epoch）超出 Date 可表示范围（最大 8640000000000000）');
   return total;
 }
 
@@ -64,6 +65,25 @@ function toIso(ms) {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+
+export const SNOWFLAKE_MAX_INPUT = 256;
+const DATE_MAX_MS = 8640000000000000;
+
+export function normalizeSnowflakeInput(input) {
+  const raw = String(input ?? '');
+  const notes = [];
+  let out = '';
+  let full = false;
+  for (const ch of raw) {
+    const cp = ch.codePointAt(0);
+    if (cp >= 0xff01 && cp <= 0xff5e) { out += String.fromCharCode(cp - 0xfee0); full = true; }
+    else if (cp === 0x3000) { out += ' '; full = true; }
+    else out += ch;
+  }
+  if (full) notes.push('已将全角字符按半角处理');
+  return { text: out, notes };
+}
+
 /**
  * 解析雪花 ID。
  * @param {string} input 十进制字符串（也接受 0x 十六进制）
@@ -71,15 +91,33 @@ function toIso(ms) {
  */
 export function parseSnowflake(input, layout) {
   validateLayout(layout);
-  let raw = String(input ?? '').trim();
+  const { text: normalized, notes } = normalizeSnowflakeInput(input);
+  let raw = normalized.trim();
   if (!raw) throw new Error('请输入雪花 ID');
+  if (raw.length > SNOWFLAKE_MAX_INPUT) throw new Error(`输入过长：雪花 ID 最多 ${SNOWFLAKE_MAX_INPUT} 个字符（当前 ${raw.length} 个）`);
+  if (/\s/.test(raw)) {
+    raw = raw.replace(/\s+/g, '');
+    notes.push('已忽略 ID 内部的空白与换行（复制时被折断）');
+    if (!raw) throw new Error('请输入雪花 ID');
+  }
+  if (raw.startsWith('-') || raw.startsWith('+')) {
+    if (raw.startsWith('-')) throw new Error('雪花 ID 不能为负数：请检查是否粘贴了带符号的数值或选错了字段');
+  }
   let value;
-  if (/^0x[0-9a-fA-F]+$/.test(raw)) {
-    value = BigInt(raw);
+  if (/^0[xX]/.test(raw)) {
+    const hexPart = raw.slice(2);
+    if (!hexPart) throw new Error('0x 后面没有十六进制数字');
+    const bad = hexPart.search(/[^0-9a-fA-F]/);
+    if (bad !== -1) throw new Error(`第 ${bad + 3} 个字符「${hexPart[bad]}」不是十六进制数字（0-9、a-f）`);
+    value = BigInt('0x' + hexPart);
   } else {
     const bad = raw.search(/[^0-9]/);
     if (bad !== -1) {
-      throw new Error(`第 ${bad + 1} 个字符「${raw[bad]}」不是数字：雪花 ID 应为十进制整数（或 0x 开头的十六进制）`);
+      const ch = raw[bad];
+      if (ch === '.' || ch === 'e' || ch === 'E') throw new Error(`第 ${bad + 1} 个字符「${ch}」：雪花 ID 应为整数，请勿用小数或科学计数法表示（会丢精度）`);
+      if (ch === '_' || ch === ',') throw new Error(`第 ${bad + 1} 个字符「${ch}」是分隔符：请去掉千分位/数字分隔符后重试`);
+      if (ch === 'x' || ch === 'X') throw new Error(`第 ${bad + 1} 个字符「${ch}」：十六进制须以 0x 开头`);
+      throw new Error(`第 ${bad + 1} 个字符「${ch}」不是数字：雪花 ID 应为十进制整数（或 0x 开头的十六进制）`);
     }
     value = BigInt(raw);
   }
@@ -108,9 +146,16 @@ export function parseSnowflake(input, layout) {
   };
   groups.push({ label: `时间戳（${layout.timestampBits} 位）`, bits: take(layout.timestampBits) });
   if (layout.datacenterBits > 0) groups.push({ label: `数据中心（${layout.datacenterBits} 位）`, bits: take(layout.datacenterBits) });
-  groups.push({ label: `机器（${layout.workerBits} 位）`, bits: take(layout.workerBits) });
+  if (layout.workerBits > 0) groups.push({ label: `机器（${layout.workerBits} 位）`, bits: take(layout.workerBits) });
+  else take(0);
   groups.push({ label: `序列号（${layout.sequenceBits} 位）`, bits: take(layout.sequenceBits) });
+  const warnings = [];
+  if (value === 0n) warnings.push('ID 为 0：各段均为 0、生成时间正好是纪元时刻，通常不是真实生成的雪花 ID');
+  if (timestampMs > Date.now()) warnings.push('解析出的生成时间在未来：多半是布局或纪元选错了');
+  if (timestampMs > DATE_MAX_MS) warnings.push('生成时间超出 Date 可表示范围，无法给出 ISO 时间');
   return {
+    notes,
+    warnings,
     id: value.toString(10),
     hex: '0x' + value.toString(16).toUpperCase(),
     totalBits,
@@ -133,6 +178,7 @@ export function generateSnowflake(parts, layout) {
   validateLayout(layout);
   const { timestampMs, datacenterId = 0, workerId = 0, sequence = 0 } = parts;
   if (!Number.isInteger(timestampMs)) throw new Error('生成时间应为整数毫秒时间戳');
+  if (timestampMs < 0 || timestampMs > DATE_MAX_MS) throw new Error('生成时间超出 Date 可表示范围（0–8640000000000000）');
   const delta = timestampMs - layout.epoch;
   if (delta < 0) throw new Error(`生成时间早于纪元（epoch=${layout.epoch}），差 ${-delta} 毫秒`);
   if (BigInt(delta) >= (1n << BigInt(layout.timestampBits))) {
@@ -163,5 +209,6 @@ export function buildSnowflakeSummary(r, layout) {
   if (r.datacenterId !== null) lines.push(`数据中心 ID：${r.datacenterId}`);
   lines.push(`机器 ID：${r.workerId}`, `序列号：${r.sequence}`);
   lines.push(`布局：时间戳 ${layout.timestampBits} 位 / 数据中心 ${layout.datacenterBits} 位 / 机器 ${layout.workerBits} 位 / 序列 ${layout.sequenceBits} 位，纪元 ${layout.epoch}`);
+  if (r.warnings?.length) lines.push(`提示：${r.warnings.join('；')}`);
   return lines.join('\n');
 }
