@@ -7,9 +7,9 @@
 
     <div class="tool-container">
       <!-- 模式切换 -->
-      <div class="mode-switch" role="tablist" aria-label="输入模式">
-        <button :class="['mode-btn', { active: mode === 'text' }]" @click="mode = 'text'">文本</button>
-        <button :class="['mode-btn', { active: mode === 'file' }]" @click="mode = 'file'">文件</button>
+      <div class="mode-switch" role="group" aria-label="输入模式">
+        <button :class="['mode-btn', { active: mode === 'text' }]" :aria-pressed="mode === 'text'" @click="mode = 'text'">文本</button>
+        <button :class="['mode-btn', { active: mode === 'file' }]" :aria-pressed="mode === 'file'" @click="mode = 'file'">文件</button>
       </div>
 
       <!-- 哈希算法选择 -->

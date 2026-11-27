@@ -4,9 +4,9 @@
     <p class="description">TOML 与 JSON 一键互转：支持表、数组表、点分键、多行字符串、日期时间与内联表，错误定位到行，全程本地处理不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <div class="mode-switch" role="tablist" aria-label="转换方向">
-          <button :class="['mode-btn', { active: mode === 'toml2json' }]" @click="setMode('toml2json')">TOML → JSON</button>
-          <button :class="['mode-btn', { active: mode === 'json2toml' }]" @click="setMode('json2toml')">JSON → TOML</button>
+        <div class="mode-switch" role="group" aria-label="转换方向">
+          <button :class="['mode-btn', { active: mode === 'toml2json' }]" :aria-pressed="mode === 'toml2json'" @click="setMode('toml2json')">TOML → JSON</button>
+          <button :class="['mode-btn', { active: mode === 'json2toml' }]" :aria-pressed="mode === 'json2toml'" @click="setMode('json2toml')">JSON → TOML</button>
         </div>
         <label v-if="mode === 'toml2json'" class="opt">JSON 缩进
           <select v-model.number="indent" class="select" @change="convert">

@@ -47,9 +47,9 @@
         </ul>
         <p v-if="result.ignored.length" class="hint" role="status" aria-live="polite">已忽略与请求内容无关的选项：{{ result.ignored.join('、') }}</p>
         <h2 class="sub">生成代码</h2>
-        <div class="mode-switch" role="tablist" aria-label="代码类型">
-          <button :class="['mode-btn', { active: codeKind === 'fetch' }]" @click="codeKind = 'fetch'">JavaScript fetch</button>
-          <button :class="['mode-btn', { active: codeKind === 'python' }]" @click="codeKind = 'python'">Python requests</button>
+        <div class="mode-switch" role="group" aria-label="代码类型">
+          <button :class="['mode-btn', { active: codeKind === 'fetch' }]" :aria-pressed="codeKind === 'fetch'" @click="codeKind = 'fetch'">JavaScript fetch</button>
+          <button :class="['mode-btn', { active: codeKind === 'python' }]" :aria-pressed="codeKind === 'python'" @click="codeKind = 'python'">Python requests</button>
         </div>
         <textarea :value="codeText" class="text-input output code" readonly aria-label="生成代码"></textarea>
       </template>

@@ -4,9 +4,9 @@
     <p class="description">JSON 对象数组与 CSV 表格一键互转：嵌套值自动压平、RFC 4180 引号转义、CSV 转 JSON 可选类型推断，全程本地处理</p>
     <div class="tool-container">
       <ToolToolbar>
-        <div class="mode-switch" role="tablist" aria-label="转换方向">
-          <button :class="['mode-btn', { active: mode === 'json2csv' }]" @click="setMode('json2csv')">JSON → CSV</button>
-          <button :class="['mode-btn', { active: mode === 'csv2json' }]" @click="setMode('csv2json')">CSV → JSON</button>
+        <div class="mode-switch" role="group" aria-label="转换方向">
+          <button :class="['mode-btn', { active: mode === 'json2csv' }]" :aria-pressed="mode === 'json2csv'" @click="setMode('json2csv')">JSON → CSV</button>
+          <button :class="['mode-btn', { active: mode === 'csv2json' }]" :aria-pressed="mode === 'csv2json'" @click="setMode('csv2json')">CSV → JSON</button>
         </div>
         <label class="opt">分隔符
           <select v-model="delimiter" class="select" @change="convert">

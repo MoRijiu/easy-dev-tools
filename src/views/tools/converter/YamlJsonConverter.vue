@@ -4,9 +4,9 @@
     <p class="description">YAML 与 JSON 一键互转：支持嵌套映射/序列、流式写法、引号字符串、注释与块标量，全程本地处理不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <div class="mode-switch" role="tablist" aria-label="转换方向">
-          <button :class="['mode-btn', { active: mode === 'yaml2json' }]" @click="setMode('yaml2json')">YAML → JSON</button>
-          <button :class="['mode-btn', { active: mode === 'json2yaml' }]" @click="setMode('json2yaml')">JSON → YAML</button>
+        <div class="mode-switch" role="group" aria-label="转换方向">
+          <button :class="['mode-btn', { active: mode === 'yaml2json' }]" :aria-pressed="mode === 'yaml2json'" @click="setMode('yaml2json')">YAML → JSON</button>
+          <button :class="['mode-btn', { active: mode === 'json2yaml' }]" :aria-pressed="mode === 'json2yaml'" @click="setMode('json2yaml')">JSON → YAML</button>
         </div>
         <label v-if="mode === 'yaml2json'" class="opt">JSON 缩进
           <select v-model.number="indent" class="select" @change="convert">
