@@ -2,6 +2,9 @@
 // 支持：DOCTYPE、注释、CDATA（原样）、开始/结束/自闭合标签、属性（含引号内 > 与 =）、
 // 原始文本元素 script/style/pre/textarea（内容原样保留，不重排）、空元素（void）。
 // 校验：标签嵌套匹配、未闭合标签/注释/引号/原始文本元素，错误定位到行。
+// HTML5 可省略的结束标签（li/p/dt/dd/td/th/tr/option 等）按规范自动闭合，不误报；
+// 标签内的全角标点（＝＞／与中文引号）按半角识别（正文与属性值里的全角字不动）；
+// 重复属性点名报错；输入上限 100 万字符、嵌套上限 500 层，超限中文点名不栈溢出。
 // 美化：块级子元素逐行缩进；仅含文本或行内元素的元素单行呈现；混合内容中连续文本/行内片段合并成一行。
 
 export const VOID_ELEMENTS = new Set([
@@ -30,6 +33,15 @@ function fail(src, idx, msg) {
 const isNameStart = (c) => /[A-Za-z]/.test(c || '');
 const isNameChar = (c) => /[A-Za-z0-9._:-]/.test(c || '');
 
+// 标签结构位置的全角标点按半角识别（从 Word/中文文档粘贴的 HTML 常见）：
+// ＝(FF1D) ＞(FF1E) ／(FF0F)，以及中文引号 “”(201C/201D) ‘’（2018/2019）作属性引号。
+// 只认结构位置，正文与属性值内部的全角字符原样不动。
+const isGt = (c) => c === '>' || c === '\uFF1E';
+const isSlash = (c) => c === '/' || c === '\uFF0F';
+const isEq = (c) => c === '=' || c === '\uFF1D';
+const QUOTE_CLOSE = { '"': '"', "'": "'", '\u201C': '\u201D', '\u2018': '\u2019' };
+const QUOTE_NORM = { '"': '"', "'": "'", '\u201C': '"', '\u2018': "'" };
+
 // 解析开始标签（i 指向 '<' 且 src[i+1] 为字母），返回 { node, next }
 function parseOpenTag(src, i) {
   const start = i;
@@ -37,32 +49,40 @@ function parseOpenTag(src, i) {
   let name = '';
   while (j < src.length && isNameChar(src[j])) { name += src[j]; j++; }
   const attrs = [];
+  const seenAttrs = new Set();
   let selfClosing = false;
   for (;;) {
     while (j < src.length && /\s/.test(src[j])) j++;
     if (j >= src.length) fail(src, start, `标签 <${name}> 未闭合（缺少 >）`);
-    if (src[j] === '>') { j++; break; }
-    if (src[j] === '/' && src[j + 1] === '>') { selfClosing = true; j += 2; break; }
-    if (src[j] === '/') { j++; continue; } // 容忍孤立的 /
+    if (isGt(src[j])) { j++; break; }
+    if (isSlash(src[j]) && isGt(src[j + 1])) { selfClosing = true; j += 2; break; }
+    if (isSlash(src[j])) { j++; continue; } // 容忍孤立的 /
     // 属性名
+    const attrStart = j;
     let attrName = '';
-    while (j < src.length && !/[\s=/>]/.test(src[j])) { attrName += src[j]; j++; }
+    while (j < src.length && !/[\s=\/>]/.test(src[j]) && !isEq(src[j]) && !isGt(src[j]) && !isSlash(src[j])) { attrName += src[j]; j++; }
     if (!attrName) fail(src, j, `标签 <${name}> 属性写法有误`);
+    const lowerAttr = attrName.toLowerCase();
+    if (seenAttrs.has(lowerAttr)) {
+      fail(src, attrStart, `标签 <${name}> 的属性 ${attrName} 重复出现（HTML 只保留第一个，请删掉多余的）`);
+    }
+    seenAttrs.add(lowerAttr);
     while (j < src.length && /\s/.test(src[j])) j++;
     let attrValue = null;
     let quote = '';
-    if (src[j] === '=') {
+    if (isEq(src[j])) {
       j++;
       while (j < src.length && /\s/.test(src[j])) j++;
-      if (src[j] === '"' || src[j] === "'") {
-        quote = src[j];
-        const end = src.indexOf(quote, j + 1);
+      if (Object.prototype.hasOwnProperty.call(QUOTE_CLOSE, src[j])) {
+        const closeQuote = QUOTE_CLOSE[src[j]];
+        quote = QUOTE_NORM[src[j]];
+        const end = src.indexOf(closeQuote, j + 1);
         if (end === -1) fail(src, j, `属性 ${attrName} 的引号未闭合`);
         attrValue = src.slice(j + 1, end);
         j = end + 1;
       } else {
         let v = '';
-        while (j < src.length && !/[\s>]/.test(src[j])) { v += src[j]; j++; }
+        while (j < src.length && !/\s/.test(src[j]) && !isGt(src[j])) { v += src[j]; j++; }
         attrValue = v;
       }
     }
@@ -85,8 +105,41 @@ function renderAttrs(attrs) {
   }).join(' ');
 }
 
+const MAX_INPUT_LENGTH = 1000000;
+const MAX_DEPTH = 500;
+
+// HTML5 结束标签可省略的元素：父元素闭合、文档结束或同类元素开始时自动闭合
+const OMISSIBLE_END = new Set([
+  'html', 'head', 'body', 'p', 'li', 'dt', 'dd', 'tr', 'td', 'th',
+  'thead', 'tbody', 'tfoot', 'option', 'optgroup', 'colgroup', 'caption'
+]);
+// 会隐含关闭 <p> 的块级开始标签（HTML5 规范摘录）
+const P_CLOSERS = new Set([
+  'address', 'article', 'aside', 'blockquote', 'details', 'div', 'dl', 'fieldset',
+  'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'header', 'hr', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'
+]);
+// 栈顶元素 openLower 遇到新开始标签 newLower 时是否按规范隐含闭合
+function impliedCloses(openLower, newLower) {
+  if (openLower === 'li') return newLower === 'li';
+  if (openLower === 'dt' || openLower === 'dd') return newLower === 'dt' || newLower === 'dd';
+  if (openLower === 'p') return P_CLOSERS.has(newLower);
+  if (openLower === 'td' || openLower === 'th') return newLower === 'td' || newLower === 'th' || newLower === 'tr';
+  if (openLower === 'tr') return newLower === 'tr';
+  if (openLower === 'option') return newLower === 'option' || newLower === 'optgroup';
+  if (openLower === 'optgroup') return newLower === 'optgroup';
+  if (openLower === 'thead' || openLower === 'tbody' || openLower === 'tfoot') {
+    return newLower === 'thead' || newLower === 'tbody' || newLower === 'tfoot';
+  }
+  if (openLower === 'head') return newLower === 'body';
+  return false;
+}
+
 export function parseHtml(src) {
   if (!src || !src.trim()) throw new Error('输入为空');
+  if (src.length > MAX_INPUT_LENGTH) {
+    throw new Error(`输入过长（${src.length} 字符，上限 ${MAX_INPUT_LENGTH} 字符），请拆分后处理`);
+  }
   const root = { type: 'root', children: [] };
   const stack = [root];
   const top = () => stack[stack.length - 1];
@@ -105,6 +158,17 @@ export function parseHtml(src) {
     const next = src[i + 1];
 
     if (src.startsWith('<!--', i)) {
+      // HTML5 突兀空注释 <!--> 与 <!---> 是合法的完整空注释
+      if (src.startsWith('<!-->', i)) {
+        top().children.push({ type: 'comment', text: '<!-->', index: i });
+        i += 5;
+        continue;
+      }
+      if (src.startsWith('<!--->', i)) {
+        top().children.push({ type: 'comment', text: '<!--->', index: i });
+        i += 6;
+        continue;
+      }
       const end = src.indexOf('-->', i + 4);
       if (end === -1) fail(src, i, '注释未闭合（缺少 -->）');
       top().children.push({ type: 'comment', text: src.slice(i, end + 3), index: i });
@@ -129,7 +193,7 @@ export function parseHtml(src) {
         else if (c === '"' || c === "'") quote = c;
         else if (c === '[') bracket++;
         else if (c === ']') bracket = Math.max(0, bracket - 1);
-        else if (c === '>' && bracket === 0) break;
+        else if (isGt(c) && bracket === 0) break;
         j++;
       }
       if (j >= src.length) fail(src, i, '声明未闭合（缺少 >）');
@@ -144,10 +208,16 @@ export function parseHtml(src) {
       while (j < src.length && isNameChar(src[j])) { name += src[j]; j++; }
       if (!name) fail(src, i, '结束标签缺少标签名');
       while (j < src.length && /\s/.test(src[j])) j++;
-      if (src[j] !== '>') fail(src, i, `结束标签 </${name}> 写法有误（缺少 >）`);
+      if (!isGt(src[j])) fail(src, i, `结束标签 </${name}> 写法有误（缺少 >）`);
       j++;
       const lower = name.toLowerCase();
       if (VOID_ELEMENTS.has(lower)) fail(src, i, `空元素 <${lower}> 不应有结束标签 </${name}>`);
+      // 栈顶是结束标签可省略的元素且不是目标本身时，先按规范自动闭合（如 </ul> 前的 <li>）
+      while (stack.length > 1) {
+        const t = top();
+        if (t.type === 'element' && t.name.toLowerCase() !== lower && OMISSIBLE_END.has(t.name.toLowerCase())) stack.pop();
+        else break;
+      }
       if (stack.length === 1) fail(src, i, `多余的结束标签 </${name}>，没有对应的开始标签`);
       const open = top();
       if (open.name.toLowerCase() !== lower) {
@@ -160,6 +230,15 @@ export function parseHtml(src) {
     if (isNameStart(next)) {
       const tag = parseOpenTag(src, i);
       const lower = tag.name.toLowerCase();
+      // 新标签隐含关闭栈顶可省略结束标签的元素（如 <li> 遇到下一个 <li>、<p> 遇到 <div>）
+      while (stack.length > 1) {
+        const t = top();
+        if (t.type === 'element' && impliedCloses(t.name.toLowerCase(), lower)) stack.pop();
+        else break;
+      }
+      if (stack.length - 1 >= MAX_DEPTH) {
+        fail(src, i, `标签嵌套超过 ${MAX_DEPTH} 层上限，请拆分后处理`);
+      }
       const node = {
         type: 'element', name: tag.name, attrs: tag.attrs,
         children: [], index: i, rawContent: null
@@ -189,6 +268,12 @@ export function parseHtml(src) {
     i++;
   }
 
+  // 文档结束时，栈中只剩结束标签可省略的元素则自动闭合（如单独的 <p>hello 合法）
+  while (stack.length > 1) {
+    const t = top();
+    if (t.type === 'element' && OMISSIBLE_END.has(t.name.toLowerCase())) stack.pop();
+    else break;
+  }
   if (stack.length > 1) {
     const open = top();
     fail(src, open.index, `标签 <${open.name}> 未闭合（缺少 </${open.name.toLowerCase()}>）`);

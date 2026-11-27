@@ -60,7 +60,10 @@ const usageSteps = ['粘贴 HTML 到左侧输入框', '右侧实时出美化结�
 const faqs = [
   { question: '为什么 <p> 里的链接没有另起一行？', answer: 'a、span、strong 等行内元素与相邻文本会保持在同一行，符合 HTML 的排版语义；块级元素才会逐个换行缩进。' },
   { question: '压缩会改动 script 或 pre 里的内容吗？', answer: '不会。script、style、pre、textarea 属于原始文本元素，内容逐字保留；压缩只处理标签之间的空白与普通注释（条件注释始终保留）。' },
-  { question: '它校验到什么程度？', answer: '校验标签嵌套匹配、未闭合标签/注释/属性引号、空元素（如 img、br）误写结束标签等结构问题，并定位到行；不校验标签名与属性是否符合 HTML 规范。' }
+  { question: '它校验到什么程度？', answer: '校验标签嵌套匹配、未闭合标签/注释/属性引号、空元素（如 img、br）误写结束标签、同一标签内属性重复等结构问题，并定位到行；不校验标签名与属性是否符合 HTML 规范。' },
+  { question: 'li、p 不写结束标签为什么不报错？', answer: 'HTML5 规范允许 li、p、dt/dd、td/th/tr、option 等元素的结束标签省略，遇到同类元素、块级元素或父元素闭合时会自动闭合，本工具按规范处理；div、span 等不可省略的元素未闭合仍会报错。' },
+  { question: '从 Word 或中文文档粘来的 HTML 标点是全角的怎么办？', answer: '标签内的全角 ＝、＞、／ 与中文引号 “” ‘’ 会自动按半角符号识别；正文和属性值里的全角字、中文标点原样保留，不会被改动。' },
+  { question: '报错后右侧结果为什么还在？', answer: '出错时保留上次成功的结果不清空，方便对照错误提示的行号修正输入；修正后结果会自动更新，清空输入则会一并清掉。' }
 ];
 const examples = [
   { input: '<!DOCTYPE html><html><head><title>示例</title></head><body><div class="card"><h2>标题</h2><p>点 <a href="/x">这里</a> 继续</p><img src="a.png" alt="图"></div></body></html>', output: '<!DOCTYPE html>\n<html>\n  <head>\n    <title>示例</title>\n  </head>\n  <body>\n    <div class="card">\n      <h2>标题</h2>\n      <p>点 <a href="/x">这里</a> 继续</p>\n      <img src="a.png" alt="图">\n    </div>\n  </body>\n</html>', description: '完整页面美化（行内元素保持单行）' },
@@ -82,7 +85,7 @@ const process = () => {
     statusMessage.value = '✓ 校验通过，处理完成';
     statusType.value = 'success';
   } catch (e) {
-    result.value = null;
+    // 出错保留上次成功结果，方便对照错误行号修正输入
     statusMessage.value = '✗ ' + e.message;
     statusType.value = 'error';
   }
@@ -102,7 +105,7 @@ const copyOutput = async () => {
 .html-formatter { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .options { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; font-size: 13px; color: var(--text-2); }
 .options select { margin-left: 4px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
 .options .check { display: inline-flex; align-items: center; gap: 4px; }
