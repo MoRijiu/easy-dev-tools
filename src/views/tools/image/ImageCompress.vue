@@ -16,6 +16,10 @@
           @dragleave.prevent="onDragLeave"
           @drop.prevent="onDrop"
           @click="triggerFileInput"
+          tabindex="0"
+          role="button"
+          aria-label="选择要压缩的图片，或把图片拖放到这里"
+          @keydown="onUploadKeydown"
         >
           <input aria-label="选择要压缩的图片"
             ref="fileInput"
@@ -187,6 +191,16 @@ const summary = computed(() => summarizeCompression(images.value));
 // 触发文件选择
 const triggerFileInput = () => {
   fileInput.value?.click();
+};
+
+// 上传区是 div 模拟按钮：回车/空格须与点击等效（空格在 keydown 拦截防页面滚动）；
+// 事件须来自上传区本身，区内若有嵌套按钮则由其原生处理、不重复触发
+const onUploadKeydown = (e) => {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    triggerFileInput();
+  }
 };
 
 // 拖拽事件
@@ -415,6 +429,11 @@ h1 {
   transition: all 0.3s;
   background: var(--bg);
   margin-bottom: 24px;
+}
+
+.upload-area:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .upload-area:hover,
