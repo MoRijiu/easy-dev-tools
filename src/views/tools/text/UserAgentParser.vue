@@ -9,8 +9,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copySummary" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <textarea v-model="inputText" class="text-input" placeholder="粘贴 User Agent，如 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 … Chrome/120.0 Safari/537.36" spellcheck="false" aria-label="User Agent输入" @input="parse"></textarea>
+      <ToolStatusMessage id="user-agent-status" :message="statusMessage" :type="statusType" />
+      <textarea v-model="inputText" class="text-input" placeholder="粘贴 User Agent，如 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 … Chrome/120.0 Safari/537.36" spellcheck="false" aria-label="User Agent输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'user-agent-status' : undefined" @input="parse"></textarea>
       <template v-if="result">
         <p class="summary">{{ result.summary }}<span v-if="result.isBot" class="bot-tag">机器人：{{ result.botName }}</span></p>
         <ul v-if="result.notes && result.notes.length" class="notes" role="status" aria-live="polite">
@@ -64,6 +64,9 @@ const inputText = ref('');
 const result = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const rows = computed(() => {
   if (!result.value) return [];
   const r = result.value;
@@ -85,7 +88,7 @@ const parse = () => {
     result.value = parseUserAgent(inputText.value);
     statusMessage.value = '✓ 解析成功';
     statusType.value = 'success';
-  } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  } catch (e) { setInputError('✗ ' + e.message); }
 };
 const useCurrent = () => { inputText.value = navigator.userAgent; parse(); };
 const loadExample = () => { inputText.value = examples[0].input; parse(); };

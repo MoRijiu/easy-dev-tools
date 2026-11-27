@@ -8,8 +8,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyCode" class="btn btn-success" :disabled="!codeText"><span class="icon" aria-hidden="true">📋</span> 复制代码</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <textarea v-model="inputText" class="text-input" placeholder="粘贴 curl 命令，如：&#10;curl -X POST https://api.example.com/users -H 'Content-Type: application/json' -d '{&quot;name&quot;:&quot;tom&quot;}'" spellcheck="false" aria-label="curl命令输入" @input="parse"></textarea>
+      <ToolStatusMessage id="curl-status" :message="statusMessage" :type="statusType" />
+      <textarea v-model="inputText" class="text-input" placeholder="粘贴 curl 命令，如：&#10;curl -X POST https://api.example.com/users -H 'Content-Type: application/json' -d '{&quot;name&quot;:&quot;tom&quot;}'" spellcheck="false" aria-label="curl命令输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'curl-status' : undefined" @input="parse"></textarea>
       <template v-if="result">
         <p class="stats">{{ summary }}</p>
         <table class="kv" aria-label="请求概览">
@@ -98,6 +98,9 @@ const result = ref(null);
 const codeKind = ref('fetch');
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const summary = computed(() => (result.value ? buildCurlSummary(result.value) : ''));
 const prettyBody = computed(() => {
   if (!result.value) return '';
@@ -113,7 +116,7 @@ const parse = () => {
     result.value = parseCurl(inputText.value);
     statusMessage.value = '✓ 解析成功';
     statusType.value = 'success';
-  } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  } catch (e) { setInputError('✗ ' + e.message); }
 };
 const EXAMPLE = "curl -X POST 'https://api.example.com/v1/users?page=1' \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer demo-token' \\\n  -d '{\"name\":\"张三\",\"age\":18}'";
 const loadExample = () => { inputText.value = EXAMPLE; parse(); };

@@ -39,13 +39,13 @@
       </div>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="base64-status" :message="statusMessage" :type="statusType" />
       <p v-if="statsText" class="stats-line">{{ statsText }}</p>
 
       <!-- 编辑器容器 -->
       <ToolEditorLayout>
         <ToolEditorPanel title="输入内容" :info="`${inputText.length} 字符`">
-          <textarea aria-label="输入需要编码或解码的内容"
+          <textarea aria-label="输入需要编码或解码的内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'base64-status' : undefined"
             v-model="inputText"
             class="text-input"
             placeholder="在此输入需要编码或解码的内容..."
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -91,6 +91,9 @@ const inputText = ref("");
 const outputText = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
+const inputErrorText = ref("");
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = "error"; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === "error" && inputErrorText.value !== "" && statusMessage.value === inputErrorText.value);
 const alphabet = ref("standard");
 const withPadding = ref(true);
 const statsText = ref("");
@@ -187,8 +190,7 @@ const examples = [
 // Base64 编码（分块处理，长文本也不会爆栈）
 const encodeBase64 = () => {
   if (!inputText.value.trim()) {
-    statusMessage.value = "✗ 请输入需要编码的内容";
-    statusType.value = "error";
+    setInputError("✗ 请输入需要编码的内容");
     statsText.value = "";
     return;
   }
@@ -211,15 +213,13 @@ const useExample = (example) => {
 // Base64 解码（逐字校验，错误精确定位；解出非 UTF-8 会明确提示是二进制数据）
 const decodeBase64 = () => {
   if (!inputText.value.trim()) {
-    statusMessage.value = "✗ 请输入需要解码的 Base64 字符串";
-    statusType.value = "error";
+    setInputError("✗ 请输入需要解码的 Base64 字符串");
     statsText.value = "";
     return;
   }
   const result = decodeBase64Text(inputText.value);
   if (!result.ok) {
-    statusMessage.value = `✗ 解码失败：${result.error.message}`;
-    statusType.value = "error";
+    setInputError(`✗ 解码失败：${result.error.message}`);
     outputText.value = "";
     statsText.value = "";
     return;
