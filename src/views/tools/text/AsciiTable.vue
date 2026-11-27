@@ -37,7 +37,7 @@
             <tr v-for="t in results" :key="t.code">
               <td class="char">{{ t.display }}</td><td>{{ t.code }}</td><td>0x{{ t.hex }}</td><td>{{ t.oct }}</td><td class="mono">{{ t.binary }}</td>
               <td>{{ t.name }}<span v-if="t.note" class="note"> · {{ t.note }}</span></td>
-              <td><button class="copy" @click="copyItem(t)">复制</button></td>
+              <td><button class="copy" :aria-label="`复制字符（十进制 ${t.code}）`" @click="copyItem(t)">复制</button></td>
             </tr>
           </tbody>
         </table>

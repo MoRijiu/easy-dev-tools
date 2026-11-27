@@ -102,27 +102,27 @@
             <div class="result-item">
               <span class="result-label">时间戳 (秒)</span>
               <span class="result-value">{{ result.timestampS }}</span>
-              <button class="row-copy" @click="copyToClipboard(String(result.timestampS))">复制</button>
+              <button class="row-copy" aria-label="复制时间戳（秒）" @click="copyToClipboard(String(result.timestampS))">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">时间戳 (毫秒)</span>
               <span class="result-value">{{ result.timestampMs }}</span>
-              <button class="row-copy" @click="copyToClipboard(String(result.timestampMs))">复制</button>
+              <button class="row-copy" aria-label="复制时间戳（毫秒）" @click="copyToClipboard(String(result.timestampMs))">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">时间戳 (微秒)</span>
               <span class="result-value">{{ result.timestampUs }}</span>
-              <button class="row-copy" @click="copyToClipboard(String(result.timestampUs))">复制</button>
+              <button class="row-copy" aria-label="复制时间戳（微秒）" @click="copyToClipboard(String(result.timestampUs))">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">本地时间</span>
               <span class="result-value">{{ result.localTime }}</span>
-              <button class="row-copy" @click="copyToClipboard(result.localTime)">复制</button>
+              <button class="row-copy" aria-label="复制本地时间" @click="copyToClipboard(result.localTime)">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">本地时间 (毫秒)</span>
               <span class="result-value">{{ result.localTimeMs }}</span>
-              <button class="row-copy" @click="copyToClipboard(result.localTimeMs)">复制</button>
+              <button class="row-copy" aria-label="复制本地时间（毫秒）" @click="copyToClipboard(result.localTimeMs)">复制</button>
             </div>
             <div class="result-item">
               <span class="result-label">星期 / 今年第几天</span>

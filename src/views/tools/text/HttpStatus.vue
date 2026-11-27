@@ -12,7 +12,7 @@
       <p class="count">共 {{ results.length }} 个状态码<span class="hint">支持搜「4xx」看整类、全角数字会自动转半角</span></p>
       <div v-if="results.length" class="list">
         <article v-for="s in results" :key="s.code" class="item" :data-cat="s.category">
-          <div class="head"><span class="code">{{ s.code }}</span><span class="name">{{ s.name }}</span><span class="zh">{{ s.nameZh }}</span><button class="copy" @click="copyItem(s)">复制</button></div>
+          <div class="head"><span class="code">{{ s.code }}</span><span class="name">{{ s.name }}</span><span class="zh">{{ s.nameZh }}</span><button class="copy" :aria-label="`复制状态码 ${s.code} ${s.name}`" @click="copyItem(s)">复制</button></div>
           <p class="desc">{{ s.description }}</p>
         </article>
       </div>

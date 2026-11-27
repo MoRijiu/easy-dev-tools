@@ -12,7 +12,7 @@
       <p class="count">共 {{ results.length }} 条 · 提示：上传接口返回的 Content-Type 应与文件真实类型一致，.jpg 与 .jpeg 共用 image/jpeg</p>
       <div v-if="results.length" class="list">
         <article v-for="t in results" :key="t.ext + t.mime" class="item">
-          <div class="head"><span class="ext">.{{ t.ext }}</span><code class="mime">{{ t.mime }}</code><span class="zh">{{ t.nameZh }}</span><button class="copy" @click="copyItem(t)">复制</button></div>
+          <div class="head"><span class="ext">.{{ t.ext }}</span><code class="mime">{{ t.mime }}</code><span class="zh">{{ t.nameZh }}</span><button class="copy" :aria-label="`复制 .${t.ext} 的 MIME 类型 ${t.mime}`" @click="copyItem(t)">复制</button></div>
           <p v-if="t.note" class="desc">{{ t.note }}</p>
         </article>
       </div>

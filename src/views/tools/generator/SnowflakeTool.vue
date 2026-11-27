@@ -38,7 +38,7 @@
           <tr v-if="parsed.datacenterId !== null"><th>数据中心 ID</th><td>{{ parsed.datacenterId }}</td><td></td></tr>
           <tr><th>机器 ID</th><td>{{ parsed.workerId }}</td><td></td></tr>
           <tr><th>序列号</th><td>{{ parsed.sequence }}（同一毫秒内第 {{ parsed.sequence + 1 }} 个）</td><td></td></tr>
-          <tr><th>十六进制</th><td>{{ parsed.hex }}</td><td><button class="copy-btn" @click="copyText(parsed.hex)">复制</button></td></tr>
+          <tr><th>十六进制</th><td>{{ parsed.hex }}</td><td><button class="copy-btn" aria-label="复制十六进制" @click="copyText(parsed.hex)">复制</button></td></tr>
           <tr v-for="g in parsed.groups" :key="g.label"><th>{{ g.label }}</th><td class="mono">{{ g.bits }}</td><td></td></tr>
         </tbody>
       </table>
@@ -57,7 +57,7 @@
       <ToolStatusMessage :message="genMessage" :type="genType" />
       <div v-if="generatedId" class="gen-result">
         <span class="mono">{{ generatedId }}</span>
-        <button class="copy-btn" @click="copyText(generatedId)">复制</button>
+        <button class="copy-btn" aria-label="复制生成的 ID" @click="copyText(generatedId)">复制</button>
         <button class="copy-btn" @click="sendToParse">送到上方解析</button>
       </div>
 

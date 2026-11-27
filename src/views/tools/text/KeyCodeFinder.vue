@@ -59,7 +59,7 @@
               <td><code>{{ k.code }}</code></td>
               <td>{{ k.keyCode }}</td>
               <td>{{ k.nameZh }}</td>
-              <td><button class="copy" @click="copyRow(k)">复制</button></td>
+              <td><button class="copy" :aria-label="`复制按键 ${k.code}`" @click="copyRow(k)">复制</button></td>
             </tr>
           </tbody>
         </table>

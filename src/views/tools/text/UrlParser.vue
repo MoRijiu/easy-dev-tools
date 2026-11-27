@@ -14,7 +14,7 @@
         <p v-for="(w, i) in result.warnings" :key="i" class="warn" role="status" aria-live="polite">⚠ {{ w }}</p>
         <table class="kv" aria-label="URL组件">
           <tbody>
-            <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value || '—' }}</code></td><td><button class="mini" :disabled="!row.value" @click="copyText(row.value)">复制</button></td></tr>
+            <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value || '—' }}</code></td><td><button class="mini" :disabled="!row.value" :aria-label="`复制${row.label}`" @click="copyText(row.value)">复制</button></td></tr>
           </tbody>
         </table>
         <h2 class="sub">查询参数（{{ editableParams.length }} 个，可编辑）</h2>

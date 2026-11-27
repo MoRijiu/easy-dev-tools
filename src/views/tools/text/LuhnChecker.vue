@@ -44,7 +44,7 @@
       <p v-if="completed" class="complete-row">
         校验位 <strong class="mono">{{ completed.checkDigit }}</strong>，完整号码
         <strong class="mono">{{ completed.complete }}</strong>
-        <button class="btn ghost small" type="button" @click="copyText(completed.complete)">复制</button>
+        <button class="btn ghost small" type="button" aria-label="复制完整号码" @click="copyText(completed.complete)">复制</button>
         <button class="btn ghost small" type="button" @click="loadExample(completed.complete)">送去校验</button>
       </p>
 
