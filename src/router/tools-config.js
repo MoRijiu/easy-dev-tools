@@ -767,6 +767,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'css-box-shadow',
+        name: 'CSS阴影生成器',
+        nameEn: 'css-box-shadow',
+        icon: '🌫️',
+        description: '可视化调box-shadow，多层阴影实时预览并复制CSS',
+        aliases: ['css','box-shadow','shadow','阴影','投影','yinying','touying'],
+        path: '/converter/css-box-shadow',
+        component: () => import('../views/tools/converter/CssBoxShadowGenerator.vue'),
+        meta: {
+          title: 'CSS阴影生成器 - 在线生成box-shadow多层阴影',
+          description: '免费的在线CSS阴影生成器，可视化调整box-shadow的偏移、模糊、扩散与内阴影，支持多层叠加，实时预览并一键复制CSS代码，纯本地运行不上传服务器',
+          keywords: 'CSS阴影,box-shadow,阴影生成器,投影,inset'
+        }
+      },
+      {
         id: 'unit-converter',
         name: '单位转换',
         nameEn: 'unit-converter',
