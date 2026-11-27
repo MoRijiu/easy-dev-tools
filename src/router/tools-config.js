@@ -218,6 +218,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'punycode',
+        name: 'Punycode转换',
+        nameEn: 'punycode',
+        icon: '🌐',
+        description: '中文/国际化域名与Punycode（xn--）互转，多行批量',
+        aliases: ['punycode','xn--','域名','国际化域名','中文域名','yuming','idn'],
+        path: '/text/punycode',
+        component: () => import('../views/tools/text/PunycodeConverter.vue'),
+        meta: {
+          title: 'Punycode转换工具 - 在线中文域名与xn--编码互转',
+          description: '免费的在线Punycode转换工具，中文与国际化域名和xn--编码双向转换，支持多行批量与逐标签处理，错误定位到行，纯本地运行不上传服务器',
+          keywords: 'Punycode,中文域名,xn--,国际化域名,IDN,域名编码'
+        }
+      },
+      {
         id: 'morse-code',
         name: '摩尔斯电码编解码',
         nameEn: 'morse-code',
