@@ -233,6 +233,21 @@ export const toolGroups = [
         }
       },
       {
+        id: 'luhn-checker',
+        name: 'Luhn校验',
+        nameEn: 'luhn-checker',
+        icon: '💳',
+        description: '银行卡/IMEI等号码Luhn校验、校验位生成与批量校验',
+        aliases: ['luhn','校验','银行卡','卡号','imei','校验位','mod10','jiaoyan'],
+        path: '/text/luhn-checker',
+        component: () => import('../views/tools/text/LuhnChecker.vue'),
+        meta: {
+          title: 'Luhn校验工具 - 在线银行卡与IMEI号码校验位验证',
+          description: '免费的在线Luhn校验工具，验证银行卡、IMEI等号码的模10校验位，给出计算过程与正确校验位，支持校验位生成和多行批量校验，纯本地运行不上传服务器',
+          keywords: 'Luhn校验,银行卡校验,IMEI校验,校验位,模10算法,卡号验证'
+        }
+      },
+      {
         id: 'morse-code',
         name: '摩尔斯电码编解码',
         nameEn: 'morse-code',
