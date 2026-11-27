@@ -44,53 +44,53 @@
 }
 
 :deep(.btn-primary) {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-  color: white;
+  background: var(--btn-primary);
+  color: var(--on-accent);
 }
 
 :deep(.btn-primary:hover:not(:disabled)) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-card-hover);
 }
 
 :deep(.btn-secondary) {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
+  background: var(--btn-secondary);
+  color: var(--on-accent);
 }
 
 :deep(.btn-secondary:hover:not(:disabled)) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+  box-shadow: var(--shadow-card-hover);
 }
 
 :deep(.btn-info) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
+  background: var(--btn-info);
+  color: var(--on-accent);
 }
 
 :deep(.btn-info:hover:not(:disabled)) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+  box-shadow: var(--shadow-card-hover);
 }
 
 :deep(.btn-success) {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  color: white;
+  background: var(--btn-success);
+  color: var(--on-accent);
 }
 
 :deep(.btn-success:hover:not(:disabled)) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4);
+  box-shadow: var(--shadow-card-hover);
 }
 
 :deep(.btn-danger) {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  color: white;
+  background: var(--btn-danger);
+  color: var(--on-accent);
 }
 
 :deep(.btn-danger:hover:not(:disabled)) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+  box-shadow: var(--shadow-card-hover);
 }
 
 :deep(.btn-tool) {
