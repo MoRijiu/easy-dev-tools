@@ -6,7 +6,7 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="输入端口或服务，如 3306 / redis / 远程桌面" aria-label="搜索常用端口" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in PORT_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }}</button>
+          <button v-for="c in PORT_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} {{ categoryCounts[c.id] || 0 }}</button>
         </div>
         <div class="chips" role="group" aria-label="按协议筛选">
           <button v-for="p in PROTOCOLS" :key="p.id" :class="{ active: protocol === p.id }" @click="protocol = p.id">{{ p.name }}</button>
@@ -16,7 +16,7 @@
         <strong>{{ exactInfo.title }}</strong>
         <span>{{ exactInfo.detail }}</span>
       </div>
-      <p class="count">共 {{ results.length }} 条 · 提示：数据库与远程管理端口不要直接暴露公网，优先走内网、VPN 或跳板机</p>
+      <p class="count">端口表共 {{ totalCount }} 条，当前显示 {{ results.length }} 条 · 提示：数据库与远程管理端口不要直接暴露公网，优先走内网、VPN 或跳板机</p>
       <div v-if="results.length" class="list">
         <article v-for="t in results" :key="t.port + t.service" class="item">
           <div class="head"><span class="port">{{ t.port }}</span><code class="svc">{{ t.service }}</code><span class="proto">{{ t.protocol }}</span><span class="zh">{{ t.nameZh }}</span><button class="copy" @click="copyItem(t)">复制</button></div>
@@ -37,7 +37,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
-import { PORT_CATEGORIES, searchPorts, buildPortSummary, getByPort, classifyPort } from '@/utils/commonPorts.js';
+import { PORT_CATEGORIES, COMMON_PORTS, searchPorts, buildPortSummary, getByPort, classifyPort, normalizePortInput, countByCategory } from '@/utils/commonPorts.js';
+const totalCount = COMMON_PORTS.length; const categoryCounts = countByCategory();
 const PROTOCOLS = [{ id: 'all', name: '全部协议' }, { id: 'TCP', name: 'TCP' }, { id: 'UDP', name: 'UDP' }];
 const features = [
   { icon: '🔎', title: '多维速查', description: '可按端口号、服务英文名、中文用途或场景关键词搜索' },
@@ -49,12 +50,15 @@ const usageSteps = ['在搜索框输入端口号、服务名或中文关键词',
 const faqs = [
   { question: '3306、5432、6379 能直接开公网吗？', answer: '强烈不建议。数据库端口一旦暴露常被扫描爆破，应只监听内网或本机，再通过 SSH 隧道、VPN 或跳板机访问。' },
   { question: 'TCP 和 UDP 端口是同一套编号吗？', answer: '是独立的：同一个数字可以同时是 TCP 端口和 UDP 端口，如 DNS 的 53 同时用 UDP（主）和 TCP。' },
-  { question: '查不到的端口怎么判断用途？', answer: '先看所属段：0–1023 熟知、1024–49151 注册、49152–65535 多为临时客户端端口；再结合服务器上实际监听的进程确认，不要只凭端口号下结论。' }
+  { question: '查不到的端口怎么判断用途？', answer: '先看所属段：0–1023 熟知、1024–49151 注册、49152–65535 多为临时客户端端口；再结合服务器上实际监听的进程确认，不要只凭端口号下结论。' },
+  { question: '搜 80 为什么 8000、8080 也会出现？', answer: '纯数字查询按精确命中 > 端口前缀 > 说明中提及的顺序排列：80 本身排第一，8000/8080 是以 80 开头的前缀命中，1080 这类只是数字里包含 80 的会排在最后。' },
+  { question: '全角数字（如 ３３０６）能查吗？', answer: '可以。中文输入法粘来的全角数字与字母会自动转成半角再查询，服务名同理（如 ｒｅｄｉｓ）。' },
+  { question: '端口 0 是什么？', answer: '0 是保留端口、不能监听；程序里把端口填 0 表示让操作系统随机分配一个空闲端口，实际拿到的是动态段里的某个端口。' }
 ];
 const query = ref(''); const category = ref('all'); const protocol = ref('all');
 const results = computed(() => searchPorts(query.value, category.value, protocol.value));
 const exactInfo = computed(() => {
-  const raw = query.value.trim();
+  const raw = normalizePortInput(query.value.trim());
   if (!/^\d+$/.test(raw)) return null;
   const n = Number(raw); const cls = classifyPort(n);
   if (!cls) return { title: `${raw} 不是有效端口`, detail: '端口范围是 0–65535' };
@@ -68,7 +72,7 @@ const copyItem = async (t) => { try { await navigator.clipboard.writeText(buildP
 .port-finder { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .controls { display: flex; flex-direction: column; gap: 10px; }
 .search { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; width: 100%; box-sizing: border-box; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
