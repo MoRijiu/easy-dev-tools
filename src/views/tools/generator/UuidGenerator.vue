@@ -2,7 +2,7 @@
   <div class="uuid-generator">
     <h1>UUID 生成器</h1>
     <p class="description">
-      在线 UUID/GUID 生成工具，支持批量生成、多种格式选项
+      在线 UUID/GUID 生成工具：v4 随机 / v7 时间有序，批量生成、多种格式，纯本地不上传
     </p>
 
     <div class="tool-container">
@@ -21,22 +21,31 @@
         <div class="toolbar-divider"></div>
         
         <div class="options">
+          <div class="version-switch" role="group" aria-label="UUID 版本">
+            <button type="button" :class="{ active: options.version === 'v4' }" @click="options.version = 'v4'">v4 随机</button>
+            <button type="button" :class="{ active: options.version === 'v7' }" @click="options.version = 'v7'">v7 时间有序</button>
+          </div>
           <label>
             生成数量:
-            <input type="number" v-model.number="options.count" min="1" max="100" />
+            <input type="number" v-model="options.count" min="1" :max="MAX_COUNT" />
           </label>
           <label>
-            <input type="checkbox" v-model="options.uppercase" />
+            <input type="checkbox" v-model="options.uppercase" :disabled="options.urn" />
             大写
           </label>
           <label>
-            <input type="checkbox" v-model="options.withHyphens" />
+            <input type="checkbox" v-model="options.withHyphens" :disabled="options.urn" />
             带连字符
           </label>
           <label>
-            <input type="checkbox" v-model="options.withBraces" />
+            <input type="checkbox" v-model="options.withBraces" :disabled="options.urn" />
             带花括号
           </label>
+          <label>
+            <input type="checkbox" v-model="options.urn" />
+            URN 格式
+          </label>
+          <button class="btn btn-secondary" :disabled="!uuidList.length" @click="downloadList">⬇️ 下载 .txt</button>
         </div>
       </ToolToolbar>
 
@@ -47,7 +56,7 @@
       <div class="uuid-output-section">
         <ToolEditorPanel 
           title="生成的 UUID" 
-          :info="uuidList.length ? `${uuidList.length} 个 UUID` : ''"
+          :info="uuidList.length ? `${uuidList.length} 个 · ${options.version.toUpperCase()} · 全部唯一` : ''"
         >
           <div class="uuid-list-wrapper">
             <div v-if="uuidList.length" class="uuid-list">
@@ -63,7 +72,7 @@
               </div>
             </div>
             <div v-else class="placeholder">
-              点击"生成 UUID"按钮生成 UUID
+              点击“生成 UUID”按钮生成 UUID（默认已生成 5 个）
             </div>
           </div>
         </ToolEditorPanel>
@@ -85,7 +94,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { generateBatch, MAX_COUNT } from "@/utils/uuidGenerate.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -99,29 +109,31 @@ const statusMessage = ref("");
 const statusType = ref("");
 
 const options = ref({
-  count: 1,
+  count: 5,
+  version: "v4",
   uppercase: false,
   withHyphens: true,
   withBraces: false,
+  urn: false,
 });
 
 // 功能特点数据
 const features = [
-  { icon: "🎲", title: "随机生成", description: "使用加密安全的随机数生成 UUID v4" },
-  { icon: "📦", title: "批量生成", description: "一次最多生成 100 个 UUID" },
-  { icon: "🔤", title: "格式选项", description: "支持大小写、连字符、花括号等格式" },
-  { icon: "📋", title: "一键复制", description: "单个或批量复制 UUID 到剪贴板" },
+  { icon: "🎲", title: "v4 随机生成", description: "使用加密安全随机数生成 UUID v4" },
+  { icon: "🕒", title: "v7 时间有序", description: "内嵌毫秒时间戳、同一毫秒单调递增，按时间天然可排序" },
+  { icon: "📦", title: "批量生成", description: `一次最多生成 ${MAX_COUNT} 个，生成后逐个自检且保证不重复` },
+  { icon: "🔤", title: "格式选项", description: "支持大小写、连字符、花括号与 URN 等格式" },
+  { icon: "📋", title: "一键复制", description: "单个或批量复制 UUID 到剪贴板，也可下载 .txt" },
   { icon: "⚡", title: "本地处理", description: "所有操作在浏览器本地完成，安全可靠" },
-  { icon: "🌐", title: "标准格式", description: "生成符合 RFC 4122 标准的 UUID" },
 ];
 
 // 使用说明数据
 const usageSteps = [
-  "设置需要生成的 UUID 数量（1-100）",
-  "根据需要选择格式选项：大写、带连字符、带花括号",
+  `选择版本：v4 随机，或 v7 时间有序（适合数据库索引、按创建时间排序）`,
+  `设置需要生成的 UUID 数量（1-${MAX_COUNT}，必须为整数，越界会明确报错不再静默截断）`,
+  "根据需要选择格式选项：大写、带连字符、花括号或 URN",
   '点击"生成 UUID"按钮生成 UUID',
-  "点击单个 UUID 右侧的复制按钮复制该 UUID",
-  '点击"复制全部"按钮复制所有生成的 UUID',
+  "点击单个 UUID 右侧的复制按钮复制该 UUID，或复制全部 / 下载 .txt",
 ];
 
 // 常见问题数据
@@ -131,130 +143,121 @@ const faqs = [
     answer: "UUID（Universally Unique Identifier）是一种 128 位的唯一标识符，也称为 GUID。它被设计为在全球范围内具有唯一性，常用于数据库主键、分布式系统标识等场景。",
   },
   {
+    question: "v4 和 v7 该选哪个？",
+    answer: "v4 是纯随机生成，最通用；v7（RFC 9562）把毫秒时间戳放在高位，同一时刻生成的 ID 也单调递增，作为数据库主键时索引局部性更好、能按生成顺序大致排序。新系统优先考虑 v7，老系统生态兼容选 v4。",
+  },
+  {
     question: "UUID v4 是如何生成的？",
-    answer: "UUID v4 是基于随机数生成的。本工具使用浏览器的 crypto.randomUUID() 或 crypto.getRandomValues() API 生成加密安全的随机 UUID。",
+    answer: "UUID v4 是基于随机数生成的。本工具使用浏览器的 crypto.getRandomValues() 生成加密安全的随机字节，再设置版本与变体位；每批生成后都会逐个用解析器自检版本并去重。",
   },
   {
     question: "UUID 会重复吗？",
-    answer: "理论上 UUID 可能重复，但概率极低。UUID v4 有 2^122 种可能的组合，实际应用中可以认为是唯一的。",
+    answer: "理论上 UUID 可能重复，但概率极低。UUID v4 有 2^122 种可能的组合，实际应用中可以认为是唯一的。本工具单批内还会强制去重，重复的会丢弃重抽。",
   },
   {
     question: "不同格式的 UUID 有什么区别？",
-    answer: "UUID 的值是相同的，只是显示格式不同。带连字符的格式（如 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx）是最常见的标准格式，而不带连字符的格式更紧凑。花括号格式常用于 Windows 系统。",
+    answer: "UUID 的值是相同的，只是显示格式不同。带连字符的格式（如 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx）是最常见的标准格式，而不带连字符的格式更紧凑。花括号格式常用于 Windows 系统；URN 格式（urn:uuid:…）固定为小写带连字符，勾选后大小写/花括号选项不再生效。",
+  },
+  {
+    question: "生成数量为什么不能随便填？",
+    answer: `数量必须为 1-${MAX_COUNT} 的整数。旧版对越界数量是静默截断，容易让人误以为生成了更多；现在会明确提示错在哪，分批生成即可。`,
   },
 ];
 
-// 使用示例数据
+// 使用示例数据（input 为预设名，useExample 按名切换选项）
 const examples = [
   {
-    input: "用户ID",
-    output: "morijiu-e29b-41d4-a716-446655440000",
-    description: "用于唯一标识用户",
+    input: "v4 标准格式",
+    output: "550e8400-e29b-41d4-a716-446655440000",
+    description: "最常见的 v4 标准写法（示意值）",
   },
   {
-    input: "工具ID",
-    output: "tools-550e-8400-e29b-41d4a7164466",
-    description: "用于工具配置标识",
+    input: "v7 时间有序",
+    output: "01941f2a-7b3c-7d4e-8f50-1a2b3c4d5e6f",
+    description: "高位内嵌时间、按生成顺序可排序（示意值）",
   },
   {
-    input: "会话ID",
-    output: "{session-8400-e29b-41d4-a716-446655}",
-    description: "用于追踪用户会话",
+    input: "无连字符大写",
+    output: "550E8400E29B41D4A716446655440000",
+    description: "紧凑大写写法（示意值）",
+  },
+  {
+    input: "带花括号",
+    output: "{550e8400-e29b-41d4-a716-446655440000}",
+    description: "Windows / .NET 常见写法（示意值）",
+  },
+  {
+    input: "URN 格式",
+    output: "urn:uuid:550e8400-e29b-41d4-a716-446655440000",
+    description: "URN 命名空间写法（示意值）",
   },
 ];
 
-// 生成单个 UUID
-const generateSingleUuid = () => {
-  let uuid;
-
-  // 优先使用 crypto.randomUUID()，不支持则使用 fallback
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    uuid = crypto.randomUUID();
-  } else {
-    // Fallback: 使用 crypto.getRandomValues()
-    uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const array = new Uint8Array(1);
-      crypto.getRandomValues(array);
-      const r = array[0] % 16;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+const showStatus = (message, type) => {
+  statusMessage.value = message;
+  statusType.value = type;
+  if (type === "success") {
+    setTimeout(() => {
+      if (statusMessage.value === message) statusMessage.value = "";
+    }, 2500);
   }
-
-  return uuid;
 };
 
-// 格式化 UUID
-const formatUuid = (uuid) => {
-  let result = uuid;
-
-  // 移除或保留连字符
-  if (!options.value.withHyphens) {
-    result = result.replace(/-/g, '');
-  }
-
-  // 大小写转换
-  if (options.value.uppercase) {
-    result = result.toUpperCase();
-  }
-
-  // 添加花括号
-  if (options.value.withBraces) {
-    result = `{${result}}`;
-  }
-
-  return result;
-};
-
-// 生成 UUID 列表
+// 生成 UUID 列表：数量严格校验，越界/非整数明确报错，不再静默截断
 const generateUuids = () => {
-  const count = Math.min(Math.max(1, options.value.count), 100);
-  const newUuids = [];
-
-  for (let i = 0; i < count; i++) {
-    const uuid = generateSingleUuid();
-    newUuids.push(formatUuid(uuid));
+  const result = generateBatch({
+    count: options.value.count,
+    version: options.value.version,
+    format: {
+      uppercase: options.value.uppercase,
+      hyphens: options.value.withHyphens,
+      braces: options.value.withBraces,
+      urn: options.value.urn,
+    },
+  });
+  if (!result.ok) {
+    showStatus(`✗ ${result.error}`, "error");
+    return;
   }
-
-  uuidList.value = newUuids;
-  statusMessage.value = `✓ 成功生成 ${count} 个 UUID`;
-  statusType.value = "success";
+  uuidList.value = result.list;
+  showStatus(`✓ 成功生成 ${result.count} 个 UUID（${result.version.toUpperCase()}，全部唯一）`, "success");
 };
 
 // 复制单个 UUID
 const copySingle = async (uuid) => {
   try {
     await navigator.clipboard.writeText(uuid);
-    statusMessage.value = "✓ 已复制到剪贴板";
-    statusType.value = "success";
-    setTimeout(() => {
-      statusMessage.value = "";
-    }, 2000);
+    showStatus("✓ 已复制到剪贴板", "success");
   } catch (error) {
-    statusMessage.value = "✗ 复制失败，请手动复制";
-    statusType.value = "error";
+    showStatus("✗ 复制失败，请手动复制", "error");
   }
 };
 
 // 复制全部 UUID
 const copyOutput = async () => {
   if (!uuidList.value.length) {
-    statusMessage.value = "✗ 没有可复制的内容";
-    statusType.value = "error";
+    showStatus("✗ 没有可复制的内容", "error");
     return;
   }
   try {
-    const text = uuidList.value.join('\n');
-    await navigator.clipboard.writeText(text);
-    statusMessage.value = `✓ 已复制 ${uuidList.value.length} 个 UUID 到剪贴板`;
-    statusType.value = "success";
-    setTimeout(() => {
-      statusMessage.value = "";
-    }, 2000);
+    await navigator.clipboard.writeText(uuidList.value.join('\n'));
+    showStatus(`✓ 已复制 ${uuidList.value.length} 个 UUID 到剪贴板`, "success");
   } catch (error) {
-    statusMessage.value = "✗ 复制失败，请手动复制";
-    statusType.value = "error";
+    showStatus("✗ 复制失败，请手动复制", "error");
   }
+};
+
+// 下载为 .txt
+const downloadList = () => {
+  if (!uuidList.value.length) return;
+  const blob = new Blob([uuidList.value.join('\n') + '\n'], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `uuid-${options.value.version}-${uuidList.value.length}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showStatus("✓ 已下载 UUID 列表", "success");
 };
 
 // 清空内容
@@ -263,24 +266,23 @@ const clearAll = () => {
   statusMessage.value = "";
 };
 
-// 使用示例
+// 使用示例：按预设名切换版本与格式后生成 1 个
 const useExample = (example) => {
-  if (example.input === "标准格式") {
-    options.value.withHyphens = true;
-    options.value.withBraces = false;
-    options.value.uppercase = false;
-  } else if (example.input === "无连字符") {
-    options.value.withHyphens = false;
-    options.value.withBraces = false;
-    options.value.uppercase = false;
-  } else if (example.input === "带花括号") {
-    options.value.withHyphens = true;
-    options.value.withBraces = true;
-    options.value.uppercase = false;
-  }
+  const presets = {
+    "v4 标准格式": { version: "v4", uppercase: false, withHyphens: true, withBraces: false, urn: false },
+    "v7 时间有序": { version: "v7", uppercase: false, withHyphens: true, withBraces: false, urn: false },
+    "无连字符大写": { version: "v4", uppercase: true, withHyphens: false, withBraces: false, urn: false },
+    "带花括号": { version: "v4", uppercase: false, withHyphens: true, withBraces: true, urn: false },
+    "URN 格式": { version: "v4", uppercase: false, withHyphens: true, withBraces: false, urn: true },
+  };
+  const preset = presets[example.input];
+  if (!preset) return;
+  Object.assign(options.value, preset);
   options.value.count = 1;
   generateUuids();
 };
+
+onMounted(generateUuids);
 </script>
 
 <style scoped>
@@ -339,8 +341,8 @@ h1 {
 }
 
 .uuid-item:hover {
-  border-color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px var(--accent-soft);
 }
 
 .uuid-item:last-child {
@@ -365,8 +367,29 @@ h1 {
 }
 
 .copy-single-btn:hover {
-  background: #667eea;
-  border-color: #667eea;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.version-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.version-switch button {
+  padding: 5px 10px;
+  background: var(--surface);
+  color: var(--text-2);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.version-switch button.active {
+  background: var(--accent);
+  color: #fff;
 }
 
 .placeholder {
