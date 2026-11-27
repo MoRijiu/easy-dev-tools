@@ -22,7 +22,54 @@ const COMMON_WORDS = [
   'love', 'angel', 'happy', 'flower', 'summer', 'winter', 'spring', 'autumn'
 ];
 
+export const MAX_PASSWORD_LENGTH = 4096;
+
 const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm', '1234567890'];
+// 键盘纵列与斜列（1qaz / 2wsx 这类纵向连排同样是高频弱口令模式）
+const KEYBOARD_COLUMNS = ['1qaz', '2wsx', '3edc', '4rfv', '5tgb', '6yhn', '7ujm', '8ik', '9ol', '0p'];
+const KEYBOARD_SOURCES = [...KEYBOARD_ROWS.slice(0, 3), ...KEYBOARD_COLUMNS];
+
+// leet 变体还原（仅用于弱口令/常见词检测，@→a、0→o、5→s、3→e、1→i 等）
+const LEET_MAP = { '@': 'a', '4': 'a', '8': 'b', '3': 'e', '1': 'i', '!': 'i', '0': 'o', '5': 's', '$': 's', '7': 't', '+': 't', '2': 'z' };
+function leetNormalize(text) {
+  return [...text].map((ch) => LEET_MAP[ch] || ch).join('');
+}
+
+// 全角字母/数字/标点与半角一一对应（U+FF01–FF5E → U+0021–U+007E，U+3000 → 空格），逐码点 1:1、位置不变
+function normalizeFullwidth(text) {
+  let converted = false;
+  const out = [...text].map((ch) => {
+    const code = ch.codePointAt(0);
+    if (code >= 0xff01 && code <= 0xff5e) { converted = true; return String.fromCharCode(code - 0xfee0); }
+    if (code === 0x3000) { converted = true; return ' '; }
+    return ch;
+  }).join('');
+  return { text: out, converted };
+}
+
+function daysInMonth(year, month) {
+  return [31, (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1] || 0;
+}
+
+// 在连续 8 位数字中找完整日期（YYYYMMDD / MMDDYYYY / DDMMYYYY，日按月实际天数校验）
+function findFullDate(text) {
+  const re = /\d{8}/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const s = m[0];
+    const tries = [
+      { y: +s.slice(0, 4), mo: +s.slice(4, 6), d: +s.slice(6, 8) },
+      { y: +s.slice(4, 8), mo: +s.slice(0, 2), d: +s.slice(2, 4) },
+      { y: +s.slice(4, 8), mo: +s.slice(2, 4), d: +s.slice(0, 2) }
+    ];
+    for (const t of tries) {
+      if (t.y >= 1900 && t.y <= 2099 && t.mo >= 1 && t.mo <= 12 && t.d >= 1 && t.d <= daysInMonth(t.y, t.mo)) {
+        return { text: s, date: `${t.y}-${String(t.mo).padStart(2, '0')}-${String(t.d).padStart(2, '0')}` };
+      }
+    }
+  }
+  return null;
+}
 const SEQUENCE_SOURCES = [
   'abcdefghijklmnopqrstuvwxyz',
   '0123456789'
@@ -45,11 +92,12 @@ export const CRACK_SCENARIOS = [
 ];
 
 function charClasses(chars) {
-  const classes = { lower: false, upper: false, digit: false, symbol: false, other: false };
+  const classes = { lower: false, upper: false, digit: false, symbol: false, space: false, other: false };
   for (const ch of chars) {
     if (ch >= 'a' && ch <= 'z') classes.lower = true;
     else if (ch >= 'A' && ch <= 'Z') classes.upper = true;
     else if (ch >= '0' && ch <= '9') classes.digit = true;
+    else if (/\s/.test(ch)) classes.space = true;
     else if (ch.charCodeAt(0) < 128) classes.symbol = true;
     else classes.other = true;
   }
@@ -62,6 +110,8 @@ function poolSizeOf(classes) {
   if (classes.upper) pool += 26;
   if (classes.digit) pool += 10;
   if (classes.symbol) pool += 33;
+  // 空格只是分隔符：只算 1 个可选字符，不按 33 个符号虚增字符集
+  if (classes.space) pool += 1;
   if (classes.other) pool += 100;
   return pool;
 }
@@ -127,11 +177,16 @@ function findWholeRepetition(chars) {
 export function formatCrackSeconds(seconds) {
   if (!Number.isFinite(seconds)) return '几乎不可能';
   if (seconds < 1) return '不到 1 秒';
-  if (seconds < 60) return `${Math.round(seconds)} 秒`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)} 分钟`;
-  if (seconds < 86400) return `${Math.round(seconds / 3600)} 小时`;
-  if (seconds < 86400 * 365) return `${Math.round(seconds / 86400)} 天`;
-  const years = seconds / (86400 * 365);
+  // 先取整再分档，避免 59.6 秒显示成「60 秒」、3599 秒显示成「60 分钟」
+  const totalSeconds = Math.round(seconds);
+  if (totalSeconds < 60) return `${totalSeconds} 秒`;
+  const totalMinutes = Math.round(totalSeconds / 60);
+  if (totalMinutes < 60) return `${totalMinutes} 分钟`;
+  const totalHours = Math.round(totalMinutes / 60);
+  if (totalHours < 24) return `${totalHours} 小时`;
+  const totalDays = Math.round(totalHours / 24);
+  if (totalDays < 365) return `${totalDays} 天`;
+  const years = totalDays / 365;
   if (years < 10000) return `${Math.round(years).toLocaleString('en-US')} 年`;
   if (years < 1e8) return `${(years / 1e4).toFixed(1).replace(/\.0$/, '')} 万年`;
   if (years < 1e12) return `${(years / 1e8).toFixed(1).replace(/\.0$/, '')} 亿年`;
@@ -144,6 +199,9 @@ export function analyzePassword(password) {
   }
   const chars = [...password];
   const length = chars.length;
+  if (length > MAX_PASSWORD_LENGTH) {
+    throw new Error(`密码过长：最多支持 ${MAX_PASSWORD_LENGTH} 个字符（当前 ${length} 个）`);
+  }
   const classes = charClasses(chars);
   const classCount = Object.values(classes).filter(Boolean).length;
   const poolSize = poolSizeOf(classes);
@@ -151,30 +209,48 @@ export function analyzePassword(password) {
   const findings = [];
   let penalty = 0;
 
-  // 常见弱口令：整体命中，或去掉尾部数字/符号后命中
-  const lowered = password.toLowerCase();
-  const stripped = lowered.replace(/[0-9!@#$%^&*._-]+$/, '');
-  const isCommon = COMMON_PASSWORDS.has(lowered) || (stripped.length >= 4 && COMMON_PASSWORDS.has(stripped));
-  if (isCommon) {
-    findings.push({ type: 'common', label: '常见弱口令', detail: '在公开弱口令字典中，爆破时最先被尝试' });
+  // 模式检测统一在「全角转半角」后的文本上做（全角 ｐａｓｓｗｏｒｄ 与半角等价，攻击者会先归一化再猜）
+  const fw = normalizeFullwidth(password);
+  const patternText = fw.text;
+  const lowered = patternText.toLowerCase();
+  if (fw.converted) {
+    findings.push({ type: 'fullwidth', label: '包含全角字符', detail: '全角字母/数字与半角等价、不会更安全，已按半角口径检测' });
   }
 
-  // 常见词子串
-  const hitWords = COMMON_WORDS.filter((w) => lowered.includes(w) && !(isCommon && w === lowered));
+  // 常见弱口令：整体命中，或剥掉首尾数字/符号后命中；leet 变体（p@55w0rd 等）还原后同样检测
+  const leetText = leetNormalize(lowered);
+  // 候选：原文 / 只剥前导符号 / 只剥尾部数字+符号 / 两头都剥——分开剥避免把纯数字核心（123456）剥空
+  const affixCandidates = (s) => {
+    const lead = s.replace(/^[!@#$%^&*._-]+/, '');
+    const tail = s.replace(/[0-9!@#$%^&*._-]+$/, '');
+    const both = lead.replace(/[0-9!@#$%^&*._-]+$/, '');
+    return [s, lead, tail, both];
+  };
+  let commonVia = '';
+  for (const [text, via] of [[lowered, ''], [leetText, 'leet']]) {
+    if (affixCandidates(text).some((c) => c.length >= 4 && COMMON_PASSWORDS.has(c))) { commonVia = via || 'exact'; break; }
+  }
+  const isCommon = commonVia !== '';
+  if (isCommon) {
+    findings.push({ type: 'common', label: '常见弱口令', detail: commonVia === 'leet' ? '把 @/0/5 等符号还原成字母后命中公开弱口令字典，leet 变体是最先被尝试的猜法之一' : '在公开弱口令字典中，爆破时最先被尝试' });
+  }
+
+  // 常见词子串（原文与 leet 还原双路，取并集）
+  const hitWords = COMMON_WORDS.filter((w) => (lowered.includes(w) || leetText.includes(w)) && !(isCommon && (w === lowered || w === leetText)));
   if (hitWords.length > 0) {
     penalty += 8 * hitWords.length;
     findings.push({ type: 'word', label: '包含常见词', detail: hitWords.join('、') });
   }
 
   // 连续序列（字母/数字，正反向）
-  const sequences = findRuns(password, SEQUENCE_SOURCES, 3);
+  const sequences = findRuns(patternText, SEQUENCE_SOURCES, 3);
   for (const run of sequences) {
     penalty += (run.length - 2) * 3;
     findings.push({ type: 'sequence', label: '连续序列', detail: `「${run.text}」是连续字符` });
   }
 
-  // 键盘连排（字母行；数字行已被序列覆盖，只查字母行）
-  const keyboardRuns = findRuns(password, KEYBOARD_ROWS.slice(0, 3), 3)
+  // 键盘连排（横行 + 纵列/斜列；数字横行已被序列覆盖，只查字母行与纵列）
+  const keyboardRuns = findRuns(patternText, KEYBOARD_SOURCES, 3)
     .filter((r) => !sequences.some((s) => r.start >= s.start && r.start < s.start + s.length));
   for (const run of keyboardRuns) {
     penalty += (run.length - 2) * 3;
@@ -188,11 +264,16 @@ export function analyzePassword(password) {
     findings.push({ type: 'repeat', label: '字符重复', detail: `「${run.text}」同一字符连写 ${run.length} 次` });
   }
 
-  // 年份 / 日期
-  const yearMatch = password.match(/(?:19|20)\d{2}/);
+  // 年份 / 完整日期
+  const yearMatch = patternText.match(/(?:19|20)\d{2}/);
   if (yearMatch) {
     penalty += 6;
     findings.push({ type: 'year', label: '包含年份', detail: `「${yearMatch[0]}」像年份，生日与年份是常见猜测目标` });
+  }
+  const fullDate = findFullDate(patternText);
+  if (fullDate) {
+    penalty += 18;
+    findings.push({ type: 'date', label: '包含完整日期', detail: `「${fullDate.text}」可解读为日期 ${fullDate.date}，生日日期会被优先按各种排列尝试` });
   }
 
   // 整体重复
@@ -237,6 +318,8 @@ export function analyzePassword(password) {
   if (repeatRuns.length > 0) suggestions.push('避免同一字符连写三次以上');
   if (repetition) suggestions.push('不要把同一段重复多遍当长密码');
   if (yearMatch) suggestions.push('避免在密码里放年份、生日等公开信息');
+  if (fullDate) suggestions.push('完整日期（生日等）会被按年月日各种排列优先尝试，请整段换掉');
+  if (fw.converted) suggestions.push('全角字母数字与半角等价，不会增加强度，按半角密码的标准要求它即可');
   if (hitWords.length > 0) suggestions.push('常见单词容易被字典攻击，改用无意义组合或多词短语加分隔符');
   if (suggestions.length === 0) suggestions.push('结构不错；更重要的是每个网站用不同密码，并开启两步验证');
 

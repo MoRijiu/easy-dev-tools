@@ -13,6 +13,7 @@
         <button class="chip" type="button" @click="loadExample(EXAMPLES[0])">示例 · 弱</button>
         <button class="chip" type="button" @click="loadExample(EXAMPLES[1])">示例 · 中</button>
         <button class="chip" type="button" @click="loadExample(EXAMPLES[2])">示例 · 强</button>
+        <button class="chip" type="button" @click="loadExample(EXAMPLES[3])">示例 · leet 变体</button>
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <span class="muted">输入后实时分析，本页不会保存或发送密码</span>
       </div>
@@ -42,6 +43,7 @@
           <button class="btn ghost" type="button" @click="copyText(summary)">复制摘要</button>
         </div>
       </template>
+      <p v-else-if="analysisError" class="error-text">{{ analysisError }}</p>
       <p v-else class="muted">在上方输入密码后，这里会显示强度、问题与破解耗时估算。</p>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <ToolFeatures :features="features" />
@@ -59,7 +61,7 @@ import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import { analyzePassword, buildStrengthSummary } from '@/utils/passwordStrength.js';
 const features = [
   { icon: '📐', title: '熵估算', description: '按字符集大小与长度计算原始熵，再按可猜测模式扣分得到有效熵' },
-  { icon: '🕵️', title: '模式检测', description: '识别常见弱口令、abc/123 连续序列、qwerty 键盘连排、重复字符、整体重复与年份' },
+  { icon: '🕵️', title: '模式检测', description: '识别常见弱口令（含 leet 变体与全角归一化）、abc/123 连续序列、qwerty 横行与 1qaz 纵列连排、重复字符、整体重复、年份与完整日期' },
   { icon: '⏱️', title: '破解耗时', description: '按在线限速 / 在线不限速 / 离线慢哈希 / 离线快速哈希四种速率估算平均爆破时间' },
   { icon: '🔒', title: '纯本地处理', description: '密码只在浏览器内分析，不上传、不保存，关掉页面即消失' }
 ];
@@ -68,16 +70,22 @@ const faqs = [
   { question: '有效熵是怎么算的？', answer: '先按字符集大小 × 长度算原始熵（每位 log₂(字符集)），再对连续序列、键盘连排、重复、常见词、年份等可预测模式扣分，整体重复与常见弱口令还会直接压低上限。这是启发式估算，用于横向比较与发现问题，不是密码学承诺。' },
   { question: '为什么长密码也可能被判弱？', answer: '长度只在内容不可预测时才贡献强度。abcabcabc 这类整体重复、qwerty2024 这类键盘连排加年份，攻击者会优先按模式尝试，实际组合数远小于同长度随机密码。' },
   { question: '哪种破解场景最值得参考？', answer: '密码数据库泄露后攻击者在本机离线爆破最常见：网站若用 bcrypt 等慢哈希，看「离线慢哈希」一行；若只是 MD5/明文存储，看「离线快速哈希」。同一个密码在慢哈希下能多撑很多个数量级。' },
-  { question: '检查结果会被保存吗？', answer: '不会。分析全部在浏览器本地完成，密码不发送到任何服务器，也不写入本地存储；但仍建议不要在公共设备上输入真实密码。' }
+  { question: '检查结果会被保存吗？', answer: '不会。分析全部在浏览器本地完成，密码不发送到任何服务器，也不写入本地存储；但仍建议不要在公共设备上输入真实密码。' },
+  { question: 'p@55w0rd 这类符号变体安全吗？', answer: '不安全。把 a 换成 @、o 换成 0、s 换成 5 这类 leet 替换是公开规则，爆破工具会先还原再套字典。本工具检测时会把 leet 变体还原后按原样弱口令判定。' },
+  { question: '全角字母和空格算强度吗？', answer: '全角 ａｂｃ 与半角 abc 等价，攻击者归一化后没有区别，本工具按半角口径检测；空格只是分隔符，字符集只按 1 个字符计，不会按符号虚增强度——口令短语的强度来自词数与不可预测性。' },
+  { question: '为什么姓名加生日被判中？', answer: '完整日期（YYYYMMDD、MMDDYYYY 等排列）会被识别并重扣分：生日是公开或半公开信息，攻击者会优先按各种日期排列组合尝试，只按年份扣分会明显高估这类密码。' }
 ];
-const EXAMPLES = ['qwerty2024', 'BlueSky2024', 'Tr7$kQ9!mZ2#xW'];
+const EXAMPLES = ['qwerty2024', 'BlueSky2024', 'Tr7$kQ9!mZ2#xW', 'p@55w0rd'];
 const input = ref('');
 const visible = ref(false);
 const statusMessage = ref(''); const statusType = ref('');
-const result = computed(() => {
-  if (!input.value) return null;
-  try { return analyzePassword(input.value); } catch { return null; }
+const parsed = computed(() => {
+  if (!input.value) return { result: null, error: '' };
+  try { return { result: analyzePassword(input.value), error: '' }; }
+  catch (e) { return { result: null, error: e.message || '分析失败' }; }
 });
+const result = computed(() => parsed.value.result);
+const analysisError = computed(() => parsed.value.error);
 const summary = computed(() => buildStrengthSummary(result.value, result.value ? result.value.length : 0));
 const classNames = computed(() => {
   if (!result.value) return '';
@@ -87,6 +95,7 @@ const classNames = computed(() => {
   if (c.upper) names.push('大写');
   if (c.digit) names.push('数字');
   if (c.symbol) names.push('符号');
+  if (c.space) names.push('空格');
   if (c.other) names.push('其他（中文等）');
   return names.join('、');
 });
@@ -113,7 +122,8 @@ async function copyText(text) {
 .password-strength { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.error-text { font-size: 13px; color: var(--danger); margin: 10px 0; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
 .input-row { display: flex; gap: 8px; }
