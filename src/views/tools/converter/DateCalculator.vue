@@ -12,8 +12,8 @@
       <section class="block">
         <h2>日期间隔</h2>
         <div class="row">
-          <label>开始日期 <input type="date" v-model="startDate" @input="process" aria-label="开始日期" /></label>
-          <label>结束日期 <input type="date" v-model="endDate" @input="process" aria-label="结束日期" /></label>
+          <label>开始日期 <input type="date" v-model="startDate" @input="process" aria-label="开始日期" :aria-invalid="startFieldError ? 'true' : undefined" :aria-describedby="startFieldError ? 'date-diff-error' : undefined" /></label>
+          <label>结束日期 <input type="date" v-model="endDate" @input="process" aria-label="结束日期" :aria-invalid="endFieldError ? 'true' : undefined" :aria-describedby="endFieldError ? 'date-diff-error' : undefined" /></label>
         </div>
         <div v-if="diff" class="grid">
           <div class="card"><span class="num">{{ fmtNum(diff.totalDays) }}</span><span class="label">相隔天数</span></div>
@@ -23,20 +23,20 @@
           <div class="card"><span class="num">{{ fmtNum(diff.workdays) }}</span><span class="label">工作日 (周一至周五)</span></div>
           <div class="card"><span class="num">{{ fmtNum(diff.weekends) }}</span><span class="label">周末天数</span></div>
         </div>
-        <p v-if="diffError" class="error-line" role="alert">✗ {{ diffError }}</p>
+        <p v-if="diffError" id="date-diff-error" class="error-line" role="alert">✗ {{ diffError }}</p>
         <p v-if="diff" class="hint">{{ diff.from }}（{{ startInfo.weekday }}）到 {{ diff.to }}（{{ endInfo.weekday }}）<span v-if="diff.reversed"> · 已自动按先后排序</span></p>
       </section>
       <section class="block">
         <h2>日期加减</h2>
         <div class="row">
-          <label>基准日期 <input type="date" v-model="baseDate" @input="process" aria-label="基准日期" /></label>
-          <label>数量 <input type="text" inputmode="numeric" v-model="amount" @input="process" aria-label="数量" class="num-input" /></label>
+          <label>基准日期 <input type="date" v-model="baseDate" @input="process" aria-label="基准日期" :aria-invalid="baseFieldError ? 'true' : undefined" :aria-describedby="baseFieldError ? 'date-add-error' : undefined" /></label>
+          <label>数量 <input type="text" inputmode="numeric" v-model="amount" @input="process" aria-label="数量" class="num-input" :aria-invalid="amountFieldError ? 'true' : undefined" :aria-describedby="amountFieldError ? 'date-add-error' : undefined" /></label>
           <label>单位
             <select v-model="unit" @change="process" aria-label="单位"><option value="days">天</option><option value="weeks">周</option><option value="months">月</option><option value="years">年</option></select>
           </label>
           <div class="quick"><button @click="setQuick(7,'days')">+7天</button><button @click="setQuick(30,'days')">+30天</button><button @click="setQuick(90,'days')">+90天</button><button @click="setQuick(1,'years')">+1年</button><button @click="setQuick(-30,'days')">-30天</button></div>
         </div>
-        <p v-if="addError" class="error-line" role="alert">✗ {{ addError }}</p>
+        <p v-if="addError" id="date-add-error" class="error-line" role="alert">✗ {{ addError }}</p>
         <div v-if="added" class="result-line">结果：<strong>{{ added.date }}</strong>（{{ added.weekday }}） · 实际相隔 {{ fmtNum(added.deltaDays) }} 天 · ISO 第 {{ added.isoWeek }} 周 · 今年第 {{ added.dayOfYear }} 天 · Q{{ added.quarter }}{{ added.isLeap ? ' · 闰年' : '' }}</div>
       </section>
       <ToolExamples :examples="examples" @use-example="useExample" />
@@ -79,19 +79,23 @@ const today = new Date(); const fmt = (d) => `${d.getFullYear()}-${String(d.getM
 const startDate = ref(fmt(today)); const endDate = ref(''); const baseDate = ref(fmt(today)); const amount = ref('30'); const unit = ref('days');
 const diff = ref(null); const added = ref(null); const statusMessage = ref(''); const statusType = ref('');
 const diffError = ref(''); const addError = ref('');
+// 逐字段错误归属：错误文案仍由整区计算给出，字段标记靠单独复核定位
+const startFieldError = ref(false); const endFieldError = ref(false);
+const baseFieldError = ref(false); const amountFieldError = ref(false);
+const failsDateParse = (v) => { try { parseDateInput(v); return false; } catch { return true; } };
 const fmtNum = (n) => Number(n).toLocaleString('en-US');
 const startInfo = computed(() => { try { return dateInfo(parseDateInput(diff.value ? diff.value.from : startDate.value)); } catch { return { weekday: '' }; } });
 const endInfo = computed(() => { try { return dateInfo(parseDateInput(diff.value ? diff.value.to : endDate.value)); } catch { return { weekday: '' }; } });
 const process = () => {
   // 两区独立计算：一区出错只提示该区并保留其旧结果，不连累另一区
   if (startDate.value && endDate.value) {
-    try { diff.value = diffDates(startDate.value, endDate.value); diffError.value = ''; }
-    catch (e) { diffError.value = e.message; }
-  } else { diff.value = null; diffError.value = ''; }
+    try { diff.value = diffDates(startDate.value, endDate.value); diffError.value = ''; startFieldError.value = false; endFieldError.value = false; }
+    catch (e) { diffError.value = e.message; startFieldError.value = failsDateParse(startDate.value); endFieldError.value = failsDateParse(endDate.value); }
+  } else { diff.value = null; diffError.value = ''; startFieldError.value = false; endFieldError.value = false; }
   if (baseDate.value) {
-    try { added.value = addToDate(baseDate.value, amount.value, unit.value); addError.value = ''; }
-    catch (e) { addError.value = e.message; }
-  } else { added.value = null; addError.value = ''; }
+    try { added.value = addToDate(baseDate.value, amount.value, unit.value); addError.value = ''; baseFieldError.value = false; amountFieldError.value = false; }
+    catch (e) { addError.value = e.message; baseFieldError.value = failsDateParse(baseDate.value); amountFieldError.value = !baseFieldError.value; }
+  } else { added.value = null; addError.value = ''; baseFieldError.value = false; amountFieldError.value = false; }
   const err = diffError.value || addError.value;
   if (err) { statusMessage.value = '✗ ' + err; statusType.value = 'error'; }
   else { statusMessage.value = diff.value || added.value ? '✓ 计算完成' : ''; statusType.value = 'success'; }

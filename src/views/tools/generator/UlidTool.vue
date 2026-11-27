@@ -6,9 +6,9 @@
       <h2 class="section-title">生成</h2>
       <div class="row">
         <label class="field grow">时间戳（毫秒，留空 = 当前时间）
-          <input v-model="genTimeInput" type="text" inputmode="numeric" spellcheck="false" placeholder="如 1700000000000" aria-label="生成时间戳">
+          <input v-model="genTimeInput" type="text" inputmode="numeric" spellcheck="false" placeholder="如 1700000000000" aria-label="生成时间戳" :aria-invalid="genErrorField === 'time' ? 'true' : undefined" :aria-describedby="genErrorField === 'time' ? 'ulid-gen-error' : undefined">
         </label>
-        <label class="field">数量<input v-model="countInput" type="text" inputmode="numeric" aria-label="生成数量"></label>
+        <label class="field">数量<input v-model="countInput" type="text" inputmode="numeric" aria-label="生成数量" :aria-invalid="genErrorField === 'count' ? 'true' : undefined" :aria-describedby="genErrorField === 'count' ? 'ulid-gen-error' : undefined"></label>
         <label class="check"><input v-model="monotonic" type="checkbox"> 同毫秒单调递增</label>
       </div>
       <div class="row actions">
@@ -17,7 +17,7 @@
         <button class="btn ghost" type="button" @click="clearGenerated">清空</button>
       </div>
       <p v-if="genNotes.length" class="notes" role="status" aria-live="polite">{{ genNotes.join('；') }}</p>
-      <p v-if="genError" class="error" role="alert">{{ genError }}</p>
+      <p v-if="genError" id="ulid-gen-error" class="error" role="alert">{{ genError }}</p>
       <template v-if="results.length">
         <label class="block">结果（每行一个，共 {{ results.length }} 个，本身已按时间有序）
           <textarea :value="resultText" rows="6" readonly spellcheck="false" aria-label="ULID 结果"></textarea>
@@ -31,9 +31,9 @@
 
       <h2 class="section-title">解析</h2>
       <label class="block">输入 ULID（不区分大小写）
-        <input v-model="parseInput" type="text" spellcheck="false" placeholder="如 01ARZ3NDEKTSV4RRFFQ69G5FAV" aria-label="待解析的 ULID">
+        <input v-model="parseInput" type="text" spellcheck="false" placeholder="如 01ARZ3NDEKTSV4RRFFQ69G5FAV" aria-label="待解析的 ULID" :aria-invalid="parseError ? 'true' : undefined" :aria-describedby="parseError ? 'ulid-parse-error' : undefined">
       </label>
-      <p v-if="parseError" class="error" role="alert">{{ parseError }}</p>
+      <p v-if="parseError" id="ulid-parse-error" class="error" role="alert">{{ parseError }}</p>
       <p v-if="parsed?.notes?.length" class="notes" role="status" aria-live="polite">{{ parsed.notes.join('；') }}</p>
       <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
       <table v-if="parsed" class="kv">
@@ -91,6 +91,14 @@ const parsed = ref(null);
 const parseError = ref('');
 const statusMessage = ref(''); const statusType = ref('');
 const resultText = computed(() => results.value.join('\n'));
+// 生成错误文案自带字段名（生成数量/时间戳），据此定位出错字段；环境类错误不归任何字段
+const genErrorField = computed(() => {
+  const e = genError.value;
+  if (!e) return '';
+  if (e.startsWith('生成数量')) return 'count';
+  if (e.includes('时间戳')) return 'time';
+  return '';
+});
 const localTime = computed(() => (parsed.value ? new Date(parsed.value.timestampMs).toLocaleString('zh-CN', { hour12: false }) : ''));
 const summary = computed(() => (parsed.value ? buildSummary(parsed.value) : ''));
 function generate() {
