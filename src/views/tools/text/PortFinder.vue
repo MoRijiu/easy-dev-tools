@@ -77,7 +77,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .search { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; width: 100%; box-sizing: border-box; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .chips button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
-.chips button.active { background: var(--accent, #4f46e5); color: #fff; border-color: transparent; }
+.chips button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .exact { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); display: flex; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--text); }
 .count { font-size: 13px; color: var(--text-2); margin: 12px 0 8px; }
 .list { display: flex; flex-direction: column; gap: 8px; }

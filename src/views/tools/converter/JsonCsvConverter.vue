@@ -123,7 +123,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .mode-btn { padding: 6px 12px; border: none; background: var(--bg-soft); color: var(--text-2); font-size: 13px; cursor: pointer; }
-.mode-btn.active { background: var(--accent); color: #fff; }
+.mode-btn.active { background: var(--accent-solid); color: #fff; }
 .opt { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
 .opt.check { cursor: pointer; }
 .select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 13px; }

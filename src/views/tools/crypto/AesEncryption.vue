@@ -386,7 +386,7 @@ h1 {
 }
 
 .mode-tab.active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
   border-color: transparent;
 }

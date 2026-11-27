@@ -345,7 +345,7 @@ h1 {
 }
 
 .segmented button.active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: #fff;
 }
 

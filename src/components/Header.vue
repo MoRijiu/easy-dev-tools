@@ -366,7 +366,7 @@ const openPalette = () => {
 }
 
 .tools-trigger:hover {
-  background: var(--accent);
+  background: var(--accent-solid);
   border-color: var(--accent);
   color: #ffffff;
   transform: translateY(-2px);
@@ -471,7 +471,7 @@ const openPalette = () => {
 }
 
 .tool-item.active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: #ffffff;
   font-weight: 500;
 }

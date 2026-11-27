@@ -142,12 +142,12 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .row input[type="range"] { flex: 1; }
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .seg button { padding: 7px 14px; border: none; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
-.seg button.active { background: var(--accent, #4f46e5); color: #fff; }
+.seg button.active { background: var(--accent-solid); color: #fff; }
 .check { font-size: 13px; color: var(--text-2); display: flex; gap: 6px; align-items: center; }
 .dirs { display: flex; gap: 6px; flex-wrap: wrap; }
 input[type="text"], input[type="number"], select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; box-sizing: border-box; }
 input[type="color"] { width: 42px; height: 34px; padding: 2px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; flex: none; }
-.btn { padding: 7px 12px; border: 1px solid transparent; border-radius: 8px; background: var(--accent, #4f46e5); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
+.btn { padding: 7px 12px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .stops-head { display: flex; gap: 8px; align-items: center; margin: 14px 0 8px; font-size: 13px; color: var(--text-2); }

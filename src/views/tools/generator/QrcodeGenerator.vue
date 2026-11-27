@@ -708,7 +708,7 @@ h1 {
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
   border-radius: 8px;
   cursor: pointer;

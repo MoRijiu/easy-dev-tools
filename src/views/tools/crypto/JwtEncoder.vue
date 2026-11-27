@@ -124,7 +124,7 @@ textarea { width: 100%; font-family: monospace; font-size: 13px; resize: vertica
 .cols label, .out-label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
 .actions { align-items: center; }
 .ttl { font-size: 13px; color: var(--text-2); }
-.btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent, #4f46e5); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
+.btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger, #dc2626); font-size: 14px; }

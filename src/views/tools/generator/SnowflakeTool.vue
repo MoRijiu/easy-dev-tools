@@ -187,7 +187,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .gen-result { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); font-size: 15px; }
 .btn { padding: 7px 14px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
 .btn-secondary { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border); }
-.btn-success { background: var(--accent); color: #fff; }
+.btn-success { background: var(--accent-solid); color: #fff; }
 .btn-danger { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .result-table th { width: 120px; } }
 </style>
