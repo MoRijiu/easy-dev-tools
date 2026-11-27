@@ -8,8 +8,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyAll" class="btn btn-success" :disabled="!hasResult"><span class="icon" aria-hidden="true">📋</span> 复制全部</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <textarea v-model="inputText" class="text-input" placeholder="输入标识符或短语，每行一个，如 user_name / getUserInfo / HTTP server config" spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
+      <ToolStatusMessage id="case-converter-status" :message="statusMessage" :type="statusType" />
+      <textarea v-model="inputText" class="text-input" placeholder="输入标识符或短语，每行一个，如 user_name / getUserInfo / HTTP server config" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'case-converter-status' : undefined" @input="convert"></textarea>
       <p v-if="statsText" class="stats-line">{{ statsText }}</p>
       <p v-for="(w, i) in warnings" :key="i" class="warning-line" role="alert">⚠ {{ w }}</p>
       <div v-if="hasResult" class="result-list">
@@ -61,6 +61,9 @@ const inputText = ref('');
 const results = ref([]);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const statsText = ref('');
 const warnings = ref([]);
 const hasResult = computed(() => results.value.some(r => r.value.trim()));
@@ -69,14 +72,12 @@ const convert = () => {
   if (!inputText.value.trim()) { results.value = []; statusMessage.value = ''; return; }
   const info = analyzeCaseInput(inputText.value);
   if (info.tooLong || info.tooManyLines) {
-    statusMessage.value = `✗ 输入过大：最多 ${MAX_INPUT_CHARS} 个字符 / ${MAX_INPUT_LINES} 行，已保留上次结果`;
-    statusType.value = 'error';
+    setInputError(`✗ 输入过大：最多 ${MAX_INPUT_CHARS} 个字符 / ${MAX_INPUT_LINES} 行，已保留上次结果`);
     return;
   }
   if (!info.wordCount) {
     results.value = [];
-    statusMessage.value = '✗ 没有可转换的内容：输入里没有字母或数字（如纯符号行），请检查行 ' + info.emptyResultLines.join('、');
-    statusType.value = 'error';
+    setInputError('✗ 没有可转换的内容：输入里没有字母或数字（如纯符号行），请检查行 ' + info.emptyResultLines.join('、'));
     return;
   }
   results.value = convertCase(inputText.value);

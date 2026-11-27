@@ -9,7 +9,7 @@
         <button @click="useOutputAsInput" class="btn btn-secondary" :disabled="!result"><span class="icon" aria-hidden="true">↩️</span> 结果作输入</button>
         <button @click="copyOutput" class="btn btn-success" :disabled="!result"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="line-tools-status" :message="statusMessage" :type="statusType" />
       <div class="options" role="group" aria-label="处理选项">
         <label>修剪
           <select v-model="options.trim" @change="process">
@@ -33,12 +33,12 @@
         <label class="check"><input type="checkbox" v-model="options.dedupeIgnoreCase" :disabled="!options.dedupe" @change="process" /> 去重忽略大小写</label>
         <label class="check"><input type="checkbox" v-model="options.reverse" @change="process" /> 反转行序</label>
         <label class="check"><input type="checkbox" v-model="options.addNumbers" @change="process" /> 添加行号</label>
-        <label v-if="options.addNumbers">起始 <input type="text" inputmode="numeric" v-model="options.numberStart" class="affix num-start" aria-label="行号起始" @input="process" /></label>
-        <label>行前缀 <input type="text" v-model="options.prefix" class="affix" placeholder="如 - " @input="process" /></label>
-        <label>行后缀 <input type="text" v-model="options.suffix" class="affix" placeholder="如 ;" @input="process" /></label>
+        <label v-if="options.addNumbers">起始 <input type="text" inputmode="numeric" v-model="options.numberStart" class="affix num-start" aria-label="行号起始" :aria-invalid="errorField === 'numberStart' ? 'true' : undefined" :aria-describedby="errorField === 'numberStart' ? 'line-tools-status' : undefined" @input="process" /></label>
+        <label>行前缀 <input type="text" v-model="options.prefix" class="affix" placeholder="如 - " aria-label="行前缀" :aria-invalid="errorField === 'prefix' ? 'true' : undefined" :aria-describedby="errorField === 'prefix' ? 'line-tools-status' : undefined" @input="process" /></label>
+        <label>行后缀 <input type="text" v-model="options.suffix" class="affix" placeholder="如 ;" aria-label="行后缀" :aria-invalid="errorField === 'suffix' ? 'true' : undefined" :aria-describedby="errorField === 'suffix' ? 'line-tools-status' : undefined" @input="process" /></label>
       </div>
       <div class="panes">
-        <textarea v-model="inputText" class="text-input" placeholder="粘贴多行文本，一行一条，如名单、日志、清单…" spellcheck="false" aria-label="输入文本" @input="process"></textarea>
+        <textarea v-model="inputText" class="text-input" placeholder="粘贴多行文本，一行一条，如名单、日志、清单…" spellcheck="false" aria-label="输入文本" :aria-invalid="errorField === 'input' ? 'true' : undefined" :aria-describedby="errorField === 'input' ? 'line-tools-status' : undefined" @input="process"></textarea>
         <textarea :value="result ? result.text : ''" class="text-input" placeholder="处理结果将显示在这里" spellcheck="false" aria-label="处理结果" readonly></textarea>
       </div>
       <p v-if="result" class="stats">输入 {{ result.stats.inputLines }} 行 / {{ result.stats.inputChars }} 字符（{{ result.stats.inputBytes }} 字节） → 输出 {{ result.stats.outputLines }} 行 / {{ result.stats.outputChars }} 字符<span v-if="result.stats.removedEmpty"> · 删空行 {{ result.stats.removedEmpty }}</span><span v-if="result.stats.removedDuplicates"> · 去重 {{ result.stats.removedDuplicates }}</span></p>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -85,6 +85,18 @@ const inputText = ref('');
 const result = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+// 错误文案自带字段名，按字段名归属：行号起始/行前缀/行后缀归对应选项框，输入超限归主文本域
+const errorField = computed(() => {
+  if (statusType.value !== 'error' || !inputErrorText.value || statusMessage.value !== inputErrorText.value) return '';
+  const m = inputErrorText.value;
+  if (m.includes('行号起始')) return 'numberStart';
+  if (m.includes('行前缀')) return 'prefix';
+  if (m.includes('行后缀')) return 'suffix';
+  if (m.includes('输入最多')) return 'input';
+  return '';
+});
 const options = reactive({ ...DEFAULT_OPTIONS });
 const process = () => {
   if (!inputText.value) { result.value = null; statusMessage.value = ''; return; }
@@ -94,8 +106,7 @@ const process = () => {
     statusType.value = 'success';
   } catch (e) {
     // 出错保留上一次结果，只报点名错误（与全站打磨口径一致）
-    statusMessage.value = `✗ ${e.message}`;
-    statusType.value = 'error';
+    setInputError(`✗ ${e.message}`);
   }
 };
 const applyExample = (ex) => {

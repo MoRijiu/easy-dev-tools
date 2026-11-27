@@ -11,7 +11,7 @@
         <button @click="copyOutput" class="btn btn-success" :disabled="!outputText"><span class="icon" aria-hidden="true">📋</span> 复制结果</button>
       </ToolToolbar>
 
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="unicode-html-status" :message="statusMessage" :type="statusType" />
 
       <div class="mode-row" role="group" aria-label="转换模式">
         <button v-for="m in modes" :key="m.id" class="mode-btn" :class="{ active: mode === m.id }" :aria-pressed="mode === m.id" @click="setMode(m.id)">{{ m.label }}</button>
@@ -52,7 +52,7 @@
 
       <ToolEditorLayout>
         <ToolEditorPanel title="输入内容" :info="countChars(inputText) + ' 字符'">
-          <textarea v-model="inputText" class="text-input" placeholder="在此输入要转换的文本或转义序列..." spellcheck="false" aria-label="输入内容" @input="convert"></textarea>
+          <textarea v-model="inputText" class="text-input" placeholder="在此输入要转换的文本或转义序列..." spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'unicode-html-status' : undefined" @input="convert"></textarea>
         </ToolEditorPanel>
         <ToolEditorPanel title="输出结果" :info="countChars(outputText) + ' 字符'">
           <div class="text-output-wrapper">
@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -131,6 +131,9 @@ const inputText = ref('');
 const outputText = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const unknownNote = ref('');
 
 const convert = () => {
@@ -150,8 +153,7 @@ const convert = () => {
     statusMessage.value = '✓ 转换成功';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = '✗ ' + e.message;
-    statusType.value = 'error';
+    setInputError('✗ ' + e.message);
   }
 };
 

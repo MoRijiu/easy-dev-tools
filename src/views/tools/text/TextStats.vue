@@ -8,9 +8,9 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copySummary" class="btn btn-success" :disabled="!stats"><span class="icon" aria-hidden="true">📋</span> 复制摘要</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="text-stats-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
-        <textarea v-model="inputText" class="text-input" placeholder="粘贴或输入文本，右侧实时统计…" spellcheck="false" aria-label="输入文本" @input="process"></textarea>
+        <textarea v-model="inputText" class="text-input" placeholder="粘贴或输入文本，右侧实时统计…" spellcheck="false" aria-label="输入文本" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'text-stats-status' : undefined" @input="process"></textarea>
         <div class="panel">
           <div v-if="stats" class="grid">
             <div class="card"><span class="num">{{ fmt(stats.chars) }}</span><span class="label">字符数</span></div>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -79,6 +79,9 @@ const inputText = ref('');
 const stats = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const process = () => {
   if (!inputText.value) { stats.value = null; statusMessage.value = ''; return; }
   try {
@@ -86,8 +89,7 @@ const process = () => {
     statusMessage.value = '✓ 统计完成';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = `✗ ${e.message || '统计失败'}`;
-    statusType.value = 'error';
+    setInputError(`✗ ${e.message || '统计失败'}`);
   }
 };
 const loadExample = () => { inputText.value = examples[0].input; process(); };

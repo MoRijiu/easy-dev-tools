@@ -16,7 +16,7 @@
         </button>
       </ToolToolbar>
 
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="base-converter-status" :message="statusMessage" :type="statusType" />
 
       <div class="input-section">
         <ToolEditorPanel title="输入数值" :info="results ? `整数位长 ${bits} bit` : ''">
@@ -27,6 +27,7 @@
               placeholder="例如：255、0xFF、0b11111111，支持负数与小数"
               spellcheck="false"
               aria-label="待转换数值"
+              :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'base-converter-status' : undefined"
               @input="convert"
             />
             <label class="base-select-label">
@@ -155,6 +156,9 @@ const results = ref(null);
 const bits = ref(0);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 
 const resultRows = computed(() => {
   if (!results.value) return [];
@@ -180,8 +184,7 @@ const convert = () => {
     statusMessage.value = '✓ 转换成功';
     statusType.value = 'success';
   } catch (e) {
-    statusMessage.value = `✗ ${e.message}`;
-    statusType.value = 'error';
+    setInputError(`✗ ${e.message}`);
   }
 };
 
