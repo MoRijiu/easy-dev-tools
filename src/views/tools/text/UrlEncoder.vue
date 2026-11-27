@@ -25,8 +25,23 @@
         </button>
       </ToolToolbar>
 
+      <!-- 编码模式 -->
+      <div class="options-row">
+        <div class="segmented" role="group" aria-label="编码模式">
+          <button type="button" :class="{ active: mode === 'component' }" @click="mode = 'component'">参数 encodeURIComponent</button>
+          <button type="button" :class="{ active: mode === 'uri' }" @click="mode = 'uri'">完整 URL encodeURI</button>
+          <button type="button" :class="{ active: mode === 'form' }" @click="mode = 'form'">表单 form</button>
+        </div>
+        <label class="check-option">
+          <input type="checkbox" v-model="plusAsSpace" />
+          解码时把 + 当空格（查询字符串）
+        </label>
+        <span class="options-hint">{{ modeHint }}</span>
+      </div>
+
       <!-- 状态信息 -->
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <p v-if="statsText" class="stats-line">{{ statsText }}</p>
 
       <!-- 编辑器区域 -->
       <ToolEditorLayout>
@@ -62,7 +77,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { encodeUrlText, decodeUrlText } from "@/utils/urlCodec.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -76,6 +92,15 @@ const inputText = ref("");
 const outputText = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
+const mode = ref("component");
+const plusAsSpace = ref(false);
+const statsText = ref("");
+
+const modeHint = computed(() => {
+  if (mode.value === "uri") return "保留 : / ? # & = 等结构字符，只编码非法字符，整段链接用这个";
+  if (mode.value === "form") return "按表单提交规则编码：空格变 +，其余同参数模式";
+  return "连 & = 等结构字符也编码，放进查询参数的值用这个";
+});
 
 // 功能特点数据
 const features = [
@@ -102,8 +127,9 @@ const features = [
 // 使用说明数据
 const usageSteps = [
   "在左侧输入框中粘贴或输入需要处理的文本或 URL",
+  "按用途选编码模式：参数值选「参数」、整段链接选「完整 URL」、模拟表单提交选「表单」",
   '点击"编码"按钮将特殊字符转换为 URL 编码格式（如空格变为 %20）',
-  '点击"解码"按钮将 URL 编码字符串还原为原始文本',
+  '点击"解码"按钮将 URL 编码字符串还原为原始文本；来源是查询字符串时可勾选「+ 当空格」；解码失败会指出第几个字符出错',
   '使用"交换"按钮可以将输出结果移至输入框，方便连续操作',
   '点击"复制结果"按钮复制转换后的内容',
 ];
@@ -123,7 +149,22 @@ const faqs = [
   {
     question: "encodeURI 和 encodeURIComponent 有什么区别？",
     answer:
-      "encodeURI 用于编码完整的 URL，会保留 URL 结构字符（如 :/?#）。encodeURIComponent 用于编码 URL 参数，会编码所有非字母数字字符。本工具使用 encodeURIComponent 进行完整编码。",
+      "encodeURI 用于编码完整的 URL，会保留 URL 结构字符（如 :/?#）。encodeURIComponent 用于编码 URL 参数，会编码所有非字母数字字符。本工具上方可以切换两种模式：整段链接选「完整 URL」，参数值选「参数」。",
+  },
+  {
+    question: "三种模式怎么选？",
+    answer:
+      "把一段文本放进查询参数或路径参数里，选「参数」模式；手头是整条链接、只想把里面的中文和空格处理掉，选「完整 URL」模式；模拟表单提交（application/x-www-form-urlencoded，空格变 +）选「表单」模式。",
+  },
+  {
+    question: "解码时 + 号为什么有时是空格、有时是加号？",
+    answer:
+      "在查询字符串和表单编码里，+ 表示空格（真正的加号会写成 %2B）；但在路径等其他位置，+ 就是加号本身。解码来源是查询参数时，勾选「解码时把 + 当空格」即可。",
+  },
+  {
+    question: "解码报错说 % 后面不是十六进制、或不是有效的 UTF-8，是什么意思？",
+    answer:
+      "百分号本身要写成 %25，后面只能跟两位十六进制数字；中文等字符的 %XX 字节连起来必须是完整的 UTF-8 序列。本工具会指出第几个字符出错：常见原因是编码被截断、把 GBK 编码的字节拿来按 UTF-8 解、或文本里混了没编码的 %。",
   },
   {
     question: "支持中文吗？",
@@ -158,20 +199,23 @@ const encodeUrl = () => {
     statusType.value = "error";
     return;
   }
-  try {
-    const encoded = encodeURIComponent(inputText.value);
-    outputText.value = encoded;
-    statusMessage.value = `✓ 编码成功！从 ${inputText.value.length} 字符转换为 ${encoded.length} 字符`;
-    statusType.value = "success";
-  } catch (error) {
-    statusMessage.value = `✗ 编码失败: ${error.message}`;
+  const result = encodeUrlText(inputText.value, { mode: mode.value });
+  if (!result.ok) {
+    statusMessage.value = `✗ 编码失败：${result.error.message}`;
     statusType.value = "error";
     outputText.value = "";
+    statsText.value = "";
+    return;
   }
+  outputText.value = result.output;
+  statusMessage.value = "✓ 编码成功！";
+  statusType.value = "success";
+  statsText.value = `输入 ${result.inputChars} 字符 · UTF-8 ${result.bytes} 字节 · 转义 ${result.escapes} 处 · 输出 ${result.outputChars} 字符`;
 };
 
 // 使用示例
 const useExample = (example) => {
+  mode.value = "component";
   inputText.value = example.input;
   encodeUrl();
 };
@@ -183,16 +227,24 @@ const decodeUrl = () => {
     statusType.value = "error";
     return;
   }
-  try {
-    const decoded = decodeURIComponent(inputText.value);
-    outputText.value = decoded;
-    statusMessage.value = `✓ 解码成功！从 ${inputText.value.length} 字符转换为 ${decoded.length} 字符`;
-    statusType.value = "success";
-  } catch (error) {
-    statusMessage.value = `✗ 解码失败: ${error.message}`;
+  const result = decodeUrlText(inputText.value, {
+    mode: mode.value === "uri" ? "uri" : "component",
+    plusAsSpace: plusAsSpace.value,
+  });
+  if (!result.ok) {
+    statusMessage.value = `✗ 解码失败：${result.error.message}`;
     statusType.value = "error";
     outputText.value = "";
+    statsText.value = "";
+    return;
   }
+  outputText.value = result.output;
+  statusMessage.value = "✓ 解码成功！";
+  statusType.value = "success";
+  const parts = [`转义 ${result.escapes} 处`, `输出 ${result.outputChars} 字符`];
+  if (result.plusCount) parts.push(`+ 转空格 ${result.plusCount} 处`);
+  if (result.keptEscapes) parts.push(`完整 URL 模式保留了 ${result.keptEscapes} 处结构字符转义未解开`);
+  statsText.value = parts.join(" · ");
 };
 
 // 清空内容
@@ -200,6 +252,7 @@ const clearAll = () => {
   inputText.value = "";
   outputText.value = "";
   statusMessage.value = "";
+  statsText.value = "";
 };
 
 // 复制输出结果
@@ -232,6 +285,7 @@ const swapContent = () => {
   const temp = outputText.value;
   outputText.value = inputText.value;
   inputText.value = temp;
+  statsText.value = "";
   statusMessage.value = "✓ 输入输出内容已交换";
   statusType.value = "info";
 };
@@ -263,6 +317,56 @@ h1 {
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.options-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text-2);
+  border: none;
+  cursor: pointer;
+}
+
+.segmented button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.check-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.options-hint {
+  font-size: 12px;
+  color: var(--text-3, var(--text-2));
+}
+
+.stats-line {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 /* 响应式设计 */
