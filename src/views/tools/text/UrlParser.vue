@@ -11,6 +11,7 @@
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <textarea v-model="inputText" class="text-input" placeholder="粘贴 URL，如 https://example.com:8080/path?a=1&amp;b=2#top（可省略协议）" spellcheck="false" aria-label="URL输入" @input="parse"></textarea>
       <template v-if="result">
+        <p v-for="(w, i) in result.warnings" :key="i" class="warn">⚠ {{ w }}</p>
         <table class="kv" aria-label="URL组件">
           <tbody>
             <tr v-for="row in rows" :key="row.label"><th>{{ row.label }}</th><td><code>{{ row.value || '—' }}</code></td><td><button class="mini" :disabled="!row.value" @click="copyText(row.value)">复制</button></td></tr>
@@ -57,13 +58,17 @@ const features = [
 ];
 const usageSteps = ['粘贴 URL（可省略协议，自动补 https://）', '查看组件拆解表，逐项可复制', '在参数表里修改、删除或添加参数，下方实时生成重组 URL'];
 const faqs = [
-  { question: '不写协议能解析吗？', answer: '可以。输入 example.com/a?x=1 会自动补 https:// 再解析，并在结果中按补全后的地址拆解。' },
-  { question: '密码部分会显示吗？', answer: 'URL 里带的用户信息（user:pass@）会拆在组件表里，仅在你本地浏览器显示，不会发送到任何服务器；分享重组 URL 时请注意它不含用户信息。' },
-  { question: '重组 URL 和原 URL 为什么可能不完全一样？', answer: '重组会用标准编码重新编码参数（如空格变 +），语义等价；用户信息不带入重组结果。' }
+  { question: '不写协议能解析吗？', answer: '可以。输入 example.com/a?x=1 会自动补 https:// 再解析；localhost:8080/api、127.0.0.1:3000 这类「主机:端口」写法也能正确识别，不会把主机误当协议。' },
+  { question: '密码部分会显示吗？', answer: 'URL 里带的用户信息（user:pass@）会拆在组件表里，仅在你本地浏览器显示，不会发送到任何服务器；重组 URL 会原样保留用户信息，分享前请先删掉密码部分。' },
+  { question: '重组 URL 和原 URL 为什么可能不完全一样？', answer: '重组会用标准编码重新编码参数（如空格变 +），语义等价；协议、主机（含用户信息）、路径与锚点都会保留。' },
+  { question: '端口报错或 % 转义报错是什么意思？', answer: '端口必须是 0–65535 的数字，写了非数字或超范围会点名报错；% 后必须跟两位十六进制（如 %20），%ZZ、%2 这类残缺转义会指出第几个字符有问题，而不是静默保留。' },
+  { question: 'mailto: 这类地址为什么解析不了？', answer: 'mailto:/tel: 等是非层级 URL，没有主机与查询参数可拆，本工具会点名说明；它解析的是 http/https 等带 // 主机的 URL。' },
+  { question: '没写端口时实际用哪个端口？', answer: '按协议默认端口：http/ws 为 80、https/wss 为 443、ftp 为 21。结果里会给出「有效端口」并提示这是默认端口。' }
 ];
 const examples = [
-  { input: 'https://example.com:8080/shop/list?tag=phone&tag=pad&page=2#top', output: '参数 tag×2、page…', description: '带重复参数的 URL' },
-  { input: 'example.com/search?q=你好 世界', output: '含空格会提示改用编码', description: '省略协议（示例含空格将报错提示）' }
+  { input: 'https://example.com:8080/shop/list?tag=phone&tag=pad&page=2#top', output: 'https://example.com:8080/shop/list?tag=phone&tag=pad&page=2#top', description: '带端口与重复参数的 URL' },
+  { input: 'localhost:3000/api/users?active=true', output: 'https://localhost:3000/api/users?active=true', description: '主机:端口写法（自动补 https://）' },
+  { input: 'example.com/search?q=%E4%BD%A0%E5%A5%BD', output: 'https://example.com/search?q=%E4%BD%A0%E5%A5%BD', description: '省略协议 + 中文参数（已编码）' }
 ];
 const inputText = ref('');
 const result = ref(null);
@@ -76,9 +81,12 @@ const rows = computed(() => {
   const r = result.value;
   return [
     { label: '协议', value: r.protocol }, { label: '主机', value: r.host },
-    { label: '域名', value: r.hostname }, { label: '端口', value: r.port },
-    { label: '路径', value: r.pathname }, { label: '路径段', value: r.segments.join(' / ') },
-    { label: '用户名', value: r.username }, { label: '锚点', value: r.hash },
+    { label: '域名', value: r.hostname }, { label: '端口', value: r.port || (r.defaultPort ? `（默认 ${r.defaultPort}）` : '') },
+    { label: '有效端口', value: r.effectivePort },
+    { label: '路径', value: r.pathname }, { label: '路径（解码）', value: r.pathnameDecoded },
+    { label: '路径段', value: r.segments.join(' / ') },
+    { label: '用户名', value: r.username }, { label: '密码', value: r.password },
+    { label: '锚点', value: r.hash }, { label: '锚点（解码）', value: r.hashDecoded },
     { label: '源站 Origin', value: r.origin }
   ];
 });
@@ -113,7 +121,8 @@ const copyRebuilt = () => copyText(rebuilt.value);
 .url-parser { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.warn { margin: 10px 0 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--warn-soft); color: var(--warning-text, var(--text-2)); font-size: 13px; }
 .text-input { width: 100%; min-height: 64px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .text-input.output { min-height: 52px; background: var(--bg-soft); }
 .kv { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
