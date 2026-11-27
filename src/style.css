@@ -43,6 +43,8 @@
   --warning-soft: #fff7e6;
   --warning-border: #f0d48a;
   --on-accent: #ffffff;
+  /* 收藏星标色（R9s 校准）：旧写死 #f5a623 亮色仅 2.03:1，亮色改走警告文字色值、暗色保留原值（≥6.49:1） */
+  --favorite-star: #b45309;
   /* 工具栏按钮底色：与白字对比度均 ≥4.5:1（暗色主题继承同一组，独立于背景） */
   --btn-primary: #4f5fd0;
   --btn-secondary: #b83280;
@@ -101,6 +103,7 @@
   --warning-text: #fbbf24;
   --warning-soft: #3a2f14;
   --warning-border: #7a5c14;
+  --favorite-star: #f5a623;
   --danger-soft: #3d1d22;
   --danger-text: #f3b8be;
   --danger-border: #6e2f38;

@@ -260,7 +260,7 @@ onBeforeUnmount(() => {
 }
 
 .footer-link:hover {
-  color: #3b82f6;
+  color: var(--accent-text);
   transform: translateX(4px);
 }
 
@@ -274,12 +274,12 @@ onBeforeUnmount(() => {
 }
 
 .footer-link.support-highlight {
-  color: #f59e0b;
+  color: var(--warning-text);
   font-weight: 600;
 }
 
 .footer-link.support-highlight:hover {
-  color: #d97706;
+  color: var(--warning-text);
 }
 
 .footer-link.support-highlight::before {
@@ -309,7 +309,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-text:hover .stats-number {
-  color: #3b82f6;
+  color: var(--accent-text);
 }
 
 .stats-separator {
@@ -370,7 +370,7 @@ onBeforeUnmount(() => {
 }
 
 .dev-link {
-  color: #8b5cf6;
+  color: var(--accent-text-hover);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -378,7 +378,7 @@ onBeforeUnmount(() => {
 }
 
 .dev-link:hover {
-  color: #7c3aed;
+  color: var(--accent-text);
 }
 
 .dev-link::after {
@@ -436,7 +436,7 @@ onBeforeUnmount(() => {
 
 .badge-item:hover {
   background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
+  color: var(--accent-text);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
