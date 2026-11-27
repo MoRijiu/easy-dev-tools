@@ -840,13 +840,13 @@ export const toolGroups = [
         name: 'UUID生成器',
         nameEn: 'uuid',
         icon: '🆔',
-        description: '生成UUID/GUID',
+        description: '生成UUID/GUID，支持v4随机与v7时间有序',
         aliases: ['uuid','guid','唯一标识','shengcheng'],
         path: '/generator/uuid',
         component: () => import('../views/tools/generator/UuidGenerator.vue'),
         meta: {
           title: 'UUID生成器 - 在线生成UUID/GUID',
-          description: '免费的在线UUID生成器，支持批量生成UUID/GUID',
+          description: '免费的在线UUID生成器，支持v4随机与v7时间有序批量生成、URN/花括号等格式，数量严格校验，纯本地运行不上传服务器',
           keywords: 'UUID生成器,GUID生成器,UUID工具'
         }
       },
