@@ -670,7 +670,6 @@ h1 {
 }
 
 .verify-input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 

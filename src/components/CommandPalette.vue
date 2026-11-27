@@ -236,6 +236,10 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid var(--border);
 }
 
+.palette-input-row:focus-within {
+  border-bottom-color: var(--accent);
+}
+
 .palette-icon { font-size: 18px; color: var(--text-3); line-height: 1; }
 
 .palette-input {

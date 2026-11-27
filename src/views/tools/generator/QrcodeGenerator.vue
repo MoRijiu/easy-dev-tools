@@ -555,7 +555,6 @@ h1 {
 }
 
 .text-input:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -612,7 +611,6 @@ h1 {
 
 .option-item input[type="number"]:focus,
 .option-item select:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -770,7 +768,6 @@ h1 {
   -webkit-appearance: none;
   background: var(--border);
   border-radius: 3px;
-  outline: none;
 }
 
 .logo-options input[type="range"]::-webkit-slider-thumb {

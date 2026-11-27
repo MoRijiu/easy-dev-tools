@@ -96,7 +96,6 @@ defineProps({
 :deep(.text-input:focus),
 :deep(.json-input:focus),
 :deep(.markdown-input:focus) {
-  outline: none;
   background: var(--surface);
 }
 

@@ -502,7 +502,6 @@ h1 {
 
 .setting-item input:focus,
 .setting-item select:focus {
-  outline: none;
   border-color: var(--accent);
 }
 
@@ -518,7 +517,6 @@ h1 {
   border-radius: 4px;
   -webkit-appearance: none;
   appearance: none;
-  outline: none;
   cursor: pointer;
 }
 
