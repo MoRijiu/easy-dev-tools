@@ -12,12 +12,12 @@
       <div class="cols">
         <section class="block grow">
           <h2>JSON 数据</h2>
-          <textarea v-model="jsonInput" rows="12" spellcheck="false" placeholder="粘贴 JSON，如 {&quot;store&quot;: {&quot;book&quot;: [...]}}" aria-label="JSON 数据" @input="process"></textarea>
-          <p v-if="jsonError" class="error" role="alert">✗ {{ jsonError }}</p>
+          <textarea v-model="jsonInput" rows="12" spellcheck="false" placeholder="粘贴 JSON，如 {&quot;store&quot;: {&quot;book&quot;: [...]}}" aria-label="JSON 数据" :aria-invalid="jsonError ? 'true' : undefined" :aria-describedby="jsonError ? 'jsonpath-json-error' : undefined" @input="process"></textarea>
+          <p v-if="jsonError" id="jsonpath-json-error" class="error" role="alert">✗ {{ jsonError }}</p>
         </section>
         <section class="block grow">
           <h2>查询结果 <span v-if="result" class="count">命中 {{ result.matches.length }} 条{{ result.truncated ? '（已达上限截断）' : '' }}</span></h2>
-          <p v-if="pathError" class="error" role="alert">✗ {{ pathError }}</p>
+          <p v-if="pathError" id="jsonpath-expr-error" class="error" role="alert">✗ {{ pathError }}</p>
           <div v-if="result && result.matches.length" class="results">
             <div v-for="(m, i) in shownMatches" :key="i" class="match">
               <code class="mpath">{{ m.path }}</code>
@@ -32,7 +32,7 @@
       </div>
       <section class="block">
         <h2>JSONPath 表达式</h2>
-        <input v-model="exprInput" class="expr" spellcheck="false" placeholder="如 $.store.book[?(@.price < 10)].title" aria-label="JSONPath 表达式" @input="process" />
+        <input v-model="exprInput" class="expr" spellcheck="false" placeholder="如 $.store.book[?(@.price < 10)].title" aria-label="JSONPath 表达式" :aria-invalid="pathError ? 'true' : undefined" :aria-describedby="pathError ? 'jsonpath-expr-error' : undefined" @input="process" />
         <div class="quick">
           <button v-for="p in presets" :key="p.expr" @click="applyPreset(p.expr)">{{ p.label }}</button>
         </div>

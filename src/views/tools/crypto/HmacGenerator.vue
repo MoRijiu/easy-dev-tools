@@ -15,10 +15,10 @@
         </label>
       </div>
       <label class="block">密钥（Key）
-        <span class="secret-wrap"><input v-model="keyText" :type="showKey ? 'text' : 'password'" placeholder="输入密钥" aria-label="密钥" autocomplete="off" /><button class="mini" type="button" :aria-pressed="showKey" :aria-label="showKey ? '隐藏密钥' : '显示密钥'" @click="showKey = !showKey">{{ showKey ? '隐藏' : '显示' }}</button></span>
+        <span class="secret-wrap"><input v-model="keyText" :type="showKey ? 'text' : 'password'" placeholder="输入密钥" aria-label="密钥" autocomplete="off" :aria-invalid="invalidFor('key')" :aria-describedby="describedByFor('key')" /><button class="mini" type="button" :aria-pressed="showKey" :aria-label="showKey ? '隐藏密钥' : '显示密钥'" @click="showKey = !showKey">{{ showKey ? '隐藏' : '显示' }}</button></span>
       </label>
       <label class="block">消息（Message）
-        <textarea v-model="messageText" rows="4" spellcheck="false" placeholder="输入要签名的消息" aria-label="消息"></textarea>
+        <textarea v-model="messageText" rows="4" spellcheck="false" placeholder="输入要签名的消息" aria-label="消息" :aria-invalid="invalidFor('message')" :aria-describedby="describedByFor('message')"></textarea>
       </label>
       <div class="row actions">
         <button class="btn" type="button" :disabled="busy" @click="generate">{{ busy ? '计算中…' : '生成签名' }}</button>
@@ -26,7 +26,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
         <span class="muted">改动输入后自动重新计算</span>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="hmac-generate-error" class="error" role="alert">{{ error }}</p>
       <template v-if="result">
         <p class="summary">{{ result.label }} · 密钥 {{ result.keyBytes }} 字节 · 消息 {{ result.messageBytes }} 字节 · 签名 {{ result.digestBytes }} 字节</p>
         <div class="table-wrap"><table><tbody>
@@ -37,10 +37,10 @@
         </div>
         <div class="verify-box">
           <label class="block">验签：粘贴期望签名（可选）
-            <span class="secret-wrap"><input v-model="expectedText" placeholder="粘贴对方给出的签名，自动与上方结果比对" aria-label="期望签名" autocomplete="off" spellcheck="false" />
+            <span class="secret-wrap"><input v-model="expectedText" placeholder="粘贴对方给出的签名，自动与上方结果比对" aria-label="期望签名" autocomplete="off" spellcheck="false" :aria-invalid="invalidFor('expected')" :aria-describedby="describedByFor('expected')" />
             <select v-model="expectedEncoding" aria-label="期望签名编码"><option v-for="e in EXPECTED_ENCODINGS" :key="e.id" :value="e.id">{{ e.label }}</option></select></span>
           </label>
-          <p v-if="verifyError" class="error" role="alert">{{ verifyError }}</p>
+          <p v-if="verifyError" id="hmac-verify-error" class="error" role="alert">{{ verifyError }}</p>
           <p v-else-if="verifyResult" :class="verifyResult.match ? 'verify-ok' : 'verify-bad'">{{ verifyResult.match ? '✓ 签名一致，验签通过' : `✕ ${verifyResult.reason}` }}</p>
         </div>
       </template>
@@ -94,6 +94,24 @@ const expectedText = ref('');
 const expectedEncoding = ref('hex');
 const verifyResult = ref(null);
 const verifyError = ref('');
+// 错误文案自带字段名（密钥/消息/期望签名），据此定位出错字段；环境类错误不归任何字段。
+// 验签会先解析期望签名再重算签名，故验签错误也可能来自密钥/消息，三个字段都按归属绑定。
+const fieldOfError = (e) => {
+  if (!e) return '';
+  if (e.startsWith('期望签名')) return 'expected';
+  if (e.startsWith('密钥')) return 'key';
+  if (e.startsWith('消息')) return 'message';
+  return '';
+};
+const errorField = computed(() => fieldOfError(error.value));
+const verifyErrorField = computed(() => fieldOfError(verifyError.value));
+const describedByFor = (field) => {
+  const ids = [];
+  if (errorField.value === field) ids.push('hmac-generate-error');
+  if (verifyErrorField.value === field) ids.push('hmac-verify-error');
+  return ids.length ? ids.join(' ') : undefined;
+};
+const invalidFor = (field) => (errorField.value === field || verifyErrorField.value === field ? 'true' : undefined);
 let seq = 0;
 let vseq = 0;
 async function generate() {

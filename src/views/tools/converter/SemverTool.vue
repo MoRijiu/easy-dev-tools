@@ -11,9 +11,9 @@
       <section class="block">
         <h2>版本解析</h2>
         <div class="row">
-          <label class="grow">版本号 <input v-model="versionInput" placeholder="如 1.2.3-rc.1+build.5，可带 v 前缀" aria-label="版本号" @input="process" /></label>
+          <label class="grow">版本号 <input v-model="versionInput" placeholder="如 1.2.3-rc.1+build.5，可带 v 前缀" aria-label="版本号" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'semver-parse-error' : undefined" @input="process" /></label>
         </div>
-        <p v-if="error" class="error" role="alert">✗ {{ error }}</p>
+        <p v-if="error" id="semver-parse-error" class="error" role="alert">✗ {{ error }}</p>
         <div v-if="parsed" class="grid">
           <div class="card"><span class="num">{{ parsed.major }}</span><span class="label">主版本 Major（不兼容变更）</span></div>
           <div class="card"><span class="num">{{ parsed.minor }}</span><span class="label">次版本 Minor（向后兼容功能）</span></div>
@@ -30,20 +30,20 @@
       <section class="block">
         <h2>版本比较</h2>
         <div class="row">
-          <label class="grow">版本 A <input v-model="versionA" placeholder="如 1.0.0-alpha" aria-label="版本 A" /></label>
+          <label class="grow">版本 A <input v-model="versionA" placeholder="如 1.0.0-alpha" aria-label="版本 A" :aria-invalid="compareCulprit === 'a' ? 'true' : undefined" :aria-describedby="compareCulprit === 'a' ? 'semver-compare-error' : undefined" /></label>
           <button type="button" class="swap-btn" @click="swapCompare" title="交换 A / B">⇄ 交换</button>
-          <label class="grow">版本 B <input v-model="versionB" placeholder="如 1.0.0" aria-label="版本 B" /></label>
+          <label class="grow">版本 B <input v-model="versionB" placeholder="如 1.0.0" aria-label="版本 B" :aria-invalid="compareCulprit === 'b' ? 'true' : undefined" :aria-describedby="compareCulprit === 'b' ? 'semver-compare-error' : undefined" /></label>
         </div>
-        <p v-if="compareError" class="error" role="alert">✗ {{ compareError }}</p>
+        <p v-if="compareError" id="semver-compare-error" class="error" role="alert">✗ {{ compareError }}</p>
         <p v-else-if="compareText" class="result-line">{{ compareText }}</p>
       </section>
       <section class="block">
         <h2>范围校验</h2>
         <div class="row">
-          <label class="grow">待校验版本 <input v-model="rangeVersion" placeholder="如 1.4.2" aria-label="待校验版本" /></label>
-          <label class="grow">范围表达式 <input v-model="rangeExpr" placeholder="如 ^1.2.3、~1.2、>=1.0.0 <2.0.0、1.2.x" aria-label="范围表达式" /></label>
+          <label class="grow">待校验版本 <input v-model="rangeVersion" placeholder="如 1.4.2" aria-label="待校验版本" :aria-invalid="rangeCulprit === 'version' ? 'true' : undefined" :aria-describedby="rangeCulprit === 'version' ? 'semver-range-error' : undefined" /></label>
+          <label class="grow">范围表达式 <input v-model="rangeExpr" placeholder="如 ^1.2.3、~1.2、>=1.0.0 <2.0.0、1.2.x" aria-label="范围表达式" :aria-invalid="rangeCulprit === 'expr' ? 'true' : undefined" :aria-describedby="rangeCulprit === 'expr' ? 'semver-range-error' : undefined" /></label>
         </div>
-        <p v-if="rangeError" class="error" role="alert">✗ {{ rangeError }}</p>
+        <p v-if="rangeError" id="semver-range-error" class="error" role="alert">✗ {{ rangeError }}</p>
         <p v-else-if="rangeResult !== null" class="result-line">{{ rangeResult ? '✓ 满足范围' : '✗ 不满足范围' }}：{{ rangeVersion }} {{ rangeResult ? '∈' : '∉' }} {{ rangeExpr }}</p>
         <div class="quick"><button v-for="p in presets" :key="p" @click="rangeExpr = p">{{ p }}</button></div>
       </section>
@@ -97,6 +97,13 @@ const compareResult = computed(() => {
   try { return { cmp: compareSemver(versionA.value, versionB.value) }; } catch (e) { return { err: e.message }; }
 });
 const compareError = computed(() => compareResult.value?.err || '');
+// 比较错误来自先解析失败的一方：逐个试解析 A、B 定位出错字段（错误文案不变）
+const compareCulprit = computed(() => {
+  if (!compareError.value) return '';
+  try { parseSemver(versionA.value); } catch { return 'a'; }
+  try { parseSemver(versionB.value); } catch { return 'b'; }
+  return '';
+});
 const compareText = computed(() => {
   const r = compareResult.value; if (!r || r.err) return '';
   const rel = r.cmp === 0 ? '优先级相等（构建元数据不参与比较）' : (r.cmp < 0 ? `${versionA.value} < ${versionB.value}，B 更新` : `${versionA.value} > ${versionB.value}，A 更新`);
@@ -109,6 +116,11 @@ const rangeResult = computed(() => {
 const rangeError = computed(() => {
   if (!rangeVersion.value.trim() || !rangeExpr.value.trim()) return '';
   try { satisfiesRange(rangeVersion.value, rangeExpr.value); return ''; } catch (e) { return e.message; }
+});
+// 范围错误先试解析待校验版本：版本本身合法时错误必在范围表达式一方
+const rangeCulprit = computed(() => {
+  if (!rangeError.value) return '';
+  try { parseSemver(rangeVersion.value); return 'expr'; } catch { return 'version'; }
 });
 const swapCompare = () => { const t = versionA.value; versionA.value = versionB.value; versionB.value = t; };
 const loadExample = () => { versionInput.value = '1.2.3-rc.1+build.5'; versionA.value = '1.0.0-beta.11'; versionB.value = '1.0.0-rc.1'; rangeVersion.value = '1.4.2'; rangeExpr.value = '^1.2.3'; process(); };
