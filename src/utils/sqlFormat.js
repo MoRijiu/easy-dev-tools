@@ -29,58 +29,110 @@ const CLAUSE_START = new Set([
   'LEFT OUTER JOIN', 'RIGHT OUTER JOIN', 'FULL OUTER JOIN', 'ON'
 ])
 
+export const MAX_SQL_CHARS = 500000
+
+function lineAt(s, pos) {
+  let line = 1
+  for (let k = 0; k < pos && k < s.length; k++) if (s[k] === '\n') line++
+  return line
+}
+
 export function tokenizeSql(sql) {
   const tokens = []
   const s = String(sql ?? '')
+  if (s.length > MAX_SQL_CHARS) {
+    throw new Error(`输入过长：${s.length} 个字符，上限 ${MAX_SQL_CHARS} 个字符，请拆分后再格式化`)
+  }
   let i = 0
   while (i < s.length) {
     const ch = s[i]
     if (/\s/.test(ch)) { i++; continue }
-    // 行注释
-    if (ch === '-' && s[i + 1] === '-') {
+    // 行注释（-- 与 MySQL 的 #）
+    if ((ch === '-' && s[i + 1] === '-') || ch === '#') {
       let j = s.indexOf('\n', i)
       if (j === -1) j = s.length
-      tokens.push({ type: 'comment', value: s.slice(i, j) })
+      tokens.push({ type: 'comment', value: s.slice(i, j), pos: i })
       i = j; continue
     }
     // 块注释
     if (ch === '/' && s[i + 1] === '*') {
       let j = s.indexOf('*/', i + 2)
-      j = j === -1 ? s.length : j + 2
-      tokens.push({ type: 'comment', value: s.slice(i, j) })
+      if (j === -1) throw new Error(`块注释未闭合（从第 ${lineAt(s, i)} 行开始），请补上 */`)
+      j += 2
+      tokens.push({ type: 'comment', value: s.slice(i, j), pos: i })
       i = j; continue
     }
-    // 字符串 / 引号标识符
-    if (ch === "'" || ch === '"' || ch === '`') {
+    // PostgreSQL 美元引号字符串 $$...$$ / $tag$...$tag$
+    if (ch === '$') {
+      const m = /^\$([A-Za-z_][A-Za-z0-9_]*)?\$/.exec(s.slice(i))
+      if (m) {
+        const tag = m[0]
+        const close = s.indexOf(tag, i + tag.length)
+        if (close === -1) throw new Error(`美元引号字符串未闭合（从第 ${lineAt(s, i)} 行开始），请补上 ${tag}`)
+        const end = close + tag.length
+        tokens.push({ type: 'string', value: s.slice(i, end), pos: i })
+        i = end; continue
+      }
+      // PostgreSQL 位置参数 $1、$2…
+      if (/[0-9]/.test(s[i + 1] || '')) {
+        let j = i + 1
+        while (j < s.length && /[0-9]/.test(s[j])) j++
+        tokens.push({ type: 'param', value: s.slice(i, j), pos: i })
+        i = j; continue
+      }
+    }
+    // T-SQL 方括号标识符 [my col]（]] 为转义的 ]）
+    if (ch === '[') {
       let j = i + 1
+      let closed = false
       while (j < s.length) {
-        if (s[j] === ch) {
-          if (s[j + 1] === ch) { j += 2; continue }
-          j++; break
+        if (s[j] === ']') {
+          if (s[j + 1] === ']') { j += 2; continue }
+          j++; closed = true; break
         }
         j++
       }
-      tokens.push({ type: ch === "'" ? 'string' : 'ident', value: s.slice(i, j) })
+      if (!closed) throw new Error(`方括号标识符未闭合（从第 ${lineAt(s, i)} 行开始），请补上 ]`)
+      tokens.push({ type: 'ident', value: s.slice(i, j), pos: i })
+      i = j; continue
+    }
+    // 字符串 / 引号标识符（单引号内支持 '' 与 \' 两种转义）
+    if (ch === "'" || ch === '"' || ch === '`') {
+      let j = i + 1
+      let closed = false
+      while (j < s.length) {
+        if (ch === "'" && s[j] === '\\') { j += 2; continue }
+        if (s[j] === ch) {
+          if (s[j + 1] === ch) { j += 2; continue }
+          j++; closed = true; break
+        }
+        j++
+      }
+      if (!closed) {
+        const kind = ch === "'" ? '字符串' : '引号标识符'
+        throw new Error(`${kind}未闭合（从第 ${lineAt(s, i)} 行开始），请补上 ${ch}`)
+      }
+      tokens.push({ type: ch === "'" ? 'string' : 'ident', value: s.slice(i, j), pos: i })
       i = j; continue
     }
     if (/[A-Za-z_]/.test(ch)) {
       let j = i + 1
       while (j < s.length && /[A-Za-z0-9_$]/.test(s[j])) j++
       const word = s.slice(i, j)
-      tokens.push({ type: KEYWORDS.has(word.toUpperCase()) ? 'keyword' : 'word', value: word })
+      tokens.push({ type: KEYWORDS.has(word.toUpperCase()) ? 'keyword' : 'word', value: word, pos: i })
       i = j; continue
     }
     if (/[0-9]/.test(ch)) {
       let j = i + 1
       while (j < s.length && /[0-9A-Fa-fxX._]/.test(s[j])) j++
-      tokens.push({ type: 'number', value: s.slice(i, j) })
+      tokens.push({ type: 'number', value: s.slice(i, j), pos: i })
       i = j; continue
     }
     const two = s.slice(i, i + 2)
     if (['>=', '<=', '<>', '!=', '||', '::'].includes(two)) {
-      tokens.push({ type: 'symbol', value: two }); i += 2; continue
+      tokens.push({ type: 'symbol', value: two, pos: i }); i += 2; continue
     }
-    tokens.push({ type: 'symbol', value: ch })
+    tokens.push({ type: 'symbol', value: ch, pos: i })
     i++
   }
   return tokens
@@ -110,6 +162,34 @@ function mergePhrases(tokens) {
   return out
 }
 
+// 括号配平校验：多余的 ) 与未闭合的 ( 都定位到行报错，不再静默排出怪版式
+function validateParens(tokens, raw) {
+  const stack = []
+  for (const t of tokens) {
+    if (t.value === '(') stack.push(t)
+    else if (t.value === ')') {
+      if (!stack.length) throw new Error(`第 ${lineAt(raw, t.pos ?? 0)} 行有多了的 )，没有与之匹配的 (`)
+      stack.pop()
+    }
+  }
+  if (stack.length) {
+    const t = stack[stack.length - 1]
+    throw new Error(`括号未闭合：第 ${lineAt(raw, t.pos ?? 0)} 行的 ( 没有对应的 )`)
+  }
+}
+
+// 语句计数：按 ; 切段、每段有实际内容才算一条（末尾无 ; 的也算，空段 ;; 不算）
+export function countStatements(tokens) {
+  let count = 0
+  let hasContent = false
+  for (const t of tokens) {
+    if (t.value === ';') { if (hasContent) count++; hasContent = false }
+    else if (t.type !== 'comment') hasContent = true
+  }
+  if (hasContent) count++
+  return count
+}
+
 function applyCase(token, keywordCase) {
   if (token.type !== 'keyword') return token.value
   if (keywordCase === 'upper') return token.value.toUpperCase()
@@ -137,7 +217,9 @@ export function formatSql(sql, options = {}) {
   const { keywordCase = 'upper', indentSize = 2 } = options
   const raw = String(sql ?? '')
   if (!raw.trim()) return { text: '', stats: { tokens: 0, lines: 0, statements: 0 } }
-  const tokens = mergePhrases(tokenizeSql(raw))
+  const rawTokens = tokenizeSql(raw)
+  validateParens(rawTokens, raw)
+  const tokens = mergePhrases(rawTokens)
   const indentUnit = ' '.repeat(indentSize)
   const lines = []
   let cur = ''
@@ -210,13 +292,15 @@ export function formatSql(sql, options = {}) {
   const text = lines.filter((l) => l.trim() !== '').join('\n')
   return {
     text,
-    stats: { tokens: tokens.length, lines: text ? text.split('\n').length : 0, statements: Math.max(text ? 1 : 0, tokens.filter((t) => t.value === ';').length) }
+    stats: { tokens: tokens.length, lines: text ? text.split('\n').length : 0, statements: countStatements(tokens) }
   }
 }
 
 export function minifySql(sql, options = {}) {
   const { keywordCase = 'preserve' } = options
-  const tokens = tokenizeSql(String(sql ?? ''))
+  const raw = String(sql ?? '')
+  const tokens = tokenizeSql(raw)
+  validateParens(tokens, raw)
   let out = ''
   let lastToken = null
   for (const t of tokens) {
@@ -228,5 +312,5 @@ export function minifySql(sql, options = {}) {
     out += v
     lastToken = probe
   }
-  return { text: out, stats: { tokens: tokens.length, lines: out ? 1 : 0, statements: Math.max(out ? 1 : 0, tokens.filter((t) => t.value === ';').length) } }
+  return { text: out, stats: { tokens: tokens.length, lines: out ? 1 : 0, statements: countStatements(tokens) } }
 }

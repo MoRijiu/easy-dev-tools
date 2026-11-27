@@ -56,19 +56,22 @@ import { formatSql, minifySql } from '@/utils/sqlFormat.js';
 
 const features = [
   { icon: '🧱', title: '子句分行缩进', description: 'SELECT/FROM/WHERE 等主子句顶格，字段列表与 AND/OR 条件缩进对齐' },
-  { icon: '🛡️', title: '字符串不受影响', description: '引号内文本、引号标识符与行/块注释完整保留，不会被误拆或改大小写' },
+  { icon: '🛡️', title: '字符串不受影响', description: '引号内文本、美元引号、方括号标识符与行/块注释完整保留，不会被误拆或改大小写；未闭合与括号不配平会定位报错' },
   { icon: '🗜️', title: '美化 / 压缩', description: '一键美化阅读，也可压缩成一行方便嵌入代码或日志排查' },
   { icon: '🔒', title: '纯本地处理', description: 'SQL 不离开浏览器，不上传任何服务器，可放心粘贴业务语句' }
 ];
 const usageSteps = ['粘贴 SQL 到左侧输入框', '选择关键词大小写与缩进，右侧实时出结果', '点「复制结果」，或切到压缩模式生成单行 SQL'];
 const faqs = [
-  { question: '它会校验 SQL 语法吗？', answer: '不会。它是排版工具不是语法解析器：无法识别的构造会原样保留，拼写错误的关键词也不会报错，执行前请仍在数据库里验证。' },
-  { question: '字符串里的关键词会被格式化吗？', answer: '不会。单引号字符串、双引号/反引号标识符和注释在分词阶段就被整体保护，内容与大小写都不动。' },
+  { question: '它会校验 SQL 语法吗？', answer: '不会校验完整语法，拼写错误的关键词不会报错；但未闭合的字符串、引号标识符、块注释、美元引号与方括号标识符，以及括号不配平，都会定位到行报错，不再静默排出怪版式。执行前请仍在数据库里验证。' },
+  { question: '字符串里的关键词会被格式化吗？', answer: '不会。单引号字符串（含 \' 与 \'\' 两种转义）、双引号/反引号标识符、-- 与 # 行注释、块注释在分词阶段就被整体保护，内容与大小写都不动。' },
+  { question: '支持 PostgreSQL 与 T-SQL 的特殊写法吗？', answer: '支持。PostgreSQL 的 $$...$$ / $tag$...$tag$ 美元引号字符串整体保护、$1/$2 位置参数保持原样；T-SQL 的 [方括号标识符]（含 ]] 转义）也不会被拆开。' },
+  { question: '语句数是怎么数的？', answer: '按分号切段、每段有实际内容才算一条：末尾不带分号的语句也算，;; 之类的空段不算，字符串里的分号不切段。' },
   { question: '支持子查询吗？', answer: '支持。括号后紧跟 SELECT 的子查询会自动换行并加深一层缩进，闭合括号回到外层对齐。' }
 ];
 const examples = [
   { input: "select id, name, age from users where age > 18 and city = 'Beijing' order by name limit 10", output: "SELECT\n  id,\n  name,\n  age\nFROM users\nWHERE age > 18\n  AND city = 'Beijing'\nORDER BY name\nLIMIT 10", description: '基础查询美化（关键词大写）' },
-  { input: 'select u.id, o.total from users u left join orders o on o.user_id = u.id group by u.id', output: 'SELECT\n  u.id,\n  o.total\nFROM users u\nLEFT JOIN orders o\nON o.user_id = u.id\nGROUP BY u.id', description: 'JOIN 查询' }
+  { input: 'select u.id, o.total from users u left join orders o on o.user_id = u.id group by u.id', output: 'SELECT\n  u.id,\n  o.total\nFROM users u\nLEFT JOIN orders o\nON o.user_id = u.id\nGROUP BY u.id', description: 'JOIN 查询' },
+  { input: 'select id, $$select from where$$ as note from docs where id = $1', output: 'SELECT\n  id,\n  $$select from where$$ AS note\nFROM docs\nWHERE id = $1', description: 'PostgreSQL 美元引号与 $1 参数不被拆改' }
 ];
 const inputText = ref('');
 const result = ref(null);
@@ -78,11 +81,17 @@ const mode = ref('format');
 const options = reactive({ keywordCase: 'upper', indentSize: 2 });
 const process = () => {
   if (!inputText.value.trim()) { result.value = null; statusMessage.value = ''; return; }
-  result.value = mode.value === 'format'
-    ? formatSql(inputText.value, { ...options })
-    : minifySql(inputText.value, { keywordCase: options.keywordCase });
-  statusMessage.value = '✓ 处理完成';
-  statusType.value = 'success';
+  try {
+    result.value = mode.value === 'format'
+      ? formatSql(inputText.value, { ...options })
+      : minifySql(inputText.value, { keywordCase: options.keywordCase });
+    statusMessage.value = '✓ 处理完成';
+    statusType.value = 'success';
+  } catch (e) {
+    // 出错保留上一次结果，只更新提示，避免改坏一处就丢掉已排好的版本
+    statusMessage.value = '✗ ' + (e?.message || '处理失败');
+    statusType.value = 'error';
+  }
 };
 const loadExample = () => { inputText.value = examples[0].input; process(); };
 const useExample = (ex) => { inputText.value = ex.input; process(); };
@@ -99,7 +108,7 @@ const copyOutput = async () => {
 .sql-formatter { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .options { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; font-size: 13px; color: var(--text-2); }
 .options select { margin-left: 4px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
 .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
