@@ -10,7 +10,12 @@
       <span aria-hidden="true">{{ paused ? '▶' : '⏸' }}</span>
       {{ paused ? '继续滚动' : '暂停滚动' }}
     </button>
-    <div class="danmaku-wrapper">
+    <!-- 弹幕是同页工具卡的重复推广位：每行把全部工具重复 3 遍、三行共 648 个
+         与下方工具卡完全重复的链接，若进 Tab 顺序/无障碍树，键盘用户要穿过数百个
+         重复链接、读屏链接列表也被淹没。故整区 aria-hidden + 链接 tabindex="-1"
+         退出键盘与读屏通道（与无缝滚动复制份同一口径），鼠标点击与滚动不受影响，
+         导航由同页工具卡、Header 下拉与命令面板承担（R9ai）。 -->
+    <div class="danmaku-wrapper" aria-hidden="true">
       <div
         v-for="(row, index) in danmakuRows"
         :key="index"
@@ -24,6 +29,7 @@
             :key="idx"
             :to="item.path"
             class="danmaku-item"
+            tabindex="-1"
           >
             <span class="danmaku-icon" aria-hidden="true">{{ item.icon }}</span>
             <span class="danmaku-text">{{ item.name }}</span>
@@ -160,12 +166,11 @@ onMounted(() => {
   will-change: transform;
 }
 
-/* 暂停：手动开关、鼠标悬停、键盘焦点进入区域时都静止，方便点中/读清移动中的链接 */
-/* 注意：聚焦暂停只认链接所在的 wrapper——暂停按钮本身在容器内，
-   若用容器 :focus-within，点「继续滚动」后按钮保持焦点会让滚动永远恢复不了 */
+/* 暂停：手动开关与鼠标悬停时静止，方便点中移动中的链接。
+   弹幕链接已退出 Tab 顺序（R9ai），不再有焦点进入区域的暂停通道；
+   暂停按钮保持焦点不影响滚动恢复（按钮在 wrapper 外）。 */
 .danmaku-row.is-paused,
-.danmaku-container:hover .danmaku-row,
-.danmaku-wrapper:focus-within .danmaku-row {
+.danmaku-container:hover .danmaku-row {
   animation-play-state: paused;
 }
 
