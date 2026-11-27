@@ -14,22 +14,22 @@
         <div class="layer-top">
           <span class="layer-name">第 {{ i + 1 }} 层</span>
           <label class="check"><input v-model="layer.inset" type="checkbox" /> 内阴影 inset</label>
-          <input type="color" :value="pickerValue(layer.color)" aria-label="阴影颜色取色器" @input="onPick(i, $event.target.value)" />
-          <input v-model="layer.color" type="text" class="color-text mono" aria-label="阴影颜色值" spellcheck="false" />
-          <button class="del" :disabled="form.layers.length <= 1" aria-label="删除这一层" @click="removeLayer(i)">✕</button>
+          <input type="color" :value="pickerValue(layer.color)" :aria-label="`第 ${i + 1} 层阴影颜色取色器`" @input="onPick(i, $event.target.value)" />
+          <input v-model="layer.color" type="text" class="color-text mono" :aria-label="`第 ${i + 1} 层阴影颜色值`" spellcheck="false" />
+          <button class="del" :disabled="form.layers.length <= 1" :aria-label="`删除第 ${i + 1} 层`" @click="removeLayer(i)">✕</button>
         </div>
         <div class="sliders">
           <label>水平偏移 {{ layer.offsetX }}px
-            <span class="slider-row"><input v-model.number="layer.offsetX" type="range" min="-200" max="200" step="1" aria-label="水平偏移" /><input v-model.number="layer.offsetX" type="number" min="-200" max="200" class="num" aria-label="水平偏移数值" /></span>
+            <span class="slider-row"><input v-model.number="layer.offsetX" type="range" min="-200" max="200" step="1" :aria-label="`第 ${i + 1} 层水平偏移`" /><input v-model.number="layer.offsetX" type="number" min="-200" max="200" class="num" :aria-label="`第 ${i + 1} 层水平偏移数值`" /></span>
           </label>
           <label>垂直偏移 {{ layer.offsetY }}px
-            <span class="slider-row"><input v-model.number="layer.offsetY" type="range" min="-200" max="200" step="1" aria-label="垂直偏移" /><input v-model.number="layer.offsetY" type="number" min="-200" max="200" class="num" aria-label="垂直偏移数值" /></span>
+            <span class="slider-row"><input v-model.number="layer.offsetY" type="range" min="-200" max="200" step="1" :aria-label="`第 ${i + 1} 层垂直偏移`" /><input v-model.number="layer.offsetY" type="number" min="-200" max="200" class="num" :aria-label="`第 ${i + 1} 层垂直偏移数值`" /></span>
           </label>
           <label>模糊半径 {{ layer.blur }}px
-            <span class="slider-row"><input v-model.number="layer.blur" type="range" min="0" max="200" step="1" aria-label="模糊半径" /><input v-model.number="layer.blur" type="number" min="0" max="200" class="num" aria-label="模糊半径数值" /></span>
+            <span class="slider-row"><input v-model.number="layer.blur" type="range" min="0" max="200" step="1" :aria-label="`第 ${i + 1} 层模糊半径`" /><input v-model.number="layer.blur" type="number" min="0" max="200" class="num" :aria-label="`第 ${i + 1} 层模糊半径数值`" /></span>
           </label>
           <label>扩散半径 {{ layer.spread }}px
-            <span class="slider-row"><input v-model.number="layer.spread" type="range" min="-100" max="100" step="1" aria-label="扩散半径" /><input v-model.number="layer.spread" type="number" min="-100" max="100" class="num" aria-label="扩散半径数值" /></span>
+            <span class="slider-row"><input v-model.number="layer.spread" type="range" min="-100" max="100" step="1" :aria-label="`第 ${i + 1} 层扩散半径`" /><input v-model.number="layer.spread" type="number" min="-100" max="100" class="num" :aria-label="`第 ${i + 1} 层扩散半径数值`" /></span>
           </label>
         </div>
       </div>

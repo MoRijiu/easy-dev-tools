@@ -21,9 +21,9 @@
         <table v-if="editableParams.length" class="kv params" aria-label="查询参数">
           <tbody>
             <tr v-for="(p, i) in editableParams" :key="i">
-              <td><input v-model="p.key" class="cell" aria-label="参数名" @input="rebuild" /></td>
-              <td><input v-model="p.value" class="cell" aria-label="参数值" @input="rebuild" /></td>
-              <td><button class="mini" @click="removeParam(i)">删除</button></td>
+              <td><input v-model="p.key" class="cell" :aria-label="`第 ${i + 1} 个参数名`" @input="rebuild" /></td>
+              <td><input v-model="p.value" class="cell" :aria-label="`第 ${i + 1} 个参数值`" @input="rebuild" /></td>
+              <td><button class="mini" :aria-label="`删除第 ${i + 1} 个参数`" @click="removeParam(i)">删除</button></td>
             </tr>
           </tbody>
         </table>
