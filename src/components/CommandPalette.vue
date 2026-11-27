@@ -18,8 +18,8 @@
             type="text"
             placeholder="搜索工具…（支持名称 / 英文 / 拼音）"
             role="combobox"
-            aria-expanded="true"
-            aria-controls="palette-list"
+            :aria-expanded="entries.length ? 'true' : 'false'"
+            :aria-controls="entries.length ? 'palette-list' : undefined"
             :aria-activedescendant="activeId"
             aria-label="搜索工具"
             autocomplete="off"
@@ -51,9 +51,10 @@
             <span class="item-hint">{{ entry.hint }}</span>
           </li>
         </ul>
-        <p v-else class="palette-empty">
+        <p v-else class="palette-empty" role="status">
           没有匹配「{{ query }}」的工具，试试 json / base64 / 颜色 等关键词。
         </p>
+        <p class="palette-sr" role="status" aria-live="polite">{{ resultAnnouncement }}</p>
         <div class="palette-footer" aria-hidden="true">
           <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
           <span><kbd>Enter</kbd> 打开</span>
@@ -124,6 +125,13 @@ const entries = computed(() => {
 const activeId = computed(() =>
   entries.value.length ? `palette-item-${activeIndex.value}` : undefined
 )
+
+// 搜索结果数播报：只随查询/结果数变化，不随方向键高亮变化（高亮项由 aria-activedescendant 播报，避免重复朗读）
+const resultAnnouncement = computed(() => {
+  if (!query.value.trim()) return ''
+  if (!entries.value.length) return ''
+  return `找到 ${entries.value.length} 个匹配结果`
+})
 
 const openPalette = async () => {
   if (open.value) return
@@ -251,6 +259,7 @@ onBeforeUnmount(() => {
 }
 
 .palette {
+  position: relative;
   width: 100%;
   max-width: 560px;
   background: var(--surface);
@@ -352,6 +361,18 @@ onBeforeUnmount(() => {
   color: var(--text-2);
   font-size: 13px;
   text-align: center;
+}
+
+.palette-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .palette-footer {
