@@ -5,7 +5,7 @@
     <div class="tool-container">
       <label class="block">密码
         <span class="input-row">
-          <input v-model="input" :type="visible ? 'text' : 'password'" spellcheck="false" autocomplete="off" placeholder="输入要检查的密码" aria-label="密码">
+          <input v-model="input" :type="visible ? 'text' : 'password'" spellcheck="false" autocomplete="off" placeholder="输入要检查的密码" aria-label="密码" :aria-invalid="analysisError ? 'true' : undefined" :aria-describedby="analysisError ? 'password-strength-error' : undefined">
           <button class="mini" type="button" :aria-pressed="visible" :aria-label="visible ? '隐藏密码' : '显示密码'" @click="visible = !visible">{{ visible ? '隐藏' : '显示' }}</button>
         </span>
       </label>
@@ -43,7 +43,7 @@
           <button class="btn ghost" type="button" @click="copyText(summary)">复制摘要</button>
         </div>
       </template>
-      <p v-else-if="analysisError" class="error-text" role="alert">{{ analysisError }}</p>
+      <p v-else-if="analysisError" id="password-strength-error" class="error-text" role="alert">{{ analysisError }}</p>
       <p v-else class="muted">在上方输入密码后，这里会显示强度、问题与破解耗时估算。</p>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <ToolFeatures :features="features" />

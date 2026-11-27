@@ -10,12 +10,12 @@
             <option value="custom">自定义</option>
           </select>
         </label>
-        <label class="field">长度<input v-model="sizeInput" type="text" inputmode="numeric" aria-label="ID 长度"></label>
-        <label class="field">数量<input v-model="countInput" type="text" inputmode="numeric" aria-label="生成数量"></label>
+        <label class="field">长度<input v-model="sizeInput" type="text" inputmode="numeric" aria-label="ID 长度" :aria-invalid="invalidFor('size')" :aria-describedby="describedByFor('size')"></label>
+        <label class="field">数量<input v-model="countInput" type="text" inputmode="numeric" aria-label="生成数量" :aria-invalid="invalidFor('count')" :aria-describedby="describedByFor('count')"></label>
         <label class="check"><input v-model="unique" type="checkbox"> 不重复</label>
       </div>
       <label class="block">字母表（{{ alphabetLength }} 个字符）
-        <input v-model="alphabet" type="text" spellcheck="false" aria-label="字母表" @input="preset = 'custom'">
+        <input v-model="alphabet" type="text" spellcheck="false" aria-label="字母表" :aria-invalid="invalidFor('alphabet')" :aria-describedby="describedByFor('alphabet')" @input="preset = 'custom'">
       </label>
       <p v-if="entropyText" class="summary">单条熵约 {{ entropyBitsValue }} 位 · {{ entropyDesc }}</p>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
@@ -26,7 +26,7 @@
         <button class="btn ghost" type="button" @click="loadBatch">示例：批量 50 个</button>
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="nanoid-error" class="error" role="alert">{{ error }}</p>
       <template v-if="results.length">
         <label class="block">结果（每行一个，共 {{ results.length }} 个）
           <textarea :value="resultText" rows="8" readonly spellcheck="false" aria-label="Nano ID 结果"></textarea>
@@ -73,6 +73,19 @@ const countInput = ref('10');
 const unique = ref(true);
 const results = ref([]);
 const error = ref('');
+// 错误文案自带字段名（长度/生成数量/字母表），据此定位出错字段；组合空间不足同时归长度与字母表，环境类错误不归任何字段（文案尾部「（已保留上一次结果）」不影响判定）
+const errorFields = computed(() => {
+  const e = error.value;
+  const fields = new Set();
+  if (!e) return fields;
+  if (e.includes('字母表')) fields.add('alphabet');
+  if (e.includes('长度')) fields.add('size');
+  if (e.startsWith('生成数量')) fields.add('count');
+  if (e.includes('加长')) fields.add('size');
+  return fields;
+});
+const invalidFor = (field) => (errorFields.value.has(field) ? 'true' : undefined);
+const describedByFor = (field) => (errorFields.value.has(field) ? 'nanoid-error' : undefined);
 const statusMessage = ref(''); const statusType = ref('');
 const notes = ref([]);
 const warnings = ref([]);

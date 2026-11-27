@@ -10,10 +10,10 @@
             <option value="float">小数</option>
           </select>
         </label>
-        <label class="field">最小值<input v-model="minInput" type="text" inputmode="decimal" aria-label="最小值"></label>
-        <label class="field">最大值<input v-model="maxInput" type="text" inputmode="decimal" aria-label="最大值"></label>
-        <label class="field">数量<input v-model="countInput" type="text" inputmode="numeric" aria-label="生成数量"></label>
-        <label v-if="mode === 'float'" class="field">小数位数<input v-model="decimalsInput" type="text" inputmode="numeric" placeholder="不限" aria-label="小数位数"></label>
+        <label class="field">最小值<input v-model="minInput" type="text" inputmode="decimal" aria-label="最小值" :aria-invalid="invalidFor('min')" :aria-describedby="describedByFor('min')"></label>
+        <label class="field">最大值<input v-model="maxInput" type="text" inputmode="decimal" aria-label="最大值" :aria-invalid="invalidFor('max')" :aria-describedby="describedByFor('max')"></label>
+        <label class="field">数量<input v-model="countInput" type="text" inputmode="numeric" aria-label="生成数量" :aria-invalid="invalidFor('count')" :aria-describedby="describedByFor('count')"></label>
+        <label v-if="mode === 'float'" class="field">小数位数<input v-model="decimalsInput" type="text" inputmode="numeric" placeholder="不限" aria-label="小数位数" :aria-invalid="invalidFor('decimals')" :aria-describedby="describedByFor('decimals')"></label>
         <label class="field">排序
           <select v-model="sort" aria-label="排序方式">
             <option value="none">生成顺序</option>
@@ -31,7 +31,7 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
       <p v-if="note" class="note" role="status" aria-live="polite">{{ note }}</p>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="random-number-error" class="error" role="alert">{{ error }}</p>
       <template v-if="results.length">
         <p class="summary">已生成 {{ summary.count }} 个 · 最小 {{ summary.min }} · 最大 {{ summary.max }} · 平均 {{ averageText }}</p>
         <label class="block">结果（每行一个）
@@ -81,6 +81,20 @@ const sort = ref('none');
 const unique = ref(false);
 const results = ref([]);
 const error = ref('');
+// 错误文案自带字段名（最小值/最大值/生成数量/小数位数），据此定位出错字段；跨字段约束同时归两端，环境类错误不归任何字段
+const errorFields = computed(() => {
+  const e = error.value;
+  const fields = new Set();
+  if (!e) return fields;
+  if (e.includes('最小值')) fields.add('min');
+  if (e.includes('最大值')) fields.add('max');
+  if (e.includes('生成数量') || e.includes('不够生成') || e.includes('减小数量')) fields.add('count');
+  if (e.includes('小数位数')) fields.add('decimals');
+  if (e.includes('扩大范围')) { fields.add('min'); fields.add('max'); }
+  return fields;
+});
+const invalidFor = (field) => (errorFields.value.has(field) ? 'true' : undefined);
+const describedByFor = (field) => (errorFields.value.has(field) ? 'random-number-error' : undefined);
 const note = ref('');
 const statusMessage = ref(''); const statusType = ref('');
 const summary = computed(() => summarizeNumbers(results.value));
