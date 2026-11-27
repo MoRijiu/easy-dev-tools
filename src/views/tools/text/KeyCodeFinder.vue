@@ -46,10 +46,10 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="搜索键表，如 Enter / 13 / 方向 / f5" aria-label="搜索键表" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in KEY_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }}</button>
+          <button v-for="c in KEY_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} {{ counts[c.id] || 0 }}</button>
         </div>
       </div>
-      <p class="count">键表共 {{ results.length }} 项</p>
+      <p class="count">键表共 {{ counts.all }} 项，当前显示 {{ results.length }} 项<span v-if="query.trim()">（纯数字按 keyCode 精确命中优先、全角输入自动转半角）</span></p>
       <div v-if="results.length" class="table-wrap">
         <table>
           <thead><tr><th>key</th><th>code</th><th>keyCode</th><th>中文名</th><th></th></tr></thead>
@@ -79,7 +79,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
-import { KEY_CATEGORIES, describeKeyEvent, buildEventSummary, buildCodeSnippet, searchKeys, displayKey } from '@/utils/keyCodes.js';
+import { KEY_CATEGORIES, describeKeyEvent, buildEventSummary, buildCodeSnippet, searchKeys, displayKey, countByCategory } from '@/utils/keyCodes.js';
+const counts = countByCategory();
 const features = [
   { icon: '⌨️', title: '按键实时识别', description: '按任意键立即显示 key、code、keyCode、位置与修饰键组合' },
   { icon: '📖', title: '常用键码表', description: '收录修饰/编辑/导航/功能键与字母数字符号，可按名称、code 或键码搜索' },
@@ -91,7 +92,10 @@ const faqs = [
   { question: 'event.key 和 event.code 有什么区别？', answer: 'key 是按键产生的字符或语义值，会随输入法与键盘布局变化（如 Shift 后是 A）；code 是物理按键位置（如 KeyA），与布局无关，做快捷键与游戏控制优先用 code。' },
   { question: 'keyCode 为什么标了已废弃？', answer: 'keyCode/which 是早期 API，数值随布局变化且新按键支持差，已被标准废弃；新代码应优先用 key 与 code，本工具保留它是为了维护老代码时对照。' },
   { question: '为什么空格的 key 显示为 Space？', answer: '空格键的 event.key 实际是一个空格字符 " "，直接显示看不见，本工具将其标注为 Space（空格）；其 code 为 Space、keyCode 为 32。' },
-  { question: '左右 Shift/Ctrl 怎么区分？', answer: '看 event.code（ShiftLeft/ShiftRight）或 event.location（1=左、2=右），仅靠 key 与 keyCode 无法区分。' }
+  { question: '左右 Shift/Ctrl 怎么区分？', answer: '看 event.code（ShiftLeft/ShiftRight）或 event.location（1=左、2=右），仅靠 key 与 keyCode 无法区分。' },
+  { question: '为什么按 Esc 后捕获区失焦了？', answer: '这是有意设计：Esc 先被记录为一次按键，随后捕获区自动失焦退出捕获，方便继续用键盘操作页面；想继续识别再点回捕获区即可。' },
+  { question: '菜单键和右 Meta 键的 keyCode 都是 93，怎么区分？', answer: '靠 event.code 区分：菜单键是 ContextMenu、右 Meta 是 MetaRight；只看 keyCode 无法分辨，这也是 keyCode 被废弃的原因之一。键表已补齐 NumLock、ScrollLock、Pause、PrintScreen、ContextMenu 等常用键。' },
+  { question: '搜索框支持全角输入吗？', answer: '支持：全角数字与字母（如 ４０４、Ｅｎｔｅｒ）会自动转成半角再查；输入纯数字时 keyCode 精确命中的按键排在最前。' }
 ];
 const focused = ref(false);
 const current = ref(null);
@@ -103,7 +107,10 @@ const onKeydown = (e) => {
   e.preventDefault();
   const d = describeKeyEvent(e);
   current.value = d;
-  history.value = [d, ...history.value.filter(h => h.code !== d.code || h.key !== d.key)].slice(0, 8);
+  // 历史去重带上组合（Ctrl+S 与单独 S 不是同一次按键，旧版只按 code/key 去重会互相顶掉）
+  history.value = [d, ...history.value.filter(h => h.combo !== d.combo)].slice(0, 8);
+  // 提示文案承诺「按 Esc 退出」：记录完本次 Esc 后真的失焦（旧版只拦截不退出）
+  if (e.key === 'Escape') e.currentTarget.blur();
 };
 const copyText = async (text, okText) => { try { await navigator.clipboard.writeText(text); statusMessage.value = '✓ ' + okText; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
 const copySummary = () => copyText(buildEventSummary(current.value), '已复制按键信息');
@@ -114,7 +121,7 @@ const copyRow = (k) => copyText('key: ' + displayKey(k.key) + '\ncode: ' + k.cod
 .keycode-finder { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .capture { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 16px; border: 2px dashed var(--border); border-radius: 12px; background: var(--bg-softer); cursor: pointer; outline: none; }
 .capture.focused { border-style: solid; border-color: var(--accent, #4f46e5); }
 .big-key { font-size: 34px; font-weight: 700; color: var(--text-strong); line-height: 1.2; word-break: break-all; text-align: center; }

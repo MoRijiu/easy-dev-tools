@@ -26,6 +26,11 @@ const BASE_KEYS = [
   K('Meta', 'MetaLeft', 91, 'Meta（左 Win/Command）', 'modifier', 'meta win command ⌘'),
   K('Meta', 'MetaRight', 93, 'Meta（右 Win/Command）', 'modifier', 'meta win command ⌘'),
   K('CapsLock', 'CapsLock', 20, '大写锁定', 'modifier', 'caps lock 大写'),
+  K('NumLock', 'NumLock', 144, '数字锁定', 'modifier', 'num lock numlock 数字锁定 小键盘'),
+  K('ScrollLock', 'ScrollLock', 145, '滚动锁定', 'modifier', 'scroll lock scrolllock 滚动锁定'),
+  K('Pause', 'Pause', 19, 'Pause 暂停', 'function', 'pause break 暂停 中断'),
+  K('PrintScreen', 'PrintScreen', 44, 'PrintScreen 截屏', 'function', 'printscreen print screen prtsc 截屏 截图'),
+  K('ContextMenu', 'ContextMenu', 93, 'ContextMenu 菜单键', 'edit', 'contextmenu menu 菜单 右键菜单'),
   // 编辑键
   K('Enter', 'Enter', 13, '回车', 'edit', 'enter return 回车 确认'),
   K('Tab', 'Tab', 9, '制表键', 'edit', 'tab 跳格 焦点'),
@@ -84,6 +89,10 @@ export const displayKey = (key) => {
   return key;
 };
 
+// key 值到修饰键标签的映射：单独按修饰键时 combo 不应重复（如 Control 的标签是 Ctrl，
+// 旧版按字符串比较漏掉它，拼出「Ctrl + Control」）
+const MODIFIER_LABEL_BY_KEY = { control: 'Ctrl', alt: 'Alt', shift: 'Shift', meta: 'Meta' };
+
 // 把 KeyboardEvent 风格的对象描述成可展示/可复制的结构（纯函数，便于测试）
 export const describeKeyEvent = (ev) => {
   const key = ev?.key ?? '';
@@ -95,7 +104,10 @@ export const describeKeyEvent = (ev) => {
   if (ev?.altKey) modifiers.push('Alt');
   if (ev?.shiftKey) modifiers.push('Shift');
   if (ev?.metaKey) modifiers.push('Meta');
-  const tableHit = KEY_TABLE.find(k => k.code === code) || KEY_TABLE.find(k => keyCode !== null && k.keyCode === keyCode && k.key === key);
+  // 按键名大小写不敏感匹配：Shift+A 时 key 是 'A'、键表存小写 'a'，旧版严格相等查不到中文名
+  const tableHit = KEY_TABLE.find(k => k.code === code)
+    || KEY_TABLE.find(k => keyCode !== null && k.keyCode === keyCode && k.key.toLowerCase() === String(key).toLowerCase());
+  const selfLabel = MODIFIER_LABEL_BY_KEY[String(key).toLowerCase()] || displayKey(key);
   return {
     key,
     keyDisplay: displayKey(key),
@@ -106,7 +118,7 @@ export const describeKeyEvent = (ev) => {
     modifiers,
     repeat: !!ev?.repeat,
     nameZh: tableHit ? tableHit.nameZh : '',
-    combo: modifiers.filter(m => m.toLowerCase() !== String(key).toLowerCase()).concat(key ? [displayKey(key)] : []).join(' + ')
+    combo: modifiers.filter(m => m !== selfLabel).concat(key ? [selfLabel] : []).join(' + ')
   };
 };
 
@@ -121,18 +133,35 @@ export const buildEventSummary = (d) => [
 
 export const buildCodeSnippet = (d) => {
   if (d.code) return "if (event.code === '" + d.code + "') {\n  // TODO: 处理按键\n}";
-  return "if (event.key === '" + (d.key === "'" ? "\\'" : d.key) + "') {\n  // TODO: 处理按键\n}";
+  // 用 JSON.stringify 转义 key：反斜杠、引号、控制字符都能安全落进字符串字面量
+  //（旧版只处理单引号，按 \ 键会生成未闭合的 '\' 片段）
+  return 'if (event.key === ' + JSON.stringify(d.key ?? '') + ') {\n  // TODO: 处理按键\n}';
 };
+
+// 全角字符转半角（中文输入法粘来的 １３／Ｅｎｔｅｒ 也能查）
+const toHalfWidth = (s) => String(s).replace(/[\uFF01-\uFF5E]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)).replace(/\u3000/g, ' ');
 
 export const searchKeys = (keyword, category = 'all') => {
   let rows = KEY_TABLE;
   if (category && category !== 'all') rows = rows.filter(k => k.category === category);
-  const q = (keyword || '').trim().toLowerCase();
+  const q = toHalfWidth(keyword || '').trim().toLowerCase();
   if (!q) return rows;
-  return rows.filter(k => {
+  const matched = rows.filter(k => {
     const hay = [k.key, k.code, String(k.keyCode), k.nameZh, k.keywords].join(' ').toLowerCase();
     return q.split(/\s+/).every(part => hay.includes(part));
   });
+  // 纯数字查询时 keyCode 精确命中排最前（如查 13 时回车优先于描述里带 13 的行）
+  if (/^\d+$/.test(q)) {
+    const exact = matched.filter(k => k.keyCode === Number(q));
+    if (exact.length) return [...exact, ...matched.filter(k => k.keyCode !== Number(q))];
+  }
+  return matched;
+};
+
+export const countByCategory = () => {
+  const counts = { all: KEY_TABLE.length };
+  for (const k of KEY_TABLE) counts[k.category] = (counts[k.category] || 0) + 1;
+  return counts;
 };
 
 export const findByCode = (code) => KEY_TABLE.find(k => k.code === code) || null;
