@@ -30,7 +30,8 @@
       <ToolStatusMessage :message="parseMessage" :type="parseType" />
       <p v-if="parseNotes.length" class="notes" role="status" aria-live="polite">{{ parseNotes.join('；') }}</p>
       <p v-if="parsed?.warnings?.length" class="notes warn" role="status" aria-live="polite">{{ parsed.warnings.join('；') }}</p>
-      <table v-if="parsed" class="result-table">
+      <div v-if="parsed" class="table-wrap">
+      <table class="result-table">
         <tbody>
           <tr><th scope="row">生成时间（UTC）</th><td>{{ parsed.iso ?? '超出可表示范围' }}</td><td><button class="copy-btn" @click="copyText(String(parsed.timestampMs))">复制时间戳</button></td></tr>
           <tr><th scope="row">生成时间（本地）</th><td>{{ localTime }}</td><td></td></tr>
@@ -42,6 +43,7 @@
           <tr v-for="g in parsed.groups" :key="g.label"><th scope="row">{{ g.label }}</th><td class="mono">{{ g.bits }}</td><td></td></tr>
         </tbody>
       </table>
+      </div>
       <p v-if="parsed" class="actions"><button @click="copySummary" class="btn btn-success">📋 复制解析摘要</button></p>
 
       <h2 class="section-title">生成</h2>
@@ -176,6 +178,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .custom-grid, .gen-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
 .parse-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .text-input { flex: 1 1 320px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; }
+.table-wrap { overflow-x: auto; }
 .result-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
 .result-table th { text-align: left; padding: 6px 10px; color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; width: 180px; }
 .result-table td { padding: 6px 10px; color: var(--text); border-bottom: 1px solid var(--border); word-break: break-all; }
