@@ -71,7 +71,7 @@
               placeholder="#FF5733"
               @input="onHexChange"
             />
-            <button class="copy-btn" @click="copyValue(hexInput, 'HEX')">📋</button>
+            <button class="copy-btn" aria-label="复制 HEX 值" @click="copyValue(hexInput, 'HEX')">📋</button>
           </div>
           <span class="format-hint">格式: #RGB / #RRGGBB / 带透明度 #RGBA / #RRGGBBAA</span>
           <p v-if="hexError" class="field-error">{{ hexError }}</p>
@@ -84,7 +84,7 @@
             <input v-model.number="rgb.r" type="number" min="0" max="255" placeholder="R" @input="onRgbChange" />
             <input v-model.number="rgb.g" type="number" min="0" max="255" placeholder="G" @input="onRgbChange" />
             <input v-model.number="rgb.b" type="number" min="0" max="255" placeholder="B" @input="onRgbChange" />
-            <button class="copy-btn" @click="copyValue(rgbString, 'RGB')">📋</button>
+            <button class="copy-btn" aria-label="复制 RGB 值" @click="copyValue(rgbString, 'RGB')">📋</button>
           </div>
           <span class="format-hint">范围: 0-255</span>
         </div>
@@ -96,7 +96,7 @@
             <input v-model.number="hsl.h" type="number" min="0" max="360" placeholder="H" @input="onHslChange" />
             <input v-model.number="hsl.s" type="number" min="0" max="100" placeholder="S" @input="onHslChange" />
             <input v-model.number="hsl.l" type="number" min="0" max="100" placeholder="L" @input="onHslChange" />
-            <button class="copy-btn" @click="copyValue(hslString, 'HSL')">📋</button>
+            <button class="copy-btn" aria-label="复制 HSL 值" @click="copyValue(hslString, 'HSL')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, S/L: 0-100%</span>
         </div>
@@ -108,7 +108,7 @@
             <input v-model.number="hsv.h" type="number" min="0" max="360" placeholder="H" @input="onHsvChange" />
             <input v-model.number="hsv.s" type="number" min="0" max="100" placeholder="S" @input="onHsvChange" />
             <input v-model.number="hsv.v" type="number" min="0" max="100" placeholder="V" @input="onHsvChange" />
-            <button class="copy-btn" @click="copyValue(hsvString, 'HSV')">📋</button>
+            <button class="copy-btn" aria-label="复制 HSV 值" @click="copyValue(hsvString, 'HSV')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, S/V: 0-100%</span>
         </div>
@@ -121,7 +121,7 @@
             <input v-model.number="cmyk.m" type="number" min="0" max="100" placeholder="M" @input="onCmykChange" />
             <input v-model.number="cmyk.y" type="number" min="0" max="100" placeholder="Y" @input="onCmykChange" />
             <input v-model.number="cmyk.k" type="number" min="0" max="100" placeholder="K" @input="onCmykChange" />
-            <button class="copy-btn" @click="copyValue(cmykString, 'CMYK')">📋</button>
+            <button class="copy-btn" aria-label="复制 CMYK 值" @click="copyValue(cmykString, 'CMYK')">📋</button>
           </div>
           <span class="format-hint">范围: 0-100%</span>
         </div>
@@ -133,7 +133,7 @@
             <input v-model.number="hwb.h" type="number" min="0" max="360" placeholder="H" @input="onHwbChange" />
             <input v-model.number="hwb.w" type="number" min="0" max="100" placeholder="W" @input="onHwbChange" />
             <input v-model.number="hwb.b" type="number" min="0" max="100" placeholder="B" @input="onHwbChange" />
-            <button class="copy-btn" @click="copyValue(hwbString, 'HWB')">📋</button>
+            <button class="copy-btn" aria-label="复制 HWB 值" @click="copyValue(hwbString, 'HWB')">📋</button>
           </div>
           <span class="format-hint">H: 0-360°, W/B: 0-100%（两者之和 ≤100）</span>
         </div>

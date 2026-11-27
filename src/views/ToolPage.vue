@@ -28,6 +28,7 @@
 import { computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSeo, toolSeoConfig } from '../composables/useSeo'
+import { getAllTools } from '../router/tools-config'
 
 const router = useRouter()
 const route = useRoute()
@@ -63,9 +64,11 @@ const { updateMeta } = useSeo()
 watch(toolId, (newToolId) => {
   const seoConfig = toolSeoConfig[newToolId]
   if (seoConfig) {
+    // canonical 一律本站域名 + 工具真实路由路径（tools-config 的 path）
+    const tool = getAllTools().find(t => t.id === newToolId)
     updateMeta({
       ...seoConfig,
-      canonical: `https://easy-dev-tools.com/tools/${newToolId}`
+      ...(tool ? { canonical: `https://tools.morijiu.cn${tool.path}` } : {})
     })
   }
 }, { immediate: true })
