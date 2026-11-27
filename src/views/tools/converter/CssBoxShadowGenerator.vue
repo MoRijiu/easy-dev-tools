@@ -34,6 +34,7 @@
         </div>
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in SHADOW_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
+      <p v-if="notes.length" class="notes">{{ notes.join('；') }}</p>
       <p v-if="error" class="error">{{ error }}</p>
       <template v-if="shadowCss">
         <div class="code-head"><span>CSS 代码</span>
@@ -52,7 +53,7 @@
   </div>
 </template>
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -69,7 +70,9 @@ const usageSteps = ['先点一个预设打底，或直接拖第一层的滑杆',
 const faqs = [
   { question: '模糊半径和扩散半径有什么区别？', answer: '模糊半径只决定阴影边缘的虚化程度，阴影大小不变；扩散半径会先把阴影形状整体放大（正值）或缩小（负值）再模糊。卡片投影常用负扩散收一收，避免阴影比元素还宽一圈。' },
   { question: '为什么推荐多层阴影？', answer: '真实光影有近处锐利、远处柔和的层次。叠一层小偏移小模糊加一层大偏移大模糊，比单层大模糊更自然，预设「分层立体」就是三层叠出来的。' },
-  { question: '内阴影 inset 适合做什么？', answer: '凹陷的输入框、按下态按钮、内嵌面板。inset 让阴影落在元素内部，配合浅色高光边还能做出拟物凹凸感。' }
+  { question: '内阴影 inset 适合做什么？', answer: '凹陷的输入框、按下态按钮、内嵌面板。inset 让阴影落在元素内部，配合浅色高光边还能做出拟物凹凸感。' },
+  { question: '数字框里能粘贴什么样的值？', answer: '只填纯数字即可（单位 px 已固定在代码里）：写 10px、0x10、10abc 都会点名报错；全角数字（如 １０）会自动转半角。清空数字框会提示不能为空，不会再静默当成 0。颜色支持 #hex、rgb()/rgba()、hsl()/hsla() 与常用英文名，全角写法也可。' },
+  { question: '改错一层为什么预览还在？', answer: '出错时保留上一次成功的预览与 CSS 代码，方便对照着改；把报错的那一层改对后会自动恢复为最新结果。' }
 ];
 const form = reactive({
   layers: [{ offsetX: 0, offsetY: 10, blur: 24, spread: -6, color: 'rgba(0, 0, 0, 0.25)', inset: false }]
@@ -77,7 +80,11 @@ const form = reactive({
 const statusMessage = ref(''); const statusType = ref('');
 const built = computed(() => buildShadow(form.layers));
 const error = computed(() => (built.value.ok ? '' : built.value.error));
-const shadowCss = computed(() => (built.value.ok ? built.value.css : ''));
+const notes = computed(() => (built.value.ok ? built.value.notes || [] : []));
+// 出错保留上一次成功结果：改坏一层时预览与代码不消失，改对自动恢复
+const lastGoodCss = ref('');
+watch(built, (v) => { if (v.ok) lastGoodCss.value = v.css; }, { immediate: true });
+const shadowCss = computed(() => (built.value.ok ? built.value.css : lastGoodCss.value));
 const snippet = computed(() => (shadowCss.value ? buildCssSnippet(shadowCss.value) : ''));
 const pickerValue = (color) => { const c = parseCssColor(color); return c.ok ? toHexInput(c) : '#000000'; };
 const onPick = (i, value) => { form.layers[i].color = value; };
@@ -90,7 +97,7 @@ const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt)
 .cs-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .preview { display: flex; justify-content: center; padding: 36px 16px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; }
 .preview-box { width: 220px; max-width: 70%; padding: 28px 0; text-align: center; background: var(--surface); color: var(--text); border-radius: 12px; font-size: 14px; }
 .layers-head { display: flex; gap: 8px; align-items: center; margin: 6px 0 10px; font-size: 13px; color: var(--text-2); }
@@ -114,6 +121,7 @@ input[type="color"] { width: 42px; height: 34px; padding: 2px; border: 1px solid
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger, #dc2626); font-size: 14px; }
+.notes { color: var(--warning, #b45309); font-size: 13px; }
 .code-head { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px; font-size: 13px; color: var(--text-2); flex-wrap: wrap; gap: 8px; }
 .code-btns { display: flex; gap: 6px; }
 .code { background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; color: var(--text); overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin: 0; }
