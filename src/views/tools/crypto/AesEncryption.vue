@@ -28,23 +28,23 @@
       <div class="config-section">
         <div class="config-grid">
           <div class="config-item">
-            <label>密钥长度</label>
-            <select aria-label="密钥长度" v-model="keyLength">
+            <label for="aes-key-length">密钥长度</label>
+            <select id="aes-key-length" aria-label="密钥长度" v-model="keyLength">
               <option value="128">AES-128 (16字节)</option>
               <option value="192">AES-192 (24字节)</option>
               <option value="256">AES-256 (32字节)</option>
             </select>
           </div>
           <div class="config-item">
-            <label>加密模式</label>
-            <select aria-label="加密模式" v-model="cipherMode">
+            <label for="aes-cipher-mode">加密模式</label>
+            <select id="aes-cipher-mode" aria-label="加密模式" v-model="cipherMode">
               <option value="CBC">CBC</option>
               <option value="GCM">GCM (推荐)</option>
             </select>
           </div>
           <div class="config-item">
-            <label>输出编码</label>
-            <select aria-label="输出编码" v-model="outputEncoding">
+            <label for="aes-output-encoding">输出编码</label>
+            <select id="aes-output-encoding" aria-label="输出编码" v-model="outputEncoding">
               <option value="base64">Base64</option>
               <option value="hex">Hex (十六进制)</option>
             </select>
@@ -55,14 +55,14 @@
       <!-- 密钥输入 -->
       <div class="key-section">
         <div class="key-header">
-          <label class="section-label">密钥 (Key)</label>
+          <label class="section-label" for="aes-secret-key">密钥 (Key)</label>
           <div class="key-actions">
             <button class="link-btn" @click="generateRandomKey">
               <span class="icon" aria-hidden="true">🎲</span> 生成随机密钥
             </button>
           </div>
         </div>
-        <input aria-label="密钥"
+        <input id="aes-secret-key" aria-label="密钥"
           v-model="secretKey"
           :type="showKey ? 'text' : 'password'"
           class="key-input"
@@ -73,8 +73,8 @@
           <span :class="['key-state', keyStateClass]">{{ keyHint }}</span>
         </div>
         <div class="iv-row" v-if="cipherMode === 'CBC'">
-          <label>初始向量 (IV):</label>
-          <input aria-label="初始向量 (IV)" 
+          <label for="aes-iv">初始向量 (IV):</label>
+          <input id="aes-iv" aria-label="初始向量 (IV)" 
             v-model="iv"
             type="text"
             class="iv-input"

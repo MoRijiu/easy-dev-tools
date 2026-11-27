@@ -43,14 +43,14 @@
         <!-- 输入区域 -->
         <div class="converter-panel">
           <div class="panel-header">
-            <label>输入值</label>
+            <label for="unit-input-value">输入值</label>
             <select aria-label="输入值单位" v-model="fromUnit" class="unit-select" @change="convert">
               <option v-for="unit in currentUnits" :key="unit.id" :value="unit.id">
                 {{ unit.name }} ({{ unit.symbol }})
               </option>
             </select>
           </div>
-          <input aria-label="输入值"
+          <input id="unit-input-value" aria-label="输入值"
             v-model="inputValue"
             type="text"
             inputmode="decimal"

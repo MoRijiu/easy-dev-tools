@@ -100,16 +100,16 @@
         <h2>⚙️ 转换设置</h2>
         <div class="settings-grid">
           <div class="setting-item">
-            <label>目标格式</label>
-            <select aria-label="目标格式" v-model="targetFormat">
+            <label for="imgv-target-format">目标格式</label>
+            <select id="imgv-target-format" aria-label="目标格式" v-model="targetFormat">
               <option v-for="fmt in TARGET_FORMATS" :key="fmt.value" :value="fmt.value">{{ fmt.label }} (.{{ fmt.ext }})</option>
             </select>
             <span class="setting-hint">{{ currentTarget.hint }}</span>
           </div>
           <div class="setting-item" v-if="supportsQuality">
-            <label>输出质量</label>
+            <label for="imgv-quality">输出质量</label>
             <div class="quality-control">
-              <input aria-label="输出质量"
+              <input id="imgv-quality" aria-label="输出质量"
                 type="range"
                 v-model="quality"
                 min="10"

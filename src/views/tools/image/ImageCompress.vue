@@ -102,9 +102,9 @@
         <h2>⚙️ 压缩设置</h2>
         <div class="settings-grid">
           <div class="setting-item">
-            <label>压缩质量</label>
+            <label for="imgc-quality">压缩质量</label>
             <div class="quality-control">
-              <input aria-label="压缩质量"
+              <input id="imgc-quality" aria-label="压缩质量"
                 type="range"
                 v-model="quality"
                 min="10"
@@ -117,8 +117,8 @@
             <span class="setting-hint">质量越低，文件越小</span>
           </div>
           <div class="setting-item">
-            <label>最大宽度 (px)</label>
-            <input aria-label="最大宽度 (px)"
+            <label for="imgc-max-width">最大宽度 (px)</label>
+            <input id="imgc-max-width" aria-label="最大宽度 (px)"
               type="text"
               inputmode="numeric"
               v-model="maxWidth"
@@ -127,8 +127,8 @@
             <span class="setting-hint">超过此宽度将等比缩放（16–8192，留空不限制，只缩小不放大）</span>
           </div>
           <div class="setting-item">
-            <label>输出格式</label>
-            <select aria-label="输出格式" v-model="outputFormat">
+            <label for="imgc-output-format">输出格式</label>
+            <select id="imgc-output-format" aria-label="输出格式" v-model="outputFormat">
               <option value="original">保持原格式</option>
               <option value="image/jpeg">JPEG</option>
               <option value="image/png">PNG</option>
