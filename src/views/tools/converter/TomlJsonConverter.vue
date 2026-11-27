@@ -53,13 +53,18 @@ const features = [
 const usageSteps = ['选转换方向（TOML → JSON 可选输出缩进）', '粘贴 TOML 或 JSON，下方实时生成结果', '点「复制结果」取走，或点「交换」把结果作为输入反向再转'];
 const faqs = [
   { question: '日期时间转成 JSON 后是字符串？', answer: '是的。JSON 没有日期类型，TOML 的日期时间（如 2026-11-27T10:30:00Z）按原文以字符串保留，不丢信息；反向转换时它仍是普通字符串，会加引号输出。' },
+  { question: '日期时间会做真假校验吗？', answer: '会。月份、每月天数（含闰年 2 月 29 日）、时分秒范围都会按日历校验，2023-02-30、25:00:00 这类不存在的日期时间会点名报错。用空格代替 T 的写法（1979-05-27 07:32:00）同样支持。' },
+  { question: '数字写法有哪些讲究？', answer: '按 TOML 规范严格校验：整数不能有前导零（0123 不行）、下划线只能单个夹在数字之间（1_000 可以，1__000 与 100_ 不行）、十六/八/二进制整数不能带正负号、小数点两侧都必须有数字（.5 与 5. 都不行）。' },
+  { question: '点分键或内联表建的表能再用 [表头] 补充吗？', answer: '不能。按 TOML 规范，a.b = 1 定义出的表 a、以及内联表 a = {…} 都是封闭的，之后再写 [a] 补键会报错；想分段写请一开始就用 [表头] 组织。同样 [a] 与 [[a]] 不能同名混用。' },
   { question: 'JSON 里有 null 怎么办？', answer: 'TOML 没有 null，本工具会报错并指出字段路径，请先删掉该字段或改成空字符串再转，避免悄悄丢数据。' },
   { question: 'JSON 顶层是数组能转吗？', answer: '不能。TOML 文档顶层必须是一张表（对象）。顶层数组请先包一层对象，如 {"items": [...]}，对象数组会自动输出为 [[items]] 数组表。' },
+  { question: '输入大小有限制吗？', answer: '双向都限制在 100 万字符以内，超限会点名提示拆分；配置再大也建议拆成多个文件管理。' },
   { question: '我的配置会被上传吗？', answer: '不会。全部转换都在浏览器本地完成，不发送任何网络请求。' }
 ];
 const examples = [
-  { input: 'title = "app"\n[server]\nport = 8080', output: '{"title":"app","server":{"port":8080}}', description: 'TOML 转 JSON' },
-  { input: '{"title":"app","server":{"port":8080}}', output: 'title = "app"\n\n[server]\nport = 8080', description: 'JSON 转 TOML' }
+  { mode: 'toml2json', input: 'title = "app"\n[server]\nport = 8080', output: '{\n  "title": "app",\n  "server": {\n    "port": 8080\n  }\n}', description: 'TOML 转 JSON' },
+  { mode: 'json2toml', input: '{"title":"app","server":{"port":8080}}', output: 'title = "app"\n\n[server]\nport = 8080', description: 'JSON 转 TOML' },
+  { mode: 'toml2json', input: 'created = 1979-05-27 07:32:00\nretries = 1_000', output: '{\n  "created": "1979-05-27 07:32:00",\n  "retries": 1000\n}', description: '空格分隔日期时间与下划线数字' }
 ];
 const mode = ref('toml2json');
 const indent = ref(2);
@@ -70,19 +75,21 @@ const statusMessage = ref('');
 const statusType = ref('');
 const countLines = (s) => (s ? s.split('\n').length : 0);
 const convert = () => {
-  outputText.value = ''; stats.value = '';
-  if (!inputText.value.trim()) { statusMessage.value = ''; return; }
+  if (!inputText.value.trim()) { outputText.value = ''; stats.value = ''; statusMessage.value = ''; return; }
   try {
+    let out;
     if (mode.value === 'toml2json') {
       const r = tomlToJson(inputText.value);
-      outputText.value = indent.value === 0 ? JSON.stringify(r.data) : JSON.stringify(r.data, null, indent.value);
+      out = indent.value === 0 ? JSON.stringify(r.data) : JSON.stringify(r.data, null, indent.value);
     } else {
-      outputText.value = jsonToToml(inputText.value).toml;
+      out = jsonToToml(inputText.value).toml;
     }
-    stats.value = '输入 ' + countLines(inputText.value) + ' 行 → 输出 ' + countLines(outputText.value) + ' 行';
+    outputText.value = out;
+    stats.value = '输入 ' + countLines(inputText.value) + ' 行 → 输出 ' + countLines(out) + ' 行';
     statusMessage.value = '✓ 转换成功';
     statusType.value = 'success';
   } catch (e) {
+    // 出错保留上一次的成功结果，只更新状态提示
     statusMessage.value = '✗ ' + e.message;
     statusType.value = 'error';
   }
@@ -92,7 +99,7 @@ const TOML_EXAMPLE = 'title = "my-app"\nversion = "1.2.0"\ndebug = false\ncreate
 const JSON_EXAMPLE = '{\n  "title": "my-app",\n  "debug": false,\n  "server": { "host": "localhost", "ports": [8080, 9090] },\n  "owners": [{ "name": "张三", "role": "admin" }, { "name": "李四", "role": "ops" }]\n}';
 const loadExample = () => { inputText.value = mode.value === 'toml2json' ? TOML_EXAMPLE : JSON_EXAMPLE; convert(); };
 const useExample = (ex) => {
-  mode.value = ex.description.startsWith('JSON') ? 'json2toml' : 'toml2json';
+  mode.value = ex.mode || (ex.description.startsWith('JSON') ? 'json2toml' : 'toml2json');
   inputText.value = ex.input; convert();
 };
 const swap = () => {
@@ -112,7 +119,7 @@ const copyOutput = async () => {
 .toml-json { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .mode-btn { padding: 6px 12px; border: none; background: var(--bg-soft); color: var(--text-2); font-size: 13px; cursor: pointer; }
 .mode-btn.active { background: var(--accent); color: #fff; }
