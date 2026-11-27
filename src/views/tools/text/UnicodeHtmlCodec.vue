@@ -13,8 +13,8 @@
 
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
 
-      <div class="mode-row" role="tablist" aria-label="转换模式">
-        <button v-for="m in modes" :key="m.id" class="mode-btn" :class="{ active: mode === m.id }" role="tab" :aria-selected="mode === m.id" @click="setMode(m.id)">{{ m.label }}</button>
+      <div class="mode-row" role="group" aria-label="转换模式">
+        <button v-for="m in modes" :key="m.id" class="mode-btn" :class="{ active: mode === m.id }" :aria-pressed="mode === m.id" @click="setMode(m.id)">{{ m.label }}</button>
       </div>
 
       <div v-if="mode === 'unicode-encode'" class="option-row">

@@ -4,9 +4,9 @@
     <p class="description">.env 环境变量与 JSON 一键互转：支持 export 前缀、注释、单/双引号与多行值，重复键会提示，全程本地处理不上传</p>
     <div class="tool-container">
       <ToolToolbar>
-        <div class="mode-switch" role="tablist" aria-label="转换方向">
-          <button :class="['mode-btn', { active: mode === 'env2json' }]" @click="setMode('env2json')">.env → JSON</button>
-          <button :class="['mode-btn', { active: mode === 'json2env' }]" @click="setMode('json2env')">JSON → .env</button>
+        <div class="mode-switch" role="group" aria-label="转换方向">
+          <button :class="['mode-btn', { active: mode === 'env2json' }]" :aria-pressed="mode === 'env2json'" @click="setMode('env2json')">.env → JSON</button>
+          <button :class="['mode-btn', { active: mode === 'json2env' }]" :aria-pressed="mode === 'json2env'" @click="setMode('json2env')">JSON → .env</button>
         </div>
         <label v-if="mode === 'env2json'" class="opt">JSON 缩进
           <select v-model.number="indent" class="select" @change="convert"><option :value="2">2 空格</option><option :value="4">4 空格</option><option :value="0">压缩</option></select>

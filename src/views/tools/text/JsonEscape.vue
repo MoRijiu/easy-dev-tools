@@ -3,9 +3,9 @@
     <h1>JSON 字符串转义</h1>
     <p class="description">普通文本与 JSON 字符串互转：转义引号、反斜杠与换行，或把带转义的 JSON 字符串还原成原文，全程本地、不上传</p>
     <div class="tool-container">
-      <div class="mode-row" role="tablist" aria-label="转换模式">
-        <button class="mode-btn" :class="{ active: mode === 'escape' }" role="tab" :aria-selected="mode === 'escape'" type="button" @click="mode = 'escape'">转义</button>
-        <button class="mode-btn" :class="{ active: mode === 'unescape' }" role="tab" :aria-selected="mode === 'unescape'" type="button" @click="mode = 'unescape'">去转义</button>
+      <div class="mode-row" role="group" aria-label="转换模式">
+        <button class="mode-btn" :class="{ active: mode === 'escape' }" :aria-pressed="mode === 'escape'" type="button" @click="mode = 'escape'">转义</button>
+        <button class="mode-btn" :class="{ active: mode === 'unescape' }" :aria-pressed="mode === 'unescape'" type="button" @click="mode = 'unescape'">去转义</button>
       </div>
       <div v-if="mode === 'escape'" class="row options">
         <label class="check"><input type="checkbox" v-model="unicode" /> 非 ASCII 转 \uXXXX</label>
