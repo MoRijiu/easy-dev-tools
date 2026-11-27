@@ -6,7 +6,7 @@
     <main id="main-content" class="main-content" tabindex="-1">
       <div v-if="currentTool" class="tool-bar">
         <router-link to="/" class="tool-bar-back">← 全部工具</router-link>
-        <span class="tool-bar-name">{{ currentTool.icon }} {{ currentTool.name }}</span>
+        <span class="tool-bar-name"><span aria-hidden="true">{{ currentTool.icon }}</span> {{ currentTool.name }}</span>
         <span class="tool-bar-fav"><FavoriteButton :tool-id="currentTool.id" :tool-name="currentTool.name" />{{ isFavorite(currentTool.id) ? '已收藏' : '收藏' }}</span>
       </div>
       <router-view v-slot="{ Component }">
