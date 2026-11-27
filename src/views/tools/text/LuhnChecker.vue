@@ -4,7 +4,7 @@
     <p class="description">银行卡、IMEI 等号码的 Luhn（模 10）校验、校验位生成与批量校验，全程本地、不上传</p>
     <div class="tool-container">
       <label class="block">待校验号码
-        <input v-model="input" type="text" inputmode="numeric" spellcheck="false" placeholder="如：4111 1111 1111 1111" aria-label="待校验号码" />
+        <input v-model="input" type="text" inputmode="numeric" spellcheck="false" placeholder="如：4111 1111 1111 1111" aria-label="待校验号码" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error ? 'luhn-error' : undefined" />
       </label>
       <div class="row actions">
         <button class="chip" type="button" @click="loadExample('4111111111111111')">Visa 示例</button>
@@ -13,7 +13,7 @@
         <button class="btn ghost" type="button" @click="input = ''">清空</button>
         <button class="btn" type="button" :disabled="!result" @click="copyText(summary)">复制摘要</button>
       </div>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="luhn-error" class="error" role="alert">{{ error }}</p>
       <p v-if="error && result" class="muted">当前输入有误，下面保留的是上一次成功校验的结果。</p>
       <p v-for="note in (result ? result.notes || [] : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-for="w in (result ? result.warnings || [] : [])" :key="w" class="warn" role="status" aria-live="polite">{{ w }}</p>
@@ -36,9 +36,9 @@
 
       <h2 class="section-title">生成校验位</h2>
       <label class="block">载荷号码（不含末位校验位）
-        <input v-model="payload" type="text" inputmode="numeric" spellcheck="false" placeholder="如：7992739871" aria-label="载荷号码" />
+        <input v-model="payload" type="text" inputmode="numeric" spellcheck="false" placeholder="如：7992739871" aria-label="载荷号码" :aria-invalid="payloadError ? 'true' : undefined" :aria-describedby="payloadError ? 'luhn-payload-error' : undefined" />
       </label>
-      <p v-if="payloadError" class="error" role="alert">{{ payloadError }}</p>
+      <p v-if="payloadError" id="luhn-payload-error" class="error" role="alert">{{ payloadError }}</p>
       <p v-if="payloadError && completed" class="muted">当前载荷有误，下面保留的是上一次成功生成的结果。</p>
       <p v-for="note in (completed ? completed.notes || [] : [])" :key="note" class="note" role="status" aria-live="polite">{{ note }}</p>
       <p v-if="completed" class="complete-row">
@@ -50,7 +50,7 @@
 
       <h2 class="section-title">批量校验</h2>
       <label class="block">每行一个号码
-        <textarea v-model="batch" rows="4" spellcheck="false" placeholder="每行一个号码" aria-label="批量校验输入"></textarea>
+        <textarea v-model="batch" rows="4" spellcheck="false" placeholder="每行一个号码" aria-label="批量校验输入" :aria-invalid="batchError ? 'true' : undefined" :aria-describedby="batchError ? 'luhn-batch-error' : undefined"></textarea>
       </label>
       <template v-if="batchResult">
         <p class="summary">共 {{ batchResult.total }} 个 · 通过 {{ batchResult.validCount }} · 不通过 {{ batchResult.invalidCount }}<span v-if="batchResult.errorCount"> · 格式错误 {{ batchResult.errorCount }}</span></p>
@@ -62,7 +62,7 @@
           </li>
         </ul>
       </template>
-      <p v-if="batchError" class="error" role="alert">{{ batchError }}</p>
+      <p v-if="batchError" id="luhn-batch-error" class="error" role="alert">{{ batchError }}</p>
       <p v-if="batchError && batchResult" class="muted">当前批量输入有误，上面保留的是上一次成功校验的结果。</p>
 
       <ToolStatusMessage :message="statusMessage" :type="statusType" />

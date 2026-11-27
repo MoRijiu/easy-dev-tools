@@ -15,27 +15,27 @@
           <span class="layer-name">第 {{ i + 1 }} 层</span>
           <label class="check"><input v-model="layer.inset" type="checkbox" /> 内阴影 inset</label>
           <input type="color" :value="pickerValue(layer.color)" :aria-label="`第 ${i + 1} 层阴影颜色取色器`" @input="onPick(i, $event.target.value)" />
-          <input v-model="layer.color" type="text" class="color-text mono" :aria-label="`第 ${i + 1} 层阴影颜色值`" spellcheck="false" />
+          <input v-model="layer.color" type="text" class="color-text mono" :aria-label="`第 ${i + 1} 层阴影颜色值`" spellcheck="false" :aria-invalid="errorLayerField(i, 'color') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'color') ? 'css-shadow-error' : undefined" />
           <button class="del" :disabled="form.layers.length <= 1" :aria-label="`删除第 ${i + 1} 层`" @click="removeLayer(i)">✕</button>
         </div>
         <div class="sliders">
           <label>水平偏移 {{ layer.offsetX }}px
-            <span class="slider-row"><input v-model.number="layer.offsetX" type="range" min="-200" max="200" step="1" :aria-label="`第 ${i + 1} 层水平偏移`" /><input v-model.number="layer.offsetX" type="number" min="-200" max="200" class="num" :aria-label="`第 ${i + 1} 层水平偏移数值`" /></span>
+            <span class="slider-row"><input v-model.number="layer.offsetX" type="range" min="-200" max="200" step="1" :aria-label="`第 ${i + 1} 层水平偏移`" :aria-invalid="errorLayerField(i, 'offsetX') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'offsetX') ? 'css-shadow-error' : undefined" /><input v-model.number="layer.offsetX" type="number" min="-200" max="200" class="num" :aria-label="`第 ${i + 1} 层水平偏移数值`" :aria-invalid="errorLayerField(i, 'offsetX') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'offsetX') ? 'css-shadow-error' : undefined" /></span>
           </label>
           <label>垂直偏移 {{ layer.offsetY }}px
-            <span class="slider-row"><input v-model.number="layer.offsetY" type="range" min="-200" max="200" step="1" :aria-label="`第 ${i + 1} 层垂直偏移`" /><input v-model.number="layer.offsetY" type="number" min="-200" max="200" class="num" :aria-label="`第 ${i + 1} 层垂直偏移数值`" /></span>
+            <span class="slider-row"><input v-model.number="layer.offsetY" type="range" min="-200" max="200" step="1" :aria-label="`第 ${i + 1} 层垂直偏移`" :aria-invalid="errorLayerField(i, 'offsetY') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'offsetY') ? 'css-shadow-error' : undefined" /><input v-model.number="layer.offsetY" type="number" min="-200" max="200" class="num" :aria-label="`第 ${i + 1} 层垂直偏移数值`" :aria-invalid="errorLayerField(i, 'offsetY') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'offsetY') ? 'css-shadow-error' : undefined" /></span>
           </label>
           <label>模糊半径 {{ layer.blur }}px
-            <span class="slider-row"><input v-model.number="layer.blur" type="range" min="0" max="200" step="1" :aria-label="`第 ${i + 1} 层模糊半径`" /><input v-model.number="layer.blur" type="number" min="0" max="200" class="num" :aria-label="`第 ${i + 1} 层模糊半径数值`" /></span>
+            <span class="slider-row"><input v-model.number="layer.blur" type="range" min="0" max="200" step="1" :aria-label="`第 ${i + 1} 层模糊半径`" :aria-invalid="errorLayerField(i, 'blur') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'blur') ? 'css-shadow-error' : undefined" /><input v-model.number="layer.blur" type="number" min="0" max="200" class="num" :aria-label="`第 ${i + 1} 层模糊半径数值`" :aria-invalid="errorLayerField(i, 'blur') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'blur') ? 'css-shadow-error' : undefined" /></span>
           </label>
           <label>扩散半径 {{ layer.spread }}px
-            <span class="slider-row"><input v-model.number="layer.spread" type="range" min="-100" max="100" step="1" :aria-label="`第 ${i + 1} 层扩散半径`" /><input v-model.number="layer.spread" type="number" min="-100" max="100" class="num" :aria-label="`第 ${i + 1} 层扩散半径数值`" /></span>
+            <span class="slider-row"><input v-model.number="layer.spread" type="range" min="-100" max="100" step="1" :aria-label="`第 ${i + 1} 层扩散半径`" :aria-invalid="errorLayerField(i, 'spread') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'spread') ? 'css-shadow-error' : undefined" /><input v-model.number="layer.spread" type="number" min="-100" max="100" class="num" :aria-label="`第 ${i + 1} 层扩散半径数值`" :aria-invalid="errorLayerField(i, 'spread') ? 'true' : undefined" :aria-describedby="errorLayerField(i, 'spread') ? 'css-shadow-error' : undefined" /></span>
           </label>
         </div>
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in SHADOW_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
-      <p v-if="error" class="error" role="alert">{{ error }}</p>
+      <p v-if="error" id="css-shadow-error" class="error" role="alert">{{ error }}</p>
       <template v-if="shadowCss">
         <div class="code-head"><span>CSS 代码</span>
           <span class="code-btns">
@@ -80,6 +80,20 @@ const form = reactive({
 const statusMessage = ref(''); const statusType = ref('');
 const built = computed(() => buildShadow(form.layers));
 const error = computed(() => (built.value.ok ? '' : built.value.error));
+const SHADOW_FIELD_LABELS = [['水平偏移', 'offsetX'], ['垂直偏移', 'offsetY'], ['模糊半径', 'blur'], ['扩散半径', 'spread']];
+const errorTarget = computed(() => {
+  const e = error.value;
+  if (!e) return null;
+  const m = e.match(/^第 (\d+) 层：(.*)$/);
+  if (!m) return null;
+  const rest = m[2];
+  for (const [label, field] of SHADOW_FIELD_LABELS) if (rest.startsWith(label)) return { index: Number(m[1]) - 1, field };
+  return { index: Number(m[1]) - 1, field: 'color' };
+});
+const errorLayerField = (i, field) => {
+  const t = errorTarget.value;
+  return !!(t && t.index === i && t.field === field);
+};
 const notes = computed(() => (built.value.ok ? built.value.notes || [] : []));
 // 出错保留上一次成功结果：改坏一层时预览与代码不消失，改对自动恢复
 const lastGoodCss = ref('');
