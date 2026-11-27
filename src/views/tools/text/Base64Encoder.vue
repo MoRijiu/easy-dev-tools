@@ -28,8 +28,8 @@
       <!-- 编码选项 -->
       <div class="options-row">
         <div class="segmented" role="group" aria-label="编码字母表">
-          <button type="button" :class="{ active: alphabet === 'standard' }" @click="alphabet = 'standard'">标准（+ /）</button>
-          <button type="button" :class="{ active: alphabet === 'urlsafe' }" @click="alphabet = 'urlsafe'">URL-safe（- _）</button>
+          <button type="button" :class="{ active: alphabet === 'standard' }" :aria-pressed="alphabet === 'standard'" @click="alphabet = 'standard'">标准（+ /）</button>
+          <button type="button" :class="{ active: alphabet === 'urlsafe' }" :aria-pressed="alphabet === 'urlsafe'" @click="alphabet = 'urlsafe'">URL-safe（- _）</button>
         </div>
         <label class="check-option">
           <input type="checkbox" v-model="withPadding" />

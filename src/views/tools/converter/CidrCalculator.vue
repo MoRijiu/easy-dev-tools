@@ -12,7 +12,7 @@
       <input v-model="inputText" class="text-input" placeholder="如 192.168.1.10/24，也支持 /255.255.255.0 掩码写法或纯 IP" spellcheck="false" aria-label="CIDR 输入" @input="calculate" />
       <div class="prefix-row" aria-label="常用前缀">
         <span>常用前缀：</span>
-        <button v-for="p in [8, 16, 24, 25, 26, 27, 28, 29, 30, 32]" :key="p" class="chip" :class="{ active: result && result.prefix === p }" @click="applyPrefix(p)">/{{ p }}</button>
+        <button v-for="p in [8, 16, 24, 25, 26, 27, 28, 29, 30, 32]" :key="p" class="chip" :class="{ active: result && result.prefix === p }" :aria-pressed="!!result && result.prefix === p" @click="applyPrefix(p)">/{{ p }}</button>
       </div>
       <ul v-if="result && result.warnings.length" class="warnings-list" role="status" aria-live="polite">
         <li v-for="(w, i) in result.warnings" :key="i">⚠️ {{ w }}</li>

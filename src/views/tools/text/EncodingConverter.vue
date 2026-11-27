@@ -12,11 +12,11 @@
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
       <div class="mode-row" role="group" aria-label="转换方向与格式">
         <div class="seg">
-          <button :class="{ active: mode === 'encode' }" @click="mode = 'encode'">编码（文本 →）</button>
-          <button :class="{ active: mode === 'decode' }" @click="mode = 'decode'">解码（→ 文本）</button>
+          <button :class="{ active: mode === 'encode' }" :aria-pressed="mode === 'encode'" @click="mode = 'encode'">编码（文本 →）</button>
+          <button :class="{ active: mode === 'decode' }" :aria-pressed="mode === 'decode'" @click="mode = 'decode'">解码（→ 文本）</button>
         </div>
         <div class="seg">
-          <button v-for="f in ENCODING_FORMATS" :key="f.id" :class="{ active: format === f.id }" @click="format = f.id">{{ f.name }}</button>
+          <button v-for="f in ENCODING_FORMATS" :key="f.id" :class="{ active: format === f.id }" :aria-pressed="format === f.id" @click="format = f.id">{{ f.name }}</button>
         </div>
         <label v-if="format === 'hex'" class="check"><input type="checkbox" v-model="hexUpper" /> 大写</label>
         <label v-if="format === 'hex'" class="check"><input type="checkbox" v-model="hexSpaced" /> 空格分隔</label>

@@ -10,13 +10,13 @@
       <div class="mode-section">
         <div class="mode-tabs">
           <button 
-            :class="['mode-tab', { active: mode === 'encrypt' }]"
+            :class="['mode-tab', { active: mode === 'encrypt' }]" :aria-pressed="mode === 'encrypt'"
             @click="mode = 'encrypt'"
           >
             <span class="icon" aria-hidden="true">🔒</span> 加密
           </button>
           <button 
-            :class="['mode-tab', { active: mode === 'decrypt' }]"
+            :class="['mode-tab', { active: mode === 'decrypt' }]" :aria-pressed="mode === 'decrypt'"
             @click="mode = 'decrypt'"
           >
             <span class="icon" aria-hidden="true">🔓</span> 解密

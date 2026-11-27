@@ -19,7 +19,7 @@
           <button
             v-for="algo in HASH_ALGORITHMS"
             :key="algo.id"
-            :class="['algo-btn', { active: selectedAlgorithms.includes(algo.id) }]"
+            :class="['algo-btn', { active: selectedAlgorithms.includes(algo.id) }]" :aria-pressed="selectedAlgorithms.includes(algo.id)"
             @click="toggleAlgorithm(algo.id)"
           >
             {{ algo.name }}<span class="algo-bits">{{ algo.bits }} 位</span>
@@ -99,7 +99,7 @@
               <span class="result-algo">{{ getAlgorithmName(key) }}<span v-if="matchedIds.includes(key)" class="match-badge">✓ 与期望哈希一致</span></span>
               <div class="result-actions">
                 <button
-                  :class="['case-btn', { active: upperCase[key] }]"
+                  :class="['case-btn', { active: upperCase[key] }]" :aria-pressed="!!upperCase[key]"
                   @click="toggleCase(key)"
                   title="切换大小写"
                 >

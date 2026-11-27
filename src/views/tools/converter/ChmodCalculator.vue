@@ -34,7 +34,7 @@
       <ul class="desc-list"><li v-for="d in describeBits(bits)" :key="d">{{ d }}</li></ul>
       <div class="preset-row" aria-label="常用预设">
         <span>常用：</span>
-        <button v-for="p in PRESETS" :key="p.octal" class="chip" :class="{ active: octal === p.octal }" :title="p.note" @click="loadPreset(p)">{{ p.octal }}</button>
+        <button v-for="p in PRESETS" :key="p.octal" class="chip" :class="{ active: octal === p.octal }" :aria-pressed="octal === p.octal" :title="p.note" @click="loadPreset(p)">{{ p.octal }}</button>
       </div>
       <div class="umask-box">
         <h2>umask 计算</h2>

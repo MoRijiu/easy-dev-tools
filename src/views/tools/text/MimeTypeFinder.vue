@@ -6,7 +6,7 @@
       <div class="controls">
         <input v-model="query" type="search" placeholder="输入扩展名或 MIME，如 .png / image/png / 视频" aria-label="搜索MIME类型" class="search" />
         <div class="chips" role="group" aria-label="按分类筛选">
-          <button v-for="c in MIME_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" @click="category = c.id">{{ c.name }} {{ counts[c.id] ?? 0 }}</button>
+          <button v-for="c in MIME_CATEGORIES" :key="c.id" :class="{ active: category === c.id }" :aria-pressed="category === c.id" @click="category = c.id">{{ c.name }} {{ counts[c.id] ?? 0 }}</button>
         </div>
       </div>
       <p class="count">共 {{ results.length }} 条 · 提示：上传接口返回的 Content-Type 应与文件真实类型一致，.jpg 与 .jpeg 共用 image/jpeg</p>
