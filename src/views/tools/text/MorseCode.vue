@@ -171,7 +171,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .dur { font-size: 13px; color: var(--text-2); }
 .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .ta { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: ui-monospace, monospace; font-size: 13px; resize: vertical; word-break: break-all; }
-.error { color: var(--danger, #dc2626); font-size: 14px; margin: 10px 0 0; }
+.error { color: var(--danger-text); font-size: 14px; margin: 10px 0 0; }
 .ref { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
 .ref-group { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
 .ref-title { font-size: 13px; color: var(--text-2); width: 34px; flex: none; }

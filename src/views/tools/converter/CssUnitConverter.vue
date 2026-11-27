@@ -97,7 +97,7 @@ input, select { padding: 8px 10px; border: 1px solid var(--border); border-radiu
 .ctx-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .ctx-row label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
 .ctx-row input { width: 76px; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .note { font-size: 13px; color: var(--info-text, var(--text-2)); margin: 6px 0; }
 .summary { font-size: 14px; color: var(--text-strong); margin: 16px 0 8px; }
 .table-wrap { overflow-x: auto; margin-bottom: 10px; }

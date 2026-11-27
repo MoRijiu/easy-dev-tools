@@ -110,7 +110,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .hint { font-size: 13px; color: var(--text-2); margin: 4px 0 12px; }
 .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .ta { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: ui-monospace, monospace; font-size: 13px; resize: vertical; word-break: break-all; }
-.error { color: var(--danger, #dc2626); font-size: 14px; margin: 10px 0 0; }
+.error { color: var(--danger-text); font-size: 14px; margin: 10px 0 0; }
 .all-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 .all-title { font-size: 13px; color: var(--text-2); }
 .all-chip { padding: 5px 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

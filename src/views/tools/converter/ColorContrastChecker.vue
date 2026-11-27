@@ -121,7 +121,7 @@ input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .preview { border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 16px; }
 .pv-normal { font-size: 16px; margin: 0 0 8px; }
 .pv-large { font-size: 24px; margin: 0 0 8px; font-weight: 600; }
@@ -133,8 +133,8 @@ input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
 table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--text); }
 th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); }
 th { white-space: nowrap; color: var(--text-2); font-weight: 600; }
-.pass { color: var(--success, #16a34a); white-space: nowrap; }
-.fail { color: var(--danger, #dc2626); white-space: nowrap; }
+.pass { color: var(--success-text); white-space: nowrap; }
+.fail { color: var(--danger-text); white-space: nowrap; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .fix-note { font-size: 13px; color: var(--text); margin-top: 10px; }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .swap { order: 3; } }

@@ -143,7 +143,7 @@ textarea { width: 100%; font-family: monospace; font-size: 13px; resize: vertica
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn:disabled { opacity: .6; cursor: wait; }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger, #dc2626); font-size: 14px; }
+.error { color: var(--danger-text); font-size: 14px; }
 .summary { font-size: 14px; margin: 10px 0 6px; color: var(--text); }
 .table-wrap { overflow-x: auto; margin-bottom: 10px; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
@@ -153,6 +153,6 @@ td.mono { font-family: monospace; word-break: break-all; }
 .muted { font-size: 12px; color: var(--text-2); }
 .verify-box { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
 .verify-ok { color: var(--success-text, #15803d); font-size: 14px; }
-.verify-bad { color: var(--danger, #dc2626); font-size: 14px; }
+.verify-bad { color: var(--danger-text); font-size: 14px; }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

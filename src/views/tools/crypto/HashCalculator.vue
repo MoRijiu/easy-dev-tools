@@ -598,7 +598,7 @@ h1 {
   margin-left: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--success, #2f9e44);
+  color: var(--success-text);
 }
 
 .result-actions {
@@ -680,7 +680,7 @@ h1 {
 }
 
 .verify-message.success {
-  color: var(--success, #2f9e44);
+  color: var(--success-text);
 }
 
 .verify-message.error {

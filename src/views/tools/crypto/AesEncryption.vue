@@ -518,11 +518,11 @@ h1 {
 }
 
 .key-state.ok {
-  color: var(--success, #16a34a);
+  color: var(--success-text);
 }
 
 .key-state.bad {
-  color: var(--danger, #dc2626);
+  color: var(--danger-text);
 }
 
 .iv-row label {
