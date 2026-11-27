@@ -12,6 +12,9 @@
         <button class="btn btn-success" @click="copyOutput">
           <span class="icon">📋</span> 复制全部
         </button>
+        <button class="btn" @click="downloadOutput" :disabled="!outputText">
+          <span class="icon">⬇️</span> 下载 .txt
+        </button>
         <button class="btn btn-danger" @click="clearAll">
           <span class="icon">🗑️</span> 清空
         </button>
@@ -32,8 +35,8 @@
             </select>
           </div>
           <div class="setting-item">
-            <label>数量</label>
-            <input type="number" v-model.number="options.count" min="1" max="100" />
+            <label>数量（1–{{ COUNT_LIMITS[options.type] }}）</label>
+            <input type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" />
           </div>
           <div class="setting-item">
             <label>文本风格</label>
@@ -44,9 +47,9 @@
             </select>
           </div>
           <div class="setting-item checkbox-item">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="options.startWithLorem" />
-              <span>以 "Lorem ipsum" 开头</span>
+            <label class="checkbox-label" :class="{ disabled: options.style !== 'lorem' }">
+              <input type="checkbox" v-model="options.startWithLorem" :disabled="options.style !== 'lorem'" />
+              <span>以 "Lorem ipsum" 开头（仅经典风格）</span>
             </label>
           </div>
         </div>
@@ -56,8 +59,8 @@
       <div class="output-section">
         <div class="output-header">
           <h3>生成的文本</h3>
-          <span class="text-stats" v-if="outputText">
-            {{ wordCount }} 词 / {{ charCount }} 字符
+          <span class="text-stats" v-if="outputText && stats">
+            {{ stats.paragraphs }} 段 · {{ stats.sentences }} 句 · {{ stats.words }} {{ options.style === 'chinese' ? '字' : '词' }} · {{ stats.chars }} 字符 · {{ stats.bytes }} 字节（UTF-8）
           </span>
         </div>
         <div class="text-output-wrapper">
@@ -82,144 +85,46 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { generateLorem, COUNT_LIMITS, TYPE_LABELS } from "@/utils/lorem.js";
 
 // 响应式状态
 const outputText = ref("");
+const stats = ref(null);
 const statusMessage = ref("");
 const statusType = ref("");
+const countRaw = ref("3");
 
 const options = ref({
   type: "paragraphs",
-  count: 3,
   style: "lorem",
   startWithLorem: true
 });
 
-// 词库数据
-const loremWords = [
-  "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
-  "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
-  "magna", "aliqua", "enim", "ad", "minim", "veniam", "quis", "nostrud",
-  "exercitation", "ullamco", "laboris", "nisi", "aliquip", "ex", "ea", "commodo",
-  "consequat", "duis", "aute", "irure", "in", "reprehenderit", "voluptate",
-  "velit", "esse", "cillum", "fugiat", "nulla", "pariatur", "excepteur", "sint",
-  "occaecat", "cupidatat", "non", "proident", "sunt", "culpa", "qui", "officia",
-  "deserunt", "mollit", "anim", "id", "est", "laborum", "vivamus", "vestibulum",
-  "sagittis", "sapien", "cum", "sociis", "natoque", "penatibus", "magnis", "dis",
-  "parturient", "montes", "nascetur", "ridiculus", "mus", "donec", "quam", "felis",
-  "ultricies", "nec", "pellentesque", "eu", "pretium", "quis", "sem", "nulla",
-  "consequat", "massa", "quis", "enim", "donec", "pede", "justo", "fringilla"
-];
-
-const chineseWords = [
-  "天地玄黄", "宇宙洪荒", "日月盈昃", "辰宿列张", "寒来暑往", "秋收冬藏",
-  "闰余成岁", "律吕调阳", "云腾致雨", "露结为霜", "金生丽水", "玉出昆冈",
-  "剑号巨阙", "珠称夜光", "果珍李柰", "菜重芥姜", "海咸河淡", "鳞潜羽翔",
-  "龙师火帝", "鸟官人皇", "始制文字", "乃服衣裳", "推位让国", "有虞陶唐",
-  "吊民伐罪", "周发殷汤", "坐朝问道", "垂拱平章", "爱育黎首", "臣伏戎羌",
-  "遐迩一体", "率宾归王", "鸣凤在竹", "白驹食场", "化被草木", "赖及万方"
-];
-
-const hipsterWords = [
-  "artisan", "authentic", "biodiesel", "brooklyn", "cardigan", "craft", "crucifix",
-  "distillery", "dreamcatcher", "ethical", "fixie", "flannel", "gastropub", "gentrify",
-  "hashtag", "helvetica", "hoodie", "intelligentsia", "irony", "jean", "kale", "keytar",
-  "kickstarter", "kinfolk", "knausgaard", "lomo", "marfa", "meditation", "microdosing",
-  "mustache", "neutra", "organic", "paleo", "pitchfork", "polaroid", "portland",
-  "poutine", "raw", "selvage", "semiotics", "skateboard", "slow", "snackwave",
-  "sustainable", "synth", "tacos", "tattooed", "taxidermy", "tofu", "trust",
-  "tumblr", "twee", "typewriter", "umami", "vegan", "vexillologist", "vinyl"
-];
-
-// 获取当前词库
-const getWordList = () => {
-  switch (options.value.style) {
-    case "chinese": return chineseWords;
-    case "hipster": return hipsterWords;
-    default: return loremWords;
-  }
-};
-
-// 随机获取单词
-const getRandomWord = (words) => words[Math.floor(Math.random() * words.length)];
-
-// 生成句子
-const generateSentence = (words, minWords = 8, maxWords = 15) => {
-  const wordCount = Math.floor(Math.random() * (maxWords - minWords + 1)) + minWords;
-  const sentenceWords = [];
-  for (let i = 0; i < wordCount; i++) {
-    sentenceWords.push(getRandomWord(words));
-  }
-  let sentence = sentenceWords.join(options.value.style === "chinese" ? "" : " ");
-  // 首字母大写
-  sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
-  return sentence + (options.value.style === "chinese" ? "。" : ".");
-};
-
-// 生成段落
-const generateParagraph = (words, sentenceCount = 5) => {
-  const count = Math.floor(Math.random() * 3) + sentenceCount;
-  const sentences = [];
-  for (let i = 0; i < count; i++) {
-    sentences.push(generateSentence(words));
-  }
-  return sentences.join(" ");
-};
-
-// 生成文本
+// 生成文本：数量严格校验，出错保留上次结果
 const generateText = () => {
-  const words = getWordList();
-  let result = [];
-
-  if (options.value.type === "words") {
-    for (let i = 0; i < options.value.count; i++) {
-      result.push(getRandomWord(words));
-    }
-    outputText.value = result.join(options.value.style === "chinese" ? "" : " ");
-  } else if (options.value.type === "sentences") {
-    for (let i = 0; i < options.value.count; i++) {
-      result.push(generateSentence(words));
-    }
-    outputText.value = result.join(" ");
-  } else {
-    for (let i = 0; i < options.value.count; i++) {
-      result.push(generateParagraph(words));
-    }
-    outputText.value = result.join("\n\n");
+  try {
+    const result = generateLorem({
+      type: options.value.type,
+      count: countRaw.value,
+      style: options.value.style,
+      startWithLorem: options.value.startWithLorem
+    });
+    outputText.value = result.text;
+    stats.value = result.stats;
+    statusMessage.value = `✓ 已生成 ${countRaw.value.trim()} 个${TYPE_LABELS[options.value.type]}`;
+    statusType.value = "success";
+  } catch (e) {
+    statusMessage.value = `✗ ${e.message}`;
+    statusType.value = "error";
   }
-
-  // 如果需要以 Lorem ipsum 开头
-  if (options.value.startWithLorem && options.value.style === "lorem") {
-    outputText.value = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-      outputText.value.substring(outputText.value.indexOf(". ") + 2);
-  }
-
-  statusMessage.value = `✓ 已生成 ${options.value.count} ${getTypeLabel()}`;
-  statusType.value = "success";
 };
-
-const getTypeLabel = () => {
-  const labels = { paragraphs: "个段落", sentences: "个句子", words: "个单词" };
-  return labels[options.value.type];
-};
-
-// 统计
-const wordCount = computed(() => {
-  if (!outputText.value) return 0;
-  if (options.value.style === "chinese") {
-    return outputText.value.replace(/[。，、；：""''！？\s\n]/g, "").length;
-  }
-  return outputText.value.split(/\s+/).filter(w => w).length;
-});
-
-const charCount = computed(() => outputText.value.length);
 
 // 复制
 const copyToClipboard = async (text) => {
@@ -241,25 +146,41 @@ const copyOutput = async () => {
   }
 };
 
+// 下载
+const downloadOutput = () => {
+  if (!outputText.value) return;
+  const blob = new Blob([outputText.value], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "lorem-ipsum.txt";
+  a.click();
+  URL.revokeObjectURL(url);
+  statusMessage.value = "✓ 已下载 lorem-ipsum.txt";
+  statusType.value = "success";
+};
+
 // 清空
 const clearAll = () => {
   outputText.value = "";
+  stats.value = null;
   statusMessage.value = "";
 };
 
 // 使用示例
 const useExample = (example) => {
   options.value = { ...options.value, ...example.options };
+  if (example.options.count !== undefined) countRaw.value = String(example.options.count);
   generateText();
 };
 
 // 功能特点
 const features = [
   { icon: "📝", title: "多种风格", description: "支持经典 Lorem、中文和 Hipster 风格" },
-  { icon: "📊", title: "灵活生成", description: "可按段落、句子或单词数量生成" },
-  { icon: "🔢", title: "实时统计", description: "显示生成文本的词数和字符数" },
-  { icon: "📋", title: "一键复制", description: "快速复制生成的占位文本" },
-  { icon: "🎯", title: "自定义开头", description: "可选择是否以经典开头开始" },
+  { icon: "📊", title: "灵活生成", description: "可按段落、句子或单词数量生成，数量严格校验" },
+  { icon: "🔢", title: "真实统计", description: "按段/句/词与 Unicode 码点、UTF-8 字节统计" },
+  { icon: "📋", title: "一键复制/下载", description: "快速复制生成的占位文本，或下载为 .txt 文件" },
+  { icon: "🎯", title: "自定义开头", description: "经典风格可选择以 Lorem ipsum 标准句开头" },
   { icon: "⚡", title: "即时预览", description: "生成后立即显示预览效果" },
 ];
 
@@ -276,15 +197,17 @@ const usageSteps = [
 const faqs = [
   { question: "Lorem Ipsum 是什么？", answer: "Lorem Ipsum 是一种常用的占位文本，源自拉丁语，用于在设计和排版过程中作为临时文本，以便专注于视觉效果而非内容。" },
   { question: "为什么使用占位文本？", answer: "在设计阶段，使用占位文本可以帮助设计师专注于布局和视觉效果，而不会被具体内容分散注意力。" },
-  { question: "中文占位文有什么特点？", answer: "中文占位文使用经典的《千字文》文本，既有传统文化气息，又能很好地展示中文排版效果。" },
+  { question: "中文占位文有什么特点？", answer: "中文占位文使用经典的《千字文》文本，既有传统文化气息，又能很好地展示中文排版效果。中文风格按「句」生成时每句由 3–6 个四字短语组成，统计按字数计。" },
   { question: "Hipster Ipsum 是什么？", answer: "Hipster Ipsum 是一种有趣的占位文本变体，使用时髦的流行词汇，为设计增添一些现代感和幽默感。" },
+  { question: "数量填错会怎样？", answer: "数量必须是正整数：段落最多 50、句子最多 200、单词最多 1000。填小数、负数或超限会直接报错并指出上限，不会像旧版那样静默截断或生成错误数量，且出错时保留上一次生成结果。" },
+  { question: "「以 Lorem ipsum 开头」对单词类型也生效吗？", answer: "生效：段落/句子类型会把第一句换成标准句「Lorem ipsum dolor sit amet, consectetur adipiscing elit.」，单词类型则以前五个经典词开头（数量不足 5 时只取前几个）。该选项仅对经典 Lorem 风格生效。" },
 ];
 
 // 使用示例
 const examples = [
-  { input: "3段产品描述", output: "Lorem ipsum...", description: "工具介绍文案", options: { type: "paragraphs", count: 3, style: "lorem" } },
-  { input: "5句功能说明", output: "极速开发工具箱...", description: "中文功能文案", options: { type: "sentences", count: 5, style: "chinese" } },
-  { input: "10个关键词", output: "morijiu, tools...", description: "SEO关键词", options: { type: "words", count: 10, style: "lorem" } },
+  { input: "3段经典占位文", output: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. …", description: "工具介绍文案", options: { type: "paragraphs", count: 3, style: "lorem", startWithLorem: true } },
+  { input: "5句中文占位文", output: "天地玄黄宇宙洪荒日月盈昃辰宿列张。…", description: "中文功能文案", options: { type: "sentences", count: 5, style: "chinese" } },
+  { input: "10个单词", output: "lorem ipsum dolor sit amet …", description: "关键词占位", options: { type: "words", count: 10, style: "lorem", startWithLorem: true } },
 ];
 </script>
 
@@ -326,7 +249,7 @@ h1 {
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   gap: 20px;
 }
 
@@ -338,20 +261,21 @@ h1 {
 }
 
 .setting-item select,
-.setting-item input[type="number"] {
+.setting-item input[type="text"] {
   width: 100%;
   padding: 10px;
   border: 2px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
   background: var(--surface);
+  color: var(--text-strong);
   box-sizing: border-box;
 }
 
 .setting-item select:focus,
 .setting-item input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .checkbox-item {
@@ -365,6 +289,11 @@ h1 {
   gap: 8px;
   cursor: pointer;
   font-weight: normal !important;
+}
+
+.checkbox-label.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -385,6 +314,8 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
@@ -442,4 +373,3 @@ h1 {
   }
 }
 </style>
-
