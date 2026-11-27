@@ -20,20 +20,20 @@ defineProps({
 
 <style scoped>
 .faq {
-  margin-top: 40px;
+  margin-top: 28px;
 }
 
 .faq h2 {
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   color: var(--text-strong);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .faq details {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 15px;
+  padding: 12px;
   background: var(--surface);
 }
 
@@ -49,9 +49,9 @@ defineProps({
 }
 
 .faq p {
-  margin-top: 10px;
+  margin-top: 8px;
   color: var(--text-2);
-  line-height: 1.8;
+  line-height: 1.7;
 }
 </style>
 
