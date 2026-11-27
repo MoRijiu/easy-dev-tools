@@ -43,6 +43,10 @@
         <span class="desc-text">{{ description }}</span>
       </div>
 
+      <ul v-if="parsed && parsed.warnings.length" class="warnings-list">
+        <li v-for="(w, i) in parsed.warnings" :key="i">⚠️ {{ w }}</li>
+      </ul>
+
       <div v-if="parsed" class="fields-section">
         <h3 class="section-title">字段解析</h3>
         <table class="fields-table">
@@ -65,7 +69,7 @@
         <ol v-if="runs.length" class="runs-list">
           <li v-for="(t, i) in runs" :key="i"><code>{{ formatTime(t) }}</code><span class="run-week">周{{ weekLabel(t) }}</span></li>
         </ol>
-        <p v-else class="runs-empty">未来约 2 年内没有匹配的执行时间，请检查表达式（如 2 月 30 日不存在）。</p>
+        <p v-else class="runs-empty">没有找到未来的执行时间：该表达式可能永不执行（如 2 月 30 日不存在）或指定年份已过去，请看上方警告与字段解析。</p>
       </div>
 
       <ToolExamples :examples="examples" @use-example="useExample" />
@@ -116,7 +120,15 @@ const faqs = [
   },
   {
     question: '支持 @daily 这类别名吗？',
-    answer: '支持 @yearly、@monthly、@weekly、@daily、@midnight、@hourly 等常见别名，会自动展开成标准表达式。'
+    answer: '支持 @yearly、@annually、@monthly、@weekly、@daily、@midnight、@hourly，会自动展开成标准表达式；@reboot 等系统别名不支持，拼错别名会明确报错。'
+  },
+  {
+    question: '支持 Quartz 的 ?、L、W、# 吗？',
+    answer: '不支持。这些是 Quartz 扩展符号（? 表示不指定、L 表示最后一天、W 表示最近工作日、# 表示第几个星期几），粘贴进来会明确报错并定位到字段；? 可先用 * 代替再按字段表核对语义。7 字段仅支持在最后加年份。'
+  },
+  {
+    question: '为什么表达式合法却没有执行时间？',
+    answer: '多半是日期组合不存在（如 2 月 30 日、4 月 31 日）或 7 字段的年份已过去，页面会在解析区上方给出「永不执行」警告；2 月 29 日则只在闰年执行，约每 4 年一次。'
   }
 ];
 
@@ -142,7 +154,17 @@ const runs = ref([]);
 const statusMessage = ref('');
 const statusType = ref('');
 
-const fieldHints = ['分钟', '小时', '日', '月', '星期'];
+const FIELD_HINT_SETS = {
+  5: ['分钟', '小时', '日', '月', '星期'],
+  6: ['秒', '分钟', '小时', '日', '月', '星期'],
+  7: ['秒', '分钟', '小时', '日', '月', '星期', '年']
+};
+const fieldHints = computed(() => {
+  const expr = inputExpr.value.trim();
+  if (expr.startsWith('@')) return FIELD_HINT_SETS[5];
+  const count = expr ? expr.split(/\s+/).length : 5;
+  return FIELD_HINT_SETS[count] || FIELD_HINT_SETS[5];
+});
 const description = computed(() => (parsed.value ? describeCron(parsed.value) : ''));
 
 const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
@@ -186,7 +208,8 @@ const copyNext = async () => {
 .cron-parser { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.warnings-list { margin: 0 0 12px; padding: 10px 14px 10px 30px; background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.7; }
 .input-section { margin-bottom: 12px; }
 .cron-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 15px; box-sizing: border-box; }
 .field-hint { display: flex; gap: 18px; margin-top: 8px; color: var(--text-2); font-size: 12px; padding-left: 2px; }
