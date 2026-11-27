@@ -131,6 +131,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .text-input { width: 100%; min-height: 220px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .text-input.output { background: var(--bg-soft); }
 .stats { margin: 10px 0 0; font-size: 13px; color: var(--text-2); }
-.warning { margin: 6px 0 0; font-size: 13px; color: var(--warning-text, #b45309); }
+.warning { margin: 6px 0 0; font-size: 13px; color: var(--warning-text); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .panes { grid-template-columns: 1fr; } }
 </style>

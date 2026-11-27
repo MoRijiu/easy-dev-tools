@@ -391,7 +391,7 @@ h1 {
   font-size: 0.8rem;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--text-1);
+  color: var(--text);
   border-radius: 6px;
   cursor: pointer;
   white-space: nowrap;
@@ -405,7 +405,7 @@ h1 {
   overflow-x: auto;
   font-size: 0.85rem;
   line-height: 1.5;
-  color: var(--text-1);
+  color: var(--text);
 }
 
 .error-hint {

@@ -102,7 +102,7 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger, #dc2626); font-size: 14px; }
 .note { color: var(--info-text, var(--text-2)); background: var(--info-soft); border: 1px solid var(--info-border); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
-.warn { color: var(--warning-text, var(--text-2)); background: var(--warning-soft, var(--info-soft)); border: 1px solid var(--warning-border, var(--info-border)); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.warn { color: var(--warning-text); background: var(--warning-soft); border: 1px solid var(--warning-border); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }

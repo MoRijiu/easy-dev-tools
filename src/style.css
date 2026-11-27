@@ -32,6 +32,11 @@
   --danger: #e74c3c;
   --danmaku-bg: rgba(255, 255, 255, 0.9);
   --warn-soft: #fff7e6;
+  --warning: #b45309;
+  --warning-text: #b45309;
+  --warning-soft: #fff7e6;
+  --warning-border: #f0d48a;
+  --on-accent: #ffffff;
   --danger-soft: #f8d7da;
   --danger-text: #721c24;
   --danger-border: #f5c6cb;
@@ -77,6 +82,10 @@
   --success-soft: #14301f;
   --danmaku-bg: rgba(28, 32, 42, 0.92);
   --warn-soft: #3a2f14;
+  --warning: #fbbf24;
+  --warning-text: #fbbf24;
+  --warning-soft: #3a2f14;
+  --warning-border: #7a5c14;
   --danger-soft: #3d1d22;
   --danger-text: #f3b8be;
   --danger-border: #6e2f38;

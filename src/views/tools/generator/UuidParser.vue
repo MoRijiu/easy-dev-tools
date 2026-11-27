@@ -110,7 +110,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
 .tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .note { color: var(--info-text, var(--text-2)); font-size: 13px; margin: 6px 0; }
-.warn { color: var(--warning-text, #b45309); font-size: 13px; margin: 6px 0; }
+.warn { color: var(--warning-text); font-size: 13px; margin: 6px 0; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
 textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; resize: vertical; box-sizing: border-box; }
