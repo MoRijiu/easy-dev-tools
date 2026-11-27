@@ -19,7 +19,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="password-generator-status" :message="statusMessage" :type="statusType" />
 
       <!-- 设置区域 -->
       <div class="settings-section">
@@ -28,12 +28,12 @@
             <label for="pwd-length-range">密码长度</label>
             <div class="length-control">
               <input id="pwd-length-range" aria-label="密码长度（滑杆）" type="range" v-model.number="options.length" min="4" max="128" />
-              <input type="text" inputmode="numeric" v-model="options.length" class="length-input" aria-label="密码长度（4-128）" />
+              <input type="text" inputmode="numeric" v-model="options.length" class="length-input" aria-label="密码长度（4-128）" :aria-invalid="invalidFor('length')" :aria-describedby="describedByFor('length')" />
             </div>
           </div>
           <div class="setting-item">
             <label for="pwd-count">生成数量（1-50）</label>
-            <input id="pwd-count" aria-label="生成数量" type="text" inputmode="numeric" v-model="options.count" />
+            <input id="pwd-count" aria-label="生成数量" type="text" inputmode="numeric" v-model="options.count" :aria-invalid="invalidFor('count')" :aria-describedby="describedByFor('count')" />
           </div>
         </div>
 
@@ -69,7 +69,7 @@
 
         <div class="exclude-section">
           <label for="pwd-exclude">排除字符</label>
-          <input id="pwd-exclude" aria-label="排除字符" type="text" v-model="options.excludeChars" placeholder="输入要排除的字符，如: 0O1lI" />
+          <input id="pwd-exclude" aria-label="排除字符" type="text" v-model="options.excludeChars" placeholder="输入要排除的字符，如: 0O1lI" :aria-invalid="invalidFor('exclude')" :aria-describedby="describedByFor('exclude')" />
         </div>
       </div>
 
@@ -139,14 +139,30 @@ const options = ref({
   requireEach: true
 });
 
+// 生成错误单独留存：状态区还兼报复制/下载结果，只有当前展示的正是这条生成错误时才做字段关联
+const genError = ref("");
+// 错误文案自带字段名（密码长度/生成数量/排除字符），据此定位出错字段；「至少选一种字符类型」属整组勾选、环境与自检类错误不归任何字段
+const genErrorField = computed(() => {
+  if (!genError.value || statusType.value !== "error" || statusMessage.value !== `✗ ${genError.value}`) return "";
+  const e = genError.value;
+  if (e.startsWith("密码长度")) return "length";
+  if (e.startsWith("生成数量")) return "count";
+  if (e.includes("排除字符")) return "exclude";
+  return "";
+});
+const invalidFor = (field) => (genErrorField.value === field ? "true" : undefined);
+const describedByFor = (field) => (genErrorField.value === field ? "password-generator-status" : undefined);
+
 // 生成密码（核心在 utils/passwordGenerate：无偏拒绝采样 + 保类 + 严格校验；出错保留旧列表）
 const generatePasswords = () => {
   try {
     const result = generateCore({ ...options.value });
     passwords.value = result.passwords;
+    genError.value = "";
     statusMessage.value = `✓ 已生成 ${result.count} 个密码 · 字符池 ${result.poolSize} · 理论熵约 ${result.entropyBits} 位`;
     statusType.value = "success";
   } catch (e) {
+    genError.value = e.message;
     statusMessage.value = `✗ ${e.message}`;
     statusType.value = "error";
   }

@@ -7,6 +7,7 @@
   <Transition name="fade">
     <div
       v-if="message"
+      :id="id"
       :class="['status-message', type]"
       :role="type === 'error' ? 'alert' : 'status'"
       :aria-live="type === 'error' ? 'assertive' : 'polite'"
@@ -19,6 +20,11 @@
 
 <script setup>
 defineProps({
+  // 可选：给状态节点一个稳定 id，供出错控件以 aria-describedby 关联（R9bb 起）
+  id: {
+    type: String,
+    default: undefined
+  },
   message: {
     type: String,
     default: ''
