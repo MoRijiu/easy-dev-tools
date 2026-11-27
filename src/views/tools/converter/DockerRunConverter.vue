@@ -8,8 +8,8 @@
         <button @click="clearAll" class="btn btn-danger"><span class="icon" aria-hidden="true">🗑️</span> 清空</button>
         <button @click="copyYaml" class="btn btn-success" :disabled="!yamlText"><span class="icon" aria-hidden="true">📋</span> 复制 YAML</button>
       </ToolToolbar>
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
-      <textarea v-model="inputText" class="text-input" placeholder="粘贴 docker run 命令，如：&#10;docker run -d --name web -p 8080:80 -v ./site:/usr/share/nginx/html:ro --restart unless-stopped nginx:alpine" spellcheck="false" aria-label="docker run命令输入" @input="parse"></textarea>
+      <ToolStatusMessage id="docker-run-status" :message="statusMessage" :type="statusType" />
+      <textarea v-model="inputText" class="text-input" placeholder="粘贴 docker run 命令，如：&#10;docker run -d --name web -p 8080:80 -v ./site:/usr/share/nginx/html:ro --restart unless-stopped nginx:alpine" spellcheck="false" aria-label="docker run命令输入" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'docker-run-status' : undefined" @input="parse"></textarea>
       <template v-if="result">
         <p class="stats">{{ summary }}</p>
         <table class="kv" aria-label="解析概览">
@@ -72,6 +72,9 @@ const inputText = ref('');
 const result = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
+const inputErrorText = ref('');
+const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const summary = computed(() => (result.value ? buildDockerSummary(result.value) : ''));
 const yamlText = computed(() => (result.value ? toComposeYaml(result.value) : ''));
 const parse = () => {
@@ -80,7 +83,7 @@ const parse = () => {
     result.value = parseDockerRun(inputText.value);
     statusMessage.value = '✓ 解析成功';
     statusType.value = 'success';
-  } catch (e) { statusMessage.value = '✗ ' + e.message; statusType.value = 'error'; }
+  } catch (e) { setInputError('✗ ' + e.message); }
 };
 const EXAMPLE = "docker run -d --name web \\\n  -p 8080:80 -p 8443:443 \\\n  -v ./site:/usr/share/nginx/html:ro \\\n  -e TZ=Asia/Shanghai --restart unless-stopped \\\n  --memory 512m --cpus 1.5 \\\n  nginx:alpine";
 const loadExample = () => { inputText.value = EXAMPLE; parse(); };
