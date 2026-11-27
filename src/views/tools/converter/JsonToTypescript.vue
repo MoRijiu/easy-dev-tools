@@ -46,18 +46,25 @@ const usageSteps = ['粘贴任意 JSON（对象、数组或原始值均可）', 
 const faqs = [
   { question: '日期字符串为什么生成 string 而不是 Date？', answer: 'JSON 本身没有日期类型，字符串一律推断为 string，避免把普通文本误判成日期；需要 Date 可手动改。' },
   { question: '数组里有的键为什么带问号？', answer: '对象数组会合并所有元素的键，只在部分元素中出现的键在运行时可能缺失，因此标为可选（?）。' },
-  { question: '空数组生成什么？', answer: '没有元素可供推断时生成 unknown[]，比 any 更安全，后续可手动收紧。' }
+  { question: '空数组生成什么？', answer: '没有元素可供推断时生成 unknown[]，比 any 更安全，后续可手动收紧。' },
+  { question: '根数组里混着对象和数字会生成什么？', answer: '元素对象生成「根名+Item」接口（如 RootItem），根名留给 type 别名：type Root = (RootItem | number)[]，不会出现 interface 与 type 同名冲突。' },
+  { question: '输入太大或嵌套太深为什么报错？', answer: '输入上限 100 万字符、嵌套 100 层、节点 5 万个，超限会点名提示拆分；这是为了避免超深 JSON 把页面卡死。status、news 这类以 s 结尾但不是复数的词也不会被误改成单数名。' }
 ];
 const examples = [
   {
     input: '{"id":1,"name":"tom","tags":["dev","ops"],"profile":{"city":"Tokyo"},"orders":[{"sku":"A1","qty":2},{"sku":"B2","qty":1,"note":"急"}]}',
-    output: 'orders 数组合并出 Order 接口，note 只出现一次故标可选',
-    description: '嵌套对象 + 对象数组'
+    output: 'export interface Root {\n  id: number;\n  name: string;\n  tags: string[];\n  profile: Profile;\n  orders: Order[];\n}\n\nexport interface Profile {\n  city: string;\n}\n\nexport interface Order {\n  sku: string;\n  qty: number;\n  note?: string;\n}',
+    description: '嵌套对象 + 对象数组（note 只出现一次标可选）'
   },
   {
     input: '[{"id":1},{"id":2,"name":"n"}]',
-    output: '根为数组时生成元素接口 Root 与别名 RootList = Root[]',
-    description: '根数组'
+    output: 'export interface Root {\n  id: number;\n  name?: string;\n}\n\nexport type RootList = Root[];',
+    description: '根数组（元素接口 + 列表别名）'
+  },
+  {
+    input: '{"status":[{"code":200,"ok":true}],"total":1}',
+    output: 'export interface Root {\n  status: Status[];\n  total: number;\n}\n\nexport interface Status {\n  code: number;\n  ok: boolean;\n}',
+    description: 'status 不会被误改成单数名 Statu'
   }
 ];
 const inputText = ref('');
@@ -68,9 +75,7 @@ const stats = ref(null);
 const statusMessage = ref('');
 const statusType = ref('');
 const convert = () => {
-  outputText.value = '';
-  stats.value = null;
-  if (!inputText.value.trim()) { statusMessage.value = ''; return; }
+  if (!inputText.value.trim()) { outputText.value = ''; stats.value = null; statusMessage.value = ''; return; }
   try {
     const r = jsonToTypeScript(inputText.value, { rootName: rootName.value, useExport: useExport.value });
     outputText.value = r.code;
@@ -93,7 +98,7 @@ const copyOutput = async () => {
 .json-to-ts { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .options { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 10px; font-size: 13px; color: var(--text-2); }
 .name-input { width: 130px; margin-left: 4px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; }
 .check { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
