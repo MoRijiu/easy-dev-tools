@@ -53,7 +53,7 @@
           <div class="input-section">
             <div class="input-group">
               <label>时间戳输入</label>
-              <input
+              <input aria-label="时间戳输入"
                 v-model="timestampInput"
                 type="text"
                 class="text-input-field"
@@ -78,7 +78,7 @@
             <div class="divider">或</div>
             <div class="input-group">
               <label>日期时间输入（文本，按本地时区）</label>
-              <input
+              <input aria-label="日期时间输入（文本，按本地时区）"
                 v-model="dateTextInput"
                 type="text"
                 class="text-input-field"
@@ -87,7 +87,7 @@
             </div>
             <div class="input-group">
               <label>或用日期选择器</label>
-              <input
+              <input aria-label="日期选择器"
                 v-model="dateInput"
                 type="datetime-local"
                 class="text-input-field"

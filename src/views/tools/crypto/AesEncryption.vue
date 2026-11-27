@@ -29,7 +29,7 @@
         <div class="config-grid">
           <div class="config-item">
             <label>密钥长度</label>
-            <select v-model="keyLength">
+            <select aria-label="密钥长度" v-model="keyLength">
               <option value="128">AES-128 (16字节)</option>
               <option value="192">AES-192 (24字节)</option>
               <option value="256">AES-256 (32字节)</option>
@@ -37,14 +37,14 @@
           </div>
           <div class="config-item">
             <label>加密模式</label>
-            <select v-model="cipherMode">
+            <select aria-label="加密模式" v-model="cipherMode">
               <option value="CBC">CBC</option>
               <option value="GCM">GCM (推荐)</option>
             </select>
           </div>
           <div class="config-item">
             <label>输出编码</label>
-            <select v-model="outputEncoding">
+            <select aria-label="输出编码" v-model="outputEncoding">
               <option value="base64">Base64</option>
               <option value="hex">Hex (十六进制)</option>
             </select>
@@ -62,7 +62,7 @@
             </button>
           </div>
         </div>
-        <input
+        <input aria-label="密钥"
           v-model="secretKey"
           :type="showKey ? 'text' : 'password'"
           class="key-input"
@@ -74,7 +74,7 @@
         </div>
         <div class="iv-row" v-if="cipherMode === 'CBC'">
           <label>初始向量 (IV):</label>
-          <input 
+          <input aria-label="初始向量 (IV)" 
             v-model="iv"
             type="text"
             class="iv-input"
@@ -107,7 +107,7 @@
       <!-- 编辑器布局 -->
       <ToolEditorLayout>
         <ToolEditorPanel :title="mode === 'encrypt' ? '明文输入' : '密文输入'" :info="inputInfo">
-          <textarea
+          <textarea aria-label="输入内容（明文或密文）"
             v-model="inputText"
             class="text-input"
             :placeholder="mode === 'encrypt' ? '请输入需要加密的明文内容...' : '请输入需要解密的密文 (Base64/Hex)...'"

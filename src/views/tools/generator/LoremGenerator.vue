@@ -28,7 +28,7 @@
         <div class="settings-grid">
           <div class="setting-item">
             <label>生成类型</label>
-            <select v-model="options.type">
+            <select aria-label="生成类型" v-model="options.type">
               <option value="paragraphs">段落</option>
               <option value="sentences">句子</option>
               <option value="words">单词</option>
@@ -36,11 +36,11 @@
           </div>
           <div class="setting-item">
             <label>数量（1–{{ COUNT_LIMITS[options.type] }}）</label>
-            <input type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" />
+            <input aria-label="生成数量" type="text" inputmode="numeric" v-model="countRaw" @keyup.enter="generateText" />
           </div>
           <div class="setting-item">
             <label>文本风格</label>
-            <select v-model="options.style">
+            <select aria-label="文本风格" v-model="options.style">
               <option value="lorem">经典 Lorem Ipsum</option>
               <option value="chinese">中文占位文</option>
               <option value="hipster">Hipster Ipsum</option>

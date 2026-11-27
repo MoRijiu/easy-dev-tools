@@ -50,7 +50,7 @@
       <!-- 文本输入区域 -->
       <div class="input-section" v-if="mode === 'text'">
         <ToolEditorPanel title="输入内容" :info="inputInfo">
-          <textarea
+          <textarea aria-label="输入需要计算哈希的文本"
             v-model="inputText"
             class="text-input"
             placeholder="在此输入需要计算哈希的文本内容（可为空，空字符串也有确定哈希）..."
@@ -70,7 +70,7 @@
           @dragleave="dragging = false"
           @drop.prevent="onDrop"
         >
-          <input ref="fileInputRef" type="file" hidden @change="onFileChange" />
+          <input aria-label="选择要计算哈希的文件" ref="fileInputRef" type="file" hidden @change="onFileChange" />
           <template v-if="fileMeta">
             <div class="file-name">📄 {{ fileMeta.name }}</div>
             <div class="file-size">{{ formatFileSize(fileMeta.size) }} · 点击或拖放可更换文件</div>

@@ -68,7 +68,7 @@
           title="Markdown 编辑"
           :info="statsText"
         >
-          <textarea
+          <textarea aria-label="输入 Markdown 内容"
             ref="editorRef"
             v-model="markdownText"
             class="markdown-input"

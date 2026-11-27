@@ -17,7 +17,7 @@
           @drop.prevent="onDrop"
           @click="triggerFileInput"
         >
-          <input
+          <input aria-label="选择要压缩的图片"
             ref="fileInput"
             type="file"
             accept="image/*"
@@ -98,7 +98,7 @@
           <div class="setting-item">
             <label>压缩质量</label>
             <div class="quality-control">
-              <input
+              <input aria-label="压缩质量"
                 type="range"
                 v-model="quality"
                 min="10"
@@ -112,7 +112,7 @@
           </div>
           <div class="setting-item">
             <label>最大宽度 (px)</label>
-            <input
+            <input aria-label="最大宽度 (px)"
               type="text"
               inputmode="numeric"
               v-model="maxWidth"
@@ -122,7 +122,7 @@
           </div>
           <div class="setting-item">
             <label>输出格式</label>
-            <select v-model="outputFormat">
+            <select aria-label="输出格式" v-model="outputFormat">
               <option value="original">保持原格式</option>
               <option value="image/jpeg">JPEG</option>
               <option value="image/png">PNG</option>

@@ -27,13 +27,13 @@
           <div class="setting-item">
             <label>密码长度</label>
             <div class="length-control">
-              <input type="range" v-model.number="options.length" min="4" max="128" />
+              <input aria-label="密码长度（滑杆）" type="range" v-model.number="options.length" min="4" max="128" />
               <input type="text" inputmode="numeric" v-model="options.length" class="length-input" aria-label="密码长度（4-128）" />
             </div>
           </div>
           <div class="setting-item">
             <label>生成数量（1-50）</label>
-            <input type="text" inputmode="numeric" v-model="options.count" />
+            <input aria-label="生成数量" type="text" inputmode="numeric" v-model="options.count" />
           </div>
         </div>
 
@@ -69,7 +69,7 @@
 
         <div class="exclude-section">
           <label>排除字符</label>
-          <input type="text" v-model="options.excludeChars" placeholder="输入要排除的字符，如: 0O1lI" />
+          <input aria-label="排除字符" type="text" v-model="options.excludeChars" placeholder="输入要排除的字符，如: 0O1lI" />
         </div>
       </div>
 

@@ -16,7 +16,7 @@
         @drop.prevent="onDrop"
         @paste="onPaste"
       >
-        <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="onFileChange" />
+        <input aria-label="选择二维码图片" ref="fileInput" type="file" accept="image/*" style="display:none" @change="onFileChange" />
         <img v-if="previewUrl" :src="previewUrl" alt="待解码的二维码图片" class="preview" />
         <p v-else class="drop-hint">点击选择图片，或把图片拖放到这里<br /><span>也可以聚焦此处后按 Ctrl+V 粘贴截图</span></p>
       </div>

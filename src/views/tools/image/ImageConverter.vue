@@ -17,7 +17,7 @@
           @drop.prevent="onDrop"
           @click="triggerFileInput"
         >
-          <input
+          <input aria-label="选择要转换的图片"
             ref="fileInput"
             type="file"
             accept="image/*"
@@ -95,7 +95,7 @@
         <div class="settings-grid">
           <div class="setting-item">
             <label>目标格式</label>
-            <select v-model="targetFormat">
+            <select aria-label="目标格式" v-model="targetFormat">
               <option v-for="fmt in TARGET_FORMATS" :key="fmt.value" :value="fmt.value">{{ fmt.label }} (.{{ fmt.ext }})</option>
             </select>
             <span class="setting-hint">{{ currentTarget.hint }}</span>
@@ -103,7 +103,7 @@
           <div class="setting-item" v-if="supportsQuality">
             <label>输出质量</label>
             <div class="quality-control">
-              <input
+              <input aria-label="输出质量"
                 type="range"
                 v-model="quality"
                 min="10"
@@ -118,9 +118,9 @@
           <div class="setting-item" v-if="currentTarget.value !== 'ico'">
             <label>调整尺寸 (px)</label>
             <div class="resize-control">
-              <input type="text" inputmode="numeric" v-model="resizeWidth" placeholder="宽度" />
+              <input aria-label="调整宽度 (px)" type="text" inputmode="numeric" v-model="resizeWidth" placeholder="宽度" />
               <span class="resize-x">×</span>
-              <input type="text" inputmode="numeric" v-model="resizeHeight" placeholder="高度" />
+              <input aria-label="调整高度 (px)" type="text" inputmode="numeric" v-model="resizeHeight" placeholder="高度" />
             </div>
             <span class="setting-hint">留空保持原尺寸，只填一项则等比缩放（1–8192）</span>
           </div>
