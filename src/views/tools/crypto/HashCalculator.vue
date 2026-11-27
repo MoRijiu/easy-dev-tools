@@ -2,21 +2,27 @@
   <div class="hash-calculator">
     <h1>哈希计算工具</h1>
     <p class="description">
-      在线哈希计算工具，支持 MD5、SHA-1、SHA-256、SHA-384、SHA-512 等多种哈希算法
+      在线哈希计算工具，支持 MD5、SHA-1、SHA-256、SHA-384、SHA-512，可计算文本与本地文件，并校验期望哈希
     </p>
 
     <div class="tool-container">
+      <!-- 模式切换 -->
+      <div class="mode-switch" role="tablist" aria-label="输入模式">
+        <button :class="['mode-btn', { active: mode === 'text' }]" @click="mode = 'text'">文本</button>
+        <button :class="['mode-btn', { active: mode === 'file' }]" @click="mode = 'file'">文件</button>
+      </div>
+
       <!-- 哈希算法选择 -->
       <div class="algorithm-section">
         <label class="section-label">选择哈希算法</label>
         <div class="algorithm-buttons">
-          <button 
-            v-for="algo in algorithms" 
+          <button
+            v-for="algo in HASH_ALGORITHMS"
             :key="algo.id"
             :class="['algo-btn', { active: selectedAlgorithms.includes(algo.id) }]"
             @click="toggleAlgorithm(algo.id)"
           >
-            {{ algo.name }}
+            {{ algo.name }}<span class="algo-bits">{{ algo.bits }} 位</span>
           </button>
         </div>
         <div class="quick-actions">
@@ -41,31 +47,54 @@
       <!-- 状态信息 -->
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
 
-      <!-- 输入区域 -->
-      <div class="input-section">
-        <ToolEditorPanel title="输入内容" :info="`${inputText.length} 字符`">
+      <!-- 文本输入区域 -->
+      <div class="input-section" v-if="mode === 'text'">
+        <ToolEditorPanel title="输入内容" :info="inputInfo">
           <textarea
             v-model="inputText"
             class="text-input"
-            placeholder="在此输入需要计算哈希的文本内容..."
-            @input="autoCalculate"
+            placeholder="在此输入需要计算哈希的文本内容（可为空，空字符串也有确定哈希）..."
+            @input="scheduleCalculate"
           ></textarea>
         </ToolEditorPanel>
+        <p class="input-hint">按 UTF-8 字节计算；字符数为 Unicode 码点数，Emoji 等字符占 4 字节。</p>
+      </div>
+
+      <!-- 文件输入区域 -->
+      <div class="input-section" v-else>
+        <div
+          class="drop-zone"
+          :class="{ dragging }"
+          @click="fileInputRef?.click()"
+          @dragover.prevent="dragging = true"
+          @dragleave="dragging = false"
+          @drop.prevent="onDrop"
+        >
+          <input ref="fileInputRef" type="file" hidden @change="onFileChange" />
+          <template v-if="fileMeta">
+            <div class="file-name">📄 {{ fileMeta.name }}</div>
+            <div class="file-size">{{ formatFileSize(fileMeta.size) }} · 点击或拖放可更换文件</div>
+          </template>
+          <template v-else>
+            <div class="file-name">点击选择文件，或把文件拖到这里</div>
+            <div class="file-size">文件只在本地读取计算，不会上传到任何服务器</div>
+          </template>
+        </div>
       </div>
 
       <!-- 哈希结果区域 -->
       <div class="results-section" v-if="Object.keys(hashResults).length > 0">
         <h3 class="results-title">计算结果</h3>
         <div class="results-grid">
-          <div 
-            v-for="(value, key) in hashResults" 
+          <div
+            v-for="(value, key) in hashResults"
             :key="key"
-            class="result-card"
+            :class="['result-card', { matched: matchedIds.includes(key) }]"
           >
             <div class="result-header">
-              <span class="result-algo">{{ getAlgorithmName(key) }}</span>
+              <span class="result-algo">{{ getAlgorithmName(key) }}<span v-if="matchedIds.includes(key)" class="match-badge">✓ 与期望哈希一致</span></span>
               <div class="result-actions">
-                <button 
+                <button
                   :class="['case-btn', { active: upperCase[key] }]"
                   @click="toggleCase(key)"
                   title="切换大小写"
@@ -81,6 +110,21 @@
               {{ upperCase[key] ? value.toUpperCase() : value }}
             </div>
           </div>
+        </div>
+
+        <!-- 期望哈希校验 -->
+        <div class="verify-section">
+          <label class="section-label" for="expected-hash">校验期望哈希（可选）</label>
+          <input
+            id="expected-hash"
+            v-model="expectedInput"
+            class="verify-input"
+            type="text"
+            spellcheck="false"
+            placeholder="粘贴官方公布的哈希值，自动与上方结果比对（大小写、空格不敏感）"
+            @input="runVerify"
+          />
+          <p v-if="verifyMessage" :class="['verify-message', verifyType]">{{ verifyMessage }}</p>
         </div>
       </div>
 
@@ -100,7 +144,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -108,228 +152,162 @@ import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
 import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
+import {
+  HASH_ALGORITHMS, digestAll, textToBytes, textStats,
+  normalizeExpectedHash, findHashMatches, formatFileSize
+} from "@/utils/hash.js";
 
-// 支持的哈希算法
-const algorithms = [
-  { id: "MD5", name: "MD5", webCrypto: false },
-  { id: "SHA-1", name: "SHA-1", webCrypto: true },
-  { id: "SHA-256", name: "SHA-256", webCrypto: true },
-  { id: "SHA-384", name: "SHA-384", webCrypto: true },
-  { id: "SHA-512", name: "SHA-512", webCrypto: true },
-];
-
-// 响应式状态
+const mode = ref("text");
 const inputText = ref("");
+const fileBytes = ref(null);
+const fileMeta = ref(null);
+const fileInputRef = ref(null);
+const dragging = ref(false);
 const selectedAlgorithms = ref(["MD5", "SHA-256"]);
 const hashResults = ref({});
 const upperCase = reactive({});
 const statusMessage = ref("");
 const statusType = ref("");
-const autoCalculateEnabled = ref(true);
+const expectedInput = ref("");
+const verifyMessage = ref("");
+const verifyType = ref("");
+const matchedIds = ref([]);
 
-// 切换算法选择
+let computeSeq = 0;
+let debounceTimer = null;
+
+const inputInfo = computed(() => {
+  const s = textStats(inputText.value);
+  return `${s.chars} 字符 · ${s.bytes} 字节`;
+});
+
+const getAlgorithmName = (id) => {
+  const algo = HASH_ALGORITHMS.find(a => a.id === id);
+  return algo ? algo.name : id;
+};
+
 const toggleAlgorithm = (algoId) => {
   const index = selectedAlgorithms.value.indexOf(algoId);
-  if (index > -1) {
-    selectedAlgorithms.value.splice(index, 1);
-  } else {
-    selectedAlgorithms.value.push(algoId);
-  }
+  if (index > -1) selectedAlgorithms.value.splice(index, 1);
+  else selectedAlgorithms.value.push(algoId);
+  scheduleCalculate();
 };
 
 const selectAll = () => {
-  selectedAlgorithms.value = algorithms.map(a => a.id);
+  selectedAlgorithms.value = HASH_ALGORITHMS.map(a => a.id);
+  scheduleCalculate();
 };
 
 const clearSelection = () => {
   selectedAlgorithms.value = [];
+  hashResults.value = {};
 };
 
-const getAlgorithmName = (id) => {
-  const algo = algorithms.find(a => a.id === id);
-  return algo ? algo.name : id;
-};
+// 当前数据源字节：文本模式按 UTF-8 编码（空字符串也算），文件模式用已读入的字节
+const sourceBytes = () => (mode.value === "text" ? textToBytes(inputText.value) : fileBytes.value);
 
-// MD5 实现 (Web Crypto API 不支持 MD5)
-const md5 = (string) => {
-  function md5cycle(x, k) {
-    let a = x[0], b = x[1], c = x[2], d = x[3];
-    a = ff(a, b, c, d, k[0], 7, -680876936);
-    d = ff(d, a, b, c, k[1], 12, -389564586);
-    c = ff(c, d, a, b, k[2], 17, 606105819);
-    b = ff(b, c, d, a, k[3], 22, -1044525330);
-    a = ff(a, b, c, d, k[4], 7, -176418897);
-    d = ff(d, a, b, c, k[5], 12, 1200080426);
-    c = ff(c, d, a, b, k[6], 17, -1473231341);
-    b = ff(b, c, d, a, k[7], 22, -45705983);
-    a = ff(a, b, c, d, k[8], 7, 1770035416);
-    d = ff(d, a, b, c, k[9], 12, -1958414417);
-    c = ff(c, d, a, b, k[10], 17, -42063);
-    b = ff(b, c, d, a, k[11], 22, -1990404162);
-    a = ff(a, b, c, d, k[12], 7, 1804603682);
-    d = ff(d, a, b, c, k[13], 12, -40341101);
-    c = ff(c, d, a, b, k[14], 17, -1502002290);
-    b = ff(b, c, d, a, k[15], 22, 1236535329);
-    a = gg(a, b, c, d, k[1], 5, -165796510);
-    d = gg(d, a, b, c, k[6], 9, -1069501632);
-    c = gg(c, d, a, b, k[11], 14, 643717713);
-    b = gg(b, c, d, a, k[0], 20, -373897302);
-    a = gg(a, b, c, d, k[5], 5, -701558691);
-    d = gg(d, a, b, c, k[10], 9, 38016083);
-    c = gg(c, d, a, b, k[15], 14, -660478335);
-    b = gg(b, c, d, a, k[4], 20, -405537848);
-    a = gg(a, b, c, d, k[9], 5, 568446438);
-    d = gg(d, a, b, c, k[14], 9, -1019803690);
-    c = gg(c, d, a, b, k[3], 14, -187363961);
-    b = gg(b, c, d, a, k[8], 20, 1163531501);
-    a = gg(a, b, c, d, k[13], 5, -1444681467);
-    d = gg(d, a, b, c, k[2], 9, -51403784);
-    c = gg(c, d, a, b, k[7], 14, 1735328473);
-    b = gg(b, c, d, a, k[12], 20, -1926607734);
-    a = hh(a, b, c, d, k[5], 4, -378558);
-    d = hh(d, a, b, c, k[8], 11, -2022574463);
-    c = hh(c, d, a, b, k[11], 16, 1839030562);
-    b = hh(b, c, d, a, k[14], 23, -35309556);
-    a = hh(a, b, c, d, k[1], 4, -1530992060);
-    d = hh(d, a, b, c, k[4], 11, 1272893353);
-    c = hh(c, d, a, b, k[7], 16, -155497632);
-    b = hh(b, c, d, a, k[10], 23, -1094730640);
-    a = hh(a, b, c, d, k[13], 4, 681279174);
-    d = hh(d, a, b, c, k[0], 11, -358537222);
-    c = hh(c, d, a, b, k[3], 16, -722521979);
-    b = hh(b, c, d, a, k[6], 23, 76029189);
-    a = hh(a, b, c, d, k[9], 4, -640364487);
-    d = hh(d, a, b, c, k[12], 11, -421815835);
-    c = hh(c, d, a, b, k[15], 16, 530742520);
-    b = hh(b, c, d, a, k[2], 23, -995338651);
-    a = ii(a, b, c, d, k[0], 6, -198630844);
-    d = ii(d, a, b, c, k[7], 10, 1126891415);
-    c = ii(c, d, a, b, k[14], 15, -1416354905);
-    b = ii(b, c, d, a, k[5], 21, -57434055);
-    a = ii(a, b, c, d, k[12], 6, 1700485571);
-    d = ii(d, a, b, c, k[3], 10, -1894986606);
-    c = ii(c, d, a, b, k[10], 15, -1051523);
-    b = ii(b, c, d, a, k[1], 21, -2054922799);
-    a = ii(a, b, c, d, k[8], 6, 1873313359);
-    d = ii(d, a, b, c, k[15], 10, -30611744);
-    c = ii(c, d, a, b, k[6], 15, -1560198380);
-    b = ii(b, c, d, a, k[13], 21, 1309151649);
-    a = ii(a, b, c, d, k[4], 6, -145523070);
-    d = ii(d, a, b, c, k[11], 10, -1120210379);
-    c = ii(c, d, a, b, k[2], 15, 718787259);
-    b = ii(b, c, d, a, k[9], 21, -343485551);
-    x[0] = add32(a, x[0]);
-    x[1] = add32(b, x[1]);
-    x[2] = add32(c, x[2]);
-    x[3] = add32(d, x[3]);
-  }
-  function cmn(q, a, b, x, s, t) {
-    a = add32(add32(a, q), add32(x, t));
-    return add32((a << s) | (a >>> (32 - s)), b);
-  }
-  function ff(a, b, c, d, x, s, t) { return cmn((b & c) | ((~b) & d), a, b, x, s, t); }
-  function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & (~d)), a, b, x, s, t); }
-  function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
-  function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | (~d)), a, b, x, s, t); }
-  function md51(s) {
-    const n = s.length;
-    let state = [1732584193, -271733879, -1732584194, 271733878], i;
-    for (i = 64; i <= n; i += 64) {
-      md5cycle(state, md5blk(s.substring(i - 64, i)));
-    }
-    s = s.substring(i - 64);
-    const tail = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-    for (i = 0; i < s.length; i++) {
-      tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
-    }
-    tail[i >> 2] |= 0x80 << ((i % 4) << 3);
-    if (i > 55) {
-      md5cycle(state, tail);
-      for (i = 0; i < 16; i++) tail[i] = 0;
-    }
-    tail[14] = n * 8;
-    md5cycle(state, tail);
-    return state;
-  }
-  function md5blk(s) {
-    const md5blks = [];
-    for (let i = 0; i < 64; i += 4) {
-      md5blks[i >> 2] = s.charCodeAt(i) + (s.charCodeAt(i + 1) << 8) +
-                        (s.charCodeAt(i + 2) << 16) + (s.charCodeAt(i + 3) << 24);
-    }
-    return md5blks;
-  }
-  const hex_chr = '0123456789abcdef'.split('');
-  function rhex(n) {
-    let s = '';
-    for (let j = 0; j < 4; j++) {
-      s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F];
-    }
-    return s;
-  }
-  function hex(x) { return x.map(rhex).join(''); }
-  function add32(a, b) { return (a + b) & 0xFFFFFFFF; }
-
-  // 处理 UTF-8
-  const utf8Encode = (str) => unescape(encodeURIComponent(str));
-  return hex(md51(utf8Encode(string)));
-};
-
-// 使用 Web Crypto API 计算哈希
-const calculateWebCryptoHash = async (text, algorithm) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest(algorithm, data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-};
-
-// 计算所有选中算法的哈希
 const calculateHash = async () => {
-  if (!inputText.value.trim()) {
-    statusMessage.value = "✗ 请输入需要计算哈希的内容";
-    statusType.value = "error";
-    return;
-  }
+  const seq = ++computeSeq;
   if (selectedAlgorithms.value.length === 0) {
     statusMessage.value = "✗ 请至少选择一种哈希算法";
+    statusType.value = "error";
+    hashResults.value = {};
+    return;
+  }
+  const bytes = sourceBytes();
+  if (bytes === null) {
+    statusMessage.value = "✗ 请先选择要计算哈希的文件";
     statusType.value = "error";
     return;
   }
   try {
-    const results = {};
-    for (const algoId of selectedAlgorithms.value) {
-      if (algoId === "MD5") {
-        results[algoId] = md5(inputText.value);
-      } else {
-        results[algoId] = await calculateWebCryptoHash(inputText.value, algoId);
-      }
-      if (!(algoId in upperCase)) {
-        upperCase[algoId] = false;
-      }
+    const results = await digestAll(selectedAlgorithms.value, bytes);
+    if (seq !== computeSeq) return; // 已有更新的计算，丢弃过期结果防竞态覆盖
+    for (const id of Object.keys(results)) {
+      if (!(id in upperCase)) upperCase[id] = false;
     }
     hashResults.value = results;
-    statusMessage.value = `✓ 已计算 ${selectedAlgorithms.value.length} 种哈希值`;
+    const source = mode.value === "text"
+      ? (inputText.value === "" ? "空字符串" : `${formatFileSize(bytes.length)} 文本`)
+      : `文件 ${fileMeta.value.name}（${formatFileSize(bytes.length)}）`;
+    statusMessage.value = `✓ 已计算 ${source} 的 ${selectedAlgorithms.value.length} 种哈希值`;
     statusType.value = "success";
+    runVerify();
   } catch (error) {
+    if (seq !== computeSeq) return;
     statusMessage.value = `✗ 计算失败: ${error.message}`;
     statusType.value = "error";
   }
 };
 
-// 自动计算
-const autoCalculate = () => {
-  if (autoCalculateEnabled.value && inputText.value.trim() && selectedAlgorithms.value.length > 0) {
+// 输入防抖 250ms 自动计算
+const scheduleCalculate = () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(calculateHash, 250);
+};
+
+watch(mode, () => {
+  hashResults.value = {};
+  verifyMessage.value = "";
+  matchedIds.value = [];
+  if (mode.value === "text" || fileBytes.value) calculateHash();
+});
+
+// 文件读取：只读字节，不上传
+const loadFile = async (file) => {
+  if (!file) return;
+  try {
+    const buf = await file.arrayBuffer();
+    fileBytes.value = new Uint8Array(buf);
+    fileMeta.value = { name: file.name, size: file.size };
     calculateHash();
+  } catch {
+    statusMessage.value = "✗ 文件读取失败，请重新选择";
+    statusType.value = "error";
   }
 };
 
-// 切换大小写
+const onFileChange = (e) => {
+  loadFile(e.target.files?.[0]);
+  e.target.value = "";
+};
+
+const onDrop = (e) => {
+  dragging.value = false;
+  loadFile(e.dataTransfer.files?.[0]);
+};
+
+// 期望哈希校验：归一化后与已计算结果比对
+const runVerify = () => {
+  matchedIds.value = [];
+  if (!expectedInput.value.trim()) {
+    verifyMessage.value = "";
+    return;
+  }
+  try {
+    const { hex, candidates } = normalizeExpectedHash(expectedInput.value);
+    const matches = findHashMatches(hashResults.value, hex);
+    matchedIds.value = matches;
+    if (matches.length > 0) {
+      verifyMessage.value = `✓ 一致：与 ${matches.map(getAlgorithmName).join("、")} 的计算结果相同`;
+      verifyType.value = "success";
+    } else if (!candidates.some(name => hashResults.value[name])) {
+      verifyMessage.value = `该哈希长度对应 ${candidates.join("、")}，但尚未计算该算法，请在上方勾选后重试`;
+      verifyType.value = "error";
+    } else {
+      verifyMessage.value = `✗ 不一致：与已计算的 ${candidates.join("、")} 结果不同，内容可能已被修改或期望哈希粘贴有误`;
+      verifyType.value = "error";
+    }
+  } catch (error) {
+    verifyMessage.value = `✗ ${error.message}`;
+    verifyType.value = "error";
+  }
+};
+
 const toggleCase = (key) => {
   upperCase[key] = !upperCase[key];
 };
 
-// 复制单个结果
 const copyResult = async (key, value) => {
   const text = upperCase[key] ? value.toUpperCase() : value;
   try {
@@ -343,7 +321,6 @@ const copyResult = async (key, value) => {
   }
 };
 
-// 复制所有结果
 const copyAllResults = async () => {
   if (Object.keys(hashResults.value).length === 0) {
     statusMessage.value = "✗ 没有可复制的结果";
@@ -364,51 +341,56 @@ const copyAllResults = async () => {
   }
 };
 
-// 清空
 const clearAll = () => {
+  computeSeq++;
   inputText.value = "";
+  fileBytes.value = null;
+  fileMeta.value = null;
   hashResults.value = {};
+  expectedInput.value = "";
+  verifyMessage.value = "";
+  matchedIds.value = [];
   statusMessage.value = "";
 };
 
-// 使用示例
 const useExample = (example) => {
+  mode.value = "text";
   inputText.value = example.input;
   calculateHash();
 };
 
-// 功能特点
 const features = [
   { icon: "🔐", title: "多算法支持", description: "支持 MD5、SHA-1、SHA-256、SHA-384、SHA-512 等算法" },
-  { icon: "⚡", title: "实时计算", description: "输入即可实时计算哈希值" },
+  { icon: "📄", title: "文件哈希", description: "可直接计算本地文件哈希，校验下载文件完整性" },
+  { icon: "✅", title: "期望哈希校验", description: "粘贴官方公布的哈希值，自动比对是否一致" },
+  { icon: "⚡", title: "实时计算", description: "输入防抖自动计算，结果带防竞态保护不会串旧值" },
   { icon: "🔄", title: "大小写切换", description: "支持哈希值大小写切换显示" },
-  { icon: "📋", title: "一键复制", description: "快速复制单个或所有哈希结果" },
-  { icon: "🛡️", title: "安全可靠", description: "使用 Web Crypto API，本地计算不上传" },
-  { icon: "🌐", title: "Unicode支持", description: "完美支持中文等 Unicode 字符" },
+  { icon: "🛡️", title: "安全可靠", description: "全部本地计算，文本与文件都不会上传到服务器" },
 ];
 
-// 使用说明
 const usageSteps = [
   "选择需要计算的哈希算法（可多选）",
-  "在输入框中输入需要计算的文本",
-  "点击「计算哈希」或等待自动计算",
+  "文本模式输入文本，或切到文件模式选择/拖放文件",
+  "等待自动计算，或点击「计算哈希」",
+  "（可选）把官方公布的哈希粘贴到校验框，确认是否一致",
   "点击结果旁的复制按钮复制哈希值",
-  "可点击 Aa 按钮切换大小写显示",
 ];
 
-// 常见问题
 const faqs = [
   { question: "什么是哈希算法？", answer: "哈希算法是一种将任意长度的数据映射为固定长度摘要的算法。相同输入总是产生相同输出，但无法从输出逆推输入。" },
-  { question: "MD5 和 SHA 有什么区别？", answer: "MD5 生成 128 位摘要，速度快但已不安全；SHA-256 生成 256 位摘要，更安全，是目前推荐使用的算法。" },
+  { question: "MD5 和 SHA 有什么区别？", answer: "MD5 生成 128 位摘要，速度快但已被攻破、只适合做文件完整性校验；SHA-256 生成 256 位摘要，更安全，是目前推荐使用的算法。" },
+  { question: "下载文件怎么校验有没有被篡改？", answer: "切到文件模式选择下载好的文件，再把官网公布的哈希值粘贴到校验框：一致说明文件完整无误，不一致就不要使用该文件。" },
+  { question: "为什么同一段文字和别的工具算出来不一样？", answer: "多半是编码或换行差异：本工具按 UTF-8 字节原样计算（含末尾换行）。若对方工具用了 GBK 编码、或输入时多/少了一个换行，结果就会不同。" },
+  { question: "空字符串的哈希是多少？", answer: "空输入也有确定哈希，例如 MD5 是 d41d8cd98f00b204e9800998ecf8427e、SHA-256 是 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855，清空输入框即可看到。" },
   { question: "哈希值可以解密吗？", answer: "哈希是单向函数，不可逆。所谓的「解密」实际是通过彩虹表等方式暴力破解，对于复杂内容几乎不可能。" },
-  { question: "这个工具安全吗？", answer: "完全安全。所有计算都在本地浏览器完成，数据不会上传到任何服务器。" },
+  { question: "这个工具安全吗？", answer: "完全安全。所有计算都在本地浏览器完成，文本和文件都不会上传到任何服务器。" },
 ];
 
-// 使用示例
+// 示例输出为真实计算值（MD5），可用上方工具复算验证
 const examples = [
-  { input: "tools.morijiu.cn", output: "MD5: 7b8c9d2e1f3a4b5c6d7e8f9a0b1c2d3e", description: "网站域名哈希" },
-  { input: "极速开发工具箱", output: "SHA-256: ...", description: "中文名称哈希" },
-  { input: "morijiu2024", output: "MD5: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6", description: "用户标识哈希" },
+  { input: "tools.morijiu.cn", output: "MD5: 67c1647bd2b200f9d457646c20dbc3c9", description: "网站域名哈希" },
+  { input: "极速开发工具箱", output: "MD5: 56c3e15fb895b57ad9d734d0eee597d9", description: "中文名称哈希（UTF-8）" },
+  { input: "hello world", output: "MD5: 5eb63bbbe01eeed093cb22bb8f5acdc3", description: "经典示例哈希" },
 ];
 </script>
 
@@ -440,6 +422,32 @@ h1 {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* 模式切换 */
+.mode-switch {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mode-btn {
+  padding: 6px 18px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
 /* 算法选择区域 */
 .algorithm-section {
   margin-bottom: 24px;
@@ -467,18 +475,26 @@ h1 {
   border: 2px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
+  color: var(--text);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
 }
 
+.algo-bits {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
 .algo-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .algo-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
   color: white;
   border-color: transparent;
 }
@@ -491,7 +507,7 @@ h1 {
 .link-btn {
   background: none;
   border: none;
-  color: #667eea;
+  color: var(--accent);
   cursor: pointer;
   font-size: 14px;
   padding: 0;
@@ -504,6 +520,38 @@ h1 {
 /* 输入区域 */
 .input-section {
   margin-bottom: 24px;
+}
+
+.input-hint {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.drop-zone {
+  padding: 28px 20px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  text-align: center;
+  cursor: pointer;
+}
+
+.drop-zone.dragging {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.file-name {
+  font-weight: 600;
+  color: var(--text-strong);
+  word-break: break-all;
+}
+
+.file-size {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-3);
 }
 
 /* 结果区域 */
@@ -529,6 +577,10 @@ h1 {
   border: 2px solid var(--border);
 }
 
+.result-card.matched {
+  border-color: var(--success, #2f9e44);
+}
+
 .result-header {
   display: flex;
   justify-content: space-between;
@@ -538,8 +590,15 @@ h1 {
 
 .result-algo {
   font-weight: 700;
-  color: #667eea;
+  color: var(--accent);
   font-size: 14px;
+}
+
+.match-badge {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success, #2f9e44);
 }
 
 .result-actions {
@@ -552,6 +611,7 @@ h1 {
   border: 2px solid var(--border);
   border-radius: 6px;
   background: var(--surface);
+  color: var(--text);
   cursor: pointer;
   font-weight: 600;
   font-size: 12px;
@@ -559,13 +619,13 @@ h1 {
 }
 
 .case-btn.active {
-  background: #667eea;
+  background: var(--accent);
   color: white;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .copy-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent);
   border: none;
   padding: 6px 10px;
   border-radius: 6px;
@@ -589,6 +649,44 @@ h1 {
   border-radius: 6px;
 }
 
+/* 期望哈希校验 */
+.verify-section {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+
+.verify-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+}
+
+.verify-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.verify-message {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.verify-message.success {
+  color: var(--success, #2f9e44);
+}
+
+.verify-message.error {
+  color: var(--danger-text, #e03131);
+}
+
 /* 响应式设计 */
 @media (max-width: 640px) {
   h1 {
@@ -609,4 +707,3 @@ h1 {
   }
 }
 </style>
-
