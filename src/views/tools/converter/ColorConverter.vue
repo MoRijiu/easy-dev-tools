@@ -2,7 +2,7 @@
   <div class="color-converter">
     <h1>颜色转换工具</h1>
     <p class="description">
-      在线颜色转换工具，支持 RGB、HEX、HSL、HSV、CMYK 等颜色格式互转
+      在线颜色转换工具，支持 HEX、RGB、HSL、HSV、CMYK、HWB 互转（含透明度），可粘贴任意格式一键识别
     </p>
 
     <div class="tool-container">
@@ -22,6 +22,23 @@
             @input="onColorPickerChange"
             class="color-picker"
           />
+        </div>
+      </div>
+
+      <!-- 任意格式解析 -->
+      <div class="parse-section">
+        <label class="input-label" for="any-color">粘贴任意格式一键识别</label>
+        <div class="input-row">
+          <input id="any-color" v-model="anyInput" type="text" class="color-input" placeholder="#FF5733 / rgb(255, 87, 51) / hsl(11, 100%, 60%) / orange" @keyup.enter="parseAny" />
+          <button class="btn btn-primary" @click="parseAny">解析</button>
+        </div>
+        <span class="format-hint">支持 #HEX（3/4/6/8 位）、rgb()/rgba()、hsl()/hsla() 与常用英文名；错误会定位到具体字符。</span>
+        <p v-if="parseError" class="field-error">{{ parseError }}</p>
+        <div class="alpha-row">
+          <label for="alpha-range">透明度 Alpha：{{ alphaPct }}%</label>
+          <input id="alpha-range" v-model.number="alphaPct" type="range" min="0" max="100" @input="onAlphaChange" />
+          <span class="format-hint">带透明度时 HEX 显示为 8 位（#RRGGBBAA），RGB/HSL 显示为 rgba()/hsla()</span>
+          <span class="named-chip">最近命名色：<b>{{ nearest.name }}</b> {{ nearest.hex }}{{ nearest.exact ? '（精确命中）' : '' }}</span>
         </div>
       </div>
 
@@ -56,7 +73,8 @@
             />
             <button class="copy-btn" @click="copyValue(hexInput, 'HEX')">📋</button>
           </div>
-          <span class="format-hint">格式: #RRGGBB 或 #RGB</span>
+          <span class="format-hint">格式: #RGB / #RRGGBB / 带透明度 #RGBA / #RRGGBBAA</span>
+          <p v-if="hexError" class="field-error">{{ hexError }}</p>
         </div>
 
         <!-- RGB 输入 -->
@@ -107,6 +125,18 @@
           </div>
           <span class="format-hint">范围: 0-100%</span>
         </div>
+
+        <!-- HWB 输入 -->
+        <div class="color-input-card">
+          <label class="input-label">HWB（CSS Color 4）</label>
+          <div class="input-row hsv-inputs">
+            <input v-model.number="hwb.h" type="number" min="0" max="360" placeholder="H" @input="onHwbChange" />
+            <input v-model.number="hwb.w" type="number" min="0" max="100" placeholder="W" @input="onHwbChange" />
+            <input v-model.number="hwb.b" type="number" min="0" max="100" placeholder="B" @input="onHwbChange" />
+            <button class="copy-btn" @click="copyValue(hwbString, 'HWB')">📋</button>
+          </div>
+          <span class="format-hint">H: 0-360°, W/B: 0-100%（两者之和 ≤100）</span>
+        </div>
       </div>
 
       <!-- 使用示例 -->
@@ -132,224 +162,107 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { parseColorInput, componentsToRgb, formatAll, nearestNamedColor, buildColorSummary } from "@/utils/colorConvert.js";
 
-// 响应式状态
+// 响应式状态（转换与校验全部走 src/utils/colorConvert.js，纯本地）
+const master = ref({ r: 102, g: 126, b: 234, a: 1 });
 const hexInput = ref("#667EEA");
 const pickerColor = ref("#667EEA");
 const rgb = ref({ r: 102, g: 126, b: 234 });
 const hsl = ref({ h: 229, s: 76, l: 66 });
 const hsv = ref({ h: 229, s: 56, v: 92 });
 const cmyk = ref({ c: 56, m: 46, y: 0, k: 8 });
+const hwb = ref({ h: 229, w: 40, b: 8 });
+const alphaPct = ref(100);
+const anyInput = ref("");
+const parseError = ref("");
+const hexError = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
 
-// 计算属性
-const currentHex = computed(() => hexInput.value || "#FFFFFF");
-const rgbString = computed(() => `rgb(${rgb.value.r}, ${rgb.value.g}, ${rgb.value.b})`);
-const hslString = computed(() => `hsl(${hsl.value.h}, ${hsl.value.s}%, ${hsl.value.l}%)`);
-const hsvString = computed(() => `hsv(${hsv.value.h}, ${hsv.value.s}%, ${hsv.value.v}%)`);
-const cmykString = computed(() => `cmyk(${cmyk.value.c}%, ${cmyk.value.m}%, ${cmyk.value.y}%, ${cmyk.value.k}%)`);
+const formats = computed(() => formatAll(master.value));
+const nearest = computed(() => nearestNamedColor(master.value));
+const currentHex = computed(() => formats.value.hex8);
+const rgbString = computed(() => (master.value.a < 1 ? formats.value.rgba : formats.value.rgb));
+const hslString = computed(() => (master.value.a < 1 ? formats.value.hsla : formats.value.hsl));
+const hsvString = computed(() => formats.value.hsv);
+const cmykString = computed(() => formats.value.cmyk);
+const hwbString = computed(() => formats.value.hwb);
 
-// ===== 颜色转换函数 =====
-
-// HEX 转 RGB
-const hexToRgb = (hex) => {
-  let h = hex.replace("#", "");
-  if (h.length === 3) {
-    h = h.split("").map(c => c + c).join("");
-  }
-  const num = parseInt(h, 16);
-  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+const syncFromMaster = () => {
+  const f = formats.value;
+  hexInput.value = f.hex8;
+  pickerColor.value = f.hex;
+  rgb.value = { r: master.value.r, g: master.value.g, b: master.value.b };
+  hsl.value = { ...f.hslObj };
+  hsv.value = { ...f.hsvObj };
+  cmyk.value = { ...f.cmykObj };
+  hwb.value = { ...f.hwbObj };
+  alphaPct.value = f.alphaPct;
 };
 
-// RGB 转 HEX
-const rgbToHex = (r, g, b) => {
-  return "#" + [r, g, b].map(x => {
-    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  }).join("").toUpperCase();
+const setError = (msg) => { statusMessage.value = msg ? `✗ ${msg}` : ""; statusType.value = msg ? "error" : ""; };
+
+const applyComponents = (format, values) => {
+  const result = componentsToRgb(format, values, master.value.a);
+  if (!result.ok) { setError(result.error); return; }
+  setError("");
+  master.value = result.rgba;
+  syncFromMaster();
 };
 
-// RGB 转 HSL
-const rgbToHsl = (r, g, b) => {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-  if (max === min) { h = s = 0; }
-  else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
-    }
-  }
-  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
-};
-
-// HSL 转 RGB
-const hslToRgb = (h, s, l) => {
-  h /= 360; s /= 100; l /= 100;
-  let r, g, b;
-  if (s === 0) { r = g = b = l; }
-  else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1/6) return p + (q - p) * 6 * t;
-      if (t < 1/2) return q;
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-      return p;
-    };
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1/3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1/3);
-  }
-  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
-};
-
-// RGB 转 HSV
-const rgbToHsv = (r, g, b) => {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, v = max;
-  const d = max - min;
-  s = max === 0 ? 0 : d / max;
-  if (max === min) { h = 0; }
-  else {
-    switch (max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
-    }
-  }
-  return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) };
-};
-
-// HSV 转 RGB
-const hsvToRgb = (h, s, v) => {
-  h /= 360; s /= 100; v /= 100;
-  let r, g, b;
-  const i = Math.floor(h * 6);
-  const f = h * 6 - i;
-  const p = v * (1 - s);
-  const q = v * (1 - f * s);
-  const t = v * (1 - (1 - f) * s);
-  switch (i % 6) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    case 5: r = v; g = p; b = q; break;
-  }
-  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
-};
-
-// RGB 转 CMYK
-const rgbToCmyk = (r, g, b) => {
-  r /= 255; g /= 255; b /= 255;
-  const k = 1 - Math.max(r, g, b);
-  if (k === 1) return { c: 0, m: 0, y: 0, k: 100 };
-  return {
-    c: Math.round((1 - r - k) / (1 - k) * 100),
-    m: Math.round((1 - g - k) / (1 - k) * 100),
-    y: Math.round((1 - b - k) / (1 - k) * 100),
-    k: Math.round(k * 100)
-  };
-};
-
-// CMYK 转 RGB
-const cmykToRgb = (c, m, y, k) => {
-  c /= 100; m /= 100; y /= 100; k /= 100;
-  return {
-    r: Math.round(255 * (1 - c) * (1 - k)),
-    g: Math.round(255 * (1 - m) * (1 - k)),
-    b: Math.round(255 * (1 - y) * (1 - k))
-  };
-};
-
-// 更新所有颜色格式（从RGB出发）
-const updateAllFromRgb = () => {
-  const { r, g, b } = rgb.value;
-  hexInput.value = rgbToHex(r, g, b);
-  pickerColor.value = hexInput.value;
-  hsl.value = rgbToHsl(r, g, b);
-  hsv.value = rgbToHsv(r, g, b);
-  cmyk.value = rgbToCmyk(r, g, b);
-};
-
-// ===== 事件处理 =====
 const onColorPickerChange = () => {
-  hexInput.value = pickerColor.value.toUpperCase();
-  rgb.value = hexToRgb(pickerColor.value);
-  updateAllFromRgb();
+  const parsed = parseColorInput(pickerColor.value);
+  if (parsed.ok) { master.value = { ...parsed.rgba, a: master.value.a }; syncFromMaster(); }
 };
 
 const onHexChange = () => {
-  const hex = hexInput.value.trim();
-  if (/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) {
-    const fullHex = hex.startsWith("#") ? hex : "#" + hex;
-    hexInput.value = fullHex.toUpperCase();
-    rgb.value = hexToRgb(fullHex);
-    updateAllFromRgb();
-  }
+  const parsed = parseColorInput(hexInput.value);
+  if (parsed.ok) { hexError.value = ""; master.value = parsed.rgba; syncFromMaster(); }
+  else hexError.value = parsed.error;
 };
 
-const onRgbChange = () => { updateAllFromRgb(); };
-
-const onHslChange = () => {
-  rgb.value = hslToRgb(hsl.value.h, hsl.value.s, hsl.value.l);
-  hexInput.value = rgbToHex(rgb.value.r, rgb.value.g, rgb.value.b);
-  pickerColor.value = hexInput.value;
-  hsv.value = rgbToHsv(rgb.value.r, rgb.value.g, rgb.value.b);
-  cmyk.value = rgbToCmyk(rgb.value.r, rgb.value.g, rgb.value.b);
+const parseAny = () => {
+  const parsed = parseColorInput(anyInput.value);
+  if (!parsed.ok) { parseError.value = parsed.error; return; }
+  parseError.value = "";
+  master.value = parsed.rgba;
+  syncFromMaster();
+  statusMessage.value = `✓ 已识别为 ${parsed.format} 格式`;
+  statusType.value = "success";
+  setTimeout(() => { statusMessage.value = ""; }, 2000);
 };
 
-const onHsvChange = () => {
-  rgb.value = hsvToRgb(hsv.value.h, hsv.value.s, hsv.value.v);
-  hexInput.value = rgbToHex(rgb.value.r, rgb.value.g, rgb.value.b);
-  pickerColor.value = hexInput.value;
-  hsl.value = rgbToHsl(rgb.value.r, rgb.value.g, rgb.value.b);
-  cmyk.value = rgbToCmyk(rgb.value.r, rgb.value.g, rgb.value.b);
+const onAlphaChange = () => {
+  const v = Number(alphaPct.value);
+  if (!Number.isFinite(v) || v < 0 || v > 100) { setError(`透明度应在 0–100 之间，当前 ${alphaPct.value}`); return; }
+  setError("");
+  master.value = { ...master.value, a: Math.round(v) / 100 };
+  syncFromMaster();
 };
 
-const onCmykChange = () => {
-  rgb.value = cmykToRgb(cmyk.value.c, cmyk.value.m, cmyk.value.y, cmyk.value.k);
-  hexInput.value = rgbToHex(rgb.value.r, rgb.value.g, rgb.value.b);
-  pickerColor.value = hexInput.value;
-  hsl.value = rgbToHsl(rgb.value.r, rgb.value.g, rgb.value.b);
-  hsv.value = rgbToHsv(rgb.value.r, rgb.value.g, rgb.value.b);
-};
+const onRgbChange = () => applyComponents('rgb', rgb.value);
+const onHslChange = () => applyComponents('hsl', hsl.value);
+const onHsvChange = () => applyComponents('hsv', hsv.value);
+const onCmykChange = () => applyComponents('cmyk', cmyk.value);
+const onHwbChange = () => applyComponents('hwb', hwb.value);
 
-// 随机颜色
 const randomColor = () => {
-  rgb.value = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
-  updateAllFromRgb();
+  master.value = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256), a: master.value.a };
+  syncFromMaster();
   statusMessage.value = "✓ 已生成随机颜色！";
   statusType.value = "success";
 };
 
-// 清空
 const clearAll = () => {
-  hexInput.value = "#FFFFFF";
-  pickerColor.value = "#FFFFFF";
-  rgb.value = { r: 255, g: 255, b: 255 };
-  hsl.value = { h: 0, s: 0, l: 100 };
-  hsv.value = { h: 0, s: 0, v: 100 };
-  cmyk.value = { c: 0, m: 0, y: 0, k: 0 };
+  master.value = { r: 255, g: 255, b: 255, a: 1 };
+  hexError.value = ""; parseError.value = ""; anyInput.value = "";
+  syncFromMaster();
   statusMessage.value = "";
 };
 
-// 复制到剪贴板
 const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch { return false; }
+  try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
 };
 
 const copyValue = async (value, format) => {
@@ -357,15 +270,11 @@ const copyValue = async (value, format) => {
     statusMessage.value = `✓ 已复制 ${format} 值！`;
     statusType.value = "success";
     setTimeout(() => { statusMessage.value = ""; }, 2000);
-  } else {
-    statusMessage.value = "✗ 复制失败";
-    statusType.value = "error";
-  }
+  } else { statusMessage.value = "✗ 复制失败"; statusType.value = "error"; }
 };
 
 const copyAllFormats = async () => {
-  const text = `HEX: ${hexInput.value}\nRGB: ${rgbString.value}\nHSL: ${hslString.value}\nHSV: ${hsvString.value}\nCMYK: ${cmykString.value}`;
-  if (await copyToClipboard(text)) {
+  if (await copyToClipboard(buildColorSummary(master.value))) {
     statusMessage.value = "✓ 已复制所有格式！";
     statusType.value = "success";
     setTimeout(() => { statusMessage.value = ""; }, 2000);
@@ -374,14 +283,13 @@ const copyAllFormats = async () => {
 
 // 使用示例
 const useExample = (example) => {
-  hexInput.value = example.input;
-  rgb.value = hexToRgb(example.input);
-  updateAllFromRgb();
+  const parsed = parseColorInput(example.input);
+  if (parsed.ok) { master.value = parsed.rgba; syncFromMaster(); }
 };
 
 // 功能特点
 const features = [
-  { icon: "🎨", title: "多格式支持", description: "支持 HEX、RGB、HSL、HSV、CMYK 五种颜色格式" },
+  { icon: "🎨", title: "多格式支持", description: "支持 HEX、RGB、HSL、HSV、CMYK、HWB 六种颜色格式与透明度" },
   { icon: "🔄", title: "实时转换", description: "修改任意格式，其他格式自动同步更新" },
   { icon: "👁️", title: "颜色预览", description: "实时预览当前颜色效果" },
   { icon: "🎲", title: "随机颜色", description: "一键生成随机颜色" },
@@ -404,6 +312,8 @@ const faqs = [
   { question: "RGB 和 HSL 有什么区别？", answer: "RGB 基于红绿蓝三原色混合，适合屏幕显示；HSL 基于色相、饱和度、亮度，更符合人类对颜色的直觉理解，便于调整颜色。" },
   { question: "CMYK 颜色用在什么场景？", answer: "CMYK 是印刷色彩模式，由青(Cyan)、品红(Magenta)、黄(Yellow)、黑(Key)四色组成，用于打印和印刷行业。" },
   { question: "为什么转换后颜色有轻微差异？", answer: "不同颜色模式的色域范围不同，某些颜色在转换时可能会有轻微的四舍五入误差，这是正常现象。" },
+  { question: "带透明度的 HEX 怎么写？", answer: "在 #RRGGBB 后再加两位透明度就是 8 位 HEX，如 #FF573380 约为 50% 不透明；本工具调整透明度后会自动按 8 位显示，也可粘贴 rgba() 一键识别。" },
+  { question: "输错了为什么不再自动改成最接近的值？", answer: "旧版会把越界或非法字符静默吞掉，容易得到错误颜色还不自知；现在会明确提示哪个分量、哪一位字符有问题，改对后才同步转换。" },
 ];
 
 // 使用示例
@@ -411,6 +321,7 @@ const examples = [
   { input: "#667EEA", output: "rgb(102, 126, 234)", description: "极速工具箱主题蓝" },
   { input: "#764BA2", output: "rgb(118, 75, 162)", description: "极速工具箱渐变紫" },
   { input: "#2ECC71", output: "rgb(46, 204, 113)", description: "成功状态绿" },
+  { input: "rgba(255, 87, 51, 0.5)", output: "#FF573380", description: "任意格式粘贴识别（带透明度）" },
 ];
 </script>
 
@@ -496,12 +407,13 @@ h1 {
 /* 颜色输入网格 */
 .color-inputs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 20px;
   margin-bottom: 40px;
 }
 
 .color-input-card {
+  min-width: 0;
   background: var(--bg);
   padding: 20px;
   border-radius: 10px;
@@ -529,6 +441,7 @@ h1 {
 
 .color-input {
   flex: 1;
+  min-width: 0;
   padding: 12px 16px;
   border: 2px solid var(--border);
   border-radius: 8px;
@@ -584,6 +497,12 @@ h1 {
   font-size: 12px;
   color: var(--text-3);
 }
+
+.parse-section { margin-bottom: 20px; padding: 16px; background: var(--bg); border-radius: 10px; }
+.alpha-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.alpha-row input[type="range"] { flex: 1; min-width: 120px; }
+.named-chip { font-size: 13px; color: var(--text-2); }
+.field-error { color: var(--danger, #dc2626); font-size: 13px; margin-top: 6px; }
 
 /* 响应式设计 */
 @media (max-width: 640px) {
