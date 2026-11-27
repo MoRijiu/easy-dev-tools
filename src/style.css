@@ -303,11 +303,15 @@ img {
   height: auto;
 }
 
-/* 减少动态偏好：关停背景漂移与过渡动画 */
+/* 减少动态偏好：关停背景漂移与过渡动画，滚动一律瞬时（R9am：
+   CSS 侧管原生锚点跳转，JS 指定的平滑滚动由 router 的 scrollBehavior 同口径处理） */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto !important;
   }
 }

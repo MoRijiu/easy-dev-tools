@@ -43,6 +43,14 @@ const fallbackRoutes = [
 // 合并所有路由
 const routes = [...baseRoutes, ...toolRoutes, ...fallbackRoutes]
 
+// 系统「减少动态效果」偏好（R9am）：全局 CSS 的减动效规则只能压缩 CSS
+// 动画/过渡，管不到 JS 指定的平滑滚动——减动效时锚点滚动必须瞬时完成，
+// 否则大幅平滑滚动仍会给前庭敏感用户带来不适（与 Danmaku 同口径）
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -50,12 +58,30 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     } else if (to.hash) {
-      // 支持hash锚点跳转
-      return {
-        el: to.hash,
-        behavior: 'smooth',
-        top: 80 // 偏移量，避免被header遮挡
-      }
+      // 支持hash锚点跳转。页面过渡是 out-in 模式：滚动行为执行时新页面
+      // 还没挂载、锚点元素不存在，vue-router 会直接放弃滚动（旧版点
+      // 「支持」链接到关于页后停在页首、#support 区根本不滚）。返回
+      // Promise 等元素出现后再定位，最多等 1 秒，等不到则回页首。
+      const behavior = prefersReducedMotion() ? 'auto' : 'smooth'
+      return new Promise((resolve) => {
+        const started = Date.now()
+        const tick = () => {
+          let found = false
+          try {
+            found = !!document.querySelector(to.hash)
+          } catch {
+            found = false
+          }
+          if (found) {
+            resolve({ el: to.hash, behavior, top: 80 }) // 偏移量，避免被header遮挡
+          } else if (Date.now() - started > 1000) {
+            resolve({ top: 0 })
+          } else {
+            setTimeout(tick, 30)
+          }
+        }
+        tick()
+      })
     } else {
       return { top: 0 }
     }
