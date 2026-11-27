@@ -27,6 +27,9 @@
         <button class="btn ghost" type="button" @click="clearAll">清空</button>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
+      <div v-if="result && result.warnings && result.warnings.length" class="warn-box">
+        <p v-for="(w, i) in result.warnings" :key="i">⚠ {{ w }}</p>
+      </div>
       <template v-if="result">
         <label class="out-label">生成的 JWT
           <textarea :value="result.token" rows="4" readonly spellcheck="false" aria-label="生成的 JWT"></textarea>
@@ -34,7 +37,7 @@
         <p class="verify" :class="selfCheck?.valid ? 'ok' : 'bad'">签名自检：{{ selfCheckText }}</p>
         <div class="row actions">
           <button class="btn ghost" type="button" @click="copyText(result.token)">复制 Token</button>
-          <span class="muted">长度 {{ result.token.length }} 字符 · 签名段 {{ result.signature.length }} 字符</span>
+          <span class="muted">长度 {{ result.token.length }} 字符 · 签名段 {{ result.signature.length }} 字符 · 密钥 {{ result.secretBytes }} 字节</span>
         </div>
       </template>
       <ToolStatusMessage :message="statusMessage" :type="statusType" />
@@ -62,7 +65,10 @@ const faqs = [
   { question: 'HS256 和 RS256 有什么区别？', answer: 'HS256 是对称签名：签发和验签用同一把密钥，适合自己签自己验的场景，密钥一旦泄露任何人都能伪造 Token。RS256 是非对称签名（私钥签、公钥验），适合第三方验签。本工具只做 HMAC 三种算法。' },
   { question: 'exp、iat 是秒还是毫秒？', answer: 'JWT 标准里时间类 claims（exp/iat/nbf）一律是秒级 Unix 时间戳。本工具的快捷有效期按当前秒数写入，不会误写成毫秒。' },
   { question: 'Payload 里能放密码等敏感信息吗？', answer: '不能。JWT 的 Header 与 Payload 只是 Base64URL 编码、任何人都能解开看，签名只保证没被篡改、不提供保密。别在 Payload 放密码、身份证号等敏感数据。' },
-  { question: '密钥多长才安全？', answer: 'HS256 建议至少 32 字节（256 位）的随机密钥；太短的口令容易被离线爆破。生产环境请用随机生成的长密钥并妥善保管。' }
+  { question: '密钥多长才安全？', answer: 'HS256 建议至少 32 字节（256 位）的随机密钥；太短的口令容易被离线爆破。生产环境请用随机生成的长密钥并妥善保管。' },
+  { question: '生成时提示密钥太短或 Token 已过期是什么意思？', answer: '这两类是警告不是报错，Token 照常生成：密钥字节数低于所选算法的建议值（HS256 32 / HS384 48 / HS512 64 字节）会提示爆破风险；Payload 里的 exp 已过期或 nbf 尚未生效也会提示，调试这类场景时可以忽略。' },
+  { question: 'exp 可以写字符串吗？为什么重复键会报错？', answer: 'exp / nbf / iat 必须是秒级数字，写成 "tomorrow" 这类字符串验签方会忽略或判无效，本工具直接点名报错。Header / Payload 里同一个键写两次时，JSON.parse 只保留最后一个、不少 JWT 解析器却取第一个，同一 Token 会解出不同内容，所以也点名报错。' },
+  { question: '生成失败为什么还留着上一个 Token？', answer: '改错输入时旧结果不会被清掉，方便对照修改；但旧 Token 对应的是上一次的输入，重新生成成功前不要拿它当新结果用。' }
 ];
 const ttlOptions = [{ label: '1 小时', sec: 3600 }, { label: '1 天', sec: 86400 }, { label: '7 天', sec: 604800 }, { label: '30 天', sec: 2592000 }];
 const EXAMPLE_HEADER = '{\n  "alg": "HS256",\n  "typ": "JWT"\n}';
@@ -83,11 +89,13 @@ const applyTtl = (sec) => {
   const p = parseJsonObjectInput(payloadText.value, 'Payload');
   if (!p.ok) { error.value = p.error; return; }
   error.value = '';
-  payloadText.value = JSON.stringify(applyTimeClaims(p.value, { ttlSec: sec }), null, 2);
+  try {
+    payloadText.value = JSON.stringify(applyTimeClaims(p.value, { ttlSec: sec }), null, 2);
+  } catch (e) { error.value = e.message; }
 };
 const generate = async () => {
   const r = await signJwt({ headerText: headerText.value, payloadText: payloadText.value, secret: secret.value, alg: alg.value });
-  if (!r.ok) { error.value = r.error; result.value = null; selfCheck.value = null; return; }
+  if (!r.ok) { error.value = r.error; return; }
   error.value = ''; result.value = r;
   const v = await verifyJwtSignature(r.token, secret.value);
   selfCheck.value = v.ok ? v : null;
@@ -101,7 +109,9 @@ const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt)
 .jwt-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
+.warn-box { background: var(--warn-soft); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-bottom: 10px; }
+.warn-box p { margin: 2px 0; }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
 .row label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
 .row label.secret-label { flex: 1; min-width: 220px; }
