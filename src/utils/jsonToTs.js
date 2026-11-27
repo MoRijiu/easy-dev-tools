@@ -1,5 +1,12 @@
 // JSON 转 TypeScript 类型（纯本地）：推断原始类型、嵌套对象生成 interface、
 // 数组元素类型合并（对象元素取键并集，缺失键标可选），同名同形接口复用、同名异形自动改名。
+// 输入上限 100 万字符、嵌套深度 100 层、节点总数 5 万，超限点名报错（防深嵌套爆栈）；
+// JSON 语法错误复用 parseJsonDetailed 给行列定位；根数组混合对象与原始值时，
+// 元素接口名加 Item 后缀并预留根名，避免 interface 与 type 别名同名冲突（旧版会生成无效 TS）。
+
+import { parseJsonDetailed } from './jsonFormat.js';
+
+export const JSON_TO_TS_LIMITS = { maxChars: 1000000, maxDepth: 100, maxNodes: 50000 };
 
 export function pascalCase(raw) {
   const parts = String(raw).split(/[^a-zA-Z0-9]+/).filter(Boolean);
@@ -9,10 +16,28 @@ export function pascalCase(raw) {
   return name;
 }
 
+const KEEP_PLURAL = new Set(['news']);
 function singularize(name) {
   if (name.length > 3 && name.endsWith('ies')) return name.slice(0, -3) + 'y';
-  if (name.length > 1 && name.endsWith('s') && !name.endsWith('ss')) return name.slice(0, -1);
+  // status/analysis 等以 us/is 结尾的词不是复数，不能剥 s（旧版 status→Statu、news→New）
+  if (KEEP_PLURAL.has(name.toLowerCase())) return name;
+  if (name.length > 1 && name.endsWith('s') && !name.endsWith('ss') && !name.endsWith('us') && !name.endsWith('is')) return name.slice(0, -1);
   return name;
+}
+
+// 迭代统计深度与节点数（不用递归，避免深嵌套先把校验本身爆栈）
+function measureStructure(data) {
+  let nodes = 0;
+  let maxDepth = 0;
+  const stack = [[data, 1]];
+  while (stack.length) {
+    const [v, d] = stack.pop();
+    nodes++;
+    if (d > maxDepth) maxDepth = d;
+    if (Array.isArray(v)) for (const el of v) stack.push([el, d + 1]);
+    else if (isPlainObject(v)) for (const k of Object.keys(v)) stack.push([v[k], d + 1]);
+  }
+  return { nodes, maxDepth };
 }
 
 function isPlainObject(v) {
@@ -23,14 +48,30 @@ const IDENT_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 export function jsonToTypeScript(text, options = {}) {
   const rootNameRaw = (options.rootName || 'Root').trim() || 'Root';
+  if (!/[A-Za-z0-9_$]/.test(rootNameRaw)) {
+    throw new Error(`根类型名「${rootNameRaw}」需包含英文字母、数字或 _/$，请改一个合法的类型名`);
+  }
   const rootName = pascalCase(rootNameRaw);
   const useExport = options.useExport !== false;
 
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    throw new Error('JSON 解析失败：' + e.message.replace(/^JSON\.parse:\s*/i, '').replace(/ in JSON at position/i, '，位置'));
+  const src = String(text ?? '');
+  if (src.length > JSON_TO_TS_LIMITS.maxChars) {
+    throw new Error(`输入过长：${src.length} 个字符，超过上限 ${JSON_TO_TS_LIMITS.maxChars} 个字符，请拆分后再生成`);
+  }
+  const parsed = parseJsonDetailed(src);
+  if (!parsed.ok) {
+    const { line, column, hints } = parsed.error;
+    const where = line ? `（第 ${line} 行第 ${column} 列）` : '';
+    const hint = hints && hints.length ? `；${hints[0]}` : '';
+    throw new Error(`JSON 解析失败${where}：${parsed.error.message.replace(/^JSON\.parse:\s*/i, '')}${hint}`);
+  }
+  const data = parsed.value;
+  const { nodes, maxDepth } = measureStructure(data);
+  if (maxDepth > JSON_TO_TS_LIMITS.maxDepth) {
+    throw new Error(`JSON 嵌套过深：${maxDepth} 层，超过上限 ${JSON_TO_TS_LIMITS.maxDepth} 层，请拆分后再生成`);
+  }
+  if (nodes > JSON_TO_TS_LIMITS.maxNodes) {
+    throw new Error(`JSON 节点过多：${nodes} 个，超过上限 ${JSON_TO_TS_LIMITS.maxNodes} 个，请拆分后再生成`);
   }
 
   const interfaces = []; // { name, lines: [] }
@@ -83,7 +124,8 @@ export function jsonToTypeScript(text, options = {}) {
     if (v === null) return 'null';
     if (Array.isArray(v)) {
       if (!v.length) return 'unknown[]';
-      return [...new Set(v.map((el) => typeSignature(el, keyHint)))].sort().join('|') + '[]';
+      // 每个元素签名加括号再拼接，避免 [] 只绑定到最后一个签名导致同形判断串味
+      return [...new Set(v.map((el) => typeSignature(el, keyHint)))].sort().map((s) => `(${s})`).join('|') + '[]';
     }
     if (isPlainObject(v)) return shapeKeyOf(mergeShape([v]));
     return typeof v; // string | number | boolean
@@ -157,7 +199,10 @@ export function jsonToTypeScript(text, options = {}) {
     // 根数组的元素接口就叫 rootName，另给列表别名便于引用
     interfaces.rootAlias = rootBlock;
   } else {
-    const types = typeOf([data], rootName);
+    // 根原始值 / 混合数组：根名是 type 别名，先预留防止元素接口抢同名（旧版生成 interface Root + type Root 无效 TS）；
+    // 元素对象接口以「根名+Item」为命名提示，如 RootItem。
+    usedNames.set(rootName, '__root_alias__');
+    const types = typeOf([data], rootName + 'Item');
     rootBlock = `${prefix}type ${rootName} = ${types.join(' | ')};`;
   }
 
