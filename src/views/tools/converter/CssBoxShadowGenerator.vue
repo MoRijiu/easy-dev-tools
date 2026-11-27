@@ -121,7 +121,7 @@ input[type="color"] { width: 42px; height: 34px; padding: 2px; border: 1px solid
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--text-2); }
 .chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .error { color: var(--danger-text); font-size: 14px; }
-.notes { color: var(--warning); font-size: 13px; }
+.notes { color: var(--warning-text); font-size: 13px; }
 .code-head { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px; font-size: 13px; color: var(--text-2); flex-wrap: wrap; gap: 8px; }
 .code-btns { display: flex; gap: 6px; }
 .code { background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; color: var(--text); overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin: 0; }

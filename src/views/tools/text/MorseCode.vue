@@ -178,7 +178,7 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .ref-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 0; padding: 4px 7px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; line-height: 1.25; }
 .ref-cell b { font-size: 13px; }
 .ref-cell code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--text-2); }
-.ref-cell:hover { border-color: var(--accent, #4f46e5); }
+.ref-cell:hover { border-color: var(--accent); }
 .ref-hint { font-size: 12px; color: var(--text-2); margin: 0; }
 @media (max-width: 760px) { .panels { grid-template-columns: 1fr; } h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

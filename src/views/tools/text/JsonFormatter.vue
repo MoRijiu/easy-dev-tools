@@ -371,8 +371,8 @@ h1 {
 .error-detail {
   margin: 10px 0;
   padding: 10px 12px;
-  border: 1px solid var(--danger-border, #f3c2c2);
-  background: var(--danger-soft, #fdf2f2);
+  border: 1px solid var(--danger-border);
+  background: var(--danger-soft);
   border-radius: 8px;
   font-size: 0.9rem;
 }
@@ -383,7 +383,7 @@ h1 {
   align-items: center;
   gap: 8px;
   font-weight: 600;
-  color: var(--danger-text, #b42318);
+  color: var(--danger-text);
 }
 
 .mini-btn {
