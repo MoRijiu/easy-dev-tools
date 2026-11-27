@@ -45,12 +45,12 @@
         <button class="btn ghost" @click="reverseStops">反转</button>
       </div>
       <div v-for="(stop, i) in form.stops" :key="i" class="stop-row">
-        <input type="color" :value="pickerValue(stop.color)" aria-label="取色器" @input="onPick(i, $event.target.value)" />
-        <input v-model="stop.color" type="text" class="color-text mono" aria-label="颜色值" spellcheck="false" />
-        <input v-model.number="stop.position" type="range" min="0" max="100" step="1" class="grow" aria-label="色标位置" />
-        <input v-model.number="stop.position" type="number" min="0" max="100" class="pos-num" aria-label="色标位置数值" />
+        <input type="color" :value="pickerValue(stop.color)" :aria-label="`第 ${i + 1} 个色标取色器`" @input="onPick(i, $event.target.value)" />
+        <input v-model="stop.color" type="text" class="color-text mono" :aria-label="`第 ${i + 1} 个色标颜色值`" spellcheck="false" />
+        <input v-model.number="stop.position" type="range" min="0" max="100" step="1" class="grow" :aria-label="`第 ${i + 1} 个色标位置`" />
+        <input v-model.number="stop.position" type="number" min="0" max="100" class="pos-num" :aria-label="`第 ${i + 1} 个色标位置数值`" />
         <span class="pct">%</span>
-        <button class="del" :disabled="form.stops.length <= 2" aria-label="删除色标" @click="removeStop(i)">✕</button>
+        <button class="del" :disabled="form.stops.length <= 2" :aria-label="`删除第 ${i + 1} 个色标`" @click="removeStop(i)">✕</button>
       </div>
       <div class="examples"><span>预设：</span><button v-for="p in GRADIENT_PRESETS" :key="p.name" class="chip" @click="applyPreset(p)">{{ p.name }}</button></div>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
