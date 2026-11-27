@@ -11,6 +11,7 @@
         aria-label="上传二维码图片，或把图片拖放到这里"
         @click="fileInput.click()"
         @keydown.enter.prevent="fileInput.click()"
+        @keydown.space.prevent="fileInput.click()"
         @dragover.prevent="dragging = true"
         @dragleave="dragging = false"
         @drop.prevent="onDrop"

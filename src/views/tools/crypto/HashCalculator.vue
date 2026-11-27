@@ -66,6 +66,10 @@
           class="drop-zone"
           :class="{ dragging }"
           @click="fileInputRef?.click()"
+          tabindex="0"
+          role="button"
+          aria-label="选择要计算哈希的文件，或把文件拖放到这里"
+          @keydown="onDropZoneKeydown"
           @dragover.prevent="dragging = true"
           @dragleave="dragging = false"
           @drop.prevent="onDrop"
@@ -163,6 +167,15 @@ const fileBytes = ref(null);
 const fileMeta = ref(null);
 const fileInputRef = ref(null);
 const dragging = ref(false);
+
+// 拖放区是 div 模拟按钮：回车/空格须与点击等效（空格在 keydown 拦截防页面滚动）
+const onDropZoneKeydown = (e) => {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    fileInputRef.value?.click();
+  }
+};
 const selectedAlgorithms = ref(["MD5", "SHA-256"]);
 const hashResults = ref({});
 const upperCase = reactive({});
@@ -540,6 +553,11 @@ h1 {
 .drop-zone.dragging {
   border-color: var(--accent);
   background: var(--accent-soft);
+}
+
+.drop-zone:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .file-name {
