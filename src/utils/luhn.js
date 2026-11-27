@@ -1,20 +1,58 @@
 // Luhn 校验：纯本地实现（ISO/IEC 7812-1 模 10 算法）。
 // 用途：银行卡号、IMEI、部分会员卡/条码号的末位校验；只能发现抄写错误，不能证明号码真实存在或可支付。
-// 输入容错：忽略空格与连字符（常见分组写法），其余非数字字符定位报错。
+// 输入容错：全角数字转半角；空格/换行/不换行空格/全角空格与连字符类作分隔，其余非数字字符按码点定位报错。
 
-export function cleanNumber(raw) {
-  const s = String(raw ?? '');
-  if (!s.trim()) return { ok: false, error: '输入为空，请输入数字号码' };
-  let digits = '';
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-    if (ch === ' ' || ch === '-' || ch === '\t') continue;
-    if (ch >= '0' && ch <= '9') { digits += ch; continue; }
-    return { ok: false, error: `第 ${i + 1} 个字符「${ch}」不是数字（仅允许数字、空格与连字符分组）` };
+const MAX_INPUT_CHARS = 100000;
+// 分隔符：常见分组写法。空格/制表/换行/不换行空格/全角空格作分隔，
+// 连字符与粘贴常见的 en/em 横线也作分隔。
+const SEPARATORS = new Set([' ', '\t', '\n', '\r', '\u00A0', '\u3000', '-', '\u2013', '\u2014']);
+
+function displayChar(ch) {
+  const cp = ch.codePointAt(0);
+  if (cp <= 0x20 || cp === 0x7f || (cp >= 0x200b && cp <= 0x200f) || cp === 0xfeff) {
+    return `U+${cp.toString(16).toUpperCase().padStart(4, '0')}`;
   }
-  if (digits.length < 2) return { ok: false, error: '号码至少需要 2 位数字（含校验位）' };
-  if (digits.length > 32) return { ok: false, error: `号码共 ${digits.length} 位，超过 32 位上限` };
-  return { ok: true, digits };
+  return ch;
+}
+
+// 归一：全角数字转半角（记 notes），其余原样；按 Unicode 码点遍历，报错位置与字符与原文一致
+export function normalizeLuhnInput(raw) {
+  const notes = [];
+  let fullwidth = 0;
+  let out = '';
+  for (const ch of String(raw ?? '')) {
+    const cp = ch.codePointAt(0);
+    if (cp >= 0xff10 && cp <= 0xff19) { out += String.fromCharCode(cp - 0xff10 + 48); fullwidth += 1; continue; }
+    out += ch;
+  }
+  if (fullwidth) notes.push(`已将 ${fullwidth} 个全角数字按半角数字处理`);
+  return { text: out, notes };
+}
+
+export function cleanNumber(raw, options = {}) {
+  const minDigits = options.minDigits ?? 2;
+  const maxDigits = options.maxDigits ?? 32;
+  const subject = options.subject ?? '号码';
+  const rawStr = String(raw ?? '');
+  if ([...rawStr].length > MAX_INPUT_CHARS) {
+    return { ok: false, error: `输入共 ${[...rawStr].length} 个字符，超过 ${MAX_INPUT_CHARS} 字符上限` };
+  }
+  if (!rawStr.trim()) return { ok: false, error: '输入为空，请输入数字号码' };
+  const { text, notes } = normalizeLuhnInput(rawStr);
+  let digits = '';
+  let pos = 0;
+  for (const ch of text) {
+    pos += 1;
+    if (ch === '\uFEFF' && pos === 1) continue;
+    if (SEPARATORS.has(ch)) continue;
+    if (ch >= '0' && ch <= '9') { digits += ch; continue; }
+    return { ok: false, error: `第 ${pos} 个字符「${displayChar(ch)}」不是数字（仅允许数字、空格与连字符分组）` };
+  }
+  if (digits.length < minDigits) {
+    return { ok: false, error: minDigits === 1 ? `${subject}至少需要 1 位数字` : `${subject}至少需要 ${minDigits} 位数字（含校验位）` };
+  }
+  if (digits.length > maxDigits) return { ok: false, error: `${subject}共 ${digits.length} 位，超过 ${maxDigits} 位上限` };
+  return { ok: true, digits, notes };
 }
 
 // 从右往左：校验位（最右）不翻倍，其后隔一位翻倍，翻倍大于 9 减 9，求和
@@ -38,13 +76,14 @@ export function isValidLuhn(digits) {
 
 // 给定不含校验位的载荷数字，算出应追加的校验位
 export function computeCheckDigit(payload) {
-  const cleaned = cleanNumber(payload);
+  // 载荷不含校验位：1 位即可算，完整号码上限 32 位故载荷上限 31 位
+  const cleaned = cleanNumber(payload, { minDigits: 1, maxDigits: 31, subject: '载荷号码' });
   if (!cleaned.ok) return cleaned;
   const digits = cleaned.digits;
   // 在末尾占位 0 后按完整号码规则求和，校验位 = (10 - sum % 10) % 10
   const { sum } = luhnSteps(digits + '0');
   const check = (10 - (sum % 10)) % 10;
-  return { ok: true, digits, checkDigit: String(check), complete: digits + String(check) };
+  return { ok: true, digits, checkDigit: String(check), complete: digits + String(check), notes: cleaned.notes || [] };
 }
 
 // 完整号码里，末位「本应是」多少（载荷不变时）
@@ -62,7 +101,8 @@ export function identifyIssuer(digits) {
   if (digits[0] === '4' && [13, 16, 19].includes(len)) out.push('Visa（维萨）');
   if (len === 16 && ((p2 >= 51 && p2 <= 55) || (p4 >= 2221 && p4 <= 2720))) out.push('Mastercard（万事达）');
   if (len === 15 && (p2 === 34 || p2 === 37)) out.push('American Express（美国运通）');
-  if ((len === 16 || len === 19) && (p4 === 6011 || p2 === 65 || (p3 >= 644 && p3 <= 649))) out.push('Discover（发现卡）');
+  const p6 = Number(digits.slice(0, 6));
+  if ((len === 16 || len === 19) && (p4 === 6011 || p2 === 65 || (p3 >= 644 && p3 <= 649) || (p6 >= 622126 && p6 <= 622925))) out.push('Discover（发现卡）');
   if (len === 14 && ((p3 >= 300 && p3 <= 305) || p2 === 36 || p2 === 38 || p2 === 39)) out.push('Diners Club（大莱卡）');
   if (len >= 16 && len <= 19 && p4 >= 3528 && p4 <= 3589) out.push('JCB');
   if (len >= 16 && len <= 19 && p2 === 62) out.push('中国银联 UnionPay');
@@ -83,8 +123,12 @@ export function analyzeNumber(raw) {
   const { digits } = cleaned;
   const { steps, sum } = luhnSteps(digits);
   const valid = sum % 10 === 0;
+  const warnings = [];
+  if (/^(\d)\1+$/.test(digits)) warnings.push('各位数字完全相同，通常是占位或测试号码，即使校验通过也不代表真实可用');
   return {
     ok: true,
+    notes: cleaned.notes || [],
+    warnings,
     digits,
     formatted: formatGroups(digits),
     length: digits.length,
@@ -98,22 +142,29 @@ export function analyzeNumber(raw) {
   };
 }
 
-// 多行批量校验：每行一个号码，空行跳过
+// 多行批量校验：每行一个号码，空行跳过；孤 CR 也分行；格式错误与 Luhn 不通过分开计数
 export function validateBatch(text) {
-  const lines = String(text ?? '').split(/\r?\n/);
+  const rawText = String(text ?? '');
+  if ([...rawText].length > MAX_INPUT_CHARS) {
+    return { ok: false, error: `输入共 ${[...rawText].length} 个字符，超过 ${MAX_INPUT_CHARS} 字符上限` };
+  }
+  const lines = rawText.split(/\r\n|\r|\n/);
+  if (lines.length > 10000) return { ok: false, error: `共 ${lines.length} 行，超过 10000 行上限` };
   const results = [];
   let validCount = 0;
+  let invalidCount = 0;
+  let errorCount = 0;
   for (let i = 0; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const r = analyzeNumber(lines[i]);
-    if (!r.ok) results.push({ line: i + 1, raw: lines[i].trim(), ok: false, error: r.error });
+    if (!r.ok) { errorCount += 1; results.push({ line: i + 1, raw: lines[i].trim(), ok: false, error: r.error }); }
     else {
-      if (r.valid) validCount += 1;
+      if (r.valid) validCount += 1; else invalidCount += 1;
       results.push({ line: i + 1, raw: lines[i].trim(), ok: true, valid: r.valid, digits: r.digits, formatted: r.formatted, length: r.length, issuers: r.issuers });
     }
   }
   if (!results.length) return { ok: false, error: '输入为空，请每行输入一个号码' };
-  return { ok: true, results, total: results.length, validCount, invalidCount: results.length - validCount };
+  return { ok: true, results, total: results.length, validCount, invalidCount, errorCount };
 }
 
 export function buildSummary(r) {
@@ -125,5 +176,6 @@ export function buildSummary(r) {
     `校验位：${r.checkDigit}${r.valid ? '' : `（按当前载荷应为 ${r.expectedCheckDigit}）`}`
   ];
   if (r.issuers && r.issuers.length) lines.push(`可能类型：${r.issuers.join('、')}`);
+  if (r.warnings && r.warnings.length) lines.push(`提示：${r.warnings.join('；')}`);
   return lines.join('\n');
 }
