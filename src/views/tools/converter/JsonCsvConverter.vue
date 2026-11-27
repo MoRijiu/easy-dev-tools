@@ -25,6 +25,7 @@
         <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'json2csv' ? 'CSV 结果会显示在这里' : 'JSON 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
+      <p v-if="warningText" class="warning">⚠ {{ warningText }}</p>
       <ToolExamples :examples="examples" @use-example="useExample" />
       <ToolFeatures :features="features" />
       <ToolUsageGuide :steps="usageSteps" />
@@ -53,11 +54,13 @@ const usageSteps = ['选转换方向与分隔符（CSV 转 JSON 可勾选类型�
 const faqs = [
   { question: '嵌套对象或数组怎么转成 CSV？', answer: '会用 JSON.stringify 压平成单元格文本（如 {"a":1}）；转回 JSON 时它会是字符串，不会自动还原成对象。' },
   { question: 'CSV 里的数字为什么变成字符串？', answer: '默认保留原文字符串；勾选「推断数字/布尔/null」后，形如 18、3.14、true、null 的单元格会转成对应 JSON 类型，空单元格仍是空字符串。' },
+  { question: '某一行列数和表头对不上会怎样？', answer: '列数多于表头会报错并指出行号（多出的内容不会被静默丢弃）；列数不足的行会补空字符串，并在结果下方给出提醒。' },
+  { question: '从 Excel 导出的 CSV 第一列列名总带怪字符？', answer: '那是 Excel 常见的 UTF-8 BOM 标记，本工具会自动剥除，不会污染第一个表头名。' },
   { question: '我的数据会被上传吗？', answer: '不会。全部转换都在浏览器本地完成，不发送任何网络请求。' }
 ];
 const examples = [
-  { input: '[{"name":"张三","age":18},{"name":"李四","city":"上海"}]', output: 'name,age,city\n张三,18,\n李四,,上海', description: 'JSON 转 CSV（表头并集）' },
-  { input: 'name,age\n张三,18\n李四,20', output: '[{"name":"张三","age":"18"}…]', description: 'CSV 转 JSON' }
+  { mode: 'json2csv', input: '[{"name":"张三","age":18},{"name":"李四","city":"上海"}]', output: 'name,age,city\n张三,18,\n李四,,上海', description: 'JSON 转 CSV（表头并集）' },
+  { mode: 'csv2json', input: 'name,age\n张三,18\n李四,20', output: '[\n  {\n    "name": "张三",\n    "age": "18"\n  },\n  {\n    "name": "李四",\n    "age": "20"\n  }\n]', description: 'CSV 转 JSON' }
 ];
 const mode = ref('json2csv');
 const delimiter = ref(',');
@@ -65,10 +68,11 @@ const inferTypes = ref(false);
 const inputText = ref('');
 const outputText = ref('');
 const stats = ref('');
+const warningText = ref('');
 const statusMessage = ref('');
 const statusType = ref('');
 const convert = () => {
-  outputText.value = ''; stats.value = '';
+  outputText.value = ''; stats.value = ''; warningText.value = '';
   if (!inputText.value.trim()) { statusMessage.value = ''; return; }
   try {
     if (mode.value === 'json2csv') {
@@ -79,6 +83,7 @@ const convert = () => {
       const r = csvToJson(inputText.value, { delimiter: delimiter.value, inferTypes: inferTypes.value });
       outputText.value = JSON.stringify(r.data, null, 2);
       stats.value = '共 ' + r.rowCount + ' 行 × ' + r.headers.length + ' 列（' + r.headers.join(' / ') + '）';
+      if (r.warnings && r.warnings.length) warningText.value = r.warnings.join('；');
     }
     statusMessage.value = '✓ 转换成功';
     statusType.value = 'success';
@@ -95,7 +100,7 @@ const loadExample = () => {
   convert();
 };
 const useExample = (ex) => {
-  if (ex.description.startsWith('CSV')) mode.value = 'csv2json'; else mode.value = 'json2csv';
+  mode.value = ex.mode || 'json2csv';
   inputText.value = ex.input; convert();
 };
 const swap = () => {
@@ -104,7 +109,7 @@ const swap = () => {
   mode.value = mode.value === 'json2csv' ? 'csv2json' : 'json2csv';
   convert();
 };
-const clearAll = () => { inputText.value = ''; outputText.value = ''; stats.value = ''; statusMessage.value = ''; };
+const clearAll = () => { inputText.value = ''; outputText.value = ''; stats.value = ''; warningText.value = ''; statusMessage.value = ''; };
 const copyOutput = async () => {
   try { await navigator.clipboard.writeText(outputText.value); statusMessage.value = '✓ 结果已复制'; statusType.value = 'success'; }
   catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
@@ -115,7 +120,7 @@ const copyOutput = async () => {
 .json-csv { max-width: 1400px; margin: 0 auto; padding: 20px; }
 h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
 .description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .mode-btn { padding: 6px 12px; border: none; background: var(--bg-soft); color: var(--text-2); font-size: 13px; cursor: pointer; }
 .mode-btn.active { background: var(--accent); color: #fff; }
@@ -126,5 +131,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .text-input { width: 100%; min-height: 220px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .text-input.output { background: var(--bg-soft); }
 .stats { margin: 10px 0 0; font-size: 13px; color: var(--text-2); }
+.warning { margin: 6px 0 0; font-size: 13px; color: var(--warning-text, #b45309); }
 @media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .panes { grid-template-columns: 1fr; } }
 </style>
