@@ -2,10 +2,12 @@
   <Teleport to="body">
     <div v-if="open" class="palette-backdrop" @click.self="close">
       <div
+        ref="paletteRef"
         class="palette"
         role="dialog"
         aria-modal="true"
         aria-label="快速跳转工具"
+        @keydown="onPaletteKeydown"
       >
         <div class="palette-input-row">
           <span class="palette-icon" aria-hidden="true">⌕</span>
@@ -77,6 +79,7 @@ const open = ref(false)
 const query = ref('')
 const activeIndex = ref(0)
 const inputRef = ref(null)
+const paletteRef = ref(null)
 let lastFocused = null
 
 const ACTIONS = [
@@ -146,6 +149,35 @@ const choose = (entry) => {
   else entry.run()
 }
 
+// aria-modal 对话框的焦点陷阱：Tab / Shift+Tab 只在面板内循环，
+// 焦点不逃到被遮罩覆盖的背景页；Esc 在面板内任意位置都能关闭。
+const onPaletteKeydown = (e) => {
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    close()
+    return
+  }
+  if (e.key !== 'Tab') return
+  const root = paletteRef.value
+  if (!root) return
+  const focusables = [...root.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )].filter(el => el.offsetParent !== null || el === document.activeElement)
+  if (!focusables.length) {
+    e.preventDefault()
+    return
+  }
+  const first = focusables[0]
+  const last = focusables[focusables.length - 1]
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault()
+    last.focus()
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault()
+    first.focus()
+  }
+}
+
 const onInputKeydown = (e) => {
   const len = entries.value.length
   if (e.key === 'ArrowDown') {
@@ -174,6 +206,12 @@ const isEditableTarget = (el) => {
 }
 
 const onGlobalKeydown = (e) => {
+  // 面板打开时 Esc 兜底关闭（焦点万一不在面板内时输入框/面板的处理器接不到）
+  if (open.value && e.key === 'Escape') {
+    e.preventDefault()
+    close()
+    return
+  }
   // Ctrl+K / Cmd+K：任意位置开关命令面板
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
