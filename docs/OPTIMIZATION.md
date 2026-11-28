@@ -576,3 +576,11 @@ R12 小盘点续项：本站 sitemap 的发现通道只有一条——`public/ro
 - 处理：index.html 在 canonical 后补 `<!-- Sitemap -->` 分节与 `<link rel="sitemap" type="application/xml" title="Sitemap" href="https://tools.morijiu.cn/sitemap.xml" />` 一行，href 与 robots.txt 的 Sitemap 行逐字一致（正式域名绝对地址），文件 6,103→6,235 B（+132 B）；其余 head 标签与 sitemap.xml 内容一字未改。
 - 边界：本声明只是发现提示，不改 sitemap 内容、抓取规则与任何运行时行为；将来 sitemap 改名或拆分多文件时，须与 robots.txt 的 Sitemap 行一并同步（已在本节留痕）。
 - 等价证据：改后 head 经解析核对 link 单份且 href/type 正确、canonical 与 application-name 无回归；test 构建 exit=0、产物 index.html 含本 link；无头 Chrome 冒烟核对首页/工具页/404 该 link 在位且指向的 /sitemap.xml 可达可解析、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12as 落地（2026-11-28，JSON-LD 补 browserRequirements 浏览器需求声明）
+
+R12 小盘点续项：本站是纯前端工具站，全部工具都靠 JavaScript 在本地运行——R12n 已为此在 index.html 加了 noscript 兜底（禁用 JS 时只剩说明文案）。但结构化数据里没有对应的机器可读声明：JSON-LD（WebApplication）只有 operatingSystem: "Any"，没写 Schema.org 为 WebApplication 定义的 browserRequirements，搜索引擎与结构化数据消费方无从得知「这个应用必须有 JavaScript 才能用」，可能把工具页当成普通静态文档页理解。与 R12ap 补 inLanguage 同族，这次缺的是站点级运行需求字段本身。
+
+- 处理：JSON-LD 在 operatingSystem 后补 `"browserRequirements": "Requires JavaScript"` 一行，index.html 6,235→6,287 B（+52 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：browserRequirements 是站点级声明、不随路由变化（全站工具均需 JS），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为，将来若推出无需 JS 的静态工具页，须同步复核本字段表述（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 browserRequirements 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
