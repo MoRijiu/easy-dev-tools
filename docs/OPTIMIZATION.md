@@ -407,3 +407,11 @@ R12 小盘点续项：R12v 新增的 `public/icons/icon-maskable-512.png`（40,0
 - 处理：仅重写该 PNG 的编码字节，像素、尺寸（512×512）、模式（RGB）与 manifest 中的 maskable 条目一字未改；R12v 的安全区校验结论因像素逐点一致而原样成立。
 - 边界：其余图标同法实测无收益（icon-192/icon-512 重编码字节不变、apple-touch-icon 已是更优编码），未动；若将来重渲染 maskable 图标，落盘后须再做一次无损优化编码（已在本节留痕）。
 - 等价证据：重压缩前后逐像素 RGB 比对全部 identical；构建产物中该图标字节与源文件一致、manifest 解析与 maskable 条目无回归；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
+
+## R12x 落地（2026-11-28，补 LICENSE 使 MIT 声明落地）
+
+R12 小盘点续项：`README.md` 的许可证一节自初始提交起就写着「MIT License」，但仓库里从来没有 `LICENSE` 文件、`package.json` 也没有 `license` 字段（`git log --all -- LICENSE` 为空、全仓检索无许可证全文）。公开仓访客与 GitHub 的许可证识别都无从落地：仓库页不会显示 MIT 标识，想按 README 声明使用代码的人也找不到授权全文与版权归属。与 R12a 删除无来源的虚假评分、R12r 补齐少报的工具列表同族，都是对外陈述与仓库实际不符，只是这次缺的是法律文本。
+
+- 处理：新增仓库根 `LICENSE`——MIT 标准全文，版权行为 `Copyright (c) 2025 morijiu`（年份取初始提交年 2025、持有人取 README 作者 morijiu）；`package.json` 补 `"license": "MIT"` 与之对齐。README 的许可证一节原文即为 MIT、无需改动，本轮是给既有声明补齐依据而非变更许可口径。
+- 边界：LICENSE 不进构建产物，本项不改变任何运行时行为；若将来变更许可证，须同步改 LICENSE 全文、package.json 的 license 字段与 README 一节三处。
+- 等价证据：LICENSE 为 MIT 标准文本（与 SPDX MIT 模板逐段一致）；test 构建 exit=0 且产物与改前逐字相同（LICENSE/package.json 的 license 字段均不入产物）；页面冒烟无回归（验收结果见台账）。
