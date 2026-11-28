@@ -512,3 +512,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `launch
 - 处理：manifest 补 `"launch_handler": {"client_mode": "navigate-existing"}`（已有窗口时把该窗口导航到本次启动 URL 并聚焦，不再新开窗口；快捷方式直达工具的语义因此是「在现有窗口里打开该工具」），文件 1,653→1,706 B（+53 B）；其余字段、图标、screenshots 与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
 - 边界：launch_handler 目前由 Chromium 系浏览器实现，不支持的平台忽略该字段、按原默认策略启动，不产生负面影响；它不改任何页面内导航与运行时行为，也不引入 Service Worker。将来若产品形态改为希望每次启动都开新窗口，须同步改本字段（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验通过且除 launch_handler 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段值正确、icons/screenshots/shortcuts 与四目标页无回归（验收结果见台账）。
+
+## R12ak 落地（2026-11-28，Manifest 补 handle_links 链接处理声明）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `handle_links` 字段。按 Web App Manifest 规范，`handle_links` 声明指向应用作用域内 URL 的链接应如何处理；缺省时平台自行决定，已安装应用的用户点开站内工具链接时可能仍在普通浏览器标签里打开、绕过已安装的 standalone 窗口，与 R12aj 刚补的「再次启动复用已有窗口」口径不衔接。与 R12ab 补 id、R12af 补 display_override、R12ag 补 prefer_related_applications、R12aj 补 launch_handler 同族，这次缺的是链接处理偏好声明。
+
+- 处理：manifest 补 `"handle_links": "preferred"`（作用域内链接优先由已安装应用接管），文件 1,706→1,733 B（+27 B）；其余字段、图标、screenshots 与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
+- 边界：handle_links 目前主要由 Chromium 系浏览器实现，不支持的平台忽略该字段、按原默认策略打开链接，不产生负面影响；它不改任何页面内导航与运行时行为，也不引入 Service Worker。将来若希望站内链接一律留在浏览器，须同步改本字段为 not-preferred。
+- 等价证据：manifest 经 JSON 解析校验通过且除 handle_links 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段值正确、icons/screenshots/shortcuts 与四目标页无回归（验收结果见台账）。
