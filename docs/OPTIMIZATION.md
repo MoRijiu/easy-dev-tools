@@ -648,3 +648,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 在 `author` 后补 `publisher` 对象（`@type: Organization`、`name: 极速开发工具箱`、`url: https://tools.morijiu.cn/`，与 author 对象逐字一致——本站创作与发布为同一主体），index.html 6,868→7,015 B（+147 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 publisher 对象原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：publisher 是站点级声明、不随路由变化（全站发布者为同一组织），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来发布主体与创作主体分离时，须分别复核 author 与 publisher，不得默认二者永远一致（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、publisher 与 author 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 publisher 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bb 落地（2026-11-28，JSON-LD publisher 补 logo 声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）里 `publisher` 是一个 Organization 对象，R12ba 新增时只有 `@type`/`name`/`url`、没有 Schema.org 为 Organization 定义的 `logo`——结构化数据消费方与搜索结果的组织展示拿到发布者名称与官网后，仍无从得知其标志图，只能靠 favicon 或 og:image 猜测，而 favicon 是小尺寸站点图标、og:image 是分享宣传图，都不是组织标志本身。与 R12ax 补 author.url、R12ba 补 publisher 同族，这次缺的是发布者实体的标志字段本身。
+
+- 处理：JSON-LD 的 publisher 对象补 `"logo": "https://tools.morijiu.cn/icons/icon-512.png"` 一行（正式域名绝对地址，指向 Manifest icons 已在用的同一枚 512×512 PNG 应用图标，实测尺寸 512×512 与声明用途吻合），index.html 7,015→7,078 B（+63 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 publisher 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：publisher.logo 是站点级声明、不随路由变化（全站发布者为同一组织），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用图标更换时，须同步复核本字段仍指向现行图标，并与 Manifest icons 一并核对（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、publisher.logo 与 Manifest 512 图标地址逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 publisher.logo 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
