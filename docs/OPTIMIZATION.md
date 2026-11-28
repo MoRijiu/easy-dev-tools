@@ -57,3 +57,10 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - 新增 `src/composables/useDownload.js`（downloadBlob/downloadText/downloadUrl），收敛 9 个文件的下载写法共 10 处：Lorem、UuidGenerator、PasswordGenerator、QrcodeGenerator（data URL）、ImageCompress、ImageConverter、JsonFormatter、MarkdownEditor（两处）、TextDiff。QrcodeDecoder 的图片预览 createObjectURL 非下载用途，保留原样。
 - 等价口径：文案逐字保留——无符号文案组（已复制到剪贴板/复制失败，请手动选择复制）经 failMsg 保留、AES 复制的 2 秒守卫清除与短失败文案、UUID 的 2500ms 成功守卫清除（本地 showStatus 改为 composable 薄包装）、Lorem 复制失败静默（只用底层 copyToClipboard 返回布尔、不回写失败状态）、各工具 setInputError 与专属错误原文/aria 关联原样保留。
 - 体积：test 构建 dist 1,976,755 B / 180 文件（R10b3 后 1,976,928 B / 179 文件，−173 B / +1 文件为 useDownload 分块）。
+
+## R10c 落地（2026-11-28）
+
+- 主包构成分析（基线 main@8fef36c test 构建，入口 index 91,233 B / vite 报告 gzip 29.15 kB）：入口静态图含 App/MainLayout/Header/Footer/Home + tools-config 元数据（首屏必需）之外，还混入了非首屏代码——About（512 行）、NotFound（123 行）两个路由页被 router 静态导入、默认隐藏的 CommandPalette（395 行）被 MainLayout 静态导入，三者及其 CSS 全压在首屏入口里。
+- 调整：About/NotFound 改路由懒加载（`() => import()`，与 72 个工具页同口径）；CommandPalette 改 `defineAsyncComponent` 异步组件（布局渲染时即并行加载分块，挂载仅后移一个分块往返，Ctrl+K/`/`/Header 按钮唤起行为不变）。Home 为首屏保持静态；tools-config 元数据被首页/Header/搜索同步依赖，拆独立 chunk 不减首屏字节、只增往返，结论是不拆。
+- 体积对比：入口 index 91,233 → 78,440 B（−12,793 B / −14.0%），vite 报告 gzip 29.15 → 25.29 kB（−13.2%）；新增 About 6,965 B、CommandPalette 5,405 B、NotFound 1,408 B 三个按需 JS 分块及各自 CSS 分块。dist 总量 1,976,755 → 1,979,390 B（+2,635 B / +6 文件）——分块包装与 CSS 拆分开销，换首屏入口净减，属预期取舍。
+- 等价证据：无头 Chrome 冒烟 11/11（脚本 edt-r10c-smoke.js：首页渲染/无溢出、Ctrl+K 打开面板、输 json 首项与 Enter 跳转、/about 渲染与标题、未知深路径落 404 页、工具页正常、320px 无溢出、无 pageerror）。

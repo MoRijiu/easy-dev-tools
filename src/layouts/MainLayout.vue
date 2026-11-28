@@ -20,11 +20,13 @@
 </template>
 
 <script setup>
-import { computed, watch, onBeforeUnmount } from 'vue'
+import { computed, watch, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
-import CommandPalette from '../components/CommandPalette.vue'
+// R10c 分块：命令面板默认隐藏、仅快捷键/搜索按钮唤起，改异步组件移出主包；
+// 布局渲染时即开始并行加载，挂载时机仅后移一个分块往返，交互行为不变
+const CommandPalette = defineAsyncComponent(() => import('../components/CommandPalette.vue'))
 import FavoriteButton from '../components/FavoriteButton.vue'
 import { getToolByPath } from '../router/tools-config'
 import { useToolPrefs } from '../composables/useToolPrefs'
