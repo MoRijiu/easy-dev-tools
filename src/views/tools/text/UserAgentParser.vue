@@ -38,6 +38,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseUserAgent } from '@/utils/userAgent.js';
 
 const features = [
@@ -62,10 +64,11 @@ const examples = [
 ];
 const inputText = ref('');
 const result = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const rows = computed(() => {
   if (!result.value) return [];
@@ -94,10 +97,7 @@ const useCurrent = () => { inputText.value = navigator.userAgent; parse(); };
 const loadExample = () => { inputText.value = examples[0].input; parse(); };
 const useExample = (ex) => { inputText.value = ex.input; parse(); };
 const clearAll = () => { inputText.value = ''; result.value = null; statusMessage.value = ''; };
-const copyText = async (t) => {
-  try { await navigator.clipboard.writeText(t); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyText = async (t) => clipboard.copyText(t, '✓ 已复制');
 const copySummary = () => { if (result.value) copyText(result.value.summary); };
 </script>
 

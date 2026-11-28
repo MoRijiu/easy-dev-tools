@@ -48,6 +48,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { escapeJsonString, unescapeJsonString, buildJsonEscapeSummary, countCodePoints } from '@/utils/jsonEscape.js';
 const features = [
   { icon: '🔤', title: '标准转义', description: '按 RFC 8259 处理引号、反斜杠与全部控制字符，可选非 ASCII 转 \\uXXXX 与正斜杠转义' },
@@ -71,7 +73,9 @@ const unicode = ref(false);
 const escapeSlash = ref(false);
 const withQuotes = ref(true);
 const input = ref(EXAMPLE_ESCAPE);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => {
   if (!input.value) return null;
   return mode.value === 'escape'
@@ -94,8 +98,7 @@ function loadExample() { input.value = mode.value === 'escape' ? EXAMPLE_ESCAPE 
 function clearAll() { input.value = ''; lastValid.value = null; }
 function useOutput() { if (result.value) { input.value = result.value.output; mode.value = mode.value === 'escape' ? 'unescape' : 'escape'; } }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

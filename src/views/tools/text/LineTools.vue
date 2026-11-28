@@ -58,6 +58,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { processLines } from '@/utils/lineTools.js';
 
 const features = [
@@ -83,10 +85,11 @@ const examples = [
 ];
 const inputText = ref('');
 const result = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 // 错误文案自带字段名，按字段名归属：行号起始/行前缀/行后缀归对应选项框，输入超限归主文本域
 const errorField = computed(() => {
   if (statusType.value !== 'error' || !inputErrorText.value || statusMessage.value !== inputErrorText.value) return '';
@@ -120,8 +123,7 @@ const clearAll = () => { inputText.value = ''; result.value = null; statusMessag
 const useOutputAsInput = () => { if (result.value) { inputText.value = result.value.text; process(); } };
 const copyOutput = async () => {
   if (!result.value) return;
-  try { await navigator.clipboard.writeText(result.value.text); statusMessage.value = '✓ 已复制结果'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
+  await clipboard.copyText(result.value.text, '✓ 已复制结果');
 };
 </script>
 

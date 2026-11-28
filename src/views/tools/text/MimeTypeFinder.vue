@@ -33,6 +33,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { MIME_CATEGORIES, searchMimeTypes, buildMimeSummary, countByCategory, describeUnknownQuery } from '@/utils/mimeTypes.js';
 const counts = countByCategory();
 const features = [
@@ -53,8 +55,10 @@ const faqs = [
 const query = ref(''); const category = ref('all');
 const results = computed(() => searchMimeTypes(query.value, category.value));
 const unknownHint = computed(() => (results.value.length ? '' : describeUnknownQuery(query.value)));
-const statusMessage = ref(''); const statusType = ref('');
-const copyItem = async (t) => { try { await navigator.clipboard.writeText(buildMimeSummary(t)); statusMessage.value = '✓ 已复制 .' + t.ext; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const copyItem = async (t) => clipboard.copyText(buildMimeSummary(t), '✓ 已复制 .' + t.ext);
 </script>
 <style scoped>
 .mime-finder { max-width: 1400px; margin: 0 auto; padding: 20px; }

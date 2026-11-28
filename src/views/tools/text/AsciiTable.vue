@@ -56,6 +56,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { ASCII_CATEGORIES, searchAscii, buildAsciiSummary, textToAscii, asciiToText, countByCategory } from '@/utils/asciiTable.js';
 const counts = countByCategory();
 const features = [
@@ -77,12 +79,14 @@ const query = ref(''); const category = ref('all');
 const results = computed(() => searchAscii(query.value, category.value));
 const textInput = ref(''); const codeInput = ref(''); const format = ref('dec');
 const convertOutput = ref(''); const convertError = ref(''); const convertNote = ref(''); const convertErrorSource = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const doEncode = () => { const r = textToAscii(textInput.value, format.value); if (!r.ok) { convertError.value = r.error; convertErrorSource.value = 'text'; return; } convertError.value = ''; convertErrorSource.value = ''; convertOutput.value = r.output; convertNote.value = r.count ? `共 ${r.count} 个字符` : ''; codeInput.value = r.output; };
 const doDecode = () => { const r = asciiToText(codeInput.value, format.value); if (!r.ok) { convertError.value = r.error; convertErrorSource.value = 'code'; return; } convertError.value = ''; convertErrorSource.value = ''; convertOutput.value = r.output; convertNote.value = r.count ? `共 ${r.count} 个字符（控制字符可能不可见）` : ''; textInput.value = r.output; };
 const loadExample = () => { textInput.value = 'Hello'; format.value = 'dec'; doEncode(); };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制结果'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
-const copyItem = async (t) => { try { await navigator.clipboard.writeText(buildAsciiSummary(t)); statusMessage.value = '✓ 已复制 ' + t.code; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = async (txt) => clipboard.copyText(txt, '✓ 已复制结果');
+const copyItem = async (t) => clipboard.copyText(buildAsciiSummary(t), '✓ 已复制 ' + t.code);
 </script>
 <style scoped>
 .ascii-table { max-width: 1400px; margin: 0 auto; padding: 20px; }

@@ -34,6 +34,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { HTTP_CATEGORIES, searchHttpStatus, buildStatusSummary, describeUnknownCode, countByCategory } from '@/utils/httpStatus.js';
 const features = [
   { icon: '🔎', title: '多维搜索', description: '可按状态码、英文名、中文名或「限流/网关/缓存」等场景关键词搜索' },
@@ -53,8 +55,10 @@ const query = ref(''); const category = ref(0);
 const counts = countByCategory();
 const results = computed(() => searchHttpStatus(query.value, category.value));
 const unknown = computed(() => (results.value.length ? null : describeUnknownCode(query.value)));
-const statusMessage = ref(''); const statusType = ref('');
-const copyItem = async (s) => { try { await navigator.clipboard.writeText(buildStatusSummary(s)); statusMessage.value = '✓ 已复制 ' + s.code; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const copyItem = async (s) => clipboard.copyText(buildStatusSummary(s), '✓ 已复制 ' + s.code);
 </script>
 <style scoped>
 .http-status { max-width: 1400px; margin: 0 auto; padding: 20px; }

@@ -130,6 +130,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { collectMatches, buildSegments, applyReplace, parsePatternInput, detectBacktrackRisks, MAX_MATCHES } from '@/utils/regexTest.js';
 
@@ -212,8 +214,9 @@ const testText = ref('');
 const replacement = ref('');
 const matches = ref([]);
 const errorMessage = ref('');
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 
 const flagsString = computed(() => flagDefs.filter(f => flags[f.key]).map(f => f.key).join(''));
 const parsedInput = computed(() => parsePatternInput(pattern.value));
@@ -276,16 +279,7 @@ const clearAll = () => {
   matches.value = []; truncated.value = false; riskWarnings.value = []; literalNote.value = '';
   errorMessage.value = ''; statusMessage.value = '';
 };
-const copyText = async (text, okMsg) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    statusMessage.value = okMsg;
-    statusType.value = 'success';
-  } catch {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
-};
+const copyText = async (text, okMsg) => clipboard.copyText(text, okMsg);
 const copyMatches = () => copyText(matches.value.map(m => m.match).join('\n'), '✓ 匹配结果已复制到剪贴板');
 const copyReplaced = () => { if (replacedText.value !== null) copyText(replacedText.value, '✓ 替换结果已复制到剪贴板'); };
 </script>

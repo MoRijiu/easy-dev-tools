@@ -47,6 +47,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { slugifyBatch } from '@/utils/slugify.js';
 const features = [
   { icon: '🔗', title: 'URL 友好', description: '只保留字母数字与分隔符，空格、标点自动折叠，生成的 slug 可直接用于博客与文档站 URL' },
@@ -67,7 +69,9 @@ const EXAMPLES = ['Hello World! Café Guide 2026\nVue 3 & TypeScript 入门指�
 const EXAMPLE = EXAMPLES[0];
 const input = ref(EXAMPLE);
 const opts = reactive({ separator: '-', lowercase: true, keepUnicode: false, dedupe: true, maxLength: 0 });
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => (!input.value ? null : slugifyBatch(input.value, { ...opts, maxLength: Number(opts.maxLength) || 0 })));
 const lastGood = ref(null);
 watch(parsed, (v) => { if (v && v.ok) lastGood.value = v; });
@@ -77,8 +81,7 @@ function loadExample(i) { input.value = EXAMPLES[i] || EXAMPLE; }
 function clearAll() { input.value = ''; }
 function useAsInput() { if (result.value) input.value = result.value.text; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

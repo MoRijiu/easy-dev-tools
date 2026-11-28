@@ -37,6 +37,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { PORT_CATEGORIES, COMMON_PORTS, searchPorts, buildPortSummary, getByPort, classifyPort, normalizePortInput, countByCategory } from '@/utils/commonPorts.js';
 const totalCount = COMMON_PORTS.length; const categoryCounts = countByCategory();
 const PROTOCOLS = [{ id: 'all', name: '全部协议' }, { id: 'TCP', name: 'TCP' }, { id: 'UDP', name: 'UDP' }];
@@ -65,8 +67,10 @@ const exactInfo = computed(() => {
   const hit = getByPort(raw);
   return { title: `${n} · ${cls.range} ${cls.rangeEn}`, detail: hit ? `常用服务：${hit.service}（${hit.nameZh}）。${cls.hint}` : cls.hint };
 });
-const statusMessage = ref(''); const statusType = ref('');
-const copyItem = async (t) => { try { await navigator.clipboard.writeText(buildPortSummary(t)); statusMessage.value = '✓ 已复制 ' + t.port; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const copyItem = async (t) => clipboard.copyText(buildPortSummary(t), '✓ 已复制 ' + t.port);
 </script>
 <style scoped>
 .port-finder { max-width: 1400px; margin: 0 auto; padding: 20px; }

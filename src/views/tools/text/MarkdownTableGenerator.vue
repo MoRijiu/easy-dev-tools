@@ -46,6 +46,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { generateMarkdownTable } from '@/utils/markdownTable.js';
 const features = [
   { icon: '📋', title: '粘贴即生成', description: '从 Excel、表格软件复制的内容是 Tab 分隔，粘贴进来即可；也支持 CSV（含引号）与已有的 Markdown 行' },
@@ -67,7 +69,9 @@ const input = ref(EXAMPLE);
 const hasHeader = ref(true);
 const pretty = ref(true);
 const align = ref('auto');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => (!input.value ? null : generateMarkdownTable(input.value, { hasHeader: hasHeader.value, pretty: pretty.value, align: align.value })));
 const lastResult = ref(null);
 watch(parsed, (p) => { if (p && p.ok) lastResult.value = p; else if (!p) lastResult.value = null; }, { immediate: true });
@@ -77,8 +81,7 @@ function loadExample() { input.value = EXAMPLE; }
 function loadCsvExample() { input.value = CSV_EXAMPLE; }
 function clearAll() { input.value = ''; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

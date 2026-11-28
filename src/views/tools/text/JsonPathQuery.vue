@@ -56,6 +56,8 @@ import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { queryJsonPath, buildJsonPathSummary } from '@/utils/jsonPath.js';
 import { parseJsonDetailed, buildJsonErrorSummary } from '@/utils/jsonFormat.js';
 const features = [
@@ -110,8 +112,10 @@ const exprInput = ref('$.store.book[*].title');
 const result = ref(null);
 const jsonError = ref('');
 const pathError = ref('');
-const statusMessage = ref('');
-const statusType = ref('info');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+statusType.value = 'info';
 const shownMatches = ref([]);
 const MAX_JSON_LENGTH = 1000000;
 const process = () => {
@@ -138,10 +142,7 @@ const formatValue = (v) => (typeof v === 'object' && v !== null ? JSON.stringify
 const applyPreset = (expr) => { exprInput.value = expr; process(); };
 const loadExample = () => { jsonInput.value = EXAMPLE_JSON; exprInput.value = '$.store.book[*].title'; process(); };
 const clearAll = () => { jsonInput.value = ''; exprInput.value = '$'; process(); };
-const copyText = async (text, okMsg) => {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = okMsg; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyText = async (text, okMsg) => clipboard.copyText(text, okMsg);
 const copyResults = () => { if (result.value) copyText(buildJsonPathSummary(exprInput.value, result.value), '✓ 已复制结果摘要'); };
 const copyOne = (m) => copyText(formatValue(m.value), `✓ 已复制 ${m.path}`);
 loadExample();

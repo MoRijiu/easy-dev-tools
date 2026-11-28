@@ -78,6 +78,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { analyzeNumber, computeCheckDigit, validateBatch, buildSummary } from '@/utils/luhn.js';
 const features = [
   { icon: '💳', title: '号码校验', description: '银行卡、IMEI 等采用 Luhn 模 10 校验的号码，粘贴即出结论与计算过程' },
@@ -97,7 +99,9 @@ const faqs = [
 const input = ref('4111 1111 1111 1111');
 const payload = ref('7992739871');
 const batch = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => (!input.value ? null : analyzeNumber(input.value)));
 const lastValid = ref(null);
 watch(parsed, (v) => { if (v && v.ok) lastValid.value = v; }, { immediate: true });
@@ -117,8 +121,7 @@ const batchError = computed(() => (batchParsed.value && !batchParsed.value.ok ? 
 function loadExample(v) { input.value = v; }
 async function copyText(text) {
   if (!text) return;
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

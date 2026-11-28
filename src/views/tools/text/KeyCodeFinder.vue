@@ -79,6 +79,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { KEY_CATEGORIES, describeKeyEvent, buildEventSummary, buildCodeSnippet, searchKeys, displayKey, countByCategory } from '@/utils/keyCodes.js';
 const counts = countByCategory();
 const features = [
@@ -102,7 +104,9 @@ const current = ref(null);
 const history = ref([]);
 const query = ref(''); const category = ref('all');
 const results = computed(() => searchKeys(query.value, category.value));
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const onKeydown = (e) => {
   e.preventDefault();
   const d = describeKeyEvent(e);
@@ -112,7 +116,7 @@ const onKeydown = (e) => {
   // 提示文案承诺「按 Esc 退出」：记录完本次 Esc 后真的失焦（旧版只拦截不退出）
   if (e.key === 'Escape') e.currentTarget.blur();
 };
-const copyText = async (text, okText) => { try { await navigator.clipboard.writeText(text); statusMessage.value = '✓ ' + okText; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = async (text, okText) => clipboard.copyText(text, '✓ ' + okText);
 const copySummary = () => copyText(buildEventSummary(current.value), '已复制按键信息');
 const copySnippet = () => copyText(buildCodeSnippet(current.value), '已复制 JS 代码');
 const copyRow = (k) => copyText('key: ' + displayKey(k.key) + '\ncode: ' + k.code + '\nkeyCode: ' + k.keyCode + '\n中文名: ' + k.nameZh, '已复制 ' + k.code);

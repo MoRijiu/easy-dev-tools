@@ -59,6 +59,8 @@ import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { MORSE_TABLE, MORSE_GROUPS, encodeMorse, decodeMorse, buildPlayEvents } from '@/utils/morseCode.js';
 const features = [
@@ -78,7 +80,9 @@ const faqs = [
   { question: '输入出错时为什么还显示着上一次的结果？', answer: '这是故意的：改错一个字符不会把之前的结果清掉，方便对照修正；把输入全部清空或切换方向后，保留的结果才会清掉。' }
 ];
 const input = ref(''); const mode = ref('encode'); const wpm = ref(15);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const playing = ref(false);
 let audioCtx = null; let playTimers = [];
 const fresh = computed(() => {
@@ -119,7 +123,7 @@ const appendChar = (ch) => {
 const loadExample = () => { input.value = mode.value === 'encode' ? 'SOS Hello 2026' : '... --- ... / .... . .-.. .-.. ---'; };
 const swap = () => { if (!output.value) return; input.value = output.value; mode.value = mode.value === 'encode' ? 'decode' : 'encode'; };
 const clearAll = () => { stopPlay(); input.value = ''; statusMessage.value = ''; };
-const copyOutput = async () => { try { await navigator.clipboard.writeText(output.value); statusMessage.value = '✓ 已复制结果'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyOutput = async () => clipboard.copyText(output.value, '✓ 已复制结果');
 const stopPlay = () => {
   playTimers.forEach((t) => clearTimeout(t)); playTimers = [];
   if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }

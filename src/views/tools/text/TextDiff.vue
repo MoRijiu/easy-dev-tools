@@ -108,6 +108,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { diffLines, pairRows, toUnifiedDiff, foldRows, similarity, splitLines, MAX_LINES } from '@/utils/textDiff.js';
 
@@ -181,8 +183,9 @@ const ignoreCase = ref(false);
 const onlyChanges = ref(false);
 const foldUnchanged = ref(true);
 const viewMode = ref('unified');
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 
 const oldLines = computed(() => splitLines(oldText.value).length);
 const newLines = computed(() => splitLines(newText.value).length);
@@ -221,16 +224,7 @@ const useExample = (example) => {
 };
 const swapTexts = () => { const t = oldText.value; oldText.value = newText.value; newText.value = t; };
 const clearAll = () => { oldText.value = ''; newText.value = ''; statusMessage.value = ''; };
-const copyUnified = async () => {
-  try {
-    await navigator.clipboard.writeText(toUnifiedDiff(rows.value, { context: 3 }));
-    statusMessage.value = '✓ 对比结果已复制（unified diff 格式）';
-    statusType.value = 'success';
-  } catch {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
-};
+const copyUnified = async () => clipboard.copyText(toUnifiedDiff(rows.value, { context: 3 }), '✓ 对比结果已复制（unified diff 格式）');
 const downloadDiff = () => {
   const blob = new Blob([toUnifiedDiff(rows.value, { context: 3 })], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);

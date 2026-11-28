@@ -69,6 +69,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseCurl, toFetch, toPython, buildCurlSummary } from '@/utils/curlParse.js';
 
 const features = [
@@ -96,10 +98,11 @@ const examples = [
 const inputText = ref('');
 const result = ref(null);
 const codeKind = ref('fetch');
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const summary = computed(() => (result.value ? buildCurlSummary(result.value) : ''));
 const prettyBody = computed(() => {
@@ -122,10 +125,7 @@ const EXAMPLE = "curl -X POST 'https://api.example.com/v1/users?page=1' \\\n  -H
 const loadExample = () => { inputText.value = EXAMPLE; parse(); };
 const useExample = (ex) => { inputText.value = ex.input; parse(); };
 const clearAll = () => { inputText.value = ''; result.value = null; statusMessage.value = ''; };
-const copyCode = async () => {
-  try { await navigator.clipboard.writeText(codeText.value); statusMessage.value = '✓ 代码已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyCode = async () => clipboard.copyText(codeText.value, '✓ 代码已复制');
 </script>
 
 <style scoped>

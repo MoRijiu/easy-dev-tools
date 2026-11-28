@@ -47,6 +47,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { convertWidth } from '@/utils/widthConvert.js';
 const features = [
   { icon: '🔤', title: '分类可控', description: '数字、字母、标点、空格四类可分别开关：只转数字标点、保留全角空格排版等场景都能满足' },
@@ -68,7 +70,9 @@ const FULL_EXAMPLE = 'Hello 2026! Price: ¥128 / £99';
 const input = ref(EXAMPLE);
 const direction = ref('toHalf');
 const opts = reactive({ digits: true, letters: true, punctuation: true, space: true });
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => (!input.value ? null : convertWidth(input.value, direction.value, { ...opts })));
 const lastResult = ref(null);
 watch(parsed, (p) => { if (p && p.ok) lastResult.value = p; else if (!p) lastResult.value = null; }, { immediate: true });
@@ -84,8 +88,7 @@ function useAsInput() {
   direction.value = direction.value === 'toHalf' ? 'toFull' : 'toHalf';
 }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>
