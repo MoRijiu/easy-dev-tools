@@ -166,7 +166,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeUnmount } from "vue";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -410,13 +410,19 @@ const downloadImage = (index) => {
 };
 
 // 下载全部
+let downloadTimers = [];
 const downloadAll = () => {
+  downloadTimers.forEach((t) => clearTimeout(t));
+  downloadTimers = [];
   images.value.forEach((img, index) => {
     if (img.convertedBlob) {
-      setTimeout(() => downloadImage(index), index * 200);
+      downloadTimers.push(setTimeout(() => downloadImage(index), index * 200));
     }
   });
 };
+
+// 卸载时取消尚未触发的批量下载，避免离开页面后仍陆续弹出下载
+onBeforeUnmount(() => { downloadTimers.forEach((t) => clearTimeout(t)); downloadTimers = []; });
 
 // 移除图片
 const removeImage = (index) => {

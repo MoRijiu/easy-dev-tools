@@ -192,7 +192,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onBeforeUnmount } from "vue";
 import QRCode from "qrcode";
 import { validateQrOptions, analyzeContent, checkQrContrast, validateLogoFile, friendlyQrError, buildQrSummary } from "@/utils/qrcodeGenerate.js";
 import ToolFeatures from "@/components/ToolFeatures.vue";
@@ -448,6 +448,9 @@ const onInputChange = () => {
   }
   inputTimer = setTimeout(() => generateQrcode(), 250);
 };
+
+// 卸载时取消待发的防抖生成，避免离开页面后仍重绘已卸载组件的二维码
+onBeforeUnmount(() => { if (inputTimer) { clearTimeout(inputTimer); inputTimer = null; } });
 
 // 监听选项变化自动重新生成
 watch(options, () => {
