@@ -51,6 +51,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { TIMEZONES, convertTime, formatDiffHours } from '@/utils/timezoneConvert.js';
 const features = [
   { icon: '🌍', title: '全球对照', description: '17 个常用时区一屏对照，含日期跨日标记与相对源时区的时差' },
@@ -70,7 +72,9 @@ const faqs = [
 const EXAMPLE = '2026-11-27 09:30';
 const input = ref(EXAMPLE);
 const fromZone = ref('Asia/Shanghai');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => (!input.value.trim() ? null : convertTime(input.value, fromZone.value)));
 const lastResult = ref(null);
 watch(parsed, (p) => { if (p && p.ok) lastResult.value = p; }, { immediate: true });
@@ -93,10 +97,7 @@ function copySummary() {
   const lines = result.value.rows.map((r) => `${r.label}：${r.dateTime} ${r.weekday}（${r.offset}）`);
   copyText(lines.join('\n'));
 }
-async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
-}
+function copyText(text) { return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' }); }
 </script>
 <style scoped>
 .tz-conv { max-width: 1400px; margin: 0 auto; padding: 20px; }

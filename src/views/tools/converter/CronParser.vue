@@ -89,6 +89,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { parseCron, nextRuns, describeCron, compressValues } from '@/utils/cron.js';
 
@@ -152,10 +154,11 @@ const examples = presets.slice(2, 5).map(p => ({
 const inputExpr = ref('');
 const parsed = ref(null);
 const runs = ref([]);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 
 const FIELD_HINT_SETS = {
@@ -195,16 +198,7 @@ const loadExample = () => { inputExpr.value = '30 9 * * 1-5'; parse(); };
 const usePreset = (expr) => { inputExpr.value = expr; parse(); };
 const useExample = (example) => { inputExpr.value = example.input; parse(); };
 const clearAll = () => { inputExpr.value = ''; parsed.value = null; runs.value = []; statusMessage.value = ''; };
-const copyNext = async () => {
-  try {
-    await navigator.clipboard.writeText(runs.value.map(t => `${formatTime(t)}（周${weekLabel(t)}）`).join('\n'));
-    statusMessage.value = '✓ 执行时间已复制到剪贴板';
-    statusType.value = 'success';
-  } catch {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
-};
+const copyNext = async () => clipboard.copyText(runs.value.map(t => `${formatTime(t)}（周${weekLabel(t)}）`).join('\n'), '✓ 执行时间已复制到剪贴板');
 </script>
 
 <style scoped>

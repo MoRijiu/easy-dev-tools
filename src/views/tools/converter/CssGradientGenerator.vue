@@ -77,6 +77,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { GRADIENT_TYPES, RADIAL_SHAPES, RADIAL_SIZES, POSITIONS, GRADIENT_PRESETS, buildGradient, buildCssSnippet, parseCssColor, toHexInput } from '@/utils/cssGradient.js';
 const features = [
   { icon: '🌈', title: '三种渐变', description: '线性、径向、锥形全支持，径向可调形状/大小/中心，锥形可调起始角度' },
@@ -99,7 +101,9 @@ const form = reactive({
   type: 'linear', angle: 135, repeating: false, shape: 'ellipse', size: 'farthest-corner', position: 'center',
   stops: [{ color: '#ff9966', position: 0 }, { color: '#ff5e62', position: 55 }, { color: '#7b2ff7', position: 100 }]
 });
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const built = computed(() => buildGradient(form));
 const error = computed(() => (built.value.ok ? '' : built.value.error));
 const errorTarget = computed(() => {
@@ -141,7 +145,7 @@ const applyPreset = (p) => {
   form.shape = o.shape || 'ellipse'; form.size = o.size || 'farthest-corner'; form.position = o.position || 'center';
   form.stops = o.stops.map((s) => ({ ...s }));
 };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
 .cg-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }

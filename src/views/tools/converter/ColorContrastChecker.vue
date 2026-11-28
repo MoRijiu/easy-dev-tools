@@ -45,6 +45,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { checkContrast, adjustForeground, buildContrastSummary, parseColor, WCAG_THRESHOLDS } from '@/utils/colorContrast.js';
 const features = [
   { icon: '📐', title: 'WCAG 标准算法', description: '按 WCAG 2.x 相对亮度公式计算对比度，与浏览器无障碍审计口径一致' },
@@ -69,7 +71,9 @@ const examples = [
 ];
 const fgInput = ref('#999999'); const bgInput = ref('#ffffff');
 const fixNote = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const syncPicker = (inputRef) => { const p = parseColor(inputRef.value); return p.ok ? p.hex : '#000000'; };
 const fgPicker = ref(syncPicker(fgInput)); const bgPicker = ref(syncPicker(bgInput));
 watch(fgPicker, (v) => { fgInput.value = v; });
@@ -104,7 +108,7 @@ const applyFix = (target, label) => {
 };
 const fixToAA = () => applyFix(WCAG_THRESHOLDS.normalAA, 'AA');
 const fixToAAA = () => applyFix(WCAG_THRESHOLDS.normalAAA, 'AAA');
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
 .cc-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }

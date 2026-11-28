@@ -169,6 +169,8 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
 import ToolEditorLayout from "@/components/ToolEditorLayout.vue";
 import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
 
@@ -177,8 +179,9 @@ const timestampInput = ref("");
 const dateInput = ref("");
 const dateTextInput = ref("");
 const timestampUnit = ref("auto");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const result = ref(null);
 // 输入错误单独留存原文与来源字段：状态区还兼报复制结果，仅当前展示的正是该输入错误时才关联对应控件（R9bk）
 const inputError = ref("");
@@ -301,18 +304,7 @@ const clearAll = () => {
 };
 
 // 复制到剪贴板
-const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    statusMessage.value = "✓ 已复制到剪贴板！";
-    statusType.value = "success";
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
-  } catch (error) {
-    statusMessage.value = "✗ 复制失败";
-    statusType.value = "error";
-  }
-};
+const copyToClipboard = async (text) => clipboard.copyText(text, "✓ 已复制到剪贴板！", { failMsg: "✗ 复制失败", autoClearMs: 2000 });
 
 // 复制输出结果
 const copyOutput = async () => {

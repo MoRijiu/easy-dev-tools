@@ -45,6 +45,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseIp, buildIpSummary } from '@/utils/ipAddress.js';
 const features = [
   { icon: '🔀', title: '多格式互转', description: 'IPv4 点分、整数、十六进制、二进制与反向 DNS 一屏对照' },
@@ -64,7 +66,9 @@ const faqs = [
 const examples = ['192.168.1.10', '8.8.8.8', '255.255.255.255', '2001:db8::1', '::ffff:192.168.0.1', '64:ff9b::8.8.8.8', '[::1]:8080', '3232235786'];
 const input = ref('192.168.1.10');
 const info = ref(null); const error = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const summary = computed(() => buildIpSummary(info.value));
 const rows = computed(() => {
   const i = info.value; if (!i) return [];
@@ -93,7 +97,7 @@ const rows = computed(() => {
 const analyze = () => { const r = parseIp(input.value); if (r.ok) { info.value = r; error.value = ''; } else { error.value = r.error; } };
 const pick = (e) => { input.value = e; analyze(); };
 const clearAll = () => { input.value = ''; info.value = null; error.value = ''; };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 analyze();
 </script>
 <style scoped>

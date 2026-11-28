@@ -44,6 +44,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseDockerRun, toComposeYaml, buildDockerSummary } from '@/utils/dockerRun.js';
 
 const features = [
@@ -70,10 +72,11 @@ const examples = [
 ];
 const inputText = ref('');
 const result = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const summary = computed(() => (result.value ? buildDockerSummary(result.value) : ''));
 const yamlText = computed(() => (result.value ? toComposeYaml(result.value) : ''));
@@ -89,10 +92,7 @@ const EXAMPLE = "docker run -d --name web \\\n  -p 8080:80 -p 8443:443 \\\n  -v 
 const loadExample = () => { inputText.value = EXAMPLE; parse(); };
 const useExample = (ex) => { inputText.value = ex.input; parse(); };
 const clearAll = () => { inputText.value = ''; result.value = null; statusMessage.value = ''; };
-const copyYaml = async () => {
-  try { await navigator.clipboard.writeText(yamlText.value); statusMessage.value = '✓ YAML 已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyYaml = async () => clipboard.copyText(yamlText.value, '✓ YAML 已复制');
 </script>
 
 <style scoped>

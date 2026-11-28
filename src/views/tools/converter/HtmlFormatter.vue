@@ -48,6 +48,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { formatHtml, minifyHtml } from '@/utils/htmlFormat.js';
 
 const features = [
@@ -71,10 +73,11 @@ const examples = [
 ];
 const inputText = ref('');
 const result = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const mode = ref('format');
 const indentSize = ref(2);
@@ -98,8 +101,7 @@ const clearAll = () => { inputText.value = ''; result.value = null; statusMessag
 const useOutputAsInput = () => { if (result.value) { inputText.value = result.value.text; process(); } };
 const copyOutput = async () => {
   if (!result.value) return;
-  try { await navigator.clipboard.writeText(result.value.text); statusMessage.value = '✓ 已复制结果'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
+  await clipboard.copyText(result.value.text, '✓ 已复制结果');
 };
 </script>
 

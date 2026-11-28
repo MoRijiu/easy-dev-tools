@@ -60,6 +60,8 @@ import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseSemver, compareSemver, bumpVersion, satisfiesRange, buildSemverSummary } from '@/utils/semver.js';
 const features = [
   { icon: '🔍', title: '规范解析', description: '按 SemVer 2.0.0 校验前导零、预发布与构建元数据，错误精确指出问题段' },
@@ -82,7 +84,10 @@ const faqs = [
 const versionInput = ref(''); const versionA = ref(''); const versionB = ref('');
 const rangeVersion = ref(''); const rangeExpr = ref('');
 const parsed = ref(null); const error = ref('');
-const statusMessage = ref(''); const statusType = ref('info');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+statusType.value = 'info';
 const bumps = [{ type: 'major', label: '主版本 +1' }, { type: 'minor', label: '次版本 +1' }, { type: 'patch', label: '修订 +1' }, { type: 'prerelease', label: '预发布递增' }];
 const presets = ['^1.2.3', '~1.2.3', '>=1.0.0 <2.0.0', '1.2.x', '1.0.0 - 2.0.0', '^1.0.0 || ^2.0.0'];
 const process = () => {
@@ -124,7 +129,7 @@ const rangeCulprit = computed(() => {
 });
 const swapCompare = () => { const t = versionA.value; versionA.value = versionB.value; versionB.value = t; };
 const loadExample = () => { versionInput.value = '1.2.3-rc.1+build.5'; versionA.value = '1.0.0-beta.11'; versionB.value = '1.0.0-rc.1'; rangeVersion.value = '1.4.2'; rangeExpr.value = '^1.2.3'; process(); };
-const copySummary = async () => { if (!parsed.value) return; try { await navigator.clipboard.writeText(buildSemverSummary(parsed.value)); statusMessage.value = '✓ 已复制解析摘要'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copySummary = async () => { if (!parsed.value) return; await clipboard.copyText(buildSemverSummary(parsed.value), '✓ 已复制解析摘要'); };
 loadExample();
 </script>
 <style scoped>

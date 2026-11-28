@@ -41,6 +41,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseDataSize, convertDataSize, estimateTransfer, buildDataSizeSummary, DATA_UNITS } from '@/utils/dataSize.js';
 const features = [
   { icon: '⚖️', title: '双标准对照', description: 'SI 十进制（1000）与 IEC 二进制（1024）一屏对照，不再混淆 GB 与 GiB' },
@@ -63,14 +65,16 @@ const speedUnits = ['Mbps', 'Gbps', 'Kbps', 'MB/s', 'KB/s', 'GB/s', 'MiB/s', 'Ki
 const input = ref('1.5 GB'); const defaultUnit = ref('B');
 const speed = ref('100'); const speedUnit = ref('Mbps');
 const parsed = ref(null); const error = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const rows = computed(() => (parsed.value ? convertDataSize(parsed.value.bytes) : []));
 const summary = computed(() => buildDataSizeSummary(parsed.value, rows.value));
 const estimate = computed(() => (parsed.value ? estimateTransfer(parsed.value.bytes, speed.value, speedUnit.value) : null));
 const analyze = () => { const r = parseDataSize(input.value, defaultUnit.value); if (r.ok) { parsed.value = r; error.value = ''; } else { error.value = r.error; } };
 const pick = (e) => { input.value = e; analyze(); };
 const clearAll = () => { input.value = ''; parsed.value = null; error.value = ''; };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 analyze();
 </script>
 <style scoped>

@@ -58,6 +58,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { MAX_LAYERS, SHADOW_PRESETS, buildShadow, buildCssSnippet, parseCssColor } from '@/utils/cssShadow.js';
 import { toHexInput } from '@/utils/cssGradient.js';
 const features = [
@@ -77,7 +79,9 @@ const faqs = [
 const form = reactive({
   layers: [{ offsetX: 0, offsetY: 10, blur: 24, spread: -6, color: 'rgba(0, 0, 0, 0.25)', inset: false }]
 });
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const built = computed(() => buildShadow(form.layers));
 const error = computed(() => (built.value.ok ? '' : built.value.error));
 const SHADOW_FIELD_LABELS = [['水平偏移', 'offsetX'], ['垂直偏移', 'offsetY'], ['模糊半径', 'blur'], ['扩散半径', 'spread']];
@@ -105,7 +109,7 @@ const onPick = (i, value) => { form.layers[i].color = value; };
 const addLayer = () => { form.layers.push({ offsetX: 0, offsetY: 4, blur: 12, spread: 0, color: 'rgba(0, 0, 0, 0.15)', inset: false }); };
 const removeLayer = (i) => { form.layers.splice(i, 1); };
 const applyPreset = (p) => { form.layers = p.layers.map((l) => ({ ...l })); };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
 .cs-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
