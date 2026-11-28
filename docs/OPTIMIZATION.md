@@ -864,3 +864,11 @@ R12 小盘点续项：站点没有全球隐私控制（GPC）信号资源——`
 - 处理：新增 `public/.well-known/gpc.json`（48 B）：`gpc: true`（如实声明本站尊重 GPC 信号、不出售/共享个人数据）、`lastUpdate: "2026-11-29"`（落地日，GPC 规范的日期格式）。其余字段规范未定义，一律不编造。
 - 边界：gpc.json 是独立静态文件、不是页面，不进 sitemap，也不是全站级页面变更——按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod，本文件自带 lastUpdate 独立维护。将来若本站引入任何统计、广告或数据共享（与现行纯本地口径冲突），须先把本声明改回或删除、不得让声明与实际不符（已在本节留痕）；声明内容变更时同步更新 lastUpdate。它不改任何运行时行为。
 - 等价证据：文件经 JSON 解析校验通过、gpc 为布尔 true、lastUpdate 为合法日期且为落地日；test 构建 exit=0 且产物含 `.well-known/gpc.json` 并与源文件逐字一致；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 JSON 且内容与本地一致（验收结果见台账）。
+
+## R12cc 落地（2026-11-29，补 browserconfig.xml 微软磁贴配置）
+
+R12 小盘点续项：站点没有微软磁贴配置——`public/` 下无 `browserconfig.xml`，实测请求 `/browserconfig.xml` 返回 SPA 兜底页（text/html），Windows/Edge 把本站固定到开始屏幕/任务栏时按标准路径取磁贴图与磁贴色无从获取；`index.html` 里也没有 `msapplication-*` 声明。与 R12bz 补 Safari mask-icon 同族（那次缺的是 Safari 专用图标通道），这次缺的是微软专用磁贴通道及其配置文件本身。
+
+- 处理：新增 `public/browserconfig.xml`（222 B，微软 browserconfig 格式）：`square150x150logo` 指向新增的 `public/mstile-150x150.png`（150×150，由已有的 icon-192.png 同设计下采样生成，图形与 favicon/maskable 同源）、`TileColor` 为 `#4f46e5`（与 mask-icon 的 color、favicon 渐变起点色一致）；`index.html` 在 application-name 后补两条声明：`msapplication-TileColor`（同色）与 `msapplication-config` 指向 `/browserconfig.xml`（显式发现，同 R12by 给 favicon.ico 补显式声明口径），index.html 9,042→9,174 B（+132 B）；其余内容一字未改。只声明实际提供的 square150 档，wide310x150/large310x310 无对应图，一律不编造不写。
+- 边界：browserconfig 只被 Windows/Edge 固定场景消费，不改任何页面内行为；它是独立静态文件、不是页面，不进 sitemap；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来品牌色或图标字形变更时，须同步复核 TileColor 两处取值与磁贴图（已在本节留痕）。
+- 等价证据：browserconfig.xml 经 XML 解析通过（根元素/磁贴图路径/TileColor 逐项核对）、磁贴图实测 150×150 且与 icon-192 同设计；test 构建 exit=0 且产物含 browserconfig.xml 与磁贴图、与源文件逐字一致、产物 index.html 含两条 msapplication 声明；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
