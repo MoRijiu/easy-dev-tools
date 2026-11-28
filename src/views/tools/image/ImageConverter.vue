@@ -172,6 +172,9 @@ import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
+import { useDownload } from "@/composables/useDownload.js";
 import { MAX_IMAGE_COUNT, formatBytes, mimeLabel, mimeToExt, parseQuality } from "@/utils/imageTools.js";
 import { ICO_SIZES, TARGET_FORMATS, buildIco, computeResizeSize, conversionNotes, parseResizeDimension, resolveConvertTarget, summarizeConversion, targetFormatOf, validateConvertFile } from "@/utils/imageConvert.js";
 
@@ -183,12 +186,15 @@ const targetFormat = ref("image/png");
 const quality = ref(90);
 const resizeWidth = ref("");
 const resizeHeight = ref("");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const download = useDownload();
+
 // 输入错误单独留存原文与来源字段：文件类错误归上传区、设置校验按文案字段名归对应控件，仅当前展示的正是该错误时才关联（R9bk）
 const inputError = ref("");
 const errorField = ref("");
-const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; status.showError(msg); };
 const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
 const invalidFor = (f) => (activeErrorField.value === f ? "true" : undefined);
 const describedByFor = (f) => (activeErrorField.value === f ? "image-converter-status" : undefined);
@@ -400,13 +406,9 @@ const downloadImage = (index) => {
   const img = images.value[index];
   if (!img.convertedBlob) return;
 
-  const link = document.createElement("a");
   const ext = mimeToExt(img.convertedBlob.type);
   const baseName = img.name.replace(/\.[^/.]+$/, "");
-  link.download = `${baseName}.${ext}`;
-  link.href = URL.createObjectURL(img.convertedBlob);
-  link.click();
-  URL.revokeObjectURL(link.href);
+  download.downloadBlob(img.convertedBlob, `${baseName}.${ext}`);
 };
 
 // 下载全部

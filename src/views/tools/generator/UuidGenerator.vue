@@ -102,11 +102,17 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
+import { useDownload } from "@/composables/useDownload.js";
 import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
 
 const uuidList = ref([]);
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const download = useDownload();
+
 
 // 生成错误单独留存：状态区还兼报复制/下载结果，只有当前展示的正是这条生成错误时才做字段关联
 const genError = ref("");
@@ -201,15 +207,7 @@ const examples = [
   },
 ];
 
-const showStatus = (message, type) => {
-  statusMessage.value = message;
-  statusType.value = type;
-  if (type === "success") {
-    setTimeout(() => {
-      if (statusMessage.value === message) statusMessage.value = "";
-    }, 2500);
-  }
-};
+const showStatus = (message, type) => status.showStatus(message, type, type === "success" ? 2500 : 0);
 
 // 生成 UUID 列表：数量严格校验，越界/非整数明确报错，不再静默截断
 const generateUuids = () => {
@@ -234,14 +232,7 @@ const generateUuids = () => {
 };
 
 // 复制单个 UUID
-const copySingle = async (uuid) => {
-  try {
-    await navigator.clipboard.writeText(uuid);
-    showStatus("✓ 已复制到剪贴板", "success");
-  } catch (error) {
-    showStatus("✗ 复制失败，请手动复制", "error");
-  }
-};
+const copySingle = async (uuid) => { const ok = await clipboard.copyToClipboard(uuid); showStatus(ok ? "✓ 已复制到剪贴板" : "✗ 复制失败，请手动复制", ok ? "success" : "error"); };
 
 // 复制全部 UUID
 const copyOutput = async () => {
@@ -249,24 +240,13 @@ const copyOutput = async () => {
     showStatus("✗ 没有可复制的内容", "error");
     return;
   }
-  try {
-    await navigator.clipboard.writeText(uuidList.value.join('\n'));
-    showStatus(`✓ 已复制 ${uuidList.value.length} 个 UUID 到剪贴板`, "success");
-  } catch (error) {
-    showStatus("✗ 复制失败，请手动复制", "error");
-  }
+  { const ok = await clipboard.copyToClipboard(uuidList.value.join('\n')); showStatus(ok ? `✓ 已复制 ${uuidList.value.length} 个 UUID 到剪贴板` : "✗ 复制失败，请手动复制", ok ? "success" : "error"); }
 };
 
 // 下载为 .txt
 const downloadList = () => {
   if (!uuidList.value.length) return;
-  const blob = new Blob([uuidList.value.join('\n') + '\n'], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `uuid-${options.value.version}-${uuidList.value.length}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(uuidList.value.join('\n') + '\n', `uuid-${options.value.version}-${uuidList.value.length}.txt`);
   showStatus("✓ 已下载 UUID 列表", "success");
 };
 

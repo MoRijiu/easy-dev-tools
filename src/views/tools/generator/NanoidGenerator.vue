@@ -50,6 +50,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { ALPHABET_PRESETS, generateNanoidBatch, entropyBits, describeEntropy, validateAlphabet, collectNanoidNotes, alphabetWarnings, normalizeFullwidth, MAX_SIZE } from '@/utils/nanoid.js';
 const features = [
   { icon: '🆔', title: '短小够强', description: '默认 21 位、64 字符字母表，熵约 126 位，与 UUID v4 相当但短得多' },
@@ -86,7 +88,10 @@ const errorFields = computed(() => {
 });
 const invalidFor = (field) => (errorFields.value.has(field) ? 'true' : undefined);
 const describedByFor = (field) => (errorFields.value.has(field) ? 'nanoid-error' : undefined);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 const notes = ref([]);
 const warnings = ref([]);
 const alphabetLength = computed(() => [...alphabet.value.replace(/^\uFEFF/, '')].length);
@@ -123,8 +128,7 @@ function loadShort() { sizeInput.value = '8'; countInput.value = '10'; generate(
 function loadBatch() { sizeInput.value = '21'; countInput.value = '50'; generate(); }
 function clearAll() { results.value = []; error.value = ''; notes.value = []; warnings.value = []; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  await clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 generate();
 </script>

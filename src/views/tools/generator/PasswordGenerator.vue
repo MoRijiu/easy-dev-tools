@@ -122,6 +122,7 @@ import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
 import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useDownload } from "@/composables/useDownload.js";
 import { useClipboard } from "@/composables/useClipboard.js";
 
 // 响应式状态
@@ -129,6 +130,7 @@ const passwords = ref([]);
 const status = useStatusMessage();
 const { statusMessage, statusType } = status;
 const { copyToClipboard } = useClipboard();
+const download = useDownload();
 
 const options = ref({
   length: 16,
@@ -171,13 +173,7 @@ const generatePasswords = () => {
 
 const downloadPasswords = () => {
   if (!passwords.value.length) return;
-  const blob = new Blob([passwords.value.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "passwords.txt";
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(passwords.value.join("\n") + "\n", "passwords.txt");
   status.showSuccess("✓ 已下载 passwords.txt");
 };
 

@@ -112,6 +112,7 @@ import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { parseJsonDetailed, sortObjectKeys, jsonStats, buildJsonStatsSummary, buildJsonErrorSummary } from '@/utils/jsonFormat.js';
 import { useStatusMessage } from '@/composables/useStatusMessage.js';
 import { useClipboard } from '@/composables/useClipboard.js';
+import { useDownload } from '@/composables/useDownload.js';
 
 // 功能特点数据
 const features = [
@@ -177,6 +178,7 @@ const outputJson = ref('');
 const status = useStatusMessage();
 const { statusMessage, statusType } = status;
 const { copyText } = useClipboard(status);
+const download = useDownload();
 const errorDetail = ref(null);
 const inputErrorText = ref('');
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
@@ -269,13 +271,7 @@ const useOutputAsInput = () => {
 // 下载输出为 .json 文件（纯本地生成）
 const downloadOutput = () => {
   if (!outputJson.value) return;
-  const blob = new Blob([outputJson.value], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'formatted.json';
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(outputJson.value, 'formatted.json', 'application/json');
 };
 
 // 复制错误诊断（原文行 + 位置 + 可能原因）

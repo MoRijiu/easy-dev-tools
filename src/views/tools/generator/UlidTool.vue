@@ -63,6 +63,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { generateUlidBatch, parseUlid, buildSummary, collectGenerateNotes } from '@/utils/ulid.js';
 const features = [
   { icon: '🔤', title: '时间可排序', description: '时间戳在高位，字符串字典序与生成时间序一致，数据库索引友好' },
@@ -89,7 +91,10 @@ const genNotes = ref([]);
 const parseInput = ref('01ARZ3NDEKTSV4RRFFQ69G5FAV');
 const parsed = ref(null);
 const parseError = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 const resultText = computed(() => results.value.join('\n'));
 // 生成错误文案自带字段名（生成数量/时间戳），据此定位出错字段；环境类错误不归任何字段
 const genErrorField = computed(() => {
@@ -123,8 +128,7 @@ function runParse() {
 }
 watch(parseInput, runParse);
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  await clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 generate();
 runParse();
