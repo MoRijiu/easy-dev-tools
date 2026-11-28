@@ -343,3 +343,11 @@ R12 小盘点续项：`index.html` 的两条图标 link 都没有 `sizes` 声明
 - 处理：`apple-touch-icon` 补 `sizes="180x180"`（与实测尺寸逐字一致），SVG favicon 补 `sizes="any"`；两条 link 的 href 与 type 一字未改。
 - 边界：图标文件本身未动；若将来更换 apple-touch-icon 尺寸，必须同步更新本声明（已在本节留痕）。全仓无代码读取这两条 link 的 sizes，不影响任何运行时行为。
 - 等价证据：构建产物中两条 sizes 声明齐全且值与实测一致；无头 Chrome 冒烟逐页核对——首页/工具页图标 link 声明正确、标题与按页元标签同步无回归，桌面/390px 无溢出、无 pageerror。
+
+## R12p 落地（2026-11-28，显式 referrer 策略）
+
+R12 小盘点续项：`index.html` 没有声明 `meta[name=referrer]`，页面跳转外站时发送多少 Referer 完全取决于各浏览器的默认策略——现代 Chromium 默认已是 strict-origin-when-cross-origin，但其他引擎与旧版本默认值并不一致，可能把工具页的完整路径（用户正在用哪个工具）随 Referer 发给外链站点。本站卖点是本地处理、数据不上传，来源信息也不应靠浏览器默认兜底。
+
+- 处理：补一条 `<meta name="referrer" content="strict-origin-when-cross-origin" />`——同源请求保留完整地址、跨源只发源（协议+域名）、降级到 http 时不发送，与主流现代浏览器的推荐默认值逐字一致，显式化后全引擎口径统一。
+- 边界：全站外链已有 `rel="noopener noreferrer"`（单链接级已不发送），本条是页面级兜底，覆盖将来新增的普通链接与导航，不改变任何现有链接行为；该策略为站点级常量、不随页面变化，无需路由守卫按页同步。
+- 等价证据：构建产物中该 meta 单条齐全且值正确；无头 Chrome 冒烟逐页核对——首页/工具页/404 该 meta 均为单份且值不变、标题与按页元标签同步无回归，桌面/390px 无溢出、无 pageerror。
