@@ -640,3 +640,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 在顶层 `url` 后补 `"installUrl": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、canonical 逐字一致的正式域名根地址），index.html 6,819→6,868 B（+49 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：installUrl 是站点级声明、不随路由变化（各工具页的安装入口仍是站点根地址，安装后经 Manifest shortcuts/路由进入具体工具），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来站点根地址或安装形态变化时，须与顶层 url、canonical 一并同步（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、installUrl 与顶层 url 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 installUrl 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ba 落地（2026-11-28，JSON-LD 补 publisher 发布者声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）有 `author`（含 @type/name/url，R12ax 补齐），但没有 Schema.org 为 CreativeWork/WebApplication 定义的 `publisher`——author 表示内容创作者、publisher 表示发布该应用的组织，二者是消费方区分「谁做的」与「谁发布的」的两个独立字段；缺 publisher 时发布主体只能靠 author 间接猜测。与 R12ax 补 author.url 同族，这次缺的是发布者实体本身。
+
+- 处理：JSON-LD 在 `author` 后补 `publisher` 对象（`@type: Organization`、`name: 极速开发工具箱`、`url: https://tools.morijiu.cn/`，与 author 对象逐字一致——本站创作与发布为同一主体），index.html 6,868→7,015 B（+147 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 publisher 对象原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：publisher 是站点级声明、不随路由变化（全站发布者为同一组织），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来发布主体与创作主体分离时，须分别复核 author 与 publisher，不得默认二者永远一致（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、publisher 与 author 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 publisher 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
