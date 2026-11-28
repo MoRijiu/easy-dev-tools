@@ -624,3 +624,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 的 author 对象补 `"url": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、canonical 逐字一致的正式域名根地址），index.html 6,721→6,765 B（+44 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 author 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：author.url 是站点级声明、不随路由变化（全站作者为同一组织），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来作者主体或官网地址变化时，须与顶层 url、canonical 一并同步（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author.url 与顶层 url 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 author 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ay 落地（2026-11-28，JSON-LD offers 补 availability 可用性声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD 里 `offers` 是一个 Offer 对象，只有 `price: "0"` 与 `priceCurrency: "CNY"`、没有 Schema.org 为 Offer 定义的 `availability`——结构化数据消费方知道价格是免费，却无从得知该应用当前是否可获取（InStock / OutOfStock / Discontinued 等状态须靠猜）。本站全部工具在线可用、无下线计划，与 R12au 补 isAccessibleForFree、R12ax 补 author.url 同族，这次缺的是报价实体的可用性字段本身。
+
+- 处理：JSON-LD 的 offers 对象补 `"availability": "https://schema.org/InStock"` 一行（Schema.org 规范登记的 ItemAvailability 枚举 URL），index.html 6,765→6,819 B（+54 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 offers 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：offers.availability 是站点级声明、不随路由变化（全站工具均在线可用），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来若站点停服或某形态下线，须同步把本字段改为 Discontinued/OutOfStock 并复核 offers 其余表述（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、offers.availability 为规范枚举 URL 且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 offers 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
