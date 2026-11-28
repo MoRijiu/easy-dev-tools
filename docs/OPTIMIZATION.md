@@ -792,3 +792,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `installUrl` 后补 `"downloadUrl": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、`installUrl`、canonical 逐字一致的正式域名根地址），index.html 8,133→8,183 B（+50 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，本字段原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：downloadUrl 是站点级声明、不随路由变化（全站应用为同一实体、下载入口为同一根地址），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来站点根地址变化时，须与顶层 url、installUrl、canonical 一并同步复核（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、downloadUrl 与顶层 url/installUrl 逐字一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 downloadUrl 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bt 落地（2026-11-29，dateModified 与 sitemap lastmod 同步校准至 2026-11-29）
+
+R12 小盘点续项：R12bd 给 JSON-LD 补 `dateModified` 时留痕——将来全站级变更落地时，须与 sitemap lastmod 同步更新本字段。R12bs（2026-11-29 落地）改动的是全站共享的 `index.html`（JSON-LD 顶层补 downloadUrl，每页渲染都会带上），属全站级变更，但当时 `dateModified` 与 `public/sitemap.xml` 全部 74 条 `lastmod` 仍停在 2026-11-28，两条标准通道的修改日期已落后于最近一次全站变更日，与 R12d 校准 lastmod 同族，这次缺的是变更后的同步动作本身。
+
+- 处理：JSON-LD 顶层 `dateModified` 由 `2026-11-28` 改为 `2026-11-29`（R12bs 合入日，git 提交记录可查）；sitemap 74 条 `lastmod` 统一由 `2026-11-28` 改为 `2026-11-29`。两文件字节数不变（等长日期替换），sitemap 的 loc 集合、顺序、changefreq 与 priority 一字未动，JSON-LD 其余字段一字未改。
+- 边界：本次校准的依据是 R12bs 这一全站共享文件的变更，不是逐页内容逐一变更——后续若只有单个工具页变更，不应据此批量刷新全站 lastmod，只更新该页条目；全站级变更（共享 index.html / 全局样式 / 路由守卫等）落地时才按本口径同步两处。syncJsonLd 只改写 url/description/softwareVersion/featureList，dateModified 经 JSON 回写原样保留，404 移除不受影响。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、dateModified 为 2026-11-29 且除该字段外逐项相同；sitemap 经 XML 解析通过、74 条 loc 与改前逐项相同且 lastmod 全为 2026-11-29；test 构建 exit=0、产物含新日期；无头 Chrome 冒烟核对工具页 JSON-LD 的 dateModified 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
