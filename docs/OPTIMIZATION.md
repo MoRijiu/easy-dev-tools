@@ -944,3 +944,11 @@ R12 小盘点续项：JSON-LD 里五处 `ImageObject`（screenshot 两条 R12cg�
 - 处理：五处 `ImageObject` 各在 `height` 后补 `"encodingFormat": "image/png"` 一行（值与五张图实测文件类型逐项一致，author 与 publisher 两处仍逐字一致），index.html 10,247→10,450 B（+203 B，五处合计）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，ImageObject 对象原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：encodingFormat 是应用/组织级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来任一图片更换格式（如换 WebP）时，须同步复核对应对象的 encodingFormat（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、五处 ImageObject 的 encodingFormat 均为 image/png 且与文件实测类型逐项一致、url/width/height/caption 与改前逐项相同、author 与 publisher 仍逐项相同、除本字段外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 encodingFormat 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12cm 落地（2026-11-29，OpenSearch 补 Language 语言声明）
+
+R12 小盘点续项：`public/opensearch.xml`（R12bw 落地）有 ShortName/Description/InputEncoding/Image/Url/SearchForm，但从未声明 OpenSearch 1.1 的 `Language` 元素——该元素专指搜索结果的语言（RFC 5646 语言标签），浏览器/消费方把本站添加为搜索引擎时无从从描述文件得知结果语言。本站的语言事实早已多处公开且一致：`<html lang="zh-CN">`、JSON-LD `inLanguage: zh-CN`、Manifest `lang: zh-CN`、hreflang `zh-CN`（R12ca），搜索结果呈现的正是中文工具名与中文说明，只是从未在 OpenSearch 通道里声明。与 R12ca 补 hreflang、R12ae 给 Manifest 补 dir 同族，这次缺的是同一语言事实在搜索描述通道的声明本身。
+
+- 处理：`opensearch.xml` 在 `InputEncoding` 后补 `<Language>zh-CN</Language>` 一行（值与 html lang / JSON-LD inLanguage / Manifest lang 逐字一致），文件 597→626 B（+29 B）；其余元素一字未改，Url 模板与 `?q={searchTerms}` 落地搜索行为不变。
+- 边界：Language 只被 OpenSearch 消费方读取，不改任何运行时行为；opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap，按 R12bt 口径本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来站点主语言变更时，须与 html lang、Manifest lang、hreflang 一并同步复核本元素（已在本节留痕）。
+- 等价证据：改后文件经 XML 解析校验通过、Language 为 zh-CN 且与其余语言声明逐项一致、除新增元素外其余元素与改前逐项相同；test 构建 exit=0 且产物 opensearch.xml 与源文件逐字一致；无头 Chrome 冒烟核对 `/?q=json` 搜索落地无回归、首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
