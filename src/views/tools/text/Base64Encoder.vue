@@ -250,8 +250,9 @@ const copyOutput = async () => {
     await navigator.clipboard.writeText(outputText.value);
     statusMessage.value = "✓ 已复制到剪贴板！";
     statusType.value = "success";
+    const ownMsg = statusMessage.value;
     setTimeout(() => {
-      statusMessage.value = "";
+      if (statusMessage.value === ownMsg) statusMessage.value = "";
     }, 2000);
   } catch (error) {
     statusMessage.value = "✗ 复制失败，请手动复制";

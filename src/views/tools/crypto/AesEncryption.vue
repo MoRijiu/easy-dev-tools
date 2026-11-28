@@ -285,7 +285,8 @@ const copyOutput = async () => {
     await navigator.clipboard.writeText(outputText.value);
     statusMessage.value = "✓ 已复制到剪贴板";
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
   } catch {
     statusMessage.value = "✗ 复制失败";
     statusType.value = "error";

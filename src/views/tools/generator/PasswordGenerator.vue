@@ -230,7 +230,8 @@ const copySingle = async (pwd) => {
   if (await copyToClipboard(pwd)) {
     statusMessage.value = "✓ 已复制密码";
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
   }
 };
 
