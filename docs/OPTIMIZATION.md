@@ -560,3 +560,11 @@ R12 小盘点续项：本站语言在各处都已声明——`<html lang="zh-CN"
 - 处理：JSON-LD 在 `name` 后补 `"inLanguage": "zh-CN"` 一行（与 html lang / Manifest lang 逐字一致），index.html 6,005→6,034 B（+29 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：inLanguage 是站点级声明、不随路由变化（全站均为中文），不进 syncJsonLd 的按页改写范围；将来若推出其他语言版本，须按多语言形态改本字段（数组或按页同步），不得只改 html lang 了事（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 inLanguage 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12aq 落地（2026-11-28，index.html 补 application-name 标准应用名声明）
+
+R12 小盘点续项：本站应用名在各平台专用通道都已声明——Manifest 有 `name: "极速开发工具箱"`、iOS 有 `apple-mobile-web-app-title`（短名「开发工具箱」），唯独 `index.html` 的 head 里没有标准的 `<meta name="application-name">`。该 meta 是 HTML 规范登记的应用名声明，供浏览器固定站点、收藏与部分系统集成读取应用正式名称；缺省时这些消费方只能拿页面 `<title>`（含一长串工具枚举的 SEO 标题）当应用名，截断后既不完整也不稳定。与 R12u 补 iOS 主屏幕声明同族，这次缺的是标准通道的应用名本身。
+
+- 处理：index.html 在 manifest 链接后、mobile-web-app-capable 前补 `<meta name="application-name" content="极速开发工具箱" />`（与 Manifest `name` 逐字一致，用正式全名而非 iOS 短名），文件 6,034→6,103 B（+69 B）；其余 head 标签、Manifest 与 iOS 专用标题一字未改。
+- 边界：application-name 只是名称声明，不改任何页面标题、导航与运行时行为，不支持的浏览器忽略该字段；将来产品改名时须与 Manifest `name`、`og:site_name` 与本字段一并同步（已在本节留痕）。
+- 等价证据：改后 head 经解析核对 meta 单份且值与 Manifest name 逐字一致、apple-mobile-web-app-title 与 theme-color 无回归；test 构建 exit=0、产物 index.html 含本 meta；无头 Chrome 冒烟核对首页/工具页应用名在位、按页标题同步无回归、双视口无溢出、无 pageerror（验收结果见台账）。
