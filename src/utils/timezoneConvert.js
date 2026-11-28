@@ -23,7 +23,7 @@ export const TIMEZONES = [
   { id: 'Pacific/Auckland', label: '奥克兰 (新西兰)' },
 ];
 
-export const MAX_TIME_INPUT_LENGTH = 256;
+const MAX_TIME_INPUT_LENGTH = 256;
 
 const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 const dtfCache = new Map();
@@ -39,12 +39,12 @@ function getDtf(timeZone) {
   return dtfCache.get(timeZone);
 }
 
-export function isValidTimeZone(timeZone) {
+function isValidTimeZone(timeZone) {
   try { getDtf(String(timeZone)); return true; } catch { return false; }
 }
 
 /** 按真实年份构造 UTC 毫秒（Date.UTC 会把 0–99 年映射到 1900–1999，必须绕开） */
-export function utcMs(year, monthIndex, day, hour = 0, minute = 0, second = 0) {
+function utcMs(year, monthIndex, day, hour = 0, minute = 0, second = 0) {
   const dt = new Date(0);
   dt.setUTCFullYear(year, monthIndex, day);
   dt.setUTCHours(hour, minute, second, 0);
@@ -61,13 +61,13 @@ function partsInZone(date, timeZone) {
 }
 
 /** 某瞬间在某时区的 UTC 偏移（分钟），如上海 +480、纽约冬 -300 */
-export function getOffsetMinutes(date, timeZone) {
+function getOffsetMinutes(date, timeZone) {
   const p = partsInZone(date, timeZone);
   const wallAsUtc = utcMs(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
   return Math.round((wallAsUtc - Math.floor(date.getTime() / 1000) * 1000) / 60000);
 }
 
-export function formatOffset(minutes) {
+function formatOffset(minutes) {
   const sign = minutes < 0 ? '-' : '+';
   const abs = Math.abs(minutes);
   return `UTC${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}:${String(abs % 60).padStart(2, '0')}`;
@@ -77,7 +77,7 @@ const pad = (n) => String(n).padStart(2, '0');
 const padYear = (y) => String(y).padStart(4, '0');
 
 /** 把瞬间格式化为某时区的墙上时间信息 */
-export function formatInZone(date, timeZone) {
+function formatInZone(date, timeZone) {
   const p = partsInZone(date, timeZone);
   const weekday = WEEKDAYS[new Date(utcMs(p.year, p.month - 1, p.day)).getUTCDay()];
   const offsetMinutes = getOffsetMinutes(date, timeZone);
@@ -93,7 +93,7 @@ export function formatInZone(date, timeZone) {
 }
 
 /** 全角转半角（数字/字母/标点/冒号/空格），返回是否发生转换 */
-export function normalizeTimezoneInput(input) {
+function normalizeTimezoneInput(input) {
   const raw = String(input ?? '');
   let changed = false;
   const text = raw.replace(/[！-～　]/g, (ch) => {
@@ -151,7 +151,7 @@ function findTransition(loMs, hiMs, timeZone, newOffset) {
  * ISO 8601 带 Z 或 ±HH:mm 偏移（按偏移定瞬间并提示）、全角输入。
  * 夏令时不存在的时刻点名报错；重复出现的时刻取第一次并在 notes 里说明两次的偏移。
  */
-export function parseInZone(input, timeZone) {
+function parseInZone(input, timeZone) {
   const rawInput = String(input ?? '');
   if (rawInput.length > MAX_TIME_INPUT_LENGTH) {
     return { ok: false, error: `输入过长（${rawInput.length} 字符），时间文本最多 ${MAX_TIME_INPUT_LENGTH} 字符` };

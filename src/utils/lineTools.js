@@ -2,21 +2,21 @@
 // 处理顺序固定：修剪 → 删空行 → 去重 → 排序 → 反转 → 前后缀 → 行号，便于预期结果。
 // 长度口径统一按 Unicode 码点计（一个 Emoji 算 1），不用 UTF-16 的 String.length。
 
-export const MAX_INPUT_CHARS = 1000000
-export const MAX_INPUT_LINES = 100000
-export const MAX_AFFIX_CHARS = 100
+const MAX_INPUT_CHARS = 1000000
+const MAX_INPUT_LINES = 100000
+const MAX_AFFIX_CHARS = 100
 
 const textEncoder = new TextEncoder()
 
-export function codePointLength(text) {
+function codePointLength(text) {
   return [...String(text ?? '')].length
 }
 
-export function utf8ByteLength(text) {
+function utf8ByteLength(text) {
   return textEncoder.encode(String(text ?? '')).length
 }
 
-export function splitLines(text) {
+function splitLines(text) {
   const normalized = String(text ?? '').replace(/\r\n?/g, '\n')
   if (normalized === '') return []
   const lines = normalized.split('\n')
@@ -40,7 +40,7 @@ function sortLines(lines, sort) {
 }
 
 // 校验并归一化选项：行号起始与前后缀在页面手输时可能是字符串/越界值，点名报错而不是静默乱排。
-export function normalizeLineOptions(options = {}) {
+function normalizeLineOptions(options = {}) {
   const numberStartRaw = options.numberStart ?? 1
   const numberStart = typeof numberStartRaw === 'string' && numberStartRaw.trim() !== '' ? Number(numberStartRaw) : numberStartRaw
   if (!Number.isInteger(numberStart) || numberStart < -999999 || numberStart > 999999) {

@@ -114,7 +114,7 @@ function parseAttributes(src, tagIndex, attrsText, attrsBase) {
   return { names, values };
 }
 
-export function tokenizeXml(src) {
+function tokenizeXml(src) {
   const tokens = [];
   let i = 0;
   while (i < src.length) {
@@ -198,7 +198,7 @@ export function tokenizeXml(src) {
 }
 
 // 校验嵌套与文档级规则，并给 token 标注深度；返回统计。非法时抛带行号错误。
-export function validateXml(src) {
+function validateXml(src) {
   if (typeof src !== 'string') throw new Error('输入必须是字符串');
   if (src.length > MAX_INPUT_LENGTH) {
     throw new Error(`输入过长：${src.length.toLocaleString('zh-CN')} 个字符，上限为 ${MAX_INPUT_LENGTH.toLocaleString('zh-CN')} 个字符，请拆分后再处理`);

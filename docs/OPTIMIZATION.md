@@ -79,3 +79,11 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - R10e 拆分：本轮为 R10e1（CSS 上收）；utils 导出面收敛列为 R10e2 下一轮（逐个核实仅内部使用的导出改私有，低优先、无行为变化）。
 - 等价证据：test 构建 exit=0，dist 1,979,911 → 1,946,107 B（−33,804 B，文件数 186 不变，CSS 重复消除）。无头 Chrome 计算样式冒烟 12/12（脚本 edt-r10e-smoke.js）：桌面工具页 h1 40px/居中/mb10、描述 17.6px/mb30、卡 padding 30px/圆角 12px、外层 padding 20px/max-width 1400px 与上收前一致；700px 时 640 断点工具回到桌面尺寸、768 断点 Unit 工具仍 32px/padding 20px（scoped 宽断点规则胜出）；390px 两类均为 32px/padding 20px；首页 h1 保持 36px 未被上收规则污染；无溢出、无 pageerror。
 - 一处刻意的一致性修正：QrcodeGenerator 原是 72 个工具里唯一没有响应式组的，上收后它在 ≤640px 也获得与其余 71 个工具相同的 h1 32px / 卡 padding 20px（桌面无变化）。
+
+## R10e2 落地（2026-11-28，utils 导出面收敛）
+
+- 精确审计（静态 import 图，含 `@` 别名与 utils 内部相对路径 import）：utils 共 609 个导出符号，307 个被外部引用，282 个仅模块内部使用，20 个无处使用。审计中途修正一处口径——相对路径跨模块 import（如 dockerRun 引 curlParse 的 tokenizeShell、多个模块引 jsonFormat 的 parseJsonDetailed）最初漏计，险些误伤 8 个跨模块符号，修正后定版。
+- 仅内部使用 282 个：去掉 `export` 改模块私有（含 cssShadow 的 re-export 列表移除 formatCssColor 一项，parseCssColor 的对外转发保留）。变换后复查：导出 307 个且全部被外部引用，仅内部/无处使用均为 0。
+- 无处使用 20 个：均为从未被任何代码调用的小包装/常量（baseConvert.convertAll、ulid.generateUlid 与 isValidUlid、uuidGenerate.generateUuidV7、semver.isValidSemver、urlCodec.URL_ENCODE_MODES 等），连同定义一并删除（同名符号在其他模块的同名导出经逐文件核实不受影响，如 unitConvert.convertAll 仍在用、保留）。
+- 等价证据：构建期 Rollup 对缺失 import 名会直接报错，test 构建 exit=0 即证明 307 个保留导出与全部 import 对齐；dist 1,946,107 B / 186 文件与 R10e1 逐字相同（未用导出原本就被 tree-shaking 剔除，去 export 不改变产物）。Node 直载 72 个 utils 模块全成功，关键向量 8/8（进制 255→ff、命名转换、JSON/CSV 往返、SemVer 比较、ULID 批量、UUID 解析、单位换算、Luhn 校验）；无头 Chrome 页面冒烟 12/12、无 pageerror。
+- R10e 至此收官（CSS 上收 + 导出面收敛）；R10 代码优化队列全部完成，后续新台阶待定（新功能继续暂停，遵阶段口径）。

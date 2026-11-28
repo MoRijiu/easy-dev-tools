@@ -3,7 +3,7 @@
 
 export const MAX_LINES = 2000;
 // LCS 动态规划表上限（行数乘积），超出时退化为逐行位置对比，避免浏览器卡死
-export const MAX_CELLS = 1000000;
+const MAX_CELLS = 1000000;
 
 function normalizeLine(line, opts) {
   let s = line;
@@ -98,7 +98,7 @@ export function diffLines(oldText, newText, options = {}) {
  * 被忽略的差异（仅大小写不同、空格与制表符互换）不再误高亮。
  * 字符数乘积过大时退化为整行一删一增。
  */
-export function diffChars(oldStr, newStr, options = {}) {
+function diffChars(oldStr, newStr, options = {}) {
   const a = Array.from(oldStr || '');
   const b = Array.from(newStr || '');
   if (!a.length) return b.length ? [{ type: 'add', text: newStr }] : [];
@@ -176,9 +176,6 @@ export function pairRows(rows, options = {}) {
 }
 
 /** 生成 unified diff 文本（供复制） */
-export function toUnifiedText(rows) {
-  return rows.map(r => `${r.type === 'add' ? '+' : r.type === 'del' ? '-' : ' '} ${r.text}`).join('\n');
-}
 
 /**
  * 折叠长段未变行：只保留每处差异上下 context 行上下文，其余未变行合并为折叠标记。

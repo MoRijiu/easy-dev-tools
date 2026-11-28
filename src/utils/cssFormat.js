@@ -32,12 +32,12 @@ function skipComment(src, i) {
   return end + 2;
 }
 
-export const MAX_CSS_LENGTH = 1000000;
-export const MAX_CSS_DEPTH = 100;
+const MAX_CSS_LENGTH = 1000000;
+const MAX_CSS_DEPTH = 100;
 
 // 全角标点/字母数字转半角（U+FF01–FF5E → ASCII，1:1 字符映射不改变下标与行号）；
 // 字符串与注释内容原样保留。此处扫描不抛错，未闭合的引号/注释留给正式解析报错。
-export function normalizeCssInput(src) {
+function normalizeCssInput(src) {
   let out = '';
   let i = 0;
   while (i < src.length) {
@@ -293,7 +293,7 @@ class Parser {
   }
 }
 
-export function parseCss(rawSrc) {
+function parseCss(rawSrc) {
   if (!rawSrc || !rawSrc.trim()) throw new Error('输入为空');
   if (rawSrc.length > MAX_CSS_LENGTH) throw new Error(`输入过长（超过 ${MAX_CSS_LENGTH} 字符），请分段处理`);
   const src = normalizeCssInput(rawSrc);

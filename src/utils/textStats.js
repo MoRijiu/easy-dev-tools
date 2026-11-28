@@ -4,7 +4,7 @@
 // 句子计数：连续终止标点（。！？.!?…）只算一处句末；数字间的小数点（3.14、版本号 1.0.0）
 // 不算句末；纯标点/纯空白不算句子；无标点结尾但有实际内容的残段算一句。
 
-export const MAX_TEXT_LENGTH = 1000000
+const MAX_TEXT_LENGTH = 1000000
 
 const CJK_SEQ_RE = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯]+/g
 const CJK_RE = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯]/g
@@ -20,7 +20,7 @@ function utf8Bytes(text) {
   return n
 }
 
-export function countSentences(text) {
+function countSentences(text) {
   const raw = String(text ?? '')
   if (raw.trim() === '') return 0
   // 保护数字间的小数点：3.14 / 1.0.0 里的点不是句末
@@ -38,7 +38,7 @@ export function countSentences(text) {
   return count
 }
 
-export function extractTokens(text) {
+function extractTokens(text) {
   const tokens = []
   const en = String(text).match(WORD_RE) || []
   for (const w of en) tokens.push(w.toLowerCase())
@@ -94,7 +94,7 @@ export function analyzeText(text, { topLimit = 10 } = {}) {
   }
 }
 
-export function formatDuration(minutes) {
+function formatDuration(minutes) {
   if (!minutes || minutes <= 0) return '0 秒'
   const totalSec = Math.max(1, Math.round(minutes * 60))
   if (totalSec < 60) return `${totalSec} 秒`

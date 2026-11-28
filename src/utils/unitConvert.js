@@ -61,7 +61,7 @@ export const UNIT_DATA = {
   ],
 }
 
-export function getUnits(category) {
+function getUnits(category) {
   const units = UNIT_DATA[category]
   if (!units) throw new Error(`未知单位类别：${category}`)
   return units
@@ -92,7 +92,7 @@ export function parseValueStrict(text) {
 }
 
 const ABSOLUTE_ZERO = { c: -273.15, f: -459.67, k: 0 }
-export function assertTemperature(value, unitId) {
+function assertTemperature(value, unitId) {
   const min = ABSOLUTE_ZERO[unitId]
   if (min !== undefined && value < min - 1e-9) {
     const names = { c: '摄氏度', f: '华氏度', k: '开尔文' }
@@ -100,7 +100,7 @@ export function assertTemperature(value, unitId) {
   }
 }
 
-export function convertTemperature(value, from, to) {
+function convertTemperature(value, from, to) {
   assertTemperature(value, from)
   if (from === to) return value
   let celsius
@@ -151,8 +151,3 @@ export function ratioFromBase(category, unitId) {
   return 1 / unit.factor
 }
 
-export function buildSummary(valueText, category, fromId, toId, result) {
-  const from = getUnit(category, fromId)
-  const to = getUnit(category, toId)
-  return `${valueText} ${from.symbol} = ${formatResult(result)} ${to.symbol}`
-}

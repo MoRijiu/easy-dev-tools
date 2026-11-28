@@ -1,9 +1,9 @@
 // IP 地址解析与互转：纯本地。IPv4 点分/整数/十六进制/二进制互转与性质判定；IPv6 展开/压缩（RFC 5952）与性质判定。
-export const MAX_IP_INPUT_LENGTH = 1024;
-export function normalizeIpInput(input = '') {
+const MAX_IP_INPUT_LENGTH = 1024;
+function normalizeIpInput(input = '') {
   return String(input ?? '').replace(/[\uFF01-\uFF5E\u3000]/g, (ch) => (ch === '\u3000' ? ' ' : String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)));
 }
-export function parseIpv4(input = '') {
+function parseIpv4(input = '') {
   const s = normalizeIpInput(String(input ?? '')).trim();
   if (!s) return { ok: false, error: '请输入 IPv4 地址' };
   const parts = s.split('.');
@@ -21,7 +21,7 @@ export function parseIpv4(input = '') {
   const value = octets.reduce((acc, o) => acc * 256 + o, 0);
   return { ok: true, octets, value };
 }
-export function ipv4Class(octets) {
+function ipv4Class(octets) {
   const [a, b] = octets;
   if (a < 128) return 'A 类';
   if (a < 192) return 'B 类';
@@ -29,7 +29,7 @@ export function ipv4Class(octets) {
   if (a < 240) return 'D 类（组播）';
   return 'E 类（保留）';
 }
-export function ipv4Kind(octets) {
+function ipv4Kind(octets) {
   const [a, b, c, d] = octets;
   if (a === 0 && b === 0 && c === 0 && d === 0) return { kind: '未指定地址', note: '0.0.0.0 表示未指定/任意地址，常作监听地址或默认路由' };
   if (a === 255 && b === 255 && c === 255 && d === 255) return { kind: '受限广播', note: '255.255.255.255 向本地网络段广播，不会被路由器转发' };
@@ -46,7 +46,7 @@ export function ipv4Kind(octets) {
   if (a >= 240) return { kind: '保留地址', note: 'E 类保留（240.0.0.0/4）' };
   return { kind: '公网地址', note: '可在互联网上路由的地址' };
 }
-export function ipv4Info(input = '') {
+function ipv4Info(input = '') {
   const r = parseIpv4(input);
   if (!r.ok) return r;
   const { octets, value } = r;
@@ -60,7 +60,7 @@ export function ipv4Info(input = '') {
     ipClass: ipv4Class(octets), kind: k.kind, note: k.note, warnings: []
   };
 }
-export function ipv4FromInteger(input = '') {
+function ipv4FromInteger(input = '') {
   const s = normalizeIpInput(String(input ?? '')).trim();
   if (!s) return { ok: false, error: '请输入整数或 0x 十六进制整数' };
   if (/^-\d+$/.test(s)) return { ok: false, error: '负数不在 IPv4 整数范围内，应为 0–4294967295' };
@@ -71,7 +71,7 @@ export function ipv4FromInteger(input = '') {
   const n = Number(v);
   return ipv4Info([Math.floor(n / 16777216), Math.floor(n / 65536) % 256, Math.floor(n / 256) % 256, n % 256].join('.'));
 }
-export function expandIpv6(input = '') {
+function expandIpv6(input = '') {
   let s = normalizeIpInput(String(input ?? '')).trim();
   if (!s) return { ok: false, error: '请输入 IPv6 地址' };
   if (s.includes('%')) return { ok: false, error: '暂不支持带区域 ID（%eth0）的链路本地地址' };
@@ -117,7 +117,7 @@ export function expandIpv6(input = '') {
 function embeddedV4(groups) {
   return [groups[6] >> 8, groups[6] & 255, groups[7] >> 8, groups[7] & 255].join('.');
 }
-export function compressIpv6(groups) {
+function compressIpv6(groups) {
   // RFC 5952 §5：内嵌 IPv4 的映射/兼容地址用混合点分写法更易读
   if (groups.slice(0, 5).every((x) => x === 0) && groups[5] === 0xffff) return '::ffff:' + embeddedV4(groups);
   if (groups.slice(0, 6).every((x) => x === 0) && !(groups[6] === 0 && (groups[7] === 0 || groups[7] === 1))) return '::' + embeddedV4(groups);
@@ -131,7 +131,7 @@ export function compressIpv6(groups) {
   const left = hex.slice(0, bestStart).join(':'); const right = hex.slice(bestStart + bestLen).join(':');
   return (left ? left : '') + '::' + (right ? right : '');
 }
-export function ipv6Kind(groups) {
+function ipv6Kind(groups) {
   const g = groups;
   if (g.every((x) => x === 0)) return { kind: '未指定地址', note: '::，表示任意/未指定地址' };
   if (g.slice(0, 7).every((x) => x === 0) && g[7] === 1) return { kind: '环回地址', note: '::1，指向本机自身' };
@@ -151,7 +151,7 @@ export function ipv6Kind(groups) {
   if (g[0] === 0x2001 && g[1] === 0x0db8) return { kind: '文档示例', note: '2001:db8::/32，保留给文档与示例' };
   return { kind: '全球单播', note: '可在互联网上路由的公网地址' };
 }
-export function ipv6Info(input = '') {
+function ipv6Info(input = '') {
   const r = expandIpv6(input);
   if (!r.ok) return r;
   const { groups } = r;

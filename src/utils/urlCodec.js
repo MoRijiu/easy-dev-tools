@@ -5,11 +5,6 @@
 // （旧版解码失败只会抛一句英文 URI malformed，不知道错在哪）、
 // 查询字符串里 + 按空格处理的选项、转义个数等统计。
 
-export const URL_ENCODE_MODES = [
-  { id: 'component', label: '参数（encodeURIComponent）' },
-  { id: 'uri', label: '完整 URL（encodeURI）' },
-  { id: 'form', label: '表单（x-www-form-urlencoded）' }
-];
 
 const HEX2 = /^[0-9A-Fa-f]{2}$/;
 

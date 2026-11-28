@@ -1,7 +1,7 @@
 // Chmod 权限计算：纯本地。支持八进制（3/4 位）、符号形式（rwxr-xr-x / -rwxr-xr-x）、
 // chmod 符号模式（u+x / a=rwx，相对当前权限修改）互转、特殊位与 umask 计算。
 // 全角数字/字母自动转半角（中文输入法粘贴友好）。
-export function normalizeChmodInput(input) {
+function normalizeChmodInput(input) {
   return String(input ?? '').replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/　/g, ' ');
 }
 export const GROUPS = [
@@ -15,7 +15,7 @@ export const PERMS = [
   { key: 'x', label: '执行', value: 1 }
 ];
 // bits: { setuid,setgid,sticky, owner:{r,w,x}, group:{...}, other:{...} }
-export function emptyBits() {
+function emptyBits() {
   return { setuid: false, setgid: false, sticky: false, owner: { r: false, w: false, x: false }, group: { r: false, w: false, x: false }, other: { r: false, w: false, x: false } };
 }
 function digitToPerms(d) { return { r: !!(d & 4), w: !!(d & 2), x: !!(d & 1) }; }
@@ -35,7 +35,7 @@ export function parseOctal(input) {
   bits.owner = digitToPerms(o); bits.group = digitToPerms(g); bits.other = digitToPerms(ot);
   return bits;
 }
-export function parseSymbolic(input) {
+function parseSymbolic(input) {
   let s = normalizeChmodInput(input).trim();
   if (!s) throw new Error('请输入符号权限，如 rwxr-xr-x');
   // ls -l 末尾的 ACL/扩展属性标记（+ . @）不属于权限本身，剥掉再解析

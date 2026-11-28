@@ -5,7 +5,7 @@
 // 从不同引擎的报错文案里提取位置：
 // - Chrome/Node 新版：「... at position 12 (line 2 column 3)」或旧版「... at position 12」
 // - Firefox：「JSON.parse: ... at line 2 column 3 of the JSON data」
-export function extractErrorPosition(text, message) {
+function extractErrorPosition(text, message) {
   const src = String(text ?? '');
   const msg = String(message ?? '');
   let position = null;
@@ -38,7 +38,7 @@ export function extractErrorPosition(text, message) {
 }
 
 // 基于出错位置附近文本与全文特征，给出最可能的修复提示（只提示最靠前命中一条主因，其余作次要提示）。
-export function guessJsonErrorHint(text, info) {
+function guessJsonErrorHint(text, info) {
   const src = String(text ?? '');
   const hints = [];
   if (/,\s*[}\]]/.test(src)) hints.push('存在多余的尾随逗号：JSON 不允许在 } 或 ] 前多写一个逗号，删掉它即可');

@@ -1,10 +1,10 @@
 // CSS Box Shadow 生成：纯本地。校验多层阴影参数（偏移/模糊/扩散/颜色/内阴影），拼装 box-shadow 值与 CSS 片段。
 import { parseCssColor, formatCssColor, parseStrictNumber } from './cssGradient.js';
 
-export { parseCssColor, formatCssColor };
+export { parseCssColor };
 
 export const MAX_LAYERS = 8;
-export const LIMITS = {
+const LIMITS = {
   offsetX: [-200, 200],
   offsetY: [-200, 200],
   blur: [0, 200],
@@ -27,7 +27,7 @@ function fmtNum(v) {
   return Object.is(n, -0) ? '0' : String(n);
 }
 
-export function normalizeLayers(rawLayers = []) {
+function normalizeLayers(rawLayers = []) {
   if (!Array.isArray(rawLayers) || rawLayers.length < 1) return { ok: false, error: '至少需要 1 层阴影' };
   if (rawLayers.length > MAX_LAYERS) return { ok: false, error: `阴影最多 ${MAX_LAYERS} 层` };
   const layers = [];

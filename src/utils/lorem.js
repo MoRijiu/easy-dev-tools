@@ -5,10 +5,10 @@
 import { randomBigIntBelow } from './randomNumber.js';
 
 export const COUNT_LIMITS = { paragraphs: 50, sentences: 200, words: 1000 };
-export const CANONICAL_OPENING = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const CANONICAL_OPENING = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 const CANONICAL_WORDS = ['lorem', 'ipsum', 'dolor', 'sit', 'amet'];
 
-export const LOREM_WORDS = [
+const LOREM_WORDS = [
   'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
   'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore',
   'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud',
@@ -23,7 +23,7 @@ export const LOREM_WORDS = [
   'justo', 'fringilla'
 ];
 
-export const CHINESE_PHRASES = [
+const CHINESE_PHRASES = [
   '天地玄黄', '宇宙洪荒', '日月盈昃', '辰宿列张', '寒来暑往', '秋收冬藏',
   '闰余成岁', '律吕调阳', '云腾致雨', '露结为霜', '金生丽水', '玉出昆冈',
   '剑号巨阙', '珠称夜光', '果珍李柰', '菜重芥姜', '海咸河淡', '鳞潜羽翔',
@@ -32,7 +32,7 @@ export const CHINESE_PHRASES = [
   '遐迩一体', '率宾归王', '鸣凤在竹', '白驹食场', '化被草木', '赖及万方'
 ];
 
-export const HIPSTER_WORDS = [
+const HIPSTER_WORDS = [
   'artisan', 'authentic', 'biodiesel', 'brooklyn', 'cardigan', 'craft', 'crucifix',
   'distillery', 'dreamcatcher', 'ethical', 'fixie', 'flannel', 'gastropub', 'gentrify',
   'hashtag', 'helvetica', 'hoodie', 'intelligentsia', 'irony', 'jean', 'kale', 'keytar',
@@ -43,10 +43,10 @@ export const HIPSTER_WORDS = [
   'tumblr', 'twee', 'typewriter', 'umami', 'vegan', 'vexillologist', 'vinyl'
 ];
 
-export const WORD_LISTS = { lorem: LOREM_WORDS, chinese: CHINESE_PHRASES, hipster: HIPSTER_WORDS };
+const WORD_LISTS = { lorem: LOREM_WORDS, chinese: CHINESE_PHRASES, hipster: HIPSTER_WORDS };
 export const TYPE_LABELS = { paragraphs: '段落', sentences: '句子', words: '单词' };
 
-export function parseCount(raw, type) {
+function parseCount(raw, type) {
   if (!Object.prototype.hasOwnProperty.call(COUNT_LIMITS, type)) {
     throw new Error(`未知生成类型「${type}」`);
   }
@@ -98,7 +98,7 @@ function makeParagraph(style, words, randInt) {
   return sentences.join(style === 'chinese' ? '' : ' ');
 }
 
-export function analyzeText(text, style) {
+function analyzeText(text, style) {
   if (!text) return { paragraphs: 0, sentences: 0, words: 0, chars: 0, bytes: 0 };
   const paragraphs = text.split(/\n\n+/).filter((p) => p.trim() !== '').length;
   const sentences = (text.match(/[。.!?！？]/g) || []).length;

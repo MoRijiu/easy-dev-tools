@@ -4,18 +4,18 @@
 // 强度条按选项打分而非真实熵。本模块逐项修正，并支持随机源注入便于独立测试。
 import { randomBigIntBelow } from './randomNumber.js';
 
-export const MIN_LENGTH = 4;
-export const MAX_LENGTH = 128;
-export const MAX_COUNT = 50;
+const MIN_LENGTH = 4;
+const MAX_LENGTH = 128;
+const MAX_COUNT = 50;
 
-export const CHARSETS = {
+const CHARSETS = {
   uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   lowercase: 'abcdefghijklmnopqrstuvwxyz',
   numbers: '0123456789',
   symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
 };
 
-export const CLASS_LABELS = {
+const CLASS_LABELS = {
   uppercase: '大写字母',
   lowercase: '小写字母',
   numbers: '数字',
@@ -23,9 +23,9 @@ export const CLASS_LABELS = {
 };
 
 // 易混淆字符：数字 0/1、字母 O/l/I、竖线 |
-export const AMBIGUOUS_CHARS = '0O1lI|';
+const AMBIGUOUS_CHARS = '0O1lI|';
 
-export function defaultRandomBytes(n) {
+function defaultRandomBytes(n) {
   const out = new Uint8Array(n);
   const cryptoObj = globalThis.crypto;
   if (!cryptoObj?.getRandomValues) throw new Error('当前环境不支持 crypto.getRandomValues，无法生成安全随机密码');
@@ -52,7 +52,7 @@ export function validateLength(raw) {
   return validateInt(raw, '密码长度', MIN_LENGTH, MAX_LENGTH);
 }
 
-export function validateCount(raw) {
+function validateCount(raw) {
   return validateInt(raw, '生成数量', 1, MAX_COUNT);
 }
 
@@ -94,7 +94,7 @@ function pickChar(chars, randomBytes) {
   return arr[idx];
 }
 
-export function generateOne(options, poolInfo, randomBytes = defaultRandomBytes) {
+function generateOne(options, poolInfo, randomBytes = defaultRandomBytes) {
   const length = options._length;
   const requireEach = options.requireEach !== false;
   const chars = [];
@@ -149,11 +149,3 @@ export function generatePasswords(options = {}, randomBytes = defaultRandomBytes
   };
 }
 
-export function buildPasswordSummary(result) {
-  if (!result) return '';
-  return [
-    `密码配置：长度 ${result.length} · 字符池 ${result.poolSize}（${result.groups.map((g) => g.label).join('、')}）`,
-    `理论熵约 ${result.entropyBits} 位（强度：${result.strength.label}）`,
-    `共生成 ${result.count} 个，全部不重复`
-  ].join('\n');
-}

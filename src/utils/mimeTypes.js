@@ -11,10 +11,10 @@ export const MIME_CATEGORIES = [
 const M = (ext, mime, nameZh, category, note = '', keywords = '') => ({ ext, mime, nameZh, category, note, keywords });
 // 伪条目：本身不是文件扩展名（如表单 Content-Type），搜索可命中但按扩展名反查不应命中
 const P = (ext, mime, nameZh, category, note = '', keywords = '') => ({ ...M(ext, mime, nameZh, category, note, keywords), pseudo: true });
-export function normalizeMimeInput(input = '') {
+function normalizeMimeInput(input = '') {
   return String(input || '').replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).replace(/　/g, ' ').trim().toLowerCase();
 }
-export function parseContentType(input = '') {
+function parseContentType(input = '') {
   const raw = normalizeMimeInput(input);
   if (!raw) return null;
   const [mimePart, ...paramParts] = raw.split(';');
@@ -26,7 +26,7 @@ export function parseContentType(input = '') {
   }
   return { mime, params };
 }
-export const MIME_TYPES = [
+const MIME_TYPES = [
   M('html', 'text/html', 'HTML 文档', 'text', '网页文档，浏览器默认按此类型渲染', 'htm web page 网页'),
   M('htm', 'text/html', 'HTML 文档', 'text', '同 .html 的旧式扩展名', 'html 网页'),
   M('css', 'text/css', 'CSS 样式表', 'text', '网页样式表', 'style 样式'),
@@ -113,17 +113,6 @@ export const MIME_TYPES = [
   P('form', 'application/x-www-form-urlencoded', '表单编码', 'application', '不是文件扩展名：HTML 表单默认提交的 Content-Type', 'form urlencoded 表单 content-type'),
   P('multipart', 'multipart/form-data', '分段表单', 'application', '不是文件扩展名：含文件上传时表单的 Content-Type', 'multipart form-data 上传 文件')
 ];
-export function getByExtension(input = '') {
-  const raw = normalizeMimeInput(input);
-  const ext = raw.replace(/^\.+/, '').split('.').pop();
-  if (!ext || ext.includes('/') || ext.includes(' ')) return null;
-  return MIME_TYPES.find((t) => !t.pseudo && t.ext === ext) || null;
-}
-export function getByMime(input = '') {
-  const parsed = parseContentType(input);
-  if (!parsed || !parsed.mime) return null;
-  return MIME_TYPES.find((t) => t.mime === parsed.mime) || null;
-}
 export function searchMimeTypes(query = '', category = 'all') {
   const q = normalizeMimeInput(query).split(';')[0].trim();
   const cat = category || 'all';

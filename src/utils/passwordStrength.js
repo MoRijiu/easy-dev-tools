@@ -22,7 +22,7 @@ const COMMON_WORDS = [
   'love', 'angel', 'happy', 'flower', 'summer', 'winter', 'spring', 'autumn'
 ];
 
-export const MAX_PASSWORD_LENGTH = 4096;
+const MAX_PASSWORD_LENGTH = 4096;
 
 const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm', '1234567890'];
 // 键盘纵列与斜列（1qaz / 2wsx 这类纵向连排同样是高频弱口令模式）
@@ -84,7 +84,7 @@ const SCORE_LEVELS = [
 ];
 
 // 破解场景（次/秒），口径与 zxcvbn 一致
-export const CRACK_SCENARIOS = [
+const CRACK_SCENARIOS = [
   { id: 'online-throttled', label: '在线攻击（网站限速）', rate: 100 / 3600 },
   { id: 'online', label: '在线攻击（不限速）', rate: 10 },
   { id: 'offline-slow', label: '离线爆破（慢哈希 bcrypt 等）', rate: 1e4 },
@@ -174,7 +174,7 @@ function findWholeRepetition(chars) {
   return null;
 }
 
-export function formatCrackSeconds(seconds) {
+function formatCrackSeconds(seconds) {
   if (!Number.isFinite(seconds)) return '几乎不可能';
   if (seconds < 1) return '不到 1 秒';
   // 先取整再分档，避免 59.6 秒显示成「60 秒」、3599 秒显示成「60 分钟」

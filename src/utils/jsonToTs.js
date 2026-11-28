@@ -6,9 +6,9 @@
 
 import { parseJsonDetailed } from './jsonFormat.js';
 
-export const JSON_TO_TS_LIMITS = { maxChars: 1000000, maxDepth: 100, maxNodes: 50000 };
+const JSON_TO_TS_LIMITS = { maxChars: 1000000, maxDepth: 100, maxNodes: 50000 };
 
-export function pascalCase(raw) {
+function pascalCase(raw) {
   const parts = String(raw).split(/[^a-zA-Z0-9]+/).filter(Boolean);
   let name = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
   if (!name) name = 'Value';

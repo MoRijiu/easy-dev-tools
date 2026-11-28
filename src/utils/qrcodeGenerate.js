@@ -4,21 +4,21 @@
 // qrcode 库的英文报错（数据过长等）直接透传给用户。
 import { parseColor, relativeLuminance, contrastRatio } from './colorContrast.js';
 
-export const MIN_WIDTH = 100;
-export const MAX_WIDTH = 1000;
-export const MIN_MARGIN = 0;
-export const MAX_MARGIN = 10;
-export const MAX_LOGO_BYTES = 5 * 1024 * 1024;
+const MIN_WIDTH = 100;
+const MAX_WIDTH = 1000;
+const MIN_MARGIN = 0;
+const MAX_MARGIN = 10;
+const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 
 // Version 40、Byte 模式下各容错级别的最大字节容量（QR Code 规范容量表）
-export const EC_CAPACITY_BYTES = { L: 2953, M: 2331, Q: 1663, H: 1273 };
-export const EC_LEVELS = ['L', 'M', 'Q', 'H'];
+const EC_CAPACITY_BYTES = { L: 2953, M: 2331, Q: 1663, H: 1273 };
+const EC_LEVELS = ['L', 'M', 'Q', 'H'];
 
-export function utf8ByteLength(text) {
+function utf8ByteLength(text) {
   return new TextEncoder().encode(text).length;
 }
 
-export function codePointLength(text) {
+function codePointLength(text) {
   return [...text].length;
 }
 

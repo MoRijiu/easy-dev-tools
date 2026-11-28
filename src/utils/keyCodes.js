@@ -78,9 +78,9 @@ for (let i = 0; i < 26; i++) {
 for (let i = 0; i <= 9; i++) generated.push(K(String(i), 'Digit' + i, 48 + i, '数字 ' + i, 'digit', 'digit number 数字'));
 for (let i = 0; i <= 9; i++) generated.push(K(String(i), 'Numpad' + i, 96 + i, '小键盘 ' + i, 'numpad', 'numpad 数字 小键盘'));
 
-export const KEY_TABLE = [...BASE_KEYS, ...generated];
+const KEY_TABLE = [...BASE_KEYS, ...generated];
 
-export const LOCATION_LABELS = ['标准位置', '左侧', '右侧', '小键盘'];
+const LOCATION_LABELS = ['标准位置', '左侧', '右侧', '小键盘'];
 
 export const displayKey = (key) => {
   if (key === ' ') return 'Space（空格）';
@@ -164,4 +164,3 @@ export const countByCategory = () => {
   return counts;
 };
 
-export const findByCode = (code) => KEY_TABLE.find(k => k.code === code) || null;

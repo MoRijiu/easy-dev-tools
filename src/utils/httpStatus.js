@@ -8,7 +8,7 @@ export const HTTP_CATEGORIES = [
   { id: 5, name: '5xx 服务器错误' }
 ];
 const C = (code, name, nameZh, description, keywords = '') => ({ code, name, nameZh, category: Math.floor(code / 100), description, keywords });
-export const HTTP_STATUS_CODES = [
+const HTTP_STATUS_CODES = [
   C(100, 'Continue', '继续', '服务器已收到请求头，客户端应继续发送请求体。', 'continue'),
   C(101, 'Switching Protocols', '切换协议', '服务器同意按 Upgrade 头切换协议，如升级到 WebSocket。', 'websocket upgrade'),
   C(102, 'Processing', '处理中', 'WebDAV：服务器正在处理请求，尚无响应可用。', 'webdav'),
@@ -72,7 +72,7 @@ export const HTTP_STATUS_CODES = [
   C(510, 'Not Extended', '未扩展', '服务器需要客户端发送进一步的扩展请求才能完成处理，现已很少使用。', 'extended'),
   C(511, 'Network Authentication Required', '需要网络认证', '需要先完成网络接入认证，常见于公共 Wi-Fi 强制门户。', 'wifi captive')
 ];
-export function getStatusByCode(code) {
+function getStatusByCode(code) {
   // 严格口径：数字须为整数，字符串须为纯数字（旧版 Number() 会把 '0x194' 当 404、'' 当 0）
   let n;
   if (typeof code === 'number') n = code;

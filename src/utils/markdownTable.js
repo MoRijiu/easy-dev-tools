@@ -9,7 +9,7 @@ const MAX_CHARS = 1000000;
 const MAX_ROWS = 500;
 const MAX_COLS = 30;
 
-export function visualWidth(str) {
+function visualWidth(str) {
   let w = 0;
   for (const ch of String(str)) {
     const cp = ch.codePointAt(0);
@@ -90,7 +90,7 @@ function parseSeparatorAlign(cell) {
   return null; // 纯横线：未指定，交给自动判断
 }
 
-export function parseTableInput(input) {
+function parseTableInput(input) {
   const notes = [];
   const rawText = String(input ?? '');
   if (rawText.length > MAX_CHARS) return { ok: false, error: `输入过长（${rawText.length} 字符），最多 ${MAX_CHARS} 字符，请拆分后再生成` };
@@ -152,7 +152,7 @@ export function parseTableInput(input) {
 }
 
 const NUM_RE = /^[+-]?((\d{1,3}(,\d{3})+|\d+)(\.\d*)?|\.\d+)([eE][+-]?\d+)?%?$/;
-export function resolveAlignments(rows, hasHeader, align, parsedAlignments = null) {
+function resolveAlignments(rows, hasHeader, align, parsedAlignments = null) {
   const cols = rows[0].length;
   if (align !== 'auto') return Array(cols).fill(align);
   const body = hasHeader ? rows.slice(1) : rows;
@@ -174,7 +174,7 @@ function sepCell(align, width) {
   return '-'.repeat(w);
 }
 
-export function buildMarkdownTable(rows, { hasHeader = true, align = 'auto', pretty = true, parsedAlignments = null } = {}) {
+function buildMarkdownTable(rows, { hasHeader = true, align = 'auto', pretty = true, parsedAlignments = null } = {}) {
   if (!rows.length) return '';
   const cols = rows[0].length;
   const header = hasHeader ? rows[0] : Array.from({ length: cols }, (_, i) => `列${i + 1}`);

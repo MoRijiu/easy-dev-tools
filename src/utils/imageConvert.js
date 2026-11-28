@@ -84,7 +84,7 @@ export function conversionNotes(sourceType, target) {
 }
 
 // 判断一段字节是不是 PNG（看 8 字节签名）。
-export function isPngBytes(bytes) {
+function isPngBytes(bytes) {
   if (!bytes || bytes.length < PNG_SIGNATURE.length) return false;
   return PNG_SIGNATURE.every((b, i) => bytes[i] === b);
 }
@@ -130,16 +130,6 @@ export function buildIco(entries) {
   return out;
 }
 
-// 判断一段字节是不是真 ICO（魔数 00 00 01 00 + 至少一项 + 第一项内嵌 PNG 签名）。
-export function isIcoBytes(bytes) {
-  if (!bytes || bytes.length < 6 + 16) return false;
-  if (bytes[0] !== 0 || bytes[1] !== 0 || bytes[2] !== 1 || bytes[3] !== 0) return false;
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const count = view.getUint16(4, true);
-  if (count < 1) return false;
-  const imgOffset = view.getUint32(6 + 12, true);
-  return isPngBytes(bytes.subarray(imgOffset));
-}
 
 // 汇总：只统计已转换的图片（同 R7n 口径，避免未转换项按原大小混入造成假对比）。
 export function summarizeConversion(images) {

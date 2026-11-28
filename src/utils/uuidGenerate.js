@@ -4,7 +4,7 @@ import { parseUuid } from './uuidParse.js';
 
 export const MAX_COUNT = 500;
 
-export function defaultRandomBytes(n) {
+function defaultRandomBytes(n) {
   const out = new Uint8Array(n);
   const cryptoObj = globalThis.crypto;
   if (!cryptoObj?.getRandomValues) throw new Error('当前环境不支持 crypto.getRandomValues，无法生成安全随机 UUID');
@@ -27,7 +27,7 @@ function takeBytes(randomBytes, n) {
 }
 
 // v4：122 位随机，版本位 4、变体位 10
-export function generateUuidV4({ randomBytes = defaultRandomBytes } = {}) {
+function generateUuidV4({ randomBytes = defaultRandomBytes } = {}) {
   const bytes = takeBytes(randomBytes, 16);
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
@@ -52,9 +52,6 @@ function v7Bytes(nowMs, randomBytes) {
   return bytes;
 }
 
-export function generateUuidV7({ now = Date.now(), randomBytes = defaultRandomBytes } = {}) {
-  return bytesToCanonical(v7Bytes(now, randomBytes));
-}
 
 // 把 rand_a + rand_b 视为 74 位计数器 +1（保持版本/变体位不变），用于同毫秒单调递增
 function incrementV7Counter(bytes) {
@@ -84,7 +81,7 @@ function incrementV7Counter(bytes) {
   return bytes;
 }
 
-export function validateCount(raw) {
+function validateCount(raw) {
   const text = String(raw ?? '').trim();
   if (!text) return { ok: false, error: '请输入生成数量' };
   if (!/^[+-]?\d+$/.test(text)) {
@@ -97,7 +94,7 @@ export function validateCount(raw) {
   return { ok: true, value };
 }
 
-export function formatUuid(canonical, { uppercase = false, hyphens = true, braces = false, urn = false } = {}) {
+function formatUuid(canonical, { uppercase = false, hyphens = true, braces = false, urn = false } = {}) {
   const parsed = parseUuid(canonical);
   if (!parsed.ok) throw new Error(`无法格式化非法 UUID：${parsed.error}`);
   if (urn) return `urn:uuid:${parsed.canonical}`; // URN 规范形式固定小写带连字符，花括号/大写选项不适用

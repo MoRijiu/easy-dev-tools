@@ -14,8 +14,8 @@ export const DELIMITERS = [
   { id: '\t', label: '制表符 Tab' },
 ]
 
-export const MAX_INPUT_CHARS = 1000000
-export const MAX_ROWS = 20000
+const MAX_INPUT_CHARS = 1000000
+const MAX_ROWS = 20000
 
 function checkSize(text) {
   if (text.length > MAX_INPUT_CHARS) {
@@ -23,7 +23,7 @@ function checkSize(text) {
   }
 }
 
-export function stripBom(text) {
+function stripBom(text) {
   return text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text
 }
 
@@ -75,7 +75,7 @@ export function jsonToCsv(input, delimiter = ',') {
 }
 
 // 逐字符解析 CSV，返回 { rows, rowLines }：rows 为二维字符串数组，rowLines 为每行起始的物理行号（1 起）。
-export function parseCsvDetailed(text, delimiter = ',') {
+function parseCsvDetailed(text, delimiter = ',') {
   const src = stripBom(String(text ?? ''))
   const rows = []
   const rowLines = []
@@ -125,10 +125,6 @@ export function parseCsvDetailed(text, delimiter = ',') {
   return { rows: keptRows, rowLines: keptLines }
 }
 
-// 逐字符解析 CSV，返回二维数组 rows（每行是字符串数组）
-export function parseCsv(text, delimiter = ',') {
-  return parseCsvDetailed(text, delimiter).rows
-}
 
 function inferValue(s) {
   if (s === '') return ''

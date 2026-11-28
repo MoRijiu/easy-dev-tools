@@ -2,7 +2,7 @@
 // 供 RegexTester.vue 使用，也可独立在 Node 下测试。
 
 export const MAX_MATCHES = 1000;
-export const VALID_FLAGS = 'dgimsuvy';
+const VALID_FLAGS = 'dgimsuvy';
 
 /**
  * 解析用户输入：支持直接粘贴字面量形式 /pattern/flags（最后一个未转义的 / 之后为标志）。
@@ -40,7 +40,7 @@ const ERROR_HINTS = [
   [/range out of order|字符范围/i, '字符类范围顺序反了：如 [z-a] 应写成 [a-z]'],
 ];
 
-export function explainRegexError(message) {
+function explainRegexError(message) {
   const msg = String(message || '');
   for (const [re, hint] of ERROR_HINTS) if (re.test(msg)) return hint;
   return '';
@@ -52,7 +52,7 @@ export function explainRegexError(message) {
  * u 与 v 互斥：同时出现时明确报错（原生只会给一句英文提示）。
  * @returns {{ regex: RegExp, hasGlobal: boolean }}
  */
-export function compileRegex(pattern, flags = '') {
+function compileRegex(pattern, flags = '') {
   if (!pattern) throw new Error('正则表达式不能为空');
   const bad = [...String(flags)].filter(c => !VALID_FLAGS.includes(c));
   if (bad.length) throw new Error(`不支持的标志「${bad[0]}」：可用标志只有 ${VALID_FLAGS.split('').join(' ')}`);
@@ -71,7 +71,7 @@ export function compileRegex(pattern, flags = '') {
 }
 
 /** 零宽匹配后按规范推进 lastIndex：u/v 模式下跨过完整码点（不劈开代理对），否则 +1 码元 */
-export function advanceIndex(text, index, unicodeAware) {
+function advanceIndex(text, index, unicodeAware) {
   if (!unicodeAware || index >= text.length) return index + 1;
   const hi = text.charCodeAt(index);
   if (hi >= 0xd800 && hi <= 0xdbff && index + 1 < text.length) {
@@ -82,7 +82,7 @@ export function advanceIndex(text, index, unicodeAware) {
 }
 
 /** 把码元下标换算成 1 起的行/列（列按码点计，Emoji 算 1 列） */
-export function indexToLineCol(text, index) {
+function indexToLineCol(text, index) {
   let line = 1;
   let lineStart = 0;
   for (let i = 0; i < index && i < text.length; i++) {

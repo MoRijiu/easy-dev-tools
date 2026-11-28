@@ -1,6 +1,6 @@
 // JSON 字符串转义核心逻辑：纯本地处理，不上传任何数据。遵循 RFC 8259 字符串规则。
 
-export const MAX_JSON_ESCAPE_CHARS = 1000000;
+const MAX_JSON_ESCAPE_CHARS = 1000000;
 
 const SHORT_ESCAPES = {
   '"': '\\"',

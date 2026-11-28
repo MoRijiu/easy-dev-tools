@@ -5,8 +5,8 @@
 // 可按小数位四舍五入（结果可能等于 max，属舍入结果）。
 // 输入口径（2026-11-27 R8aq）：全角数字/字母自动转半角；逗号只认千分位分组、下划线只能单个夹在数字之间；
 // 小数严格十进制校验，0x/0b/0o 十六进制等写法点名拒绝（旧版靠 Number() 静默当成十进制算错范围）。
-export const MAX_COUNT = 1000;
-export const MAX_INPUT_LENGTH = 64;
+const MAX_COUNT = 1000;
+const MAX_INPUT_LENGTH = 64;
 
 export function normalizeRandomText(value) {
   return String(value ?? '').replace(/[！-～]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/　/g, ' ');
@@ -166,6 +166,3 @@ export function summarizeNumbers(values) {
   return { count: values.length, min, max, sum, average };
 }
 
-export function formatNumbers(values, separator = '\n') {
-  return values.join(separator);
-}

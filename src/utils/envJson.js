@@ -10,7 +10,7 @@ import { parseJsonDetailed } from './jsonFormat.js';
 import { findDuplicateKey } from './jwtEncode.js';
 
 const KEY_RE = /^[A-Za-z_][A-Za-z0-9_.-]*$/;
-export const MAX_ENV_INPUT_LENGTH = 1000000;
+const MAX_ENV_INPUT_LENGTH = 1000000;
 
 const FW_EQUALS = '＝';
 const FW_DQUOTE = '＂';
@@ -50,7 +50,7 @@ function decodeDoubleQuoted(raw, lineNo) {
   return out;
 }
 
-export function parseEnv(text) {
+function parseEnv(text) {
   if (typeof text !== 'string') throw new Error('输入必须是文本');
   if (text.length > MAX_ENV_INPUT_LENGTH) throw new Error(`输入超过 ${MAX_ENV_INPUT_LENGTH} 字符上限（当前 ${text.length} 字符），请拆分后再转`);
   const src = text.replace(/^\uFEFF/, '');

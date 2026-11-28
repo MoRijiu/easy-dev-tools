@@ -29,7 +29,7 @@ const CLAUSE_START = new Set([
   'LEFT OUTER JOIN', 'RIGHT OUTER JOIN', 'FULL OUTER JOIN', 'ON'
 ])
 
-export const MAX_SQL_CHARS = 500000
+const MAX_SQL_CHARS = 500000
 
 function lineAt(s, pos) {
   let line = 1
@@ -37,7 +37,7 @@ function lineAt(s, pos) {
   return line
 }
 
-export function tokenizeSql(sql) {
+function tokenizeSql(sql) {
   const tokens = []
   const s = String(sql ?? '')
   if (s.length > MAX_SQL_CHARS) {
@@ -179,7 +179,7 @@ function validateParens(tokens, raw) {
 }
 
 // 语句计数：按 ; 切段、每段有实际内容才算一条（末尾无 ; 的也算，空段 ;; 不算）
-export function countStatements(tokens) {
+function countStatements(tokens) {
   let count = 0
   let hasContent = false
   for (const t of tokens) {

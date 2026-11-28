@@ -37,7 +37,7 @@ export const SNOWFLAKE_PRESETS = [
   }
 ];
 
-export function validateLayout(layout) {
+function validateLayout(layout) {
   const fields = [
     ['时间戳', layout.timestampBits],
     ['数据中心', layout.datacenterBits],
@@ -66,10 +66,10 @@ function toIso(ms) {
 }
 
 
-export const SNOWFLAKE_MAX_INPUT = 256;
+const SNOWFLAKE_MAX_INPUT = 256;
 const DATE_MAX_MS = 8640000000000000;
 
-export function normalizeSnowflakeInput(input) {
+function normalizeSnowflakeInput(input) {
   const raw = String(input ?? '');
   const notes = [];
   let out = '';

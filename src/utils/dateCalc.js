@@ -1,7 +1,7 @@
 // 日期计算：纯本地，按本地日历日计算（忽略时分秒与夏令时细节，以 UTC 日序数做差）
 const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-export const MIN_YEAR = 1;
-export const MAX_YEAR = 9999;
+const MIN_YEAR = 1;
+const MAX_YEAR = 9999;
 // Date.UTC 对 0–99 年会映射到 1900–1999，必须用 setUTCFullYear 构造小年份日期
 function makeUTC(y, m, d) { const t = new Date(0); t.setUTCFullYear(y, m - 1, d); t.setUTCHours(0, 0, 0, 0); return t; }
 export function parseDateInput(str) {
@@ -20,13 +20,13 @@ export function parseDateInput(str) {
   if (d < 1 || d > dim) throw new Error(`${y} 年 ${mo} 月只有 ${dim} 天（收到 ${d} 日）`);
   return { y, m: mo, d };
 }
-export function daysInMonth(y, m) { return [31, isLeapYear(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; }
-export function isLeapYear(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
+function daysInMonth(y, m) { return [31, isLeapYear(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]; }
+function isLeapYear(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
 function ordinal({ y, m, d }) { return makeUTC(y, m, d).getTime() / 86400000; }
 function fromOrdinal(n) { const t = new Date(n * 86400000); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() }; }
-export function formatDateObj(o) { return `${String(o.y).padStart(4, '0')}-${String(o.m).padStart(2, '0')}-${String(o.d).padStart(2, '0')}`; }
-export function weekdayOf(o) { return WEEKDAYS[makeUTC(o.y, o.m, o.d).getUTCDay()]; }
-export function isoWeek(o) {
+function formatDateObj(o) { return `${String(o.y).padStart(4, '0')}-${String(o.m).padStart(2, '0')}-${String(o.d).padStart(2, '0')}`; }
+function weekdayOf(o) { return WEEKDAYS[makeUTC(o.y, o.m, o.d).getUTCDay()]; }
+function isoWeek(o) {
   const date = makeUTC(o.y, o.m, o.d);
   const day = date.getUTCDay() || 7;
   date.setUTCDate(date.getUTCDate() + 4 - day);
@@ -74,5 +74,5 @@ export function addToDate(baseStr, amount, unit) {
   const delta = ordinal(result) - ordinal(base);
   return { ...info, deltaDays: delta };
 }
-export function formatCount(n) { return Number(n).toLocaleString('en-US'); }
+function formatCount(n) { return Number(n).toLocaleString('en-US'); }
 export function buildDiffSummary(r) { return `${r.from} 到 ${r.to}：相隔 ${formatCount(r.totalDays)} 天（${r.breakdownText}），含首尾 ${formatCount(r.inclusiveDays)} 天，工作日 ${formatCount(r.workdays)} 天、周末 ${formatCount(r.weekends)} 天`; }

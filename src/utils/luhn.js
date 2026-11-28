@@ -16,7 +16,7 @@ function displayChar(ch) {
 }
 
 // 归一：全角数字转半角（记 notes），其余原样；按 Unicode 码点遍历，报错位置与字符与原文一致
-export function normalizeLuhnInput(raw) {
+function normalizeLuhnInput(raw) {
   const notes = [];
   let fullwidth = 0;
   let out = '';
@@ -29,7 +29,7 @@ export function normalizeLuhnInput(raw) {
   return { text: out, notes };
 }
 
-export function cleanNumber(raw, options = {}) {
+function cleanNumber(raw, options = {}) {
   const minDigits = options.minDigits ?? 2;
   const maxDigits = options.maxDigits ?? 32;
   const subject = options.subject ?? '号码';
@@ -56,7 +56,7 @@ export function cleanNumber(raw, options = {}) {
 }
 
 // 从右往左：校验位（最右）不翻倍，其后隔一位翻倍，翻倍大于 9 减 9，求和
-export function luhnSteps(digits) {
+function luhnSteps(digits) {
   const steps = [];
   const n = digits.length;
   let sum = 0;
@@ -70,9 +70,6 @@ export function luhnSteps(digits) {
   return { steps: steps.reverse(), sum };
 }
 
-export function isValidLuhn(digits) {
-  return luhnSteps(digits).sum % 10 === 0;
-}
 
 // 给定不含校验位的载荷数字，算出应追加的校验位
 export function computeCheckDigit(payload) {
@@ -87,12 +84,12 @@ export function computeCheckDigit(payload) {
 }
 
 // 完整号码里，末位「本应是」多少（载荷不变时）
-export function expectedCheckDigit(digits) {
+function expectedCheckDigit(digits) {
   if (!digits || digits.length < 2) return null;
   return computeCheckDigit(digits.slice(0, -1)).checkDigit;
 }
 
-export function identifyIssuer(digits) {
+function identifyIssuer(digits) {
   const len = digits.length;
   const out = [];
   const p2 = Number(digits.slice(0, 2));
@@ -110,7 +107,7 @@ export function identifyIssuer(digits) {
   return out;
 }
 
-export function formatGroups(digits) {
+function formatGroups(digits) {
   // Amex/Diners 常见 4-6-5 / 4-6-4 分组，其余每 4 位一组
   if (digits.length === 15) return [digits.slice(0, 4), digits.slice(4, 10), digits.slice(10)].join(' ');
   if (digits.length === 14) return [digits.slice(0, 4), digits.slice(4, 10), digits.slice(10)].join(' ');

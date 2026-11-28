@@ -7,7 +7,7 @@
 // 重复属性点名报错；输入上限 100 万字符、嵌套上限 500 层，超限中文点名不栈溢出。
 // 美化：块级子元素逐行缩进；仅含文本或行内元素的元素单行呈现；混合内容中连续文本/行内片段合并成一行。
 
-export const VOID_ELEMENTS = new Set([
+const VOID_ELEMENTS = new Set([
   'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
   'link', 'meta', 'param', 'source', 'track', 'wbr'
 ]);
@@ -135,7 +135,7 @@ function impliedCloses(openLower, newLower) {
   return false;
 }
 
-export function parseHtml(src) {
+function parseHtml(src) {
   if (!src || !src.trim()) throw new Error('输入为空');
   if (src.length > MAX_INPUT_LENGTH) {
     throw new Error(`输入过长（${src.length} 字符，上限 ${MAX_INPUT_LENGTH} 字符），请拆分后处理`);

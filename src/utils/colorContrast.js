@@ -13,7 +13,7 @@ function fail(error) { return { ok: false, error }; }
 function clamp255(n) { return Math.min(255, Math.max(0, Math.round(n))); }
 
 // 全角转半角：＃ＦＦ００００、ｒｇｂ（255，0，0）等整段全角输入按半角识别（U+FF01–FF5E 1:1 对应 ASCII !–~，全角空格转普通空格）
-export function normalizeColorInput(input) {
+function normalizeColorInput(input) {
   return String(input).replace(/[！-～　]/g, (c) => (c === '　' ? ' ' : String.fromCharCode(c.charCodeAt(0) - 0xFEE0)));
 }
 // 报错回显用户输入时截断，避免超长输入把整段原文塞进错误信息
@@ -114,7 +114,7 @@ function makeColor(r, g, b, a) {
 }
 
 // 半透明色按白色背景合成（页面最常见底色），并标记发生了合成
-export function compositeOnWhite(color) {
+function compositeOnWhite(color) {
   if (color.a >= 1) return { ...color, composited: false };
   const mix = (c) => clamp255(c * color.a + 255 * (1 - color.a));
   const r = mix(color.r); const g = mix(color.g); const b = mix(color.b);

@@ -1,5 +1,5 @@
 // UUID 解析核心逻辑：纯本地字符串解析，不上传任何数据。遵循 RFC 9562。
-export const VERSION_NAMES = {
+const VERSION_NAMES = {
   0: '无版本（版本位为 0）',
   1: 'v1 时间型（Gregorian 时间 + 节点）',
   2: 'v2 DCE Security 型',
@@ -24,7 +24,7 @@ function gregorian100nsToIso(ts100ns) {
 }
 
 // 全角字符（ＦＦ５５－｛｝等）转半角，与其他工具的粘贴容错口径一致
-export function normalizeUuidInput(input) {
+function normalizeUuidInput(input) {
   return String(input ?? '')
     .replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
     .replace(/　/g, ' ');
@@ -155,9 +155,6 @@ export function parseUuid(input) {
   };
 }
 
-export function isValidUuid(input) {
-  return parseUuid(input).ok;
-}
 
 export function buildUuidSummary(r) {
   if (!r?.ok) return '';
