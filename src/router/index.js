@@ -6,6 +6,7 @@ const NotFound = () => import('../views/NotFound.vue')
 const About = () => import('../views/About.vue')
 import { generateRoutes, getToolByPath } from './tools-config'
 import { useToolPrefs } from '../composables/useToolPrefs'
+import { APP_VERSION } from '../config/version'
 
 // 基础路由
 const baseRoutes = [
@@ -129,6 +130,9 @@ const removeMetaAll = (name) => {
 // 首页的 WebApplication（url/description 都是首页的）。与 canonical
 // 同口径按当前路由改写 url/description；404 页移除整段（不给不存在
 // 的页面宣称结构化数据），离开 404 时用首次捕获的原文模板恢复。
+// R12bl 续：softwareVersion 同步改写为构建注入的 APP_VERSION（package.json
+// 的 version）——index.html 里硬写的值靠 R12at 的人工同步纪律防漂移，
+// 升版本时漏改即与页脚版本徽标不一致；现以构建注入值为唯一口径自动同步。
 let jsonLdTemplate = null
 const syncJsonLd = (to, url) => {
   let el = document.querySelector('#edt-jsonld, script[type="application/ld+json"]')
@@ -148,6 +152,7 @@ const syncJsonLd = (to, url) => {
   try {
     const data = JSON.parse(el.textContent)
     data.url = url
+    data.softwareVersion = APP_VERSION
     if (to.meta.description) data.description = to.meta.description
     el.textContent = JSON.stringify(data, null, 2)
   } catch {
