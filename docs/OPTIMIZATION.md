@@ -471,3 +471,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起有 `lang: "zh
 - 处理：manifest 补 `"dir": "ltr"`（中文为从左到右书写，与 `lang: "zh-CN"` 逐项吻合），文件 1,247→1,259 B（+12 B）；其余字段、图标与 shortcuts 条目一字未改。
 - 边界：dir 只影响平台对清单文本的展示方向，不改任何页面内布局与运行时行为；将来若产品改为 RTL 语言版本，须同步改本字段（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验通过且除 dir 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、dir 为 ltr、categories/icons/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
+
+## R12af 落地（2026-11-28，Manifest 补 display_override 显示回退链）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起只有 `display: "standalone"`，没有 `display_override` 字段。按 Web App Manifest 规范，`display` 是单值声明：当运行平台不支持 standalone 时，浏览器只能按规范默认顺序（fullscreen → standalone → minimal-ui → browser）逐级回退，开发者无法表达自己的回退偏好——对本站而言，standalone 不可用时直接退到带完整浏览器界面的 browser 模式，已安装应用的沉浸感会断崖式丢失，而 minimal-ui（保留少量导航控件）才是更合适的次选。与 R12ab 补 id、R12ac 补 shortcuts、R12ad 补 categories、R12ae 补 dir 同族，这次缺的是显示模式回退链声明。
+
+- 处理：manifest 在 `display` 后补 `"display_override": ["standalone", "minimal-ui"]`（首项与 display 一致、二项为次选 minimal-ui，均为规范登记的显示模式值），文件 1,259→1,306 B（+47 B）；其余字段、图标与 shortcuts 条目一字未改。
+- 边界：display_override 只影响不支持首选模式的平台如何回退，不改支持 standalone 平台上的任何表现与运行时行为；将来若 display 改值，须同步复核本链首项（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验通过且除 display_override 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、display_override 两项齐全、dir/categories/icons/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
