@@ -880,3 +880,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication）从未声明 S
 - 处理：JSON-LD 顶层在 `description` 后补 `"keywords"` 一行，值与 `<meta name="keywords">` 的 content 逐字一致（半角逗号分隔、无空格，与 meta 原写法相同），index.html 9,174→9,365 B（+191 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，keywords 原样保留、不进按页改写范围（它是站点级口径，不随工具页变化；各工具页自有 keywords 仍由 R12f 的 meta 按页同步负责，两条通道不互替）。
 - 边界：keywords 只被结构化数据消费方读取，不改任何页面内行为；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来站点级关键词口径变更时，须同步复核 meta keywords 与本字段两处（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、keywords 与 meta keywords 逐字一致、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 keywords 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ce 落地（2026-11-29，微软磁贴图 zopfli 无损重压缩）
+
+R12 小盘点续项：R12cc 新增的 `public/mstile-150x150.png`（150×150 微软磁贴图）由 icon-192 以 PIL 下采样落盘、从未用 zopfli 复测——R12y/R12z 已证明 PIL 编码的结论不可外推（any 图标 PIL 实测无收益、zopfli 却降 40.5%/15.9%）。本轮补测：zopfli 对磁贴图可从 13,637 B 降到 11,393 B（−2,244 B / −16.5%）；站内其余 PNG 均已在 R11e/R12y/R12z/R12ai 各轮 zopfli 处理或实测 0 收益，本轮不重复处理。
+
+- 处理：仅以 zopfli 重写 `public/mstile-150x150.png` 的 PNG 编码字节，像素、尺寸（150×150）、模式（RGBA）与 browserconfig.xml 中的磁贴条目一字未改。
+- 边界：磁贴图只被 Windows/Edge 固定场景经 browserconfig.xml 消费，不改任何页面内行为；它是独立静态文件、不是页面，不进 sitemap，也不是全站级页面变更——按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来按 R12cc 口径重生成磁贴图时，落盘后须再做一次 zopfli 无损重压缩（已在本节留痕）。
+- 等价证据：优化前后逐像素 RGBA 比对 identical、IHDR 尺寸不变；test 构建 exit=0 且产物磁贴图与源文件逐字一致；无头 Chrome 冒烟核对磁贴图可达且字节一致、browserconfig 与 msapplication 声明无回归、JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 PNG 且内容与本地一致（验收结果见台账）。
