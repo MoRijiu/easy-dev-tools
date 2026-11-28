@@ -856,3 +856,11 @@ R12 小盘点续项：站点从未声明 `hreflang` 语言版本——`index.htm
 - 处理：`index.html` 在 canonical 后补两行 alternate 声明：`hreflang="zh-CN"` 与 `hreflang="x-default"`，href 均与 canonical 逐字一致的正式域名根地址（单语言站点的默认版本即中文版，x-default 指向同一根地址如实成立），index.html 8,846→9,042 B（+196 B）；其余内容一字未改。
 - 边界：hreflang 只被搜索引擎消费，不改任何页面内行为；工具页等深路径未逐页加声明——本站语言不随路径变化，根声明已如实覆盖站点语言事实，逐页复制只会增加维护面。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来若上线其他语言版本或正式域名变更，须同步复核这两行（已在本节留痕）。
 - 等价证据：改后两条 alternate 声明的 hreflang 取值与 html lang / JSON-LD inLanguage 逐项对齐（zh-CN，og:locale 的 zh_CN 为同一语言的 OG 写法）、href 与 canonical 逐字一致、JSON-LD 经 JSON 解析校验通过且字段无改动；test 构建 exit=0、产物 index.html 含本声明；无头 Chrome 冒烟核对工具页 alternate 声明保留、JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12cb 落地（2026-11-29，补 /.well-known/gpc.json 全球隐私控制声明）
+
+R12 小盘点续项：站点没有全球隐私控制（GPC）信号资源——`public/.well-known/` 下只有 security.txt，实测请求 `/.well-known/gpc.json` 返回 SPA 兜底页（text/html），支持 GPC 的浏览器/消费方按标准路径确认本站是否出售或共享个人数据时拿到一页 HTML、无从判断。本站的隐私事实早已公开且可核查：纯前端、全部工具在浏览器本地运行、数据不上传服务器（README 与 noscript 文案均如此声明），全仓无统计/广告/追踪脚本——不卖、不共享用户数据本就是本站的实际状态，只是从未在 GPC 标准通道里声明。与 R12bu 补 security.txt 同族，这次缺的是隐私信号资源本身。
+
+- 处理：新增 `public/.well-known/gpc.json`（48 B）：`gpc: true`（如实声明本站尊重 GPC 信号、不出售/共享个人数据）、`lastUpdate: "2026-11-29"`（落地日，GPC 规范的日期格式）。其余字段规范未定义，一律不编造。
+- 边界：gpc.json 是独立静态文件、不是页面，不进 sitemap，也不是全站级页面变更——按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod，本文件自带 lastUpdate 独立维护。将来若本站引入任何统计、广告或数据共享（与现行纯本地口径冲突），须先把本声明改回或删除、不得让声明与实际不符（已在本节留痕）；声明内容变更时同步更新 lastUpdate。它不改任何运行时行为。
+- 等价证据：文件经 JSON 解析校验通过、gpc 为布尔 true、lastUpdate 为合法日期且为落地日；test 构建 exit=0 且产物含 `.well-known/gpc.json` 并与源文件逐字一致；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 JSON 且内容与本地一致（验收结果见台账）。
