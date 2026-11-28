@@ -23,7 +23,7 @@
       <ToolStatusMessage id="toml-json-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
         <textarea v-model="inputText" class="text-input" :placeholder="mode === 'toml2json' ? '粘贴 TOML，如：\ntitle = &quot;app&quot;\n[server]\nport = 8080' : '粘贴 JSON，如 {&quot;title&quot;:&quot;app&quot;,&quot;server&quot;:{&quot;port&quot;:8080}}'" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'toml-json-status' : undefined" @input="convert"></textarea>
-        <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'toml2json' ? 'JSON 结果会显示在这里' : 'TOML 结果会显示在这里'" aria-label="输出结果"></textarea>
+        <textarea spellcheck="false" :value="outputText" class="text-input output" readonly :placeholder="mode === 'toml2json' ? 'JSON 结果会显示在这里' : 'TOML 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
       <ToolExamples :examples="examples" @use-example="useExample" />

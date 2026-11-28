@@ -22,7 +22,7 @@
       <ToolStatusMessage id="json-csv-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
         <textarea v-model="inputText" class="text-input" :placeholder="mode === 'json2csv' ? '粘贴 JSON 对象数组，如 [{&quot;name&quot;:&quot;张三&quot;,&quot;age&quot;:18}]' : '粘贴 CSV，第一行是表头，如 name,age\n张三,18'" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'json-csv-status' : undefined" @input="convert"></textarea>
-        <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'json2csv' ? 'CSV 结果会显示在这里' : 'JSON 结果会显示在这里'" aria-label="输出结果"></textarea>
+        <textarea spellcheck="false" :value="outputText" class="text-input output" readonly :placeholder="mode === 'json2csv' ? 'CSV 结果会显示在这里' : 'JSON 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
       <p v-if="warningText" class="warning" role="status" aria-live="polite">⚠ {{ warningText }}</p>

@@ -26,7 +26,7 @@
         </table>
         <p v-for="(w, i) in result.warnings" :key="i" class="hint">⚠ {{ w }}</p>
         <h2 class="sub">docker-compose.yml</h2>
-        <textarea :value="yamlText" class="text-input output code" readonly aria-label="生成的Compose配置"></textarea>
+        <textarea spellcheck="false" :value="yamlText" class="text-input output code" readonly aria-label="生成的Compose配置"></textarea>
       </template>
       <ToolExamples :examples="examples" @use-example="useExample" />
       <ToolFeatures :features="features" />

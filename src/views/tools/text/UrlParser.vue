@@ -30,7 +30,7 @@
         <p v-else class="hint">该 URL 没有查询参数，可点下方按钮添加。</p>
         <button class="btn btn-secondary" @click="addParam">+ 添加参数</button>
         <h2 class="sub">重组 URL</h2>
-        <textarea :value="rebuilt" class="text-input output" readonly aria-label="重组URL"></textarea>
+        <textarea spellcheck="false" :value="rebuilt" class="text-input output" readonly aria-label="重组URL"></textarea>
       </template>
       <ToolExamples :examples="examples" @use-example="useExample" />
       <ToolFeatures :features="features" />

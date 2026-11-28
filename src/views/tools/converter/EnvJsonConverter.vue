@@ -23,7 +23,7 @@
       <ToolStatusMessage id="env-json-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
         <textarea v-model="inputText" class="text-input" :placeholder="mode === 'env2json' ? '粘贴 .env，如：\nAPP_NAME=demo\nPORT=8080' : '粘贴 JSON，如 {&quot;APP_NAME&quot;:&quot;demo&quot;,&quot;PORT&quot;:8080}'" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'env-json-status' : undefined" @input="convert"></textarea>
-        <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'env2json' ? 'JSON 结果会显示在这里' : '.env 结果会显示在这里'" aria-label="输出结果"></textarea>
+        <textarea spellcheck="false" :value="outputText" class="text-input output" readonly :placeholder="mode === 'env2json' ? 'JSON 结果会显示在这里' : '.env 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="notes.length" class="notes" role="status" aria-live="polite">{{ notes.join('；') }}</p>
       <p v-if="stats" class="stats">{{ stats }}</p>

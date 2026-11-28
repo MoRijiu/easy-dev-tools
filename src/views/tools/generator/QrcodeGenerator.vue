@@ -26,7 +26,7 @@
         <div class="input-section">
           <div class="input-card">
             <label class="input-label" for="qr-input-text">输入内容</label>
-            <textarea id="qr-input-text" aria-label="输入内容" :aria-invalid="invalidFor('content')" :aria-describedby="describedByFor('content')"
+            <textarea spellcheck="false" id="qr-input-text" aria-label="输入内容" :aria-invalid="invalidFor('content')" :aria-describedby="describedByFor('content')"
               v-model="inputText"
               class="text-input"
               placeholder="请输入文本、网址或其他内容..."

@@ -111,7 +111,7 @@
       <!-- 编辑器布局 -->
       <ToolEditorLayout>
         <ToolEditorPanel :title="mode === 'encrypt' ? '明文输入' : '密文输入'" :info="inputInfo">
-          <textarea aria-label="输入内容（明文或密文）"
+          <textarea spellcheck="false" aria-label="输入内容（明文或密文）"
             :aria-invalid="aesInvalid('input') ? 'true' : undefined"
             :aria-describedby="aesInvalid('input') ? 'aes-status' : undefined"
             v-model="inputText"

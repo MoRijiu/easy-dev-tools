@@ -23,7 +23,7 @@
       <ToolStatusMessage id="yaml-json-status" :message="statusMessage" :type="statusType" />
       <div class="panes">
         <textarea v-model="inputText" class="text-input" :placeholder="mode === 'yaml2json' ? '粘贴 YAML，如：\nname: app\nports:\n  - 80\n  - 443' : '粘贴 JSON，如 {&quot;name&quot;:&quot;app&quot;,&quot;ports&quot;:[80,443]}'" spellcheck="false" aria-label="输入内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'yaml-json-status' : undefined" @input="convert"></textarea>
-        <textarea :value="outputText" class="text-input output" readonly :placeholder="mode === 'yaml2json' ? 'JSON 结果会显示在这里' : 'YAML 结果会显示在这里'" aria-label="输出结果"></textarea>
+        <textarea spellcheck="false" :value="outputText" class="text-input output" readonly :placeholder="mode === 'yaml2json' ? 'JSON 结果会显示在这里' : 'YAML 结果会显示在这里'" aria-label="输出结果"></textarea>
       </div>
       <p v-if="stats" class="stats">{{ stats }}</p>
       <ToolExamples :examples="examples" @use-example="useExample" />
