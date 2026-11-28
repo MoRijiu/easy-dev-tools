@@ -840,3 +840,11 @@ R12 小盘点续项：R12q 已补入 `public/favicon.ico`（16/32/48 三尺寸�
 - 处理：`index.html` 在 SVG 图标声明后补 `<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />` 一行（sizes 与 ICO 实测三条目 16×16/32×32/48×48 逐项一致），index.html 8,683→8,773 B（+90 B）；SVG 声明仍在前，支持 SVG 的现代浏览器继续优先用 SVG，ICO 只作回退；其余内容一字未改。
 - 边界：本声明不改任何运行时行为，favicon.ico 文件本身未动；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来 ICO 尺寸构成或图标文件变更时，须同步复核本行的 type/sizes（已在本节留痕）。
 - 等价证据：改后页面图标 link 共两条且 SVG 在前、ICO 的 sizes 与文件实测条目逐项一致；test 构建 exit=0、产物 index.html 含本声明；无头 Chrome 冒烟核对 ICO 可达且类型/文件头正确、SVG link 与 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bz 落地（2026-11-29，补 Safari mask-icon 固定标签页图标）
+
+R12 小盘点续项：站点图标声明已有 SVG favicon、favicon.ico 回退与 apple-touch-icon，但从未声明 Safari 固定标签页（Pinned Tab）专用的 `mask-icon`——Safari 显示固定标签时只认该声明，缺失时只能拿普通 favicon 凑数或显示默认字母图标。且现行 `favicon.svg` 是紫色渐变底 + 白色字形 + 黄色闪电的多色图，mask-icon 规范要求单色剪影（浏览器按 color 属性统一上色），直接复用多色图当遮罩形状是错的。与 R12by 补 favicon.ico 显式声明同族，这次缺的是 Safari 专用图标通道及其单色图标文件本身。
+
+- 处理：新增 `public/icons/mask-icon.svg`（746 B）：与 favicon.svg 同一 viewBox（0 0 32 32）与同一工具箱字形几何（箱体/箱盖/提手/闪电/速度线逐项同坐标），去掉渐变背景圆角矩形与全部多色填充，fill/stroke 统一为纯黑单色剪影；`index.html` 在 apple-touch-icon 后补 `<link rel="mask-icon" href="/icons/mask-icon.svg" color="#4f46e5" />` 一行（color 取 favicon 渐变起点色 #4F46E5，Safari 据此给剪影上色），index.html 8,773→8,846 B（+73 B）；其余图标声明一字未改。
+- 边界：mask-icon 只被 Safari 固定标签页消费，不改任何页面内行为，其他浏览器继续用既有 SVG/ICO 图标；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来 favicon 字形或品牌色变更时，须同步复核本图标的剪影几何与 color 值（已在本节留痕）。
+- 等价证据：mask-icon.svg 经 XML 解析通过、fill/stroke 集合均为单一 #000 且无渐变定义、字形坐标与 favicon.svg 逐项一致；test 构建 exit=0、产物含 mask-icon 声明与图标文件且与源文件逐字一致；无头 Chrome 冒烟核对图标 link 三条齐全、mask-icon 文件可达、JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
