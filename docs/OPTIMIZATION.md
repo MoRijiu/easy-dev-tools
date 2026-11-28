@@ -227,3 +227,11 @@ R11 收官后小盘点发现两处 SEO 文件与本站实际不符的问题，�
 - **虚假评分结构化数据**：`index.html` 的 JSON-LD 里写有 `aggregateRating` 4.8 分 / 1000 条评价，本站从无评价系统、无任何评分来源，属无依据的结构化数据，可能被搜索引擎判定为作弊标记。删除该段，其余 WebApplication 字段（名称/描述/免费 offers/作者）保留，JSON-LD 仍可正常解析。
 - **robots.txt 屏蔽渲染资源 + 无效指令**：旧 robots 对全部爬虫 `Disallow: /js/` 与 `/css/`，而本站构建产物正是这两个目录、且是纯前端应用——爬虫拿不到 JS/CSS 就无法渲染页面。另有六组按爬虫拆分的 `Crawl-delay`（Google/Bing 等并不支持该指令）与已废弃的 `Host:` 指令（且文件末尾无换行）。改为单一 `User-agent: * / Allow: /` + Sitemap 一行，709 → 347 B。
 - 等价证据：改后 JSON-LD 经解析校验字段完整且无 aggregateRating；robots 全仓已无 Disallow /js//css/、Crawl-delay、Host；页面渲染与功能代码未动，构建产物仅 index.html 与 robots.txt 两文件变化。
+
+## R12b 落地（2026-11-28，canonical 与 og:url 按页同步）
+
+R12 小盘点续项：路由守卫（`src/router/index.js`）此前只按页更新标题/描述/关键词，`canonical` 与 `og:url` 从未更新——两者的值恒为 `index.html` 里写死的首页地址。纯前端应用靠渲染后 DOM 给爬虫读元信息，等于 72 个工具页与关于页全部宣称「我的规范地址是首页」，可能被搜索引擎合并索引、工具页难以独立收录。
+
+- 处理：守卫新增 `syncCanonical(to)`，进入每个已知路由时把 canonical 与 og:url 同步为 `https://tools.morijiu.cn` + 当前路径（首页为根路径，与静态值同口径）；NotFound 路由则移除这两项——给不存在的 URL 写 canonical 等于宣称它有规范版本，同样误导爬虫。
+- 边界：canonical 只取路径、不带查询串与锚点（同页不同参数不另立规范地址）；Home 的 `useSeo` 传入的 canonical 与守卫结果一致，不冲突；About 的 `useSeo` 未传 canonical、原先会把 og:url 写成当前页地址，与守卫口径一致。
+- 等价证据：无头 Chrome 冒烟逐页核对——首页 canonical/og:url 为根地址、工具页为各自路径、关于页为 /about、未知路径两项均已移除，且页面标题与无溢出检查无回归。

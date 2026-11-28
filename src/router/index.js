@@ -97,8 +97,39 @@ const router = createRouter({
   }
 })
 
+// 站点正式域名（canonical / og:url 的基准，与 index.html 静态值同口径）
+const SITE_ORIGIN = 'https://tools.morijiu.cn'
+
+// 按当前路由同步 canonical 与 og:url（R12b）：旧版守卫只更新标题/描述，
+// canonical 恒为 index.html 写死的首页地址——72 个工具页在爬虫眼里全是
+// 首页的重复页，可能被合并索引。404 页则移除这两项：给不存在的 URL
+// 写 canonical 等于宣称它有规范版本，同样误导爬虫。
+const syncCanonical = (to) => {
+  let linkElement = document.querySelector('link[rel="canonical"]')
+  let ogUrlMeta = document.querySelector('meta[property="og:url"]')
+  if (to.name === 'NotFound') {
+    linkElement?.remove()
+    ogUrlMeta?.remove()
+    return
+  }
+  const url = SITE_ORIGIN + (to.path === '/' ? '/' : to.path)
+  if (!linkElement) {
+    linkElement = document.createElement('link')
+    linkElement.setAttribute('rel', 'canonical')
+    document.head.appendChild(linkElement)
+  }
+  linkElement.setAttribute('href', url)
+  if (!ogUrlMeta) {
+    ogUrlMeta = document.createElement('meta')
+    ogUrlMeta.setAttribute('property', 'og:url')
+    document.head.appendChild(ogUrlMeta)
+  }
+  ogUrlMeta.setAttribute('content', url)
+}
+
 // 全局路由守卫 - 设置页面标题和描述
 router.beforeEach((to, from, next) => {
+  syncCanonical(to)
   // 设置页面标题
   if (to.meta.title) {
     document.title = to.meta.title
