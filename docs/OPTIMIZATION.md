@@ -383,3 +383,11 @@ R12 小盘点续项：R12s 上线后实测发现，测试环境返回 `/site.web
 - 处理：测试环境站点配置为 `/site.webmanifest` 精确路径补 `default_type application/manifest+json`，配置校验通过后平滑 reload；仓库内的 manifest 文件内容与 `index.html` 的 `rel="manifest"` 链接一字未改。本节即本项在仓内的留痕。
 - 边界：仅测试环境站点配置变更，生产环境未动；若将来把站点迁到其他静态托管，须确认新环境对 `.webmanifest` 的 MIME 映射同样为 `application/manifest+json`（已在本节留痕）。
 - 等价证据：修复后实测 `/site.webmanifest` 返回 200 且 Content-Type 为 `application/manifest+json`、内容与源文件一致；首页/关于/工具页/图标/robots/sitemap 等其余路径状态码与类型无变化（验收结果见台账）。
+
+## R12u 落地（2026-11-28，iOS 主屏幕 Web App 声明补全）
+
+R12 小盘点续项：R12s 已补标准 Web App Manifest（display=standalone、short_name=开发工具箱），但 iOS Safari 不读取 manifest 的 display/short_name——它只认 Apple 私有的 `apple-mobile-web-app-*` 元标签。实测 index.html 这组标签为零：iPhone「添加到主屏幕」后打开仍带 Safari 浏览器界面、主屏幕名称只能取页面长标题，与 Android/桌面端已声明的 standalone 体验不一致。
+
+- 处理：index.html 在 manifest 链接后补四条声明——`mobile-web-app-capable=yes`（标准/Chromium 口径）、`apple-mobile-web-app-capable=yes`（iOS 以 Web App 模式打开）、`apple-mobile-web-app-title=开发工具箱`（与 manifest short_name 逐字一致）、`apple-mobile-web-app-status-bar-style=default`（状态栏用默认样式，与亮色背景 `#f8f9fa` 协调；暗色模式下系统状态栏仍由页面 color-scheme 影响，本条不冒充 black-translucent）。
+- 边界：manifest 文件一字未改；这四条是站点级常量、不随页面变化，无需路由守卫或 useSeo 按页同步。若将来改 manifest short_name，必须同步 apple-mobile-web-app-title。
+- 等价证据：构建产物中四条标签单份齐全且标题与 short_name 一致；无头 Chrome 冒烟逐页核对——首页/工具页四条均为单份且值不变、标题与按页元标签同步无回归，桌面/390px 无溢出、无 pageerror（iOS 真机主屏幕模式待 morijiu 有空时确认）。
