@@ -463,3 +463,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `catego
 - 处理：manifest 补 `"categories": ["utilities", "productivity"]`（两项均为 W3C 规范登记的标准分类值：utilities 对应工具类、productivity 对应效率类，与本站定位逐项吻合），文件 1,205→1,247 B（+42 B）；其余字段、图标与 shortcuts 条目一字未改。
 - 边界：categories 只供平台分类展示，不改任何页面内导航与运行时行为；将来产品定位变更时须同步复核本字段（已在本节留痕）。不使用未登记的自造分类值（如 developer 不在标准登记表中，未采用）。
 - 等价证据：manifest 经 JSON 解析校验通过且除 categories 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、categories 两项齐全、图标/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
+
+## R12ae 落地（2026-11-28，Manifest 补 dir 文本方向声明）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起有 `lang: "zh-CN"`，但没有 `dir` 字段。按 Web App Manifest 规范，`dir` 声明清单文本（name/short_name/description）的书写方向，供安装界面与平台展示清单文本时使用；缺省时平台只能靠语言标签猜测方向，个别展示端对中文文本的双向算法处理并不一致。与 R12ab 补 id、R12ac 补 shortcuts、R12ad 补 categories 同族，这次缺的是文本方向声明。
+
+- 处理：manifest 补 `"dir": "ltr"`（中文为从左到右书写，与 `lang: "zh-CN"` 逐项吻合），文件 1,247→1,259 B（+12 B）；其余字段、图标与 shortcuts 条目一字未改。
+- 边界：dir 只影响平台对清单文本的展示方向，不改任何页面内布局与运行时行为；将来若产品改为 RTL 语言版本，须同步改本字段（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验通过且除 dir 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、dir 为 ltr、categories/icons/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
