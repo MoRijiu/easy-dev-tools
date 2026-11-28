@@ -36,6 +36,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { convertCase, analyzeCaseInput, MAX_INPUT_CHARS, MAX_INPUT_LINES } from '@/utils/caseConvert.js';
 
 const features = [
@@ -59,10 +61,11 @@ const examples = [
 ];
 const inputText = ref('');
 const results = ref([]);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const statsText = ref('');
 const warnings = ref([]);
@@ -90,10 +93,7 @@ const convert = () => {
 const loadExample = () => { inputText.value = 'user_name\ngetHTTPResponseCode\nmy-component-name'; convert(); };
 const useExample = (ex) => { inputText.value = ex.input; convert(); };
 const clearAll = () => { inputText.value = ''; results.value = []; statusMessage.value = ''; statsText.value = ''; warnings.value = []; };
-const copyText = async (text, okMsg) => {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = okMsg; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyText = async (text, okMsg) => clipboard.copyText(text, okMsg);
 const copyOne = (row) => copyText(row.value, '✓ 已复制 ' + row.label);
 // 多行结果用「标签行 + 内容」分块，避免旧版 label: 后直接拼多行文本导致行与风格对不上
 const copyAll = () => copyText(results.value.map(r => r.label.split(' ')[0] + ':\n' + r.value).join('\n\n'), '✓ 全部结果已复制');

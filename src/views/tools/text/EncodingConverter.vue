@@ -48,6 +48,8 @@ import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { ENCODING_FORMATS, encodeText, decodeText, encodeAll, textToBytes } from '@/utils/encodingConvert.js';
 const features = [
@@ -67,7 +69,9 @@ const faqs = [
 ];
 const input = ref(''); const mode = ref('encode'); const format = ref('hex');
 const hexUpper = ref(false); const hexSpaced = ref(false);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const currentFormat = computed(() => ENCODING_FORMATS.find((f) => f.id === format.value));
 const output = ref(''); const error = ref('');
 watch([input, mode, format, hexUpper, hexSpaced], () => {
@@ -95,7 +99,7 @@ const pickFormat = (id) => { format.value = id; };
 const loadExample = () => { input.value = mode.value === 'encode' ? 'hello 世界' : encodeText('hello 世界', format.value, { uppercase: hexUpper.value, spaced: hexSpaced.value }); };
 const swap = () => { if (!output.value) return; input.value = output.value; mode.value = mode.value === 'encode' ? 'decode' : 'encode'; };
 const clearAll = () => { input.value = ''; statusMessage.value = ''; };
-const copyOutput = async () => { try { await navigator.clipboard.writeText(output.value); statusMessage.value = '✓ 已复制结果'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyOutput = async () => clipboard.copyText(output.value, '✓ 已复制结果');
 </script>
 <style scoped>
 .enc-converter { max-width: 1400px; margin: 0 auto; padding: 20px; }

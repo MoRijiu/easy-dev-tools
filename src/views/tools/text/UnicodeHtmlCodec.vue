@@ -78,6 +78,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { convertUnicodeHtml, findUnknownEntities } from '@/utils/unicodeHtml.js';
@@ -129,10 +131,11 @@ const htmlMode = ref('named');
 const htmlScope = ref('nonAscii');
 const inputText = ref('');
 const outputText = ref('');
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const unknownNote = ref('');
 
@@ -172,10 +175,7 @@ const swapContent = () => {
   mode.value = REVERSE_MODE[mode.value] || mode.value;
   convert();
 };
-const copyOutput = async () => {
-  try { await navigator.clipboard.writeText(outputText.value); statusMessage.value = '✓ 结果已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyOutput = async () => clipboard.copyText(outputText.value, '✓ 结果已复制到剪贴板');
 </script>
 
 <style scoped>

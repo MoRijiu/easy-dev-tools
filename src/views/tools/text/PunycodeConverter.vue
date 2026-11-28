@@ -45,6 +45,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { convertPunycode } from '@/utils/punycodeConvert.js';
 const features = [
   { icon: '🌐', title: '国际化域名互转', description: '中文、日文、Emoji 等 Unicode 域名与 xn-- 开头的 Punycode 形式双向转换' },
@@ -64,7 +66,9 @@ const faqs = [
 const EXAMPLE = '中文.com\nbücher.de\n💩.la';
 const input = ref(EXAMPLE);
 const direction = ref('encode');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const parsed = computed(() => (!input.value ? null : convertPunycode(input.value, direction.value)));
 // 出错保留上一次成功结果：改错一行时输出不消失，改对自动恢复
 const lastValid = ref(null);
@@ -82,8 +86,7 @@ function useAsInput() {
   direction.value = direction.value === 'encode' ? 'decode' : 'encode';
 }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  return clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

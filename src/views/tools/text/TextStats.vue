@@ -54,6 +54,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { analyzeText, buildSummary, formatCount } from '@/utils/textStats.js';
 const fmt = formatCount;
 
@@ -77,10 +79,11 @@ const examples = [
 ];
 const inputText = ref('');
 const stats = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const process = () => {
   if (!inputText.value) { stats.value = null; statusMessage.value = ''; return; }
@@ -97,8 +100,7 @@ const useExample = (ex) => { inputText.value = ex.input; process(); };
 const clearAll = () => { inputText.value = ''; stats.value = null; statusMessage.value = ''; };
 const copySummary = async () => {
   if (!stats.value) return;
-  try { await navigator.clipboard.writeText(buildSummary(stats.value)); statusMessage.value = '✓ 已复制摘要'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
+  await clipboard.copyText(buildSummary(stats.value), '✓ 已复制摘要');
 };
 </script>
 
