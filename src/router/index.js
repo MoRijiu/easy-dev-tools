@@ -100,16 +100,54 @@ const router = createRouter({
 // 站点正式域名（canonical / og:url 的基准，与 index.html 静态值同口径）
 const SITE_ORIGIN = 'https://tools.morijiu.cn'
 
+// 把某个 meta 的 content 同步到所有已存在的同名标签（index.html 的
+// twitter 标签用 property=、useSeo 创建的用 name=，两种都得更新，否则
+// 会留一份旧值被平台优先读到）；一个都没有时按默认属性新建。
+const setMetaAll = (name, content, defaultAttr = 'property') => {
+  const found = document.querySelectorAll(
+    `meta[property="${name}"], meta[name="${name}"]`
+  )
+  if (!found.length) {
+    const el = document.createElement('meta')
+    el.setAttribute(defaultAttr, name)
+    el.setAttribute('content', content)
+    document.head.appendChild(el)
+    return
+  }
+  found.forEach((el) => el.setAttribute('content', content))
+}
+
+const removeMetaAll = (name) => {
+  document
+    .querySelectorAll(`meta[property="${name}"], meta[name="${name}"]`)
+    .forEach((el) => el.remove())
+}
+
 // 按当前路由同步 canonical 与 og:url（R12b）：旧版守卫只更新标题/描述，
 // canonical 恒为 index.html 写死的首页地址——72 个工具页在爬虫眼里全是
 // 首页的重复页，可能被合并索引。404 页则移除这两项：给不存在的 URL
 // 写 canonical 等于宣称它有规范版本，同样误导爬虫。
+// R12c 续：同一守卫再同步分享文案 og:title/og:description、
+// twitter:title/twitter:description/twitter:url 与 meta[name=title]——
+// 旧版它们同样恒为首页写死值（或 SPA 跳转前的上一页残留），分享任何
+// 工具页出去，卡片标题与摘要全是首页的。
 const syncCanonical = (to) => {
   let linkElement = document.querySelector('link[rel="canonical"]')
   let ogUrlMeta = document.querySelector('meta[property="og:url"]')
+  // 分享文案跟随当前页（含 404 页自身的标题/描述，避免残留上一页）
+  if (to.meta.title) {
+    setMetaAll('og:title', to.meta.title)
+    setMetaAll('twitter:title', to.meta.title, 'name')
+    setMetaAll('title', to.meta.title, 'name')
+  }
+  if (to.meta.description) {
+    setMetaAll('og:description', to.meta.description)
+    setMetaAll('twitter:description', to.meta.description, 'name')
+  }
   if (to.name === 'NotFound') {
     linkElement?.remove()
     ogUrlMeta?.remove()
+    removeMetaAll('twitter:url')
     return
   }
   const url = SITE_ORIGIN + (to.path === '/' ? '/' : to.path)
@@ -125,6 +163,7 @@ const syncCanonical = (to) => {
     document.head.appendChild(ogUrlMeta)
   }
   ogUrlMeta.setAttribute('content', url)
+  setMetaAll('twitter:url', url)
 }
 
 // 全局路由守卫 - 设置页面标题和描述
