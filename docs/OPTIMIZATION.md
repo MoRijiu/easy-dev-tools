@@ -688,3 +688,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `@type` 后补 `"@id": "https://tools.morijiu.cn/#webapplication"` 一行（正式域名根地址加固定片段，与顶层 `url` 同源、但不随路由变化），index.html 7,221→7,278 B（+57 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：@id 是站点级实体标识、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用实体拆分或根地址变化时，须与顶层 url、Manifest id 一并复核（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、@id 与顶层 url 同源且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 @id 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bg 落地（2026-11-28，JSON-LD 组织实体补 @id 标识声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD 顶层应用实体已有 `@id`（R12bf 补 `https://tools.morijiu.cn/#webapplication`），但嵌套的 `author` 与 `publisher` 两个 Organization 对象都没有 `@id`——同一组织在同一段结构化数据里出现两次（创作与发布为同一主体、两对象逐字一致），消费方跨页、跨抓取合并组织实体时只能靠 `name`/`url` 猜测身份，而 `url` 是官网地址、不是实体标识。与 R12bf 补顶层 @id 同族，这次缺的是组织实体本身的稳定标识。
+
+- 处理：JSON-LD 的 author 与 publisher 对象各补 `"@id": "https://tools.morijiu.cn/#organization"` 一行（与顶层 `@id` 同源、片段不同，两组织对象共用同一 @id 以表明是同一实体，改后两对象仍逐字一致），index.html 7,278→7,392 B（+114 B，即两行各 +57 B，与顶层 @id 行增量一致）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套组织对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：组织 @id 是站点级实体标识、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来创作主体与发布主体分离时，须给两对象分配不同 @id 并分别复核，不得再默认共用（已在本节留痕）；根地址变化时须与顶层 @id、url 一并复核。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author 与 publisher 的 @id 相同且两对象仍逐字一致、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的组织 @id 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
