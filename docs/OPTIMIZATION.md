@@ -776,3 +776,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `name` 后补 `"alternateName": "Easy Dev Tools"` 一行（与三份文档标题括号内的英文名逐字一致），index.html 8,041→8,082 B（+41 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，alternateName 原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：alternateName 是站点级声明、不随路由变化（全站应用为同一实体、别名唯一），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。组织对象（author/publisher）的名称仍只有中文名——英文名在文档里修饰的是产品/应用本身，未见组织以英文名公开自称，不给组织对象硬加。将来英文名变更时，须与 README/DESIGN/REQUIREMENTS 三份文档标题一并同步复核（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、alternateName 与三份文档标题的英文名逐字一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 alternateName 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12br 落地（2026-11-28，JSON-LD 顶层补 applicationSubCategory 子分类声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）顶层只有 Schema.org 的 `applicationCategory: "DeveloperApplication"`（宽泛的「开发类应用」大类），从未声明其配套的 `applicationSubCategory`——该字段专指应用在大类之下的细分类别，结构化数据消费方做分类筛选/聚合时靠它把本站与游戏开发、移动开发等其他开发类应用区分开。本站的细分类别口径在站内早已固定：标题与 og:title 为「极速开发工具箱 - 在线开发者工具集合」、meta keywords 含「开发者工具箱」，产品定位即面向开发者的通用工具集合，只是结构化数据通道从未声明这层子分类。与 R12ap 补 inLanguage、R12as 补 browserRequirements 同族，这次缺的是应用实体本身的子分类字段。
+
+- 处理：JSON-LD 顶层在 `applicationCategory` 后补 `"applicationSubCategory": "开发者工具"` 一行（与站内标题/关键词的类别口径一致的中文类别词，与 `inLanguage: "zh-CN"` 同语言口径），index.html 8,082→8,133 B（+51 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，本字段原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：applicationSubCategory 是站点级声明、不随路由变化（全站应用为同一实体、同一子分类），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。取值未用 Manifest 的 categories（utilities/productivity 是应用商店货架分类、与 Schema.org 子分类不是同一套口径，不混用）。将来产品定位变更（如收窄为某一垂直领域工具）时，须同步复核本字段。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、applicationSubCategory 与 applicationCategory 相邻且类别口径与站内标题/关键词一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的本字段保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
