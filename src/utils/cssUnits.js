@@ -18,12 +18,12 @@ export const CSS_UNITS = [
 ];
 const UNIT_SET = new Set(CSS_UNITS.map((u) => u.symbol));
 const PX_PER_IN = 96;
-export const MAX_INPUT_LENGTH = 1024;
-export const MAX_VALUE = 1e15;
-export const CONTEXT_MIN = 0.01;
-export const CONTEXT_MAX = 1e6;
+const MAX_INPUT_LENGTH = 1024;
+const MAX_VALUE = 1e15;
+const CONTEXT_MIN = 0.01;
+const CONTEXT_MAX = 1e6;
 // 全角字符（U+FF01–FF5E）与全角空格转半角，粘贴自中文输入法/文档时常见
-export function normalizeCssText(s) {
+function normalizeCssText(s) {
   return String(s ?? '').replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/\u3000/g, ' ');
 }
 function pxFactor(unit, ctx) {
@@ -66,7 +66,7 @@ export function normalizeContext(raw = {}) {
   }
   return { ok: true, context: ctx };
 }
-export function formatCssValue(v) {
+function formatCssValue(v) {
   if (!Number.isFinite(v)) return String(v);
   if (v === 0) return '0';
   const abs = Math.abs(v);
@@ -114,7 +114,7 @@ export function parseCssLength(input = '', defaultUnit = 'px') {
   if (!UNIT_SET.has(unit)) return { ok: false, error: `未知单位「${m[2] || unit}」，可用 px、rem、em、%、vw、vh、vmin、vmax、pt、pc、in、cm、mm、Q` };
   return { ok: true, value, unit, notes };
 }
-export function toPx(value, unit, ctx = DEFAULT_CONTEXT) { return value * pxFactor(unit, ctx); }
+function toPx(value, unit, ctx = DEFAULT_CONTEXT) { return value * pxFactor(unit, ctx); }
 export function convertCssLength(parsed, ctx = DEFAULT_CONTEXT) {
   const px = toPx(parsed.value, parsed.unit, ctx);
   return CSS_UNITS.map((u) => {

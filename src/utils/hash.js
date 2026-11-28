@@ -30,7 +30,7 @@ function leftRotate(x, c) {
 }
 
 // RFC 1321 MD5，输入/输出均为字节与小写 hex
-export function md5Hex(bytes) {
+function md5Hex(bytes) {
   const origLen = bytes.length;
   const paddedLen = (((origLen + 8) >> 6) + 1) << 6;
   const msg = new Uint8Array(paddedLen);
@@ -74,14 +74,14 @@ export function md5Hex(bytes) {
   return bytesToHex(new Uint8Array(out.buffer));
 }
 
-export function bytesToHex(bytes) {
+function bytesToHex(bytes) {
   let hex = '';
   for (const b of bytes) hex += b.toString(16).padStart(2, '0');
   return hex;
 }
 
 // 计算单个算法的哈希（小写 hex）。MD5 同步实现，SHA 家族走 Web Crypto。
-export async function digestHex(algorithm, bytes) {
+async function digestHex(algorithm, bytes) {
   if (algorithm === 'MD5') return md5Hex(bytes);
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) {

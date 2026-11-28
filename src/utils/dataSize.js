@@ -19,7 +19,7 @@ export const DATA_UNITS = [
   { symbol: 'ZiB', name: '泽比字节 (IEC)', bytes: 1024 ** 7, system: 'IEC · 1024' },
   { symbol: 'YiB', name: '尧比字节 (IEC)', bytes: 1024 ** 8, system: 'IEC · 1024' }
 ];
-export const MAX_DATA_SIZE_INPUT = 1024;
+const MAX_DATA_SIZE_INPUT = 1024;
 const UNIT_MAP = new Map(DATA_UNITS.map((u) => [u.symbol.toLowerCase(), u]));
 // 常见别名（小写）
 const ALIASES = { b: 'B', byte: 'B', bytes: 'B', bit: 'bit', bits: 'bit', kb: 'KB', mb: 'MB', gb: 'GB', tb: 'TB', pb: 'PB', eb: 'EB', zb: 'ZB', yb: 'YB', kib: 'KiB', mib: 'MiB', gib: 'GiB', tib: 'TiB', pib: 'PiB', eib: 'EiB', zib: 'ZiB', yib: 'YiB', k: 'KB', m: 'MB', g: 'GB', t: 'TB' };
@@ -30,10 +30,10 @@ function resolveUnit(raw) {
   return UNIT_MAP.get(key) || null;
 }
 // 全角 ASCII（数字/字母/标点，含全角点号与逗号）转半角：中文输入法粘贴常见
-export function normalizeDataSizeInput(raw) {
+function normalizeDataSizeInput(raw) {
   return String(raw ?? '').replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
 }
-export function formatValue(v) {
+function formatValue(v) {
   if (!Number.isFinite(v)) return String(v);
   if (v === 0) return '0';
   const abs = Math.abs(v);
@@ -86,7 +86,7 @@ export function parseDataSize(input = '', defaultUnit = 'B') {
 export function convertDataSize(bytes) {
   return DATA_UNITS.map((u) => ({ symbol: u.symbol, name: u.name, system: u.system, value: bytes / u.bytes, text: formatValue(bytes / u.bytes) }));
 }
-export function humanSize(bytes) {
+function humanSize(bytes) {
   if (bytes === 0) return '0 B';
   // 优先 IEC 人读（系统/文件管理器常用），值落在 1..1024 区间
   const iec = DATA_UNITS.filter((u) => ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'].includes(u.symbol));
@@ -94,7 +94,7 @@ export function humanSize(bytes) {
   for (const u of iec) { if (bytes / u.bytes >= 1) chosen = u; }
   return `${formatValue(bytes / chosen.bytes)} ${chosen.symbol}`;
 }
-export function formatDuration(totalSeconds) {
+function formatDuration(totalSeconds) {
   if (!Number.isFinite(totalSeconds)) return '—';
   if (totalSeconds === 0) return '0 秒';
   if (totalSeconds < 1) return `${formatValue(totalSeconds * 1000)} 毫秒`;
@@ -111,7 +111,7 @@ export function formatDuration(totalSeconds) {
   return parts.join(' ');
 }
 // 网速数值严格按十进制解析：全角转半角，十六进制/空值/科学计数之外的写法点名拒绝
-export function parseSpeedValue(raw) {
+function parseSpeedValue(raw) {
   const s = normalizeDataSizeInput(String(raw ?? '')).trim();
   if (!s) return { ok: false, error: '请输入网速数值' };
   if (!/^[+-]?(\d+(?:\.\d*)?|\.\d+)$/.test(s)) return { ok: false, error: '网速应为大于 0 的数字（不支持 0x 等其他进制写法）' };

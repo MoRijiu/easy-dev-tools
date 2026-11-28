@@ -6,12 +6,12 @@ export const ENCODING_FORMATS = [
 ];
 // 输入上限：Hex/Base32 是线性算法给到 100 万字符；Base58 是平方级换算，
 // 编码（按字节）与解码（按字符）都收紧到 2 万，超限点名报错而不是把页面算死
-export const MAX_LINEAR_INPUT = 1000000;
-export const MAX_BASE58_INPUT = 20000;
+const MAX_LINEAR_INPUT = 1000000;
+const MAX_BASE58_INPUT = 20000;
 const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 // 全角字符（中文输入法粘贴常见）转半角：逐码点 1 对 1 替换，长度不变、位置不偏移
-export function normalizeEncodingInput(input) {
+function normalizeEncodingInput(input) {
   return [...String(input ?? '')].map((ch) => {
     const cp = ch.codePointAt(0);
     if (cp === 0x3000) return ' ';
@@ -28,16 +28,16 @@ function checkLimit(length, format) {
   }
 }
 export function textToBytes(text) { return new TextEncoder().encode(String(text ?? '')); }
-export function bytesToText(bytes) {
+function bytesToText(bytes) {
   try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
   catch { throw new Error('解码结果不是合法的 UTF-8 文本（可能是二进制数据或编码选错了）'); }
 }
-export function bytesToHex(bytes, { uppercase = false, spaced = false } = {}) {
+function bytesToHex(bytes, { uppercase = false, spaced = false } = {}) {
   const parts = [...bytes].map((b) => b.toString(16).padStart(2, '0'));
   const s = spaced ? parts.join(' ') : parts.join('');
   return uppercase ? s.toUpperCase() : s;
 }
-export function hexToBytes(input) {
+function hexToBytes(input) {
   const chars = [...normalizeEncodingInput(input)];
   // 定位 0x 前缀：只认开头（允许前置空白）的一处
   let start = 0;
@@ -68,14 +68,14 @@ export function hexToBytes(input) {
   for (let i = 0; i < out.length; i++) out[i] = parseInt(digits[i * 2] + digits[i * 2 + 1], 16);
   return out;
 }
-export function bytesToBase32(bytes) {
+function bytesToBase32(bytes) {
   let bits = 0, value = 0, out = '';
   for (const b of bytes) { value = (value << 8) | b; bits += 8; while (bits >= 5) { out += B32[(value >>> (bits - 5)) & 31]; bits -= 5; } }
   if (bits > 0) out += B32[(value << (5 - bits)) & 31];
   while (out.length % 8 !== 0) out += '=';
   return out;
 }
-export function base32ToBytes(input) {
+function base32ToBytes(input) {
   const chars = [...normalizeEncodingInput(input)];
   // 空白与连字符（分组写法）忽略，但保留原文位置映射，报错指原文第几个字符
   const kept = []; const positions = [];
@@ -107,7 +107,7 @@ export function base32ToBytes(input) {
   if (bits > 0 && (value & ((1 << bits) - 1)) !== 0) throw new Error('Base32 结尾多余比特不为 0，不是规范编码（最后一个数据字符可能写错了）');
   return new Uint8Array(out);
 }
-export function bytesToBase58(bytes) {
+function bytesToBase58(bytes) {
   if (!bytes.length) return '';
   let zeros = 0; while (zeros < bytes.length && bytes[zeros] === 0) zeros++;
   // 以 256 进制转 58 进制（小端数组逐位进位）
@@ -121,7 +121,7 @@ export function bytesToBase58(bytes) {
   if (!(digits.length === 1 && digits[0] === 0)) for (let i = digits.length - 1; i >= 0; i--) out += B58[digits[i]];
   return out;
 }
-export function base58ToBytes(input) {
+function base58ToBytes(input) {
   const normalized = normalizeEncodingInput(input);
   const chars = [...normalized];
   // 只剥两端空白，位置按原文计；内部空白不忽略、会点名报错

@@ -4,7 +4,7 @@
 // HEX/RGB(A)/HSL(A)/HSV/CMYK/HWB 全格式互转（含 alpha）、分量逐项校验（空/非数字/越界明确报错）、最近命名色。
 import { parseColor } from './colorContrast.js';
 
-export const NAMED_COLORS = [
+const NAMED_COLORS = [
   ['black', 0, 0, 0], ['white', 255, 255, 255], ['red', 255, 0, 0], ['lime', 0, 255, 0],
   ['blue', 0, 0, 255], ['yellow', 255, 255, 0], ['cyan', 0, 255, 255], ['magenta', 255, 0, 255],
   ['silver', 192, 192, 192], ['gray', 128, 128, 128], ['maroon', 128, 0, 0], ['olive', 128, 128, 0],
@@ -18,13 +18,13 @@ export const NAMED_COLORS = [
 const clamp255 = (n) => Math.min(255, Math.max(0, Math.round(n)));
 const round2 = (n) => Math.round(n * 100) / 100;
 
-export function rgbToHex({ r, g, b, a = 1 }) {
+function rgbToHex({ r, g, b, a = 1 }) {
   const hex = '#' + [r, g, b].map((v) => clamp255(v).toString(16).padStart(2, '0')).join('').toUpperCase();
   if (a >= 1) return hex;
   return hex + clamp255(a * 255).toString(16).padStart(2, '0').toUpperCase();
 }
 
-export function rgbToHsl({ r, g, b }) {
+function rgbToHsl({ r, g, b }) {
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b); const min = Math.min(r, g, b);
   const l = (max + min) / 2; let h = 0; let s = 0;
@@ -38,7 +38,7 @@ export function rgbToHsl({ r, g, b }) {
   return { h: Math.round(h * 360) % 360, s: Math.round(s * 100), l: Math.round(l * 100) };
 }
 
-export function hslToRgb({ h, s, l, a = 1 }) {
+function hslToRgb({ h, s, l, a = 1 }) {
   const hh = (((h % 360) + 360) % 360) / 360; const ss = s / 100; const ll = l / 100;
   let r; let g; let b;
   if (ss === 0) { r = g = b = ll; } else {
@@ -56,7 +56,7 @@ export function hslToRgb({ h, s, l, a = 1 }) {
   return { r: clamp255(r * 255), g: clamp255(g * 255), b: clamp255(b * 255), a };
 }
 
-export function rgbToHsv({ r, g, b }) {
+function rgbToHsv({ r, g, b }) {
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b); const min = Math.min(r, g, b);
   const d = max - min; let h = 0;
@@ -68,7 +68,7 @@ export function rgbToHsv({ r, g, b }) {
   return { h: Math.round(h * 360) % 360, s: max === 0 ? 0 : Math.round((d / max) * 100), v: Math.round(max * 100) };
 }
 
-export function hsvToRgb({ h, s, v, a = 1 }) {
+function hsvToRgb({ h, s, v, a = 1 }) {
   const hh = (((h % 360) + 360) % 360) / 360; const ss = s / 100; const vv = v / 100;
   const i = Math.floor(hh * 6); const f = hh * 6 - i;
   const p = vv * (1 - ss); const q = vv * (1 - f * ss); const t = vv * (1 - (1 - f) * ss);
@@ -84,7 +84,7 @@ export function hsvToRgb({ h, s, v, a = 1 }) {
   return { r: clamp255(r * 255), g: clamp255(g * 255), b: clamp255(b * 255), a };
 }
 
-export function rgbToCmyk({ r, g, b }) {
+function rgbToCmyk({ r, g, b }) {
   const rn = r / 255; const gn = g / 255; const bn = b / 255;
   const k = 1 - Math.max(rn, gn, bn);
   if (k >= 1) return { c: 0, m: 0, y: 0, k: 100 };
@@ -96,7 +96,7 @@ export function rgbToCmyk({ r, g, b }) {
   };
 }
 
-export function cmykToRgb({ c, m, y, k, a = 1 }) {
+function cmykToRgb({ c, m, y, k, a = 1 }) {
   return {
     r: clamp255(255 * (1 - c / 100) * (1 - k / 100)),
     g: clamp255(255 * (1 - m / 100) * (1 - k / 100)),
@@ -106,11 +106,11 @@ export function cmykToRgb({ c, m, y, k, a = 1 }) {
 }
 
 // HWB（CSS Color 4）：色相 + 白度 + 黑度；由 HSV 换算
-export function rgbToHwb(rgba) {
+function rgbToHwb(rgba) {
   const { h, s, v } = rgbToHsv(rgba);
   return { h, w: Math.round((1 - s / 100) * (v / 100) * 100), b: Math.round((1 - v / 100) * 100) };
 }
-export function hwbToRgb({ h, w, b, a = 1 }) {
+function hwbToRgb({ h, w, b, a = 1 }) {
   if (w + b >= 100) { const gray = clamp255((w / (w + b)) * 255); return { r: gray, g: gray, b: gray, a }; }
   const base = hsvToRgb({ h, s: 100, v: 100 });
   const mix = (c) => clamp255(c * (1 - w / 100 - b / 100) + 255 * (w / 100));
@@ -141,7 +141,7 @@ const FIELD_SPECS = {
   cmyk: [['c', 'C', 0, 100, false], ['m', 'M', 0, 100, false], ['y', 'Y', 0, 100, false], ['k', 'K', 0, 100, false]],
   hwb: [['h', 'H 色相', 0, 360, false], ['w', 'W 白度', 0, 100, false], ['b', 'B 黑度', 0, 100, false]]
 };
-export function validateComponents(format, values) {
+function validateComponents(format, values) {
   const specs = FIELD_SPECS[format];
   if (!specs) return { ok: false, error: `未知格式 ${format}` };
   for (const [key, label, min, max, intOnly] of specs) {

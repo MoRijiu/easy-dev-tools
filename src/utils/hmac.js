@@ -14,8 +14,8 @@ export const INPUT_ENCODINGS = [
 
 const encoder = new TextEncoder();
 
-export const MAX_KEY_CHARS = 100000;
-export const MAX_MESSAGE_CHARS = 1000000;
+const MAX_KEY_CHARS = 100000;
+const MAX_MESSAGE_CHARS = 1000000;
 
 export const EXPECTED_ENCODINGS = [
   { id: 'hex', label: 'Hex 十六进制' },
@@ -24,13 +24,13 @@ export const EXPECTED_ENCODINGS = [
 ];
 
 // 全角转半角（U+FF01–FF5E 与全角空格），1:1 替换不改变下标
-export function normalizeFullwidth(text) {
+function normalizeFullwidth(text) {
   return String(text ?? '').replace(/[\uFF01-\uFF5E\u3000]/g, (ch) =>
     ch === '\u3000' ? ' ' : String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
 }
 
 // 找未配对代理字符，返回其下标（0 起）与类型；无则 -1
-export function findLoneSurrogate(text) {
+function findLoneSurrogate(text) {
   const raw = String(text ?? '');
   for (let i = 0; i < raw.length; i += 1) {
     const c = raw.charCodeAt(i);
@@ -125,7 +125,7 @@ function parseBase64Bytes(rawInput, label, urlSafe) {
 }
 
 // 按指定编码把输入文本解析为字节；非法输入定位报错
-export function parseInputBytes(text, encoding, label = '输入') {
+function parseInputBytes(text, encoding, label = '输入') {
   const raw = String(text ?? '');
   if (encoding === 'utf8') {
     const lone = findLoneSurrogate(raw);
@@ -138,18 +138,18 @@ export function parseInputBytes(text, encoding, label = '输入') {
   return { ok: false, error: `${label} 的编码方式不支持：${encoding}` };
 }
 
-export function bytesToHex(bytes) {
+function bytesToHex(bytes) {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function bytesToBase64(bytes) {
+function bytesToBase64(bytes) {
   let bin = '';
   const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   for (let i = 0; i < arr.length; i += 1) bin += String.fromCharCode(arr[i]);
   return btoa(bin);
 }
 
-export function bytesToBase64Url(bytes) {
+function bytesToBase64Url(bytes) {
   return bytesToBase64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 

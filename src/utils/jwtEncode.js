@@ -8,25 +8,25 @@ export const JWT_ALGS = [
 ];
 
 // RFC 7518 §3.2：HMAC 密钥长度应至少等于哈希输出长度
-export const RECOMMENDED_KEY_BYTES = { HS256: 32, HS384: 48, HS512: 64 };
-export const MAX_JSON_TEXT_LENGTH = 100000;
-export const MAX_SECRET_LENGTH = 4096;
-export const MAX_TOKEN_LENGTH = 100000;
+const RECOMMENDED_KEY_BYTES = { HS256: 32, HS384: 48, HS512: 64 };
+const MAX_JSON_TEXT_LENGTH = 100000;
+const MAX_SECRET_LENGTH = 4096;
+const MAX_TOKEN_LENGTH = 100000;
 
 const encoder = new TextEncoder();
 
-export function base64UrlEncodeBytes(bytes) {
+function base64UrlEncodeBytes(bytes) {
   let bin = '';
   const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   for (let i = 0; i < arr.length; i += 1) bin += String.fromCharCode(arr[i]);
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function base64UrlEncodeText(text) {
+function base64UrlEncodeText(text) {
   return base64UrlEncodeBytes(encoder.encode(String(text)));
 }
 
-export function base64UrlDecodeToBytes(segment) {
+function base64UrlDecodeToBytes(segment) {
   const b64 = String(segment).replace(/-/g, '+').replace(/_/g, '/');
   const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
   const bin = atob(padded);
@@ -36,7 +36,7 @@ export function base64UrlDecodeToBytes(segment) {
 }
 
 // 严格解码一段 Base64URL：非法字符定位到第几个、长度 %4==1 直接点名，不让 atob 的英文报错漏出去
-export function decodeBase64UrlStrict(segment, label = '签名') {
+function decodeBase64UrlStrict(segment, label = '签名') {
   const seg = String(segment ?? '');
   for (let i = 0; i < seg.length; i += 1) {
     if (!/[A-Za-z0-9_-]/.test(seg[i])) {
@@ -149,7 +149,7 @@ function hasLoneSurrogate(s) {
 
 // 找第一个含未配对代理字符的字符串（含键名），返回所在路径；这类字符写进 Token 后
 // 严格解码器会把它替换成 U+FFFD 或直接报错，签出来的 Token 与原文对不上。
-export function findLoneSurrogatePath(value, path = [], depth = 0) {
+function findLoneSurrogatePath(value, path = [], depth = 0) {
   if (depth > 100) return null;
   if (typeof value === 'string') return hasLoneSurrogate(value) ? path : null;
   if (Array.isArray(value)) {
@@ -184,7 +184,7 @@ function describeValue(v) {
 
 // 校验 exp / nbf / iat：非数字直接报错（旧版照单全收、验签方会忽略或判无效），
 // 已过期 / 尚未生效只警告不拦——调试时签过期 Token 是合理需求，但不能静默。
-export function checkTimeClaims(payload, nowSec) {
+function checkTimeClaims(payload, nowSec) {
   const warnings = [];
   const now = Number.isFinite(nowSec) ? Math.floor(nowSec) : Math.floor(Date.now() / 1000);
   for (const claim of ['exp', 'nbf', 'iat']) {

@@ -3,12 +3,12 @@
 // 负时间戳（1970 年前）、严格日期文本校验（月/日/闰年/时分秒越界定位）、
 // 带毫秒本地时间、星期/今年第几天、更细的相对时间。
 
-export const MAX_DATE_MS = 8640000000000000; // ECMAScript Date 可表示范围
+const MAX_DATE_MS = 8640000000000000; // ECMAScript Date 可表示范围
 
 const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
 // 按位数猜单位：<=10 位秒、11-13 毫秒、14-16 微秒、17+ 纳秒（超出支持范围）
-export function detectUnitByDigits(digits) {
+function detectUnitByDigits(digits) {
   if (digits <= 10) return 's';
   if (digits <= 13) return 'ms';
   if (digits <= 16) return 'us';
@@ -65,13 +65,13 @@ export function formatLocal(date, withMs = false) {
   return withMs ? `${base}.${pad(date.getMilliseconds(), 3)}` : base;
 }
 
-export function dayOfYear(date) {
+function dayOfYear(date) {
   const start = new Date(date.getFullYear(), 0, 1);
   const cur = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   return Math.round((cur - start) / 86400000) + 1;
 }
 
-export function relativeTime(targetMs, nowMs) {
+function relativeTime(targetMs, nowMs) {
   const diff = targetMs - nowMs;
   const abs = Math.abs(diff);
   if (abs < 1000) return '刚刚';

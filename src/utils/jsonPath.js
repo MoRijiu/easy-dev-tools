@@ -4,8 +4,8 @@
 // （存在判断、== != > >= < <=、=~ 正则、&& / || 组合）。
 // 结果上限 MAX_RESULTS 条，递归遍历带节点上限，避免大文档卡死。
 
-export const MAX_RESULTS = 1000;
-export const MAX_EXPR_LENGTH = 1024;
+const MAX_RESULTS = 1000;
+const MAX_EXPR_LENGTH = 1024;
 const MAX_NODES = 200000;
 
 // 键名允许 Unicode 字母（中文、日文等），与 $['中文'] 写法等价
@@ -197,7 +197,7 @@ function parseBracket(s, i) {
   return { segment: { type: 'union', items: segs }, next };
 }
 
-export function parseJsonPath(expr) {
+function parseJsonPath(expr) {
   const s = String(expr ?? '').trim();
   if (!s) throw new Error('请输入 JSONPath 表达式');
   if (s.length > MAX_EXPR_LENGTH) throw new Error(`表达式过长（${s.length} 字符，上限 ${MAX_EXPR_LENGTH}）`);
@@ -245,7 +245,7 @@ export function parseJsonPath(expr) {
 
 const isObj = (v) => v !== null && typeof v === 'object';
 
-export function formatPath(parts) {
+function formatPath(parts) {
   let out = '$';
   for (const p of parts) {
     if (typeof p === 'number') out += `[${p}]`;

@@ -2,7 +2,7 @@
 // 无协议时自动补 https://（输入像域名/路径时）；纯查询串（?a=1 或 a=1&b=2）也能解析参数部分。
 // R8i 打磨：主机:端口不再误判为协议、端口与 % 转义定位报错、重组保留用户信息、默认端口说明。
 
-export const MAX_URL_LENGTH = 8192
+const MAX_URL_LENGTH = 8192
 
 const DEFAULT_PORTS = { http: '80', https: '443', ws: '80', wss: '443', ftp: '21' }
 // 无 // 层级结构的 scheme：没有主机/路径段可拆，点名说明而不是给一张空表
@@ -17,7 +17,7 @@ function looksLikeHostPort(t) {
   return host.includes('.') || host === 'localhost' || host.startsWith('[') || /^\d+\.\d+\.\d+\.\d+$/.test(host)
 }
 
-export function normalizeInput(raw) {
+function normalizeInput(raw) {
   const t = String(raw ?? '').trim()
   if (!t) return t
   if (looksLikeHostPort(t)) return 'https://' + t
@@ -30,7 +30,7 @@ export function normalizeInput(raw) {
 }
 
 // % 转义逐字校验：% 后必须跟两位十六进制；旧版 %ZZ / %2 被 URLSearchParams 静默保留
-export function validatePercentEscapes(text) {
+function validatePercentEscapes(text) {
   const s = String(text ?? '')
   for (let i = 0; i < s.length; i++) {
     if (s[i] !== '%') continue
@@ -132,11 +132,3 @@ export function buildUrl(parsed, params) {
   return base + (qs ? '?' + qs : '') + (parsed.hash ? '#' + parsed.hash : '')
 }
 
-export function parseQueryString(qs) {
-  const t = String(qs ?? '').trim().replace(/^\?/, '')
-  const out = []
-  if (!t) return out
-  validatePercentEscapes(t)
-  new URLSearchParams(t).forEach((value, key) => out.push({ key, value }))
-  return out
-}

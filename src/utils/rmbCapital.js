@@ -28,7 +28,7 @@ function sectionText(value) {
   return out;
 }
 
-export function integerToCapital(intStr) {
+function integerToCapital(intStr) {
   // intStr: 无符号、无前导零（除 "0" 本身）的整数字符串
   if (intStr === '0') return '零';
   const sections = [];
@@ -64,7 +64,7 @@ function normalizeFullWidth(s) {
   return { text: out, changed };
 }
 
-export function parseAmount(input = '') {
+function parseAmount(input = '') {
   const notes = [];
   const raw = String(input ?? '');
   if (raw.length > MAX_INPUT_LENGTH) {
@@ -120,7 +120,7 @@ export function parseAmount(input = '') {
   return { ok: true, negative, intStr, jiao, fen, notes };
 }
 
-export function convertRmb(parsed) {
+function convertRmb(parsed) {
   const { negative, intStr, jiao, fen } = parsed;
   const intCapital = integerToCapital(intStr);
   let body;
@@ -141,7 +141,7 @@ export function convertRmb(parsed) {
   return (negative ? '负' : '') + body;
 }
 
-export function formatMoney(parsed) {
+function formatMoney(parsed) {
   const grouped = parsed.intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   const frac = `${parsed.jiao}${parsed.fen}`;
   return `${parsed.negative ? '-' : ''}¥${grouped}.${frac}`;

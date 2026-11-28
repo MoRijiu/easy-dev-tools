@@ -5,7 +5,7 @@
 // HTML 解码：命名实体表（110+，含规范大写变体）+ 十进制 / 十六进制数字实体，未知实体原样保留
 // 数字实体指向码点 0 / 代理区 / 超范围时按 HTML 规范替换为 U+FFFD；Unicode 解码遇孤立代理定位报错
 
-export const NAMED_ENTITIES = {
+const NAMED_ENTITIES = {
   amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
   nbsp: '\u00a0', copy: '\u00a9', reg: '\u00ae', trade: '\u2122',
   hellip: '\u2026', mdash: '\u2014', ndash: '\u2013',
@@ -61,7 +61,7 @@ function hex4(cp) {
 
 // scope: 'nonAscii'（默认，仅编码非 ASCII）| 'all'（全部字符）
 // style: 'escape'（\uXXXX）| 'brace'（\u{...}）
-export function unicodeEncode(text, options = {}) {
+function unicodeEncode(text, options = {}) {
   const scope = options.scope || 'nonAscii';
   const style = options.style || 'escape';
   let out = '';
@@ -80,7 +80,7 @@ export function unicodeEncode(text, options = {}) {
   return out;
 }
 
-export function unicodeDecode(text) {
+function unicodeDecode(text) {
   const s = String(text);
   let out = '';
   let i = 0;
@@ -149,7 +149,7 @@ export function unicodeDecode(text) {
 
 // mode: 'named'（优先命名实体）| 'decimal'（&#...;）| 'hex'（&#x...;）
 // scope: 'nonAscii'（默认：转义 &<>"' 与非 ASCII）| 'all'（所有非字母数字字符）
-export function htmlEncode(text, options = {}) {
+function htmlEncode(text, options = {}) {
   const mode = options.mode || 'named';
   const scope = options.scope || 'nonAscii';
   let out = '';
@@ -170,7 +170,7 @@ export function htmlEncode(text, options = {}) {
   return out;
 }
 
-export function htmlDecode(text) {
+function htmlDecode(text) {
   return String(text).replace(/&(#x[0-9a-fA-F]+|#X[0-9a-fA-F]+|#[0-9]+|[A-Za-z][A-Za-z0-9]+);/g, (whole, body) => {
     if (body[0] === '#') {
       const isHex = body[1] === 'x' || body[1] === 'X';

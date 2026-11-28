@@ -46,7 +46,7 @@ function noteOf(code) {
   if (code === 32) return '单词间分隔，URL 中常编码为 %20 或 +';
   return '';
 }
-export const ASCII_TABLE = Array.from({ length: 128 }, (_, code) => ({
+const ASCII_TABLE = Array.from({ length: 128 }, (_, code) => ({
   code,
   char: code < 32 || code === 127 ? '' : String.fromCharCode(code),
   display: displayOf(code),
@@ -58,7 +58,7 @@ export const ASCII_TABLE = Array.from({ length: 128 }, (_, code) => ({
   category: categoryOf(code),
   note: noteOf(code)
 }));
-export function normalizeAsciiInput(value = '') {
+function normalizeAsciiInput(value = '') {
   return String(value ?? '').replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/\u3000/g, ' ');
 }
 export function countByCategory() {
@@ -90,7 +90,7 @@ export function searchAscii(query = '', category = 'all') {
   if (q && !q.includes(' ')) out.sort((a, b) => searchScore(a, q, qRaw) - searchScore(b, q, qRaw) || a.code - b.code);
   return out;
 }
-export const ASCII_TEXT_LIMIT = 100000;
+const ASCII_TEXT_LIMIT = 100000;
 export function textToAscii(text = '', format = 'dec') {
   const s = String(text ?? '');
   const chars = [...s];

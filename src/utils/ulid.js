@@ -1,19 +1,19 @@
 // ULID 生成与解析：纯本地实现（ULID 规范，Crockford Base32）。
 // 结构：26 个字符 = 前 10 个编码 48 位毫秒时间戳 + 后 16 个编码 80 位随机数；
 // 字典序与时间序一致，可直接按字符串排序。随机源为 Web Crypto。
-export const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-export const ULID_LENGTH = 26;
-export const TIME_CHARS = 10;
-export const RANDOM_CHARS = 16;
-export const MAX_TIMESTAMP = 281474976710655; // 2^48 - 1
-export const MAX_COUNT = 1000;
-export const MAX_INPUT_LENGTH = 4096;
+const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+const ULID_LENGTH = 26;
+const TIME_CHARS = 10;
+const RANDOM_CHARS = 16;
+const MAX_TIMESTAMP = 281474976710655; // 2^48 - 1
+const MAX_COUNT = 1000;
+const MAX_INPUT_LENGTH = 4096;
 
 const DECODE_MAP = new Map([...CROCKFORD].map((ch, i) => [ch, i]));
 // Crockford Base32 解码容错（规范 Decoding 节）：I/L 读作 1、O 读作 0。
 const ALIAS_MAP = new Map([['I', '1'], ['L', '1'], ['O', '0']]);
 
-export function normalizeFullwidthText(text) {
+function normalizeFullwidthText(text) {
   let count = 0;
   const out = String(text ?? '').replace(/[\uFF01-\uFF5E\u3000]/g, (ch) => {
     count++;
@@ -23,7 +23,7 @@ export function normalizeFullwidthText(text) {
 }
 
 // 严格整数解析（数量/时间戳共用）：全角转半角；小数/科学计数法/千分位/下划线分别点名，不再 Number() 静默强转。
-export function parseStrictIntInput(value, label, { min, max }) {
+function parseStrictIntInput(value, label, { min, max }) {
   if (typeof value === 'number') {
     if (!Number.isInteger(value)) throw new Error(`${label}必须是整数，收到「${value}」`);
     if (value < min || value > max) throw new Error(`${label}须在 ${min}–${max} 之间，收到 ${value}`);
@@ -60,7 +60,7 @@ function defaultRandomBytes(n) {
   return buf;
 }
 
-export function encodeTime(timestampMs) {
+function encodeTime(timestampMs) {
   if (typeof timestampMs !== 'number' || !Number.isInteger(timestampMs)) {
     throw new Error(`时间戳必须是整数毫秒，收到「${timestampMs}」`);
   }
@@ -77,7 +77,7 @@ export function encodeTime(timestampMs) {
 }
 
 // 10 个随机字节（80 位）恰好编成 16 个 Base32 字符。
-export function encodeRandom(bytes) {
+function encodeRandom(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length !== 10) {
     throw new Error('随机部分需要恰好 10 个字节');
   }
@@ -91,9 +91,6 @@ export function encodeRandom(bytes) {
   return out;
 }
 
-export function generateUlid(timestampMs = Date.now(), randomBytes = defaultRandomBytes) {
-  return encodeTime(timestampMs) + encodeRandom(randomBytes(10));
-}
 
 // 批量生成：monotonic=true 时同一毫秒内随机部分按 80 位整数逐个 +1，保证不重复且严格递增（与官方 monotonicFactory 语义一致）。
 export function generateUlidBatch({ count = 10, timestampMs = null, monotonic = true } = {}, randomBytes = defaultRandomBytes) {
@@ -135,7 +132,7 @@ export function collectGenerateNotes({ count, timestampMs } = {}) {
   return [...new Set(notes)];
 }
 
-export function normalizeUlidDetailed(input) {
+function normalizeUlidDetailed(input) {
   const original = String(input ?? '');
   if ([...original].length > MAX_INPUT_LENGTH) throw new Error(`输入过长（上限 ${MAX_INPUT_LENGTH} 个字符）`);
   const notes = [];
@@ -181,20 +178,12 @@ export function normalizeUlidDetailed(input) {
   return { ulid: upper, notes };
 }
 
-export function normalizeUlid(input) {
+function normalizeUlid(input) {
   return normalizeUlidDetailed(input).ulid;
 }
 
-export function isValidUlid(input) {
-  try {
-    normalizeUlid(input);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
-export function decodeTime(segment) {
+function decodeTime(segment) {
   let value = 0;
   for (const ch of segment) value = value * 32 + DECODE_MAP.get(ch);
   return value;

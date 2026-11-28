@@ -2,25 +2,25 @@
 // 支持 2–36 进制、负数、前缀（0x/0o/0b，与所选进制匹配时自动剥离；不匹配时点名提示应切换的进制）、
 // 下划线分隔符（只能夹在两个数字之间）。所有报错位置都按原文（去首尾空白后）计，含符号与前缀。
 
-export const DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz';
+const DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz';
 export const COMMON_BASES = [2, 8, 10, 16, 36];
-export const MAX_FRAC_DIGITS = 32;
-export const MAX_DIGITS = 4096;
+const MAX_FRAC_DIGITS = 32;
+const MAX_DIGITS = 4096;
 
 const PREFIXES = { 16: '0x', 8: '0o', 2: '0b' };
 
-export function digitValue(ch) {
+function digitValue(ch) {
   return DIGITS.indexOf(ch.toLowerCase());
 }
 
-export function validateBase(base) {
+function validateBase(base) {
   if (!Number.isInteger(base) || base < 2 || base > 36) {
     throw new Error(`进制必须在 2–36 之间（收到 ${base}）`);
   }
 }
 
 // 解析输入；返回 { negative, intPart, fracPart, cleaned }
-export function parseInput(raw, base) {
+function parseInput(raw, base) {
   validateBase(base);
   const s = String(raw).trim();
   if (!s) throw new Error('输入为空');
@@ -122,11 +122,6 @@ export function convertBase(raw, fromBase, toBase, maxFracDigits = MAX_FRAC_DIGI
   return { value: (negative && !isZero ? '-' : '') + out, exact: frac.exact, hasFraction: !!fracPart };
 }
 
-export function convertAll(raw, fromBase) {
-  const results = {};
-  for (const b of COMMON_BASES) results[b] = convertBase(raw, fromBase, b);
-  return results;
-}
 
 // 二进制按 4 位、其他按需分组展示；整数部分从右分组，小数部分从左分组
 export function groupDigits(value, groupSize = 4) {

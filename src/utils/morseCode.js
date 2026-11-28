@@ -24,7 +24,7 @@ export const MORSE_GROUPS = [
   { name: '标点', chars: ['.', ',', '?', "'", '!', '/', '(', ')', '&', ':', ';', '=', '+', '-', '_', '"', '$', '@'] }
 ];
 
-export const MAX_INPUT = 100000;
+const MAX_INPUT = 100000;
 
 const INVISIBLE_NAMES = {
   '\u200B': '零宽空格', '\u200C': '零宽非连接符', '\u200D': '零宽连接符',
@@ -42,7 +42,7 @@ function assertLength(raw) {
 }
 
 // 全角 ASCII 区（U+FF01–U+FF5E）与全角空格转半角，返回 { text, count }。
-export function normalizeFullwidth(text) {
+function normalizeFullwidth(text) {
   let count = 0;
   const out = String(text ?? '').replace(/[！-～　]/g, (ch) => {
     count++;
@@ -102,7 +102,7 @@ export function encodeMorse(text) {
 }
 
 // 把常见点画变体统一为 . 与 -：• · ● ． → .，− – — ― － → -
-export function normalizeMorseSymbols(input) {
+function normalizeMorseSymbols(input) {
   return String(input ?? '')
     .replace(/[•·●.．]/g, '.')
     .replace(/[−–—―－-]/g, '-');
@@ -174,6 +174,3 @@ export function buildPlayEvents(code) {
   return events;
 }
 
-export function playDurationUnits(code) {
-  return buildPlayEvents(code).reduce((sum, e) => sum + e.units, 0);
-}

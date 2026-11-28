@@ -1,6 +1,6 @@
 // Nano ID 生成：纯本地，算法与 nanoid 官方一致（掩码 + 步进批量取字节，避免取模偏差）。
 // 默认字母表为 nanoid 官方 URL 安全字母表（A-Za-z0-9_-，64 个字符）；支持自定义字母表与长度批量生成。
-export const DEFAULT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
+const DEFAULT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
 export const ALPHABET_PRESETS = {
   default: { label: '默认（字母数字 + _-）', alphabet: DEFAULT_ALPHABET },
   alphanumeric: { label: '仅字母数字', alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' },
@@ -10,7 +10,7 @@ export const ALPHABET_PRESETS = {
   nolookalike: { label: '无易混字符', alphabet: '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz' }
 };
 export const MAX_SIZE = 512;
-export const MAX_COUNT = 1000;
+const MAX_COUNT = 1000;
 
 function defaultRandomBytes(n) {
   const c = globalThis.crypto;
@@ -87,7 +87,7 @@ function toIntInRange(value, label, min, max) {
 }
 
 // 与 nanoid 官方 customAlphabet 相同的掩码步进算法：每次取 step 个随机字节，按 mask 映射到字母表，凑满 size 为止。
-export function generateNanoid({ size = 21, alphabet = DEFAULT_ALPHABET } = {}, randomBytes = defaultRandomBytes) {
+function generateNanoid({ size = 21, alphabet = DEFAULT_ALPHABET } = {}, randomBytes = defaultRandomBytes) {
   const alpha = validateAlphabet(alphabet);
   const len = toIntInRange(size, '长度', 1, MAX_SIZE);
   const mask = (2 << (31 - Math.clz32((alpha.length - 1) | 1))) - 1;

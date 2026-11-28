@@ -15,7 +15,7 @@ function toBinary(ip) {
   return ip.split('.').map((p) => Number(p).toString(2).padStart(8, '0')).join('.');
 }
 
-export function formatCount(value) {
+function formatCount(value) {
   const text = String(value);
   if (!/^\d+$/.test(text)) return text;
   return text.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -73,7 +73,7 @@ function ipClass(firstOctet) {
   return 'E（保留）';
 }
 
-export const MAX_CIDR_INPUT_LENGTH = 64;
+const MAX_CIDR_INPUT_LENGTH = 64;
 
 /**
  * 解析 "192.168.1.10/24"、"192.168.1.10/255.255.255.0" 或纯 IP（按 /32 处理）。

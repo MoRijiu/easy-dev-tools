@@ -5,7 +5,7 @@
 // 反向时这些半角符号也转回全角。半角片假名（U+FF61–U+FF9F）与全角片假名不是简单偏移关系，
 // 本工具不处理、原样保留并在 notes 里点名，避免用户以为已经转完。
 
-export const MAX_LENGTH = 100000;
+const MAX_LENGTH = 100000;
 
 // 全角符号（FFE0–FFE6）-> 半角对应码点
 const FULL_SPECIAL = new Map([
@@ -33,7 +33,7 @@ function isKanaHalf(cp) { return cp >= 0xff61 && cp <= 0xff9f; }
 
 const DEFAULT_OPTS = { digits: true, letters: true, punctuation: true, space: true };
 
-export function toHalfwidth(text, options = {}) {
+function toHalfwidth(text, options = {}) {
   const opts = { ...DEFAULT_OPTS, ...options };
   let out = '';
   let converted = 0;
@@ -50,7 +50,7 @@ export function toHalfwidth(text, options = {}) {
   return { text: out, converted };
 }
 
-export function toFullwidth(text, options = {}) {
+function toFullwidth(text, options = {}) {
   const opts = { ...DEFAULT_OPTS, ...options };
   let out = '';
   let converted = 0;
@@ -67,7 +67,7 @@ export function toFullwidth(text, options = {}) {
   return { text: out, converted };
 }
 
-export function countWidth(text) {
+function countWidth(text) {
   let full = 0;
   let half = 0;
   let kana = 0;

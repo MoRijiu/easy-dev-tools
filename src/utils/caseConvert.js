@@ -14,7 +14,7 @@ function charKind(ch) {
   return 'other' // 小写、无大小写字母（中文等）、数字、其他字母
 }
 
-export function splitWords(input) {
+function splitWords(input) {
   const chars = [...String(input ?? '')]
   const words = []
   let cur = ''
@@ -41,7 +41,7 @@ export function splitWords(input) {
 
 const cap = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w)
 
-export const CASE_STYLES = [
+const CASE_STYLES = [
   { id: 'camel', label: 'camelCase 小驼峰', build: (ws) => ws.map((w, i) => (i === 0 ? w : cap(w))).join('') },
   { id: 'pascal', label: 'PascalCase 大驼峰', build: (ws) => ws.map(cap).join('') },
   { id: 'snake', label: 'snake_case 下划线', build: (ws) => ws.join('_') },
@@ -56,12 +56,6 @@ export const CASE_STYLES = [
   { id: 'upper', label: 'UPPERCASE 全大写', build: (ws) => ws.join('').toUpperCase() },
 ]
 
-// 单行转换：返回 [{id,label,value}]
-export function convertCaseLine(input) {
-  const ws = splitWords(input)
-  if (!ws.length) return CASE_STYLES.map(s => ({ id: s.id, label: s.label, value: '' }))
-  return CASE_STYLES.map(s => ({ id: s.id, label: s.label, value: s.build(ws) }))
-}
 
 // 多行转换：逐行转换、保留空行（\r\n / \r / \n 都认），返回与 CASE_STYLES 对齐的 [{id,label,value}]
 export function convertCase(input) {

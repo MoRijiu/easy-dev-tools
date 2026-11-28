@@ -4,7 +4,7 @@
 
 const B64URL_RE = /^[A-Za-z0-9_-]*$/;
 
-export function normalizeToken(raw) {
+function normalizeToken(raw) {
   let token = String(raw ?? '');
   const notes = [];
   const trimmed = token.trim();
@@ -22,7 +22,7 @@ export function normalizeToken(raw) {
   return { token, notes };
 }
 
-export function decodeSegment(segment, name) {
+function decodeSegment(segment, name) {
   if (!segment) throw new Error(`${name} 段为空`);
   const badIndex = segment.search(/[^A-Za-z0-9_-]/);
   if (badIndex !== -1) {
@@ -60,7 +60,7 @@ export function decodeSegment(segment, name) {
   return value;
 }
 
-export function validateSignatureSegment(segment) {
+function validateSignatureSegment(segment) {
   if (!segment) return;
   const badIndex = segment.search(/[^A-Za-z0-9_-]/);
   if (badIndex !== -1) {

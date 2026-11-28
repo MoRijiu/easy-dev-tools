@@ -4,7 +4,7 @@
 // 支持：标题/粗斜体/删除线/行内代码/围栏代码块/链接/图片/引用/无序·有序·任务列表
 // （含按缩进嵌套）/表格（含对齐行）/水平线/段落。
 
-export function escapeHtml(s) {
+function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -16,7 +16,7 @@ const SAFE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:']);
 const SAFE_IMAGE_DATA = /^data:image\/(png|gif|jpe?g|webp|svg\+xml);base64,[a-z0-9+/=\s]+$/i;
 
 // 返回净化后的 URL（原样字符串），危险协议返回 null
-export function sanitizeUrl(rawUrl, { image = false } = {}) {
+function sanitizeUrl(rawUrl, { image = false } = {}) {
   const url = String(rawUrl ?? '').trim();
   if (!url) return null;
   if (/\s/.test(url)) return null;

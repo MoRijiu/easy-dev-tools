@@ -3,8 +3,8 @@
 // 中文等非拉丁文字默认移除并计数提示（无拼音词库，不做不可靠的音译）；
 // 可选保留 Unicode 字母（keepUnicode），生成含中文的 slug。
 
-export const MAX_LENGTH = 20000;
-export const MAX_LINES = 500;
+const MAX_LENGTH = 20000;
+const MAX_LINES = 500;
 
 const DEFAULT_OPTS = { separator: '-', lowercase: true, keepUnicode: false, dedupe: false, maxLength: 0 };
 
@@ -26,7 +26,7 @@ function normalizeFullWidth(text) {
   return { text: out, count };
 }
 
-export function countCodePoints(text) {
+function countCodePoints(text) {
   return [...String(text ?? '')].length;
 }
 
@@ -46,7 +46,7 @@ function truncateSlug(slug, max, sep) {
   return result || cutChars.join('').replace(new RegExp(`\\${sep}+$`), '') || cutChars.join('');
 }
 
-export function slugifyLine(text, options = {}) {
+function slugifyLine(text, options = {}) {
   const opts = { ...DEFAULT_OPTS, ...options };
   const sep = opts.separator === '_' ? '_' : '-';
   const trimmed = String(text ?? '').trim();

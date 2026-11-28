@@ -6,7 +6,7 @@
 const MONTH_NAMES = { JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6, JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12 };
 const DOW_NAMES = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
 
-export const CRON_ALIASES = {
+const CRON_ALIASES = {
   '@yearly': '0 0 1 1 *',
   '@annually': '0 0 1 1 *',
   '@monthly': '0 0 1 * *',
@@ -100,7 +100,7 @@ export const compressValues = (values) => {
 const MONTH_MAX_DAY = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 // 解析成功后的语义警告：永不执行、部分月份跳过、仅闰年执行、年份已过等
-export const cronWarnings = (parsed) => {
+const cronWarnings = (parsed) => {
   const warnings = [];
   const { dom, month, year } = parsed.byKey;
   const possible = month.values.some(m => dom.values.some(d => d <= MONTH_MAX_DAY[m - 1]));

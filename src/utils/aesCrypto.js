@@ -6,8 +6,8 @@
 
 const textEncoder = new TextEncoder();
 
-export const AES_KEY_BITS = [128, 192, 256];
-export const AES_MODES = ["GCM", "CBC"];
+const AES_KEY_BITS = [128, 192, 256];
+const AES_MODES = ["GCM", "CBC"];
 
 export function utf8ByteLength(text) {
   return textEncoder.encode(text).length;
@@ -58,7 +58,7 @@ export function randomText(byteLength) {
 }
 
 // 分块 Base64 编码（避免大数组展开爆栈）
-export function bytesToBase64(bytes) {
+function bytesToBase64(bytes) {
   let binary = "";
   const CHUNK = 0x8000;
   for (let i = 0; i < bytes.length; i += CHUNK) {
@@ -71,7 +71,7 @@ const BASE64_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 // 严格 Base64 解码：忽略空白，其余逐字校验填充位置/个数与非法字符
-export function base64ToBytes(input) {
+function base64ToBytes(input) {
   const clean = String(input ?? "").replace(/\s+/g, "");
   if (clean.length === 0) throw new Error("密文为空");
   if (clean.length % 4 === 1) {
@@ -107,12 +107,12 @@ export function base64ToBytes(input) {
   return bytes;
 }
 
-export function bytesToHex(bytes) {
+function bytesToHex(bytes) {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 // 严格 Hex 解码：忽略空白，奇数长度与非法字符定位报错
-export function hexToBytes(input) {
+function hexToBytes(input) {
   const clean = String(input ?? "").replace(/\s+/g, "");
   if (clean.length === 0) throw new Error("密文为空");
   if (clean.length % 2 !== 0) {
@@ -156,7 +156,7 @@ async function importKey(keyBytes, mode) {
   );
 }
 
-export function ivLengthForMode(mode) {
+function ivLengthForMode(mode) {
   return mode === "GCM" ? 12 : 16;
 }
 

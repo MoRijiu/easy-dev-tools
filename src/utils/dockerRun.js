@@ -2,7 +2,7 @@
 // 复用 curlParse 的 shell 分词；支持常用 run 选项，未识别选项收集为 warnings 提示。
 import { tokenizeShell } from './curlParse.js'
 
-export const MAX_DOCKER_INPUT = 100000
+const MAX_DOCKER_INPUT = 100000
 
 const MULTI_VALUE = new Map([
   ['-p', 'ports'], ['--publish', 'ports'],
@@ -47,7 +47,7 @@ const BOOL_FLAGS = new Map([
 // 已知但 compose 无直接对应/需按网络拓扑手写的带值选项：跳过其值并提示（务必登记，避免其值被误当镜像名）
 const SKIP_VALUE = new Set(['--cidfile', '--isolation', '--ip', '--ip6', '--blkio-weight', '--device-cgroup-rule', '--device-read-bps', '--device-write-bps', '--gpus'])
 
-export function deriveServiceName(image, containerName) {
+function deriveServiceName(image, containerName) {
   if (containerName) return sanitize(containerName)
   let base = String(image || '').split('@')[0]
   base = base.split('/').pop() || 'app'
@@ -59,7 +59,7 @@ function sanitize(s) {
 }
 
 const NETWORK_MODES = /^(host|none|bridge)$|^(container|service|ns):.+/
-export function validateRestart(value) {
+function validateRestart(value) {
   const v = String(value || '')
   if (/^(no|always|unless-stopped|on-failure)$/.test(v)) return v
   const m = v.match(/^on-failure:(\d+)$/)
@@ -67,7 +67,7 @@ export function validateRestart(value) {
   throw new Error(`重启策略不合法：「${v}」，只能是 no / always / unless-stopped / on-failure 或 on-failure:N（N 为非负整数重试次数）`)
 }
 
-export function parseMount(value) {
+function parseMount(value) {
   const s = String(value || '')
   const out = {}
   for (const part of s.split(',')) {
@@ -98,7 +98,7 @@ export function parseMount(value) {
   return out
 }
 
-export function parseUlimit(value) {
+function parseUlimit(value) {
   const s = String(value || '')
   const eq = s.indexOf('=')
   const name = (eq === -1 ? s : s.slice(0, eq)).trim()
@@ -233,7 +233,7 @@ export function parseDockerRun(input) {
 }
 
 // YAML 标量引用：含特殊字符/易被误读为 bool/number/null 时加双引号
-export function yamlScalar(v) {
+function yamlScalar(v) {
   const s = String(v)
   if (s === '') return '""'
   if (/^(true|false|null|yes|no|on|off|~)$/i.test(s)) return JSON.stringify(s)

@@ -6,7 +6,7 @@ const ALNUM_ID = /^[0-9A-Za-z-]+$/;
 const MAX_INPUT_LEN = 256;
 
 // 全角数字/字母/点/加号/减号转半角（中文输入法粘贴常见），其余字符原样
-export function normalizeSemverInput(input) {
+function normalizeSemverInput(input) {
   return String(input ?? '').replace(/[０-９Ａ-Ｚａ-ｚ．＋－]/g, (ch) => {
     const code = ch.codePointAt(0);
     if (code >= 0xFF10 && code <= 0xFF19) return String.fromCharCode(code - 0xFF10 + 48);
@@ -75,9 +75,6 @@ export function parseSemver(input) {
   return { major, minor, patch, prerelease, build, version, raw };
 }
 
-export function isValidSemver(input) {
-  try { parseSemver(input); return true; } catch { return false; }
-}
 
 function asParsed(v) { return typeof v === 'string' ? parseSemver(v) : v; }
 

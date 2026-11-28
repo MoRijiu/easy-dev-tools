@@ -7,7 +7,7 @@ function unescapeWifiValue(v) {
   return v.replace(/\\(.)/g, '$1');
 }
 
-export function parseWifi(body) {
+function parseWifi(body) {
   const fields = {};
   // 按未被转义的 ; 分段，每段 KEY:VALUE
   const parts = [];
@@ -35,7 +35,7 @@ export function parseWifi(body) {
 }
 
 // 按未被反斜杠转义的 ; 分段（MECARD / MATMSG 与 WIFI 共用同一转义规则）
-export function splitEscaped(body) {
+function splitEscaped(body) {
   const parts = [];
   let cur = '';
   for (let i = 0; i < body.length; i++) {
@@ -48,7 +48,7 @@ export function splitEscaped(body) {
   return parts;
 }
 
-export function unescapeCardValue(v) {
+function unescapeCardValue(v) {
   return String(v).replace(/\\n/gi, '\n').replace(/\\(.)/g, '$1');
 }
 

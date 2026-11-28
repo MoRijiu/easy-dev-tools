@@ -14,8 +14,8 @@ const DAMP = 700;
 const INITIAL_BIAS = 72;
 const INITIAL_N = 128;
 const DELIMITER = '-';
-export const PREFIX = 'xn--';
-export const MAX_INPUT_CHARS = 100000;
+const PREFIX = 'xn--';
+const MAX_INPUT_CHARS = 100000;
 const MAX_LABEL_LENGTH = 63;
 const MAX_DOMAIN_LENGTH = 253;
 
@@ -43,7 +43,7 @@ function decodeDigit(ch) {
 }
 
 // 单个标签（不含 xn-- 前缀）的 Punycode 编码
-export function punycodeEncode(input) {
+function punycodeEncode(input) {
   const cps = Array.from(input, (ch) => ch.codePointAt(0));
   let n = INITIAL_N;
   let delta = 0;
@@ -81,7 +81,7 @@ export function punycodeEncode(input) {
 }
 
 // 单个标签（不含 xn-- 前缀）的 Punycode 解码，失败返回 { ok:false, error }
-export function punycodeDecode(input) {
+function punycodeDecode(input) {
   if (!input) return { ok: false, error: 'xn-- 后面没有 Punycode 内容' };
   if (!/^[A-Za-z0-9-]+$/.test(input)) {
     const chars = Array.from(input);
@@ -153,7 +153,7 @@ function shortEcho(s) {
 }
 
 // 全角转半角：FF01–FF5E 映射回 ASCII，U+3002/U+FF61 句点按点处理；返回 {text, count}
-export function normalizePunyText(raw) {
+function normalizePunyText(raw) {
   let count = 0;
   let text = '';
   for (const ch of String(raw)) {
