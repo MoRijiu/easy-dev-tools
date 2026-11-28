@@ -608,3 +608,11 @@ R12 小盘点续项：本站已有真实截图——R12ah 为 Manifest 安装展
 - 处理：JSON-LD 在 `isAccessibleForFree` 后补 `"screenshot": "https://tools.morijiu.cn/screenshots/home-wide.png"` 一行（正式域名绝对地址，指向 Manifest screenshots 已在用的同一张桌面首页截图），index.html 6,356→6,430 B（+74 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：screenshot 是站点级声明、不随路由变化（截图为首页形态），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来首页视觉大改、按 R12ah 口径重截 Manifest 截图时，须同步复核本字段仍指向现行截图（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、screenshot 与 Manifest 桌面截图地址逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 screenshot 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12aw 落地（2026-11-28，JSON-LD 补 featureList 功能清单声明）
+
+R12 小盘点续项：本站有 72 个工具，但 `index.html` 的 JSON-LD（WebApplication 结构化数据）只有一段笼统的 `description`，没有 Schema.org 为软件应用定义的 `featureList`——结构化数据消费方无从以机器可读方式得知这个应用具体提供哪些功能，只能从描述 prose 里自行拆词。与 R12ap 补 inLanguage、R12at 补 softwareVersion、R12av 补 screenshot 同族，这次缺的是站点级功能清单字段本身。
+
+- 处理：JSON-LD 在 `screenshot` 后补 `"featureList"` 一行，列明 JSON格式化、Base64编解码、URL编解码、时间戳转换、UUID生成、二维码生成与解码、密码生成、哈希计算、AES加密、图片压缩与格式转换、Cron解析、正则测试、文本对比等代表性工具，并注明共 72 个工具、全部在浏览器本地运行（工具名与总数与站内 tools-config 逐项核对），index.html 6,430→6,721 B（+291 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：featureList 是站点级声明、不随路由变化（清单为全站代表性功能而非单页工具），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来工具总数或代表性工具清单变化时，须同步复核本字段的总数与列名（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、featureList 与站内工具名/总数逐项一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 featureList 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
