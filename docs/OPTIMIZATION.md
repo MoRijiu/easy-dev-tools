@@ -415,3 +415,11 @@ R12 小盘点续项：`README.md` 的许可证一节自初始提交起就写着�
 - 处理：新增仓库根 `LICENSE`——MIT 标准全文，版权行为 `Copyright (c) 2025 morijiu`（年份取初始提交年 2025、持有人取 README 作者 morijiu）；`package.json` 补 `"license": "MIT"` 与之对齐。README 的许可证一节原文即为 MIT、无需改动，本轮是给既有声明补齐依据而非变更许可口径。
 - 边界：LICENSE 不进构建产物，本项不改变任何运行时行为；若将来变更许可证，须同步改 LICENSE 全文、package.json 的 license 字段与 README 一节三处。
 - 等价证据：LICENSE 为 MIT 标准文本（与 SPDX MIT 模板逐段一致）；test 构建 exit=0 且产物与改前逐字相同（LICENSE/package.json 的 license 字段均不入产物）；页面冒烟无回归（验收结果见台账）。
+
+## R12y 落地（2026-11-28，Manifest any 图标 zopfli 无损重压缩）
+
+R12 小盘点续项：R12s 新增的 `public/icons/icon-512.png`（35,995 B）与 `icon-192.png`（10,674 B）由浏览器渲染截图落盘。R12w 当时以 PIL 优化编码实测这两图「重编码字节不变」，但那只是 PIL 编码器的结论；本轮改用 zopfli（与 R11e 给分享图重压缩同一工具）实测：icon-512 可降到 21,423 B（−14,572 B / −40.5%）、icon-192 可降到 8,982 B（−1,692 B / −15.9%），合计 −16,264 B。apple-touch-icon 与 og-image 同法实测为 0 收益，未动。
+
+- 处理：仅以 zopfli 重写两图 PNG 编码字节，像素、尺寸（512×512 / 192×192）、模式（RGBA）与 manifest 中的 any 条目一字未改。
+- 边界：maskable 图标已在 R12w 用 PIL 优化过，本轮未重复处理；若将来重渲染这两档图标，落盘后须再做一次 zopfli 无损重压缩（PIL optimize 对渲染截图的结论不可外推，已在本节留痕）。
+- 等价证据：重压缩前后逐像素 RGBA 解码比对全部 identical、尺寸不变；构建产物中两图字节与源文件一致、manifest 解析与图标条目无回归；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
