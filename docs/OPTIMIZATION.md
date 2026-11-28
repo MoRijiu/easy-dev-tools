@@ -268,3 +268,11 @@ R12 小盘点续项：R12b/R12c/R12e 已把 canonical、分享文案与 JSON-LD 
 - 处理：守卫 keywords 分支补 else——目标路由无 keywords 时移除该 meta 标签，不给无关键词的页面顶着上一页的值。
 - 边界：首页 route meta 虽无 keywords，但 Home 挂载后 useSeo 会按其专属口径重新写入首页关键词（守卫在挂载前运行、移除后由 useSeo 新建，最终值与旧版一致）；工具/关于页由守卫直接写入各自 keywords 不变。
 - 等价证据：无头 Chrome 冒烟逐页核对——工具页 keywords 为该页值、SPA 跳另一工具跟随、跳 404 后 keywords 标签已移除且标题/描述为 404 自身、从 404 回首页后 keywords 恢复为首页专属值、桌面/390px 无溢出、无 pageerror。
+
+## R12g 落地（2026-11-28，404 页 robots 改 noindex）
+
+R12 小盘点续项：R12b/R12c/R12e/R12f 已把 canonical、分享文案、JSON-LD 与 keywords 按页同步，但 `meta[name=robots]` 仍恒为 index.html 写死的 `index, follow`，路由守卫从不改它。本站是纯前端 SPA：静态托管对未知路径以 SPA 兜底返回应用页（软 404），404 页顶着 `index, follow` 等于明确邀请爬虫收录不存在的页面，与 R12b 给 404 移除 canonical 是同一类问题。
+
+- 处理：守卫新增 `syncRobots(to)`，在 `syncCanonical` 内一并调用——已知路由保持 `index, follow`（与 index.html 静态值一致），NotFound 改为 `noindex, follow`（不收录、但仍跟随页内链接回正常页面）；标签不存在时新建。
+- 边界：useSeo 不写 robots、无覆盖冲突；从 404 返回已知路由时守卫恢复 `index, follow`，不残留 noindex。
+- 等价证据：无头 Chrome 冒烟逐页核对——首页/工具页/关于页 robots 为 `index, follow`、SPA 跳 404 后为 `noindex, follow`、从 404 回首页恢复 `index, follow`，桌面/390px 无溢出、无 pageerror。
