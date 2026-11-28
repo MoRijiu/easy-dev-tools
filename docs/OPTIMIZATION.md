@@ -800,3 +800,11 @@ R12 小盘点续项：R12bd 给 JSON-LD 补 `dateModified` 时留痕——将来
 - 处理：JSON-LD 顶层 `dateModified` 由 `2026-11-28` 改为 `2026-11-29`（R12bs 合入日，git 提交记录可查）；sitemap 74 条 `lastmod` 统一由 `2026-11-28` 改为 `2026-11-29`。两文件字节数不变（等长日期替换），sitemap 的 loc 集合、顺序、changefreq 与 priority 一字未动，JSON-LD 其余字段一字未改。
 - 边界：本次校准的依据是 R12bs 这一全站共享文件的变更，不是逐页内容逐一变更——后续若只有单个工具页变更，不应据此批量刷新全站 lastmod，只更新该页条目；全站级变更（共享 index.html / 全局样式 / 路由守卫等）落地时才按本口径同步两处。syncJsonLd 只改写 url/description/softwareVersion/featureList，dateModified 经 JSON 回写原样保留，404 移除不受影响。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、dateModified 为 2026-11-29 且除该字段外逐项相同；sitemap 经 XML 解析通过、74 条 loc 与改前逐项相同且 lastmod 全为 2026-11-29；test 构建 exit=0、产物含新日期；无头 Chrome 冒烟核对工具页 JSON-LD 的 dateModified 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bu 落地（2026-11-29，补 /.well-known/security.txt 安全联系文件）
+
+R12 小盘点续项：站点没有 RFC 9116 定义的安全联系文件——`public/` 下无 `.well-known/security.txt`，实测请求 `/.well-known/security.txt` 返回 200 但 Content-Type 是 text/html、内容是 SPA 兜底页（8,352 B），安全研究者按标准路径找漏洞报告通道时拿到一页 HTML、无从联系。与 R12q 补 favicon.ico（默认路径被 SPA 兜底成 HTML）同族，这次缺的是标准安全联系文件本身。
+
+- 处理：新增 `public/.well-known/security.txt`（153 B）：`Contact` 用 About 页「联系我」已公开的邮箱（与 About 页逐字一致，不新增任何未公开联系方式）；`Expires` 为 2027-11-28（自落地日起 364 天、满足 RFC 9116「一年以内」要求）；`Preferred-Languages: zh`；`Canonical` 指向正式域名的同一路径。其余可选字段（Policy/Acknowledgments/Encryption/Hiring）本站无对应公开页面或材料，一律不编造、留空不写。
+- 边界：security.txt 是独立静态文件、不是页面，不进 sitemap，也不是全站级页面变更——按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。`Expires` 到期前须续期改日期（已在本节留痕：2027-11-28 前复核）；联系邮箱若在 About 页变更，须同步复核本文件。它不改任何运行时行为。
+- 等价证据：文件按 RFC 9116 字段格式逐行校验（字段名/冒号/值、Expires 可解析且在未来一年内、Canonical 与正式域名一致）；test 构建 exit=0 且产物含 `.well-known/security.txt` 并与源文件逐字一致；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 text/plain 且内容与本地一致（验收结果见台账）。
