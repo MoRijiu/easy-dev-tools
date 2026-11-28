@@ -260,3 +260,11 @@ R12 小盘点续项：R12b/R12c 已把 canonical、og:url 与分享文案按页�
 - 处理：路由守卫新增 `syncJsonLd(to, url)`，在 `syncCanonical` 内一并调用——已知路由把 JSON-LD 的 url 改写为当前页规范地址、description 改写为当前页描述，其余字段（@type/name/offers/author）保留站点级口径；NotFound 移除整段 script（不给不存在的页面宣称结构化数据），离开 404 时用首次捕获的原文模板恢复重建。`index.html` 的 script 补 `id="edt-jsonld"` 便于稳定定位（按 type 兜底查询保留）。
 - 边界：模板解析失败时保持原文、不阻断导航；恢复模板取首次同步前捕获的原文，后续改写不污染模板。
 - 等价证据：无头 Chrome 冒烟逐页核对——工具页 JSON-LD url/description 为该页值且其余字段完整、首页为根地址、404 时整段移除、从 404 返回首页后恢复且 url 为根地址，桌面/390px 无溢出、无 pageerror。
+
+## R12f 落地（2026-11-28，keywords 按页同步防残留）
+
+R12 小盘点续项：R12b/R12c/R12e 已把 canonical、分享文案与 JSON-LD 按页同步，但路由守卫对 `meta[name=keywords]` 仍是「有才写、无则不动」——72 个工具页与关于页都有各自 keywords，首页 route meta 与 NotFound 没有。从工具页 SPA 跳转到未知路径时，404 页会残留上一个工具的关键词（如在 JSON 页点到坏链接，404 顶着「JSON格式化,…」），与 R12c 修过的分享文案残留同族；直接打开 404 时则是 index.html 的首页关键词，同样不是 404 自身的。
+
+- 处理：守卫 keywords 分支补 else——目标路由无 keywords 时移除该 meta 标签，不给无关键词的页面顶着上一页的值。
+- 边界：首页 route meta 虽无 keywords，但 Home 挂载后 useSeo 会按其专属口径重新写入首页关键词（守卫在挂载前运行、移除后由 useSeo 新建，最终值与旧版一致）；工具/关于页由守卫直接写入各自 keywords 不变。
+- 等价证据：无头 Chrome 冒烟逐页核对——工具页 keywords 为该页值、SPA 跳另一工具跟随、跳 404 后 keywords 标签已移除且标题/描述为 404 自身、从 404 回首页后 keywords 恢复为首页专属值、桌面/390px 无溢出、无 pageerror。

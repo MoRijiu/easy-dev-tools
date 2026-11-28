@@ -218,7 +218,11 @@ router.beforeEach((to, from, next) => {
     descriptionMeta.content = to.meta.description
   }
   
-  // 设置关键词
+  // 设置关键词（R12f）：无关键词的路由（首页 route meta 与 NotFound）
+  // 旧版「有才写、无则不动」会残留上一页工具的关键词——从工具页 SPA
+  // 跳到 404，404 页会顶着上个工具的关键词（与 R12c 修过的分享文案
+  // 残留同族）。现无关键词时移除该标签；首页挂载后 useSeo 会按其
+  // 专属口径重新写入首页关键词，工具/关于页则由本守卫直接写入。
   if (to.meta.keywords) {
     let keywordsMeta = document.querySelector('meta[name="keywords"]')
     if (!keywordsMeta) {
@@ -227,6 +231,8 @@ router.beforeEach((to, from, next) => {
       document.head.appendChild(keywordsMeta)
     }
     keywordsMeta.content = to.meta.keywords
+  } else {
+    document.querySelector('meta[name="keywords"]')?.remove()
   }
   
   next()
