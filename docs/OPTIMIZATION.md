@@ -680,3 +680,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 的 offers 对象补 `"url": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、`installUrl`、canonical 逐字一致的正式域名根地址——本站报价的兑现入口即站点根地址），index.html 7,177→7,221 B（+44 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 offers 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：offers.url 是站点级声明、不随路由变化（各工具页的报价入口仍是站点根地址），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来站点根地址变化时，须与顶层 url、installUrl、canonical 一并同步（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、offers.url 与顶层 url/installUrl 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 offers.url 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bf 落地（2026-11-28，JSON-LD 补 @id 应用实体标识声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）有 `@context`/`@type`/`url`/`installUrl` 等字段，但没有 `@id`——`@id` 是 JSON-LD 为实体声明稳定标识符的关键字，消费方跨页面、跨抓取合并同一实体时靠它认出「这是同一个应用」，缺省时只能靠 `url` 猜测实体身份，而 `url` 在本站会经 syncJsonLd 按页改写为当前工具页地址（每页都不同），恰恰不能充当稳定标识。与 R12ab 给 Manifest 补 `id` 稳定应用身份同族，这次缺的是结构化数据侧的实体标识本身。
+
+- 处理：JSON-LD 顶层在 `@type` 后补 `"@id": "https://tools.morijiu.cn/#webapplication"` 一行（正式域名根地址加固定片段，与顶层 `url` 同源、但不随路由变化），index.html 7,221→7,278 B（+57 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：@id 是站点级实体标识、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用实体拆分或根地址变化时，须与顶层 url、Manifest id 一并复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、@id 与顶层 url 同源且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 @id 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
