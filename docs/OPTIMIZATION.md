@@ -768,3 +768,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `sameAs` 后补 `"license": "https://github.com/MoRijiu/easy-dev-tools/blob/main/LICENSE"` 一行（正式仓库 main 分支上 LICENSE 文件的公开地址，与 R12x 落地的 MIT LICENSE 逐字对应），index.html 7,961→8,041 B（+80 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，license 原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：license 是站点级声明、不随路由变化（全站应用为同一实体、同一许可证），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来许可证变更或 LICENSE 文件迁移时，须与仓库 LICENSE 与 README 的许可声明一并同步复核（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、license 地址指向的 LICENSE 文件实测为 MIT 且与仓库一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 license 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bq 落地（2026-11-28，JSON-LD 顶层补 alternateName 英文名声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）顶层只有中文 `name`「极速开发工具箱」，但本站的英文名早已公开并用——仓库 `README.md` 与 `docs/DESIGN.md`、`docs/REQUIREMENTS.md` 三份文档的标题均为「极速开发工具箱 (Easy Dev Tools)」，仓库名本身也是 easy-dev-tools。结构化数据里从未声明这层别名，消费方按英文名检索/关联该应用时无从匹配。与 R12bn 补顶层 sameAs、R12bp 补 license 同族，这次缺的是应用实体本身的英文别名字段；Schema.org 的 `alternateName` 即指实体的替代名称。
+
+- 处理：JSON-LD 顶层在 `name` 后补 `"alternateName": "Easy Dev Tools"` 一行（与三份文档标题括号内的英文名逐字一致），index.html 8,041→8,082 B（+41 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，alternateName 原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：alternateName 是站点级声明、不随路由变化（全站应用为同一实体、别名唯一），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。组织对象（author/publisher）的名称仍只有中文名——英文名在文档里修饰的是产品/应用本身，未见组织以英文名公开自称，不给组织对象硬加。将来英文名变更时，须与 README/DESIGN/REQUIREMENTS 三份文档标题一并同步复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、alternateName 与三份文档标题的英文名逐字一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 alternateName 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
