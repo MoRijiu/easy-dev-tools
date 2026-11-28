@@ -130,8 +130,6 @@ async function copyText(text) {
 input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; box-sizing: border-box; min-width: 0; }
 .mini { padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; white-space: nowrap; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .meter { display: flex; gap: 4px; margin: 12px 0 6px; }
 .seg { flex: 1; height: 8px; border-radius: 4px; background: var(--bg-softer); border: 1px solid var(--border); }
 .seg.on.lv0 { background: var(--danger); border-color: var(--danger); }

@@ -163,8 +163,6 @@ const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 input[type="text"], input[type="number"], select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; box-sizing: border-box; }
 input[type="color"] { width: 42px; height: 34px; padding: 2px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; flex: none; }
 .btn { padding: 7px 12px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
 .stops-head { display: flex; gap: 8px; align-items: center; margin: 14px 0 8px; font-size: 13px; color: var(--text-2); }
 .stop-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .stop-row .color-text { width: 180px; }
@@ -174,8 +172,6 @@ input[type="color"] { width: 42px; height: 34px; padding: 2px; border: 1px solid
 .del { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; flex: none; }
 .del:disabled { opacity: .4; cursor: not-allowed; }
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 13px; color: var(--text-2); }
-.chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger-text); font-size: 14px; }
 .code-head { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px; font-size: 13px; color: var(--text-2); flex-wrap: wrap; gap: 8px; }
 .code-btns { display: flex; gap: 6px; }
 .code { background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; color: var(--text); overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin: 0; }

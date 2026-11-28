@@ -219,10 +219,7 @@ onBeforeUnmount(revokePreview);
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
 textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; resize: vertical; box-sizing: border-box; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; text-decoration: none; display: inline-block; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
 .meta { font-size: 12px; color: var(--text-2); }
-.error { color: var(--danger-text); font-size: 14px; }
 .warn { color: var(--text); background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; margin: 0 0 8px; }
 .hint { color: var(--text-2); font-size: 13px; }
 .verdict { font-size: 15px; font-weight: 600; margin: 8px 0; }

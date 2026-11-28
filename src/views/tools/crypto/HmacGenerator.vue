@@ -159,10 +159,7 @@ textarea { width: 100%; font-family: monospace; font-size: 13px; resize: vertica
 .mini { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; white-space: nowrap; }
 .actions { align-items: center; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn:disabled { opacity: .6; cursor: wait; }
-.chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger-text); font-size: 14px; }
 .summary { font-size: 14px; margin: 10px 0 6px; color: var(--text); }
 .table-wrap { overflow-x: auto; margin-bottom: 10px; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
