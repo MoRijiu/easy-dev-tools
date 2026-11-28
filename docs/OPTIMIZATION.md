@@ -287,3 +287,11 @@ R12 小盘点续项：R12b/R12c 让路由守卫按页同步 canonical/og:url 与
 - 处理（仅改 `src/composables/useSeo.js`）：①`setMetaTag` 改为同时查询 `property=` 与 `name=` 两种同名标签、全部同步为同一值，历史残留两份时只保留第一份删多余，一个都没有时才按指定属性新建（与守卫 setMetaAll 同口径）；②og:url 未传 canonical 时回退为正式域名 + 当前路由路径（只取路径），不再用 `window.location.href`。
 - 边界：Home/About 挂载后以专属长文案覆盖分享标题的既有口径不变（R12c），只是不再产生第二份标签；工具页不走 useSeo、守卫值即最终值，不受影响。
 - 等价证据：无头 Chrome 冒烟逐页核对——首页/关于页 og:url 为正式域名对应路径、twitter:title/card/description/image 均为单份且首页 twitter:title 与 og:title 一致、SPA 首页→关于 og:url 仍为正式域名、工具页无回归，桌面/390px 无溢出、无 pageerror。
+
+## R12i 落地（2026-11-28，index.html 无效 meta 清理）
+
+R12 小盘点续项：`index.html` 还留着两条不被任何主流搜索引擎采用的 meta——`revisit-after`（Google/Bing 均明确表示忽略，爬虫回访节奏由 sitemap 与服务器响应决定，写了也不会按 7 天回来）与 `name="language"`（非标准标签，语言信息已由 `<html lang="zh-CN">` 与 `og:locale=zh_CN` 以标准方式表达）。与 R12a 删除虚假 aggregateRating、清理 robots.txt 无效指令同族：留着无收益，还会让后来维护者误以为它们在起作用。
+
+- 处理：删除上述两行；`author`/`robots`/`title` 等其余 meta 未动（robots 由 R12g 守卫按页同步、title 由 R12c 守卫同步，均在实际生效链路上）。
+- 边界：全仓检索确认无代码读取这两条 meta，删除不影响任何运行时行为；页面语言声明走 html lang 这一标准位置，不受影响。
+- 等价证据：构建产物 index.html 中两条 meta 清零、其余 meta 逐项不变；无头 Chrome 冒烟核对首页/工具页/404 的标题、canonical、robots 与 JSON-LD 同步无回归。
