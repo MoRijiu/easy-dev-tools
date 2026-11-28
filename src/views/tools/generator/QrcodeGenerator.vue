@@ -18,7 +18,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="qr-generator-status" :message="statusMessage" :type="statusType" />
 
       <!-- 主内容区域 -->
       <div class="main-content">
@@ -26,7 +26,7 @@
         <div class="input-section">
           <div class="input-card">
             <label class="input-label" for="qr-input-text">输入内容</label>
-            <textarea id="qr-input-text" aria-label="输入内容" 
+            <textarea id="qr-input-text" aria-label="输入内容" :aria-invalid="invalidFor('content')" :aria-describedby="describedByFor('content')"
               v-model="inputText"
               class="text-input"
               placeholder="请输入文本、网址或其他内容..."
@@ -43,29 +43,29 @@
             <div class="options-grid">
               <div class="option-item">
                 <label for="qr-size">尺寸 (px)</label>
-                <input id="qr-size" aria-label="尺寸 (px)" type="number" v-model.number="options.width" min="100" max="1000" step="50" />
+                <input id="qr-size" aria-label="尺寸 (px)" type="number" v-model.number="options.width" min="100" max="1000" step="50" :aria-invalid="invalidFor('size')" :aria-describedby="describedByFor('size')" />
               </div>
               <div class="option-item">
                 <label for="qr-margin">边距</label>
-                <input id="qr-margin" aria-label="边距" type="number" v-model.number="options.margin" min="0" max="10" />
+                <input id="qr-margin" aria-label="边距" type="number" v-model.number="options.margin" min="0" max="10" :aria-invalid="invalidFor('margin')" :aria-describedby="describedByFor('margin')" />
               </div>
               <div class="option-item">
                 <label for="qr-dark-color">前景色</label>
                 <div class="color-input-wrapper">
-                  <input id="qr-dark-color" aria-label="前景色" type="color" v-model="options.darkColor" class="color-picker" />
+                  <input id="qr-dark-color" aria-label="前景色" type="color" v-model="options.darkColor" class="color-picker" :aria-invalid="invalidFor('dark')" :aria-describedby="describedByFor('dark')" />
                   <span>{{ options.darkColor }}</span>
                 </div>
               </div>
               <div class="option-item">
                 <label for="qr-light-color">背景色</label>
                 <div class="color-input-wrapper">
-                  <input id="qr-light-color" aria-label="背景色" type="color" v-model="options.lightColor" class="color-picker" />
+                  <input id="qr-light-color" aria-label="背景色" type="color" v-model="options.lightColor" class="color-picker" :aria-invalid="invalidFor('light')" :aria-describedby="describedByFor('light')" />
                   <span>{{ options.lightColor }}</span>
                 </div>
               </div>
               <div class="option-item">
                 <label for="qr-ecc-level">容错级别</label>
-                <select id="qr-ecc-level" aria-label="容错级别" v-model="options.errorCorrectionLevel">
+                <select id="qr-ecc-level" aria-label="容错级别" v-model="options.errorCorrectionLevel" :aria-invalid="invalidFor('ecc')" :aria-describedby="describedByFor('ecc')">
                   <option value="L">L - 7%</option>
                   <option value="M">M - 15%</option>
                   <option value="Q">Q - 25%</option>
@@ -84,6 +84,9 @@
                      label 本身不可聚焦、input 又不在 Tab 顺序里，键盘用户无法上传 Logo（R9aw） -->
                 <button
                   type="button"
+                  id="qr-logo-upload-btn"
+                  :aria-invalid="invalidFor('logo')"
+                  :aria-describedby="describedByFor('logo')"
                   class="logo-upload-btn"
                   :class="{ 'has-logo': logoDataUrl }"
                   :aria-label="logoDataUrl ? '更换 Logo 图片' : '上传 Logo 图片'"
@@ -205,6 +208,18 @@ const qrcodeDataUrl = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
 const logoInput = ref(null);
+// 输入错误单独留存原文与来源字段：仅当前展示的正是该错误时才关联对应控件，下载成功等其他状态消息不误绑（R9bk）
+const inputError = ref("");
+const errorField = ref("");
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
+const fieldHit = (f) => activeErrorField.value === f
+  || (activeErrorField.value === "contrast" && (f === "dark" || f === "light"))
+  || (activeErrorField.value === "sizeMargin" && (f === "size" || f === "margin"));
+const invalidFor = (f) => (fieldHit(f) ? "true" : undefined);
+const describedByFor = (f) => (fieldHit(f) ? "qr-generator-status" : undefined);
+// 选项校验错误文案自带字段名（尺寸/边距/前景色/背景色/容错级别），据此定位出错字段
+const qrOptionField = (msg) => msg.startsWith("尺寸") ? "size" : msg.startsWith("边距") ? "margin" : msg.startsWith("前景色") ? "dark" : msg.startsWith("背景色") ? "light" : msg.startsWith("容错级别") ? "ecc" : "";
 const logoDataUrl = ref("");
 
 const options = ref({
@@ -243,16 +258,14 @@ const onLogoUpload = (event) => {
   try {
     validateLogoFile(file);
   } catch (e) {
-    statusMessage.value = `✗ ${e.message}`;
-    statusType.value = "error";
+    setInputError(`✗ ${e.message}`, "logo");
     event.target.value = "";
     return;
   }
 
   const reader = new FileReader();
   reader.onerror = () => {
-    statusMessage.value = "✗ Logo 读取失败，请换一张图片重试";
-    statusType.value = "error";
+    setInputError("✗ Logo 读取失败，请换一张图片重试", "logo");
   };
   reader.onload = (e) => {
     logoDataUrl.value = e.target.result;
@@ -333,8 +346,7 @@ let generateSeq = 0;
 const generateQrcode = async () => {
   const seq = ++generateSeq;
   if (!inputText.value.trim()) {
-    statusMessage.value = "✗ 请输入需要生成二维码的内容";
-    statusType.value = "error";
+    setInputError("✗ 请输入需要生成二维码的内容", "content");
     return;
   }
 
@@ -342,22 +354,19 @@ const generateQrcode = async () => {
   try {
     opts = validateQrOptions(options.value);
   } catch (e) {
-    statusMessage.value = `✗ ${e.message}`;
-    statusType.value = "error";
+    setInputError(`✗ ${e.message}`, qrOptionField(e.message));
     return;
   }
 
   const a = analyzeContent(inputText.value, opts.errorCorrectionLevel);
   if (a.overCapacity) {
-    statusMessage.value = `✗ ${friendlyQrError(new Error("The amount of data is too big"), a)}`;
-    statusType.value = "error";
+    setInputError(`✗ ${friendlyQrError(new Error("The amount of data is too big"), a)}`, "content");
     return;
   }
 
   const contrast = checkQrContrast(opts.darkColor, opts.lightColor);
   if (contrast.level === "error") {
-    statusMessage.value = `✗ ${contrast.message}`;
-    statusType.value = "error";
+    setInputError(`✗ ${contrast.message}`, "contrast");
     return;
   }
 
@@ -385,8 +394,9 @@ const generateQrcode = async () => {
     statusType.value = "success";
   } catch (error) {
     if (seq !== generateSeq) return;
-    statusMessage.value = `✗ ${friendlyQrError(error, a)}`;
-    statusType.value = "error";
+    const friendly = friendlyQrError(error, a);
+    const field = friendly.startsWith("内容过长") ? "content" : friendly.includes("尺寸或边距") ? "sizeMargin" : friendly.includes("Logo") ? "logo" : "";
+    setInputError(`✗ ${friendly}`, field);
   }
 };
 
@@ -408,6 +418,7 @@ const clearAll = () => {
   inputText.value = "";
   qrcodeDataUrl.value = "";
   logoDataUrl.value = "";
+  inputError.value = ""; errorField.value = "";
   statusMessage.value = "";
   if (logoInput.value) {
     logoInput.value.value = "";

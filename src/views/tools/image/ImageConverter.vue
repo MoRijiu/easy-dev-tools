@@ -11,6 +11,8 @@
         <!-- 上传区域 -->
         <div
           class="upload-area"
+          :aria-invalid="invalidFor('upload')"
+          :aria-describedby="describedByFor('upload')"
           :class="{ 'dragging': isDragging, 'compact': images.length > 0 }"
           @dragover.prevent="onDragOver"
           @dragleave.prevent="onDragLeave"
@@ -101,7 +103,7 @@
         <div class="settings-grid">
           <div class="setting-item">
             <label for="imgv-target-format">目标格式</label>
-            <select id="imgv-target-format" aria-label="目标格式" v-model="targetFormat">
+            <select id="imgv-target-format" aria-label="目标格式" v-model="targetFormat" :aria-invalid="invalidFor('format')" :aria-describedby="describedByFor('format')">
               <option v-for="fmt in TARGET_FORMATS" :key="fmt.value" :value="fmt.value">{{ fmt.label }} (.{{ fmt.ext }})</option>
             </select>
             <span class="setting-hint">{{ currentTarget.hint }}</span>
@@ -111,6 +113,8 @@
             <div class="quality-control">
               <input id="imgv-quality" aria-label="输出质量"
                 type="range"
+                :aria-invalid="invalidFor('quality')"
+                :aria-describedby="describedByFor('quality')"
                 v-model="quality"
                 min="10"
                 max="100"
@@ -124,9 +128,9 @@
           <div class="setting-item" v-if="currentTarget.value !== 'ico'">
             <label>调整尺寸 (px)</label>
             <div class="resize-control">
-              <input aria-label="调整宽度 (px)" type="text" inputmode="numeric" v-model="resizeWidth" placeholder="宽度" />
+              <input id="imgv-resize-width" aria-label="调整宽度 (px)" type="text" inputmode="numeric" v-model="resizeWidth" placeholder="宽度" :aria-invalid="invalidFor('width')" :aria-describedby="describedByFor('width')" />
               <span class="resize-x">×</span>
-              <input aria-label="调整高度 (px)" type="text" inputmode="numeric" v-model="resizeHeight" placeholder="高度" />
+              <input id="imgv-resize-height" aria-label="调整高度 (px)" type="text" inputmode="numeric" v-model="resizeHeight" placeholder="高度" :aria-invalid="invalidFor('height')" :aria-describedby="describedByFor('height')" />
             </div>
             <span class="setting-hint">留空保持原尺寸，只填一项则等比缩放（1–8192）</span>
           </div>
@@ -147,7 +151,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="image-converter-status" :message="statusMessage" :type="statusType" />
 
       <!-- 使用说明 -->
       <ToolUsageGuide :steps="usageSteps" />
@@ -181,6 +185,13 @@ const resizeWidth = ref("");
 const resizeHeight = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
+// 输入错误单独留存原文与来源字段：文件类错误归上传区、设置校验按文案字段名归对应控件，仅当前展示的正是该错误时才关联（R9bk）
+const inputError = ref("");
+const errorField = ref("");
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
+const invalidFor = (f) => (activeErrorField.value === f ? "true" : undefined);
+const describedByFor = (f) => (activeErrorField.value === f ? "image-converter-status" : undefined);
 
 // 计算属性
 const hasConvertedImages = computed(() => images.value.some(img => img.convertedBlob));
@@ -243,13 +254,13 @@ const addImages = (files) => {
           outputLabel: "", outText: ""
         });
       };
-      probe.onerror = () => { statusMessage.value = `✗ ${file.name} 图片加载失败，文件可能已损坏`; statusType.value = "error"; };
+      probe.onerror = () => { setInputError(`✗ ${file.name} 图片加载失败，文件可能已损坏`, "upload"); };
       probe.src = e.target.result;
     };
     reader.readAsDataURL(file);
   });
   if (added) { statusMessage.value = `✓ 已添加 ${added} 张图片`; statusType.value = "success"; }
-  if (rejected.length) { statusMessage.value = `${added ? `✓ 已添加 ${added} 张；` : ""}已跳过 ${rejected.length} 个：${rejected.join("；")}`; statusType.value = added ? "info" : "error"; }
+  if (rejected.length) { const rejMsg = `${added ? `✓ 已添加 ${added} 张；` : ""}已跳过 ${rejected.length} 个：${rejected.join("；")}`; if (added) { statusMessage.value = rejMsg; statusType.value = "info"; } else { setInputError(rejMsg, "upload"); } }
   if (!added && !rejected.length) { statusMessage.value = "没有选择图片"; statusType.value = "info"; }
 };
 
@@ -286,14 +297,14 @@ const parseSettings = () => {
 // 转换单张图片：先校验设置，转换后按 blob.type 核对实际输出格式（浏览器回退时点名，扩展名随实际类型）
 const convertImage = async (index) => {
   const img = images.value[index];
-  if (img.converting) return;
+  if (img.converting) return false;
   let settings;
   try {
     settings = parseSettings();
   } catch (error) {
-    statusMessage.value = `✗ ${error.message}`;
-    statusType.value = "error";
-    return;
+    const field = error.message.startsWith("宽度") ? "width" : error.message.startsWith("高度") ? "height" : error.message.includes("质量") ? "quality" : error.message.startsWith("不支持的目标格式") ? "format" : "";
+    setInputError(`✗ ${error.message}`, field);
+    return false;
   }
   img.converting = true;
   try {
@@ -309,9 +320,11 @@ const convertImage = async (index) => {
     }
     statusMessage.value = `✓ ${img.name} 转换完成，输出 ${actualLabel}（${formatSize(blob.size)}）${notes.length ? "；" + notes.join("；") : ""}`;
     statusType.value = "success";
+    return true;
   } catch (error) {
-    statusMessage.value = `✗ 转换失败: ${error.message}`;
-    statusType.value = "error";
+    const field = error.message.includes("图片加载失败") || error.message.includes("图片尺寸无效") ? "upload" : error.message.includes("ICO") ? "format" : error.message.includes("未能编码") ? "format" : "";
+    setInputError(`✗ 转换失败: ${error.message}`, field);
+    return false;
   } finally {
     img.converting = false;
   }
@@ -373,6 +386,11 @@ const convertAll = async () => {
   }
 
   const s = summarizeConversion(images.value);
+  // 全部失败时保留单张的原始错误（含控件关联），不再用汇总消息覆盖（R9bk 顺修）
+  if (s.doneCount === 0 && s.totalCount > 0 && inputError.value && statusType.value === "error") {
+    statusMessage.value = inputError.value;
+    return;
+  }
   statusMessage.value = `✓ 已完成 ${s.doneCount}/${s.totalCount} 张图片转换`;
   statusType.value = s.doneCount === s.totalCount ? "success" : "info";
 };
@@ -408,6 +426,7 @@ const removeImage = (index) => {
 // 清空
 const clearAll = () => {
   images.value = [];
+  inputError.value = ""; errorField.value = "";
   statusMessage.value = "";
 };
 

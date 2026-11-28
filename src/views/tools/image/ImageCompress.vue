@@ -11,6 +11,8 @@
         <!-- 上传区域 -->
         <div
           class="upload-area"
+          :aria-invalid="invalidFor('upload')"
+          :aria-describedby="describedByFor('upload')"
           :class="{ 'dragging': isDragging, 'compact': images.length > 0 }"
           @dragover.prevent="onDragOver"
           @dragleave.prevent="onDragLeave"
@@ -106,6 +108,8 @@
             <div class="quality-control">
               <input id="imgc-quality" aria-label="压缩质量"
                 type="range"
+                :aria-invalid="invalidFor('quality')"
+                :aria-describedby="describedByFor('quality')"
                 v-model="quality"
                 min="10"
                 max="100"
@@ -123,12 +127,14 @@
               inputmode="numeric"
               v-model="maxWidth"
               placeholder="不限制"
+              :aria-invalid="invalidFor('maxWidth')"
+              :aria-describedby="describedByFor('maxWidth')"
             />
             <span class="setting-hint">超过此宽度将等比缩放（16–8192，留空不限制，只缩小不放大）</span>
           </div>
           <div class="setting-item">
             <label for="imgc-output-format">输出格式</label>
-            <select id="imgc-output-format" aria-label="输出格式" v-model="outputFormat">
+            <select id="imgc-output-format" aria-label="输出格式" v-model="outputFormat" :aria-invalid="invalidFor('format')" :aria-describedby="describedByFor('format')">
               <option value="original">保持原格式</option>
               <option value="image/jpeg">JPEG</option>
               <option value="image/png">PNG</option>
@@ -153,7 +159,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="image-compress-status" :message="statusMessage" :type="statusType" />
 
       <!-- 使用说明 -->
       <ToolUsageGuide :steps="usageSteps" />
@@ -185,6 +191,13 @@ const maxWidth = ref("");
 const outputFormat = ref("original");
 const statusMessage = ref("");
 const statusType = ref("");
+// 输入错误单独留存原文与来源字段：文件类错误归上传区、设置校验按文案字段名归对应控件，仅当前展示的正是该错误时才关联（R9bk）
+const inputError = ref("");
+const errorField = ref("");
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
+const invalidFor = (f) => (activeErrorField.value === f ? "true" : undefined);
+const describedByFor = (f) => (activeErrorField.value === f ? "image-compress-status" : undefined);
 
 // 计算属性
 const hasCompressedImages = computed(() => images.value.some(img => img.compressedBlob));
@@ -243,29 +256,29 @@ const addImages = (files) => {
           savings: 0, outputLabel: "", outWidth: 0, outHeight: 0
         });
       };
-      probe.onerror = () => { statusMessage.value = `✗ ${file.name} 图片加载失败，文件可能已损坏`; statusType.value = "error"; };
+      probe.onerror = () => { setInputError(`✗ ${file.name} 图片加载失败，文件可能已损坏`, "upload"); };
       probe.src = e.target.result;
     };
     reader.readAsDataURL(file);
   });
   if (added) { statusMessage.value = `✓ 已添加 ${added} 张图片`; statusType.value = "success"; }
-  if (rejected.length) { statusMessage.value = `${added ? `✓ 已添加 ${added} 张；` : ""}已跳过 ${rejected.length} 个：${rejected.join("；")}`; statusType.value = added ? "info" : "error"; }
+  if (rejected.length) { const rejMsg = `${added ? `✓ 已添加 ${added} 张；` : ""}已跳过 ${rejected.length} 个：${rejected.join("；")}`; if (added) { statusMessage.value = rejMsg; statusType.value = "info"; } else { setInputError(rejMsg, "upload"); } }
   if (!added && !rejected.length) { statusMessage.value = "没有选择图片"; statusType.value = "info"; }
 };
 
 // 压缩单张图片：先严格校验设置，再按实际 blob.type 核对输出格式（WebP 不支持时浏览器会回退 PNG）
 const compressImage = async (index) => {
   const img = images.value[index];
-  if (img.compressing) return;
+  if (img.compressing) return false;
   let qualityValue, maxWidthValue, resolved;
   try {
     qualityValue = parseQuality(quality.value);
     maxWidthValue = parseMaxWidth(maxWidth.value);
     resolved = resolveCompressMime(img.file.type, outputFormat.value);
   } catch (error) {
-    statusMessage.value = `✗ ${error.message}`;
-    statusType.value = "error";
-    return;
+    const field = error.message.startsWith("压缩质量") ? "quality" : error.message.startsWith("最大宽度") ? "maxWidth" : error.message.startsWith("不支持的输出格式") ? "format" : "";
+    setInputError(`✗ ${error.message}`, field);
+    return false;
   }
   img.compressing = true;
   try {
@@ -281,9 +294,11 @@ const compressImage = async (index) => {
     if (blob.type && blob.type !== resolved.mime) notes.push(`浏览器不支持 ${mimeLabel(resolved.mime)} 编码，实际输出为 ${actualLabel}`);
     statusMessage.value = `✓ ${img.name} 压缩完成，${img.savings >= 0 ? `节省 ${img.savings}%` : `反而大 ${Math.abs(img.savings)}%（可降低质量或改用 WebP）`}${notes.length ? "；" + notes.join("；") : ""}`;
     statusType.value = "success";
+    return true;
   } catch (error) {
-    statusMessage.value = `✗ 压缩失败: ${error.message}`;
-    statusType.value = "error";
+    const field = error.message.includes("图片加载失败") ? "upload" : error.message.includes("未能编码") ? "format" : "";
+    setInputError(`✗ 压缩失败: ${error.message}`, field);
+    return false;
   } finally {
     img.compressing = false;
   }
@@ -313,10 +328,17 @@ const compressAll = async () => {
   statusMessage.value = "正在压缩所有图片...";
   statusType.value = "info";
 
+  let failures = 0;
   for (let i = 0; i < images.value.length; i++) {
-    await compressImage(i);
+    if (!(await compressImage(i))) failures++;
   }
 
+  // 全部失败时保留单张的原始错误（含控件关联），不再用汇总成功消息覆盖（R9bk 顺修）
+  if (failures === images.value.length && inputError.value) {
+    statusMessage.value = inputError.value;
+    statusType.value = "error";
+    return;
+  }
   statusMessage.value = `✓ 已完成 ${images.value.length} 张图片压缩`;
   statusType.value = "success";
 };
@@ -352,6 +374,7 @@ const removeImage = (index) => {
 // 清空
 const clearAll = () => {
   images.value = [];
+  inputError.value = ""; errorField.value = "";
   statusMessage.value = "";
 };
 
