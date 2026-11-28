@@ -162,7 +162,25 @@ const syncJsonLd = (to, url) => {
 // twitter:title/twitter:description/twitter:url 与 meta[name=title]——
 // 旧版它们同样恒为首页写死值（或 SPA 跳转前的上一页残留），分享任何
 // 工具页出去，卡片标题与摘要全是首页的。
+// robots 指令按页同步（R12g）：index.html 写死 index, follow，守卫此前
+// 从不改它——SPA 兜底让未知路径也以 200 返回 404 页内容（软 404），
+// 顶着 index, follow 等于明确邀请爬虫收录不存在的页面，与 R12b 给
+// 404 移除 canonical 同族。已知路由保持 index, follow，404 改 noindex。
+const syncRobots = (to) => {
+  let robotsMeta = document.querySelector('meta[name="robots"]')
+  if (!robotsMeta) {
+    robotsMeta = document.createElement('meta')
+    robotsMeta.setAttribute('name', 'robots')
+    document.head.appendChild(robotsMeta)
+  }
+  robotsMeta.setAttribute(
+    'content',
+    to.name === 'NotFound' ? 'noindex, follow' : 'index, follow'
+  )
+}
+
 const syncCanonical = (to) => {
+  syncRobots(to)
   let linkElement = document.querySelector('link[rel="canonical"]')
   let ogUrlMeta = document.querySelector('meta[property="og:url"]')
   // 分享文案跟随当前页（含 404 页自身的标题/描述，避免残留上一页）
