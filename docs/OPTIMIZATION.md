@@ -423,3 +423,11 @@ R12 小盘点续项：R12s 新增的 `public/icons/icon-512.png`（35,995 B）�
 - 处理：仅以 zopfli 重写两图 PNG 编码字节，像素、尺寸（512×512 / 192×192）、模式（RGBA）与 manifest 中的 any 条目一字未改。
 - 边界：maskable 图标已在 R12w 用 PIL 优化过，本轮未重复处理；若将来重渲染这两档图标，落盘后须再做一次 zopfli 无损重压缩（PIL optimize 对渲染截图的结论不可外推，已在本节留痕）。
 - 等价证据：重压缩前后逐像素 RGBA 解码比对全部 identical、尺寸不变；构建产物中两图字节与源文件一致、manifest 解析与图标条目无回归；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
+
+## R12z 落地（2026-11-28，Manifest maskable 图标 zopfli 无损重压缩）
+
+R12 小盘点续项：R12v 新增的 maskable 图标在 R12w 只用 PIL 优化编码从 40,018 B 降到 23,541 B；R12y 已证明 PIL 的结论不可外推——any 图标 PIL 实测无收益、换 zopfli 却降了 40.5%/15.9%，但当时 maskable 图标未用 zopfli 复测。本轮补测：zopfli 对 maskable 图标可再降到 16,145 B（−7,396 B / −31.4%），其余五张 PNG（icon-512/icon-192/apple-touch-icon/og-image/twitter-image）同法实测均为 0 收益、未动。
+
+- 处理：仅以 zopfli 重写 `public/icons/icon-maskable-512.png` 的 PNG 编码字节，像素、尺寸（512×512）、模式（RGB）与 manifest 中的 maskable 条目一字未改。
+- 边界：R12v 的安全区校验结论因像素逐点一致而原样成立；若将来重渲染 maskable 图标，落盘后须依次做 PIL 优化与 zopfli 无损重压缩两步（已在本节留痕）。
+- 等价证据：重压缩前后逐像素 RGB 解码比对全部 identical、尺寸不变；构建产物中该图标字节与源文件一致、manifest 解析与 maskable 条目无回归；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
