@@ -1,0 +1,39 @@
+# 代码优化盘点（R10a，2026-11-28）
+
+R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物基线与死代码，为后续收敛定序。所有优化以**行为等价**为前提，每批迁移都要有回归冒烟与体积对比证据。
+
+## 规模基线
+
+- `src` 代码文件 170 个、约 38,084 行；工具组件 72 个、合计 17,624 行（均 245 行）。
+- 最大文件：`src/router/tools-config.js` 1,172 行（工具元数据，属数据文件）；其后是 ImageConverter 1,010 行、ImageCompress 908 行、QrcodeGenerator 859 行、HashCalculator 742 行、UnitConverter 673 行、Header 647 行、TimestampConverter 626 行、AesEncryption 589 行、MarkdownEditor 561 行、PasswordGenerator 560 行、ColorConverter 555 行。
+- 产物基线（2026-11-28 test 构建，exit=0）：dist 共 1,979,129 B / 178 个文件；JS 1,370,961 B / 88 个分块，CSS 240,726 B / 78 个文件。最大分块：QrcodeDecoder 145,546 B（jsQR，已按路由懒加载）、vue-vendor 99,794 B、主包 index 90,940 B（gzip 约 28.5 KB）。
+
+## 重复逻辑清单（R10b 对象）
+
+1. **状态消息自管**：71/72 个工具各自维护 `statusMessage`/`statusType` 两个 ref；展示层已统一用 ToolStatusMessage 组件，但状态写入与「2 秒后只清自己这条消息」的守卫写法（先存 `ownMsg` 再在 setTimeout 里比对）在各工具手抄多份（ColorConverter 一文件内就出现 3 处）。→ 抽 `useStatusMessage()` composable 统一提供 `showSuccess/showError/info` 与守卫式自动清除。
+2. **复制逻辑自管**：69 个文件直调 `navigator.clipboard.writeText`（共 74 处），55 个工具各自定义 copy/copyText 函数，try/catch 后写状态消息的骨架高度同构；全仓无 execCommand 回退（失败统一提示手动复制，口径一致，保持）。→ 抽 `useClipboard()`（或 `copyText(text, okMsg)` 工具函数）与 useStatusMessage 组合，迁移后删除各工具手抄骨架。
+3. **下载逻辑自管**：9 个文件用 `URL.createObjectURL` + 临时 `<a download>` + click + revoke 的同构写法（共 10 处），ImageCompress/ImageConverter 还各自维护批量下载定时器数组。→ 抽 `downloadBlob/downloadText` 工具函数收敛。
+4. **防抖/定时器零散**：setTimeout 共 31 处分布在 20 个文件（输入防抖、状态守卫、时钟、弹幕、批量下载间隔），命名各异（debounceTimer/inputTimer/liveTimer 等）。状态守卫部分随第 1 项收敛；输入防抖视 R10d 核查结果再决定是否抽 `useDebouncedRef` 类工具，不强行统一时钟/动画类定时器。
+
+## 重复 CSS（R10e 对象）
+
+- 72 个工具的 scoped 样式合计 5,047 行；`h1` 与 `.description` 两条规则在 72 个工具里逐个重复定义（标题字号/居中/描述文案样式同构），容器 `.xxx { max-width: 1400px; margin: 0 auto; padding: 20px; }` 亦大面积同构。→ 公共版式规则上收到全局样式，工具内只留差异样式；迁移时逐页截图比对防视觉漂移。
+
+## 死代码与导出面
+
+- **死文件：无。** 按静态 import + 动态 import + `@` 别名解析全仓 import 图，169 个代码文件全部被引用。
+- **导出面偏宽**：utils 各模块约 238 个导出符号未被任何其他模块引用，多为模块内部常量（如各类 MAX_* 上限）与内部辅助函数。它们不是死代码（模块内部在用），但对外暴露面过大。→ R10e 时逐个核实，确认仅内部使用的改为模块私有（去掉 export），降低误用面；此项低优先、无行为变化。
+
+## 运行时关注点（R10d 对象）
+
+- Danmaku 弹幕渲染（定时器/动画帧与 DOM 数量）、MarkdownEditor 的多处 setTimeout、HashCalculator 大文本哈希、ImageCompress/ImageConverter 的批量处理与定时器清理，逐项核查后再定优化动作。
+
+## 定序（R10 后续台阶）
+
+- **R10b1**：新增 `useStatusMessage` + `useClipboard`，试点迁移含守卫写法的代表工具（JsonFormatter、ColorConverter、PasswordGenerator、BaseConverter、HashCalculator、MarkdownEditor），冒烟验证等价后合入。
+- **R10b2**：迁移 converter 组其余工具的 status + copy。
+- **R10b3**：迁移 text 组其余工具的 status + copy。
+- **R10b4**：迁移 crypto/generator/image 组；`downloadBlob/downloadText` 收敛 9 个文件的下载写法。
+- **R10c**：产物优化——主包 90.9 KB 构成分析（tools-config 元数据与首屏代码同包问题）、按分析结果调整分块，给出优化前后体积对比。
+- **R10d**：运行时性能核查（见上「运行时关注点」），逐项给结论或修复。
+- **R10e**：重复 CSS 上收与导出面收敛收尾，逐页截图比对。
