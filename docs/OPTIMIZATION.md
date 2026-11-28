@@ -696,3 +696,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD 顶层应用实体已有 `@id`（
 - 处理：JSON-LD 的 author 与 publisher 对象各补 `"@id": "https://tools.morijiu.cn/#organization"` 一行（与顶层 `@id` 同源、片段不同，两组织对象共用同一 @id 以表明是同一实体，改后两对象仍逐字一致），index.html 7,278→7,392 B（+114 B，即两行各 +57 B，与顶层 @id 行增量一致）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套组织对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：组织 @id 是站点级实体标识、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来创作主体与发布主体分离时，须给两对象分配不同 @id 并分别复核，不得再默认共用（已在本节留痕）；根地址变化时须与顶层 @id、url 一并复核。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author 与 publisher 的 @id 相同且两对象仍逐字一致、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的组织 @id 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bh 落地（2026-11-28，JSON-LD 组织实体补 sameAs 声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD 里 `author` 与 `publisher` 两个 Organization 对象已有 `@id`/`name`/`url`/`logo`（R12ax–R12bg 逐项补齐），但没有 Schema.org 为组织/个人定义的 `sameAs`——该字段专指该实体在其他平台的公开主页地址，消费方靠它把组织与外部平台账号关联起来。本站 About 页「联系我」一节公开展示了 GitHub 主页 `https://github.com/MoRijiu`（与 About 页链接逐字一致、可核查），但结构化数据里从未声明这层关联。与 R12ax 补 author.url、R12bg 补组织 @id 同族，这次缺的是组织实体的外部主页关联本身。
+
+- 处理：JSON-LD 的 author 与 publisher 对象各补 `"sameAs": ["https://github.com/MoRijiu"]` 一行（数组形式、单元素，与 About 页公开链接逐字一致，改后两对象仍逐字一致），index.html 7,392→7,492 B（+100 B，两处各 +50 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套组织对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：sameAs 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。只收录 About 页已公开的主页型链接，未把联系邮箱写进结构化数据（sameAs 指公开主页、非联系方式）；将来组织新增/变更公开平台主页时，须与 About 页联系方式一并同步复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author 与 publisher 的 sameAs 相同且两对象仍逐字一致、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 sameAs 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
