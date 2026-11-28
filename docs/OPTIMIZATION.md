@@ -235,3 +235,11 @@ R12 小盘点续项：路由守卫（`src/router/index.js`）此前只按页更�
 - 处理：守卫新增 `syncCanonical(to)`，进入每个已知路由时把 canonical 与 og:url 同步为 `https://tools.morijiu.cn` + 当前路径（首页为根路径，与静态值同口径）；NotFound 路由则移除这两项——给不存在的 URL 写 canonical 等于宣称它有规范版本，同样误导爬虫。
 - 边界：canonical 只取路径、不带查询串与锚点（同页不同参数不另立规范地址）；Home 的 `useSeo` 传入的 canonical 与守卫结果一致，不冲突；About 的 `useSeo` 未传 canonical、原先会把 og:url 写成当前页地址，与守卫口径一致。
 - 等价证据：无头 Chrome 冒烟逐页核对——首页 canonical/og:url 为根地址、工具页为各自路径、关于页为 /about、未知路径两项均已移除，且页面标题与无溢出检查无回归。
+
+## R12c 落地（2026-11-28，分享文案 og/twitter 按页同步）
+
+R12 小盘点续项：R12b 只同步了 canonical 与 og:url，路由守卫对 og:title / og:description、twitter:title / twitter:description / twitter:url 与 meta[name=title] 从未更新——它们恒为 index.html 写死的首页文案；SPA 内跳转时还会残留上一页的值（Home/About 的 useSeo 只在各自页面挂载时写）。分享任何工具页出去，卡片标题与摘要全是首页的，与 R12b 的按页 URL 也不配套。
+
+- 处理：守卫新增 setMetaAll/removeMetaAll 辅助函数，syncCanonical 内一并按当前路由的 meta.title / meta.description 同步上述分享文案，twitter:url 与 canonical 同步为当前页地址；NotFound 时分享文案写 404 页自身的标题/描述（避免残留上一页），三个 URL 类标签一并移除。
+- 边界：index.html 的 twitter 标签用 property=、useSeo 创建的用 name=，setMetaAll 两种属性的同名标签全部更新、一个都没有时才新建，避免留一份旧值被平台优先读到；Home/About 挂载后 useSeo 仍会以其专属长文案覆盖首页/关于页的分享标题（与 document.title 的既有口径一致），工具页无此覆盖、守卫值即最终值。
+- 等价证据：无头 Chrome 冒烟 23/23——工具页 og/twitter 标题与摘要逐字等于该页 title/description、twitter:url 为各自路径，SPA 跳转跟随且无上一页残留，首页/关于页正常，404 三个 URL 标签移除且分享文案为 404 自身，桌面/390px 无溢出、无 pageerror。
