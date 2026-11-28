@@ -904,3 +904,11 @@ R12 小盘点续项：JSON-LD 里 WebApplication 的 `screenshot`（R12ah 截图
 - 处理：`screenshot` 两条由字符串改为 ImageObject 对象：`@type: ImageObject`、`url` 与原字符串逐字一致、`width`/`height` 与截图文件实测尺寸逐项一致（宽图 1280×720、窄图 390×844），index.html 9,589→9,838 B（+249 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，screenshot 对象原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：screenshot 是应用级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来截图文件或其尺寸变更时，须与 Manifest screenshots 一并同步复核两条 screenshot 的 url/width/height（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、两条 screenshot 均为 ImageObject 且 url 与改前字符串逐字一致、width/height 与截图 IHDR 及 Manifest 条目逐项一致、除 screenshot 外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含 ImageObject screenshot；无头 Chrome 冒烟核对工具页 JSON-LD 的 screenshot 对象保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ch 落地（2026-11-29，JSON-LD 顶层 image 升级为 ImageObject）
+
+R12 小盘点续项：JSON-LD 里 WebApplication 的 `image`（R12bj 落地）一直是裸字符串 URL。Schema.org 的 `image` 期望 `ImageObject`（或 URL，二者皆合法），但裸 URL 不带尺寸信息，消费方须自行下载才知宽高；本站代表图的尺寸事实早已实测固定——`public/og-image.png` 为 1200×630（与 og:image:width/height 声明一致），只是从未在结构化数据里以 ImageObject 形式声明。与 R12cf 给组织 logo、R12cg 给 screenshot 补 ImageObject 同族，这次缺的是顶层 image 本身的结构化对象形态。
+
+- 处理：顶层 `image` 由字符串改为 ImageObject 对象：`@type: ImageObject`、`url` 与原字符串逐字一致、`width: 1200`、`height: 630`（与代表图实测尺寸逐项一致），index.html 9,838→9,941 B（+103 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，image 对象原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：image 是应用级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来代表图文件或其尺寸变更时，须与 og:image 的 width/height 一并同步复核本对象的 url/width/height（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、image 为 ImageObject 且 url 与改前字符串逐字一致、width/height 与代表图实测 1200×630 及 og 声明逐项一致、除 image 外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含 ImageObject image；无头 Chrome 冒烟核对工具页 JSON-LD 的 image 对象保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
