@@ -672,3 +672,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层补 `"dateModified": "2026-11-28"` 一行（Schema.org 为 CreativeWork 定义的修改日期字段，WebApplication 继承之），取值与 sitemap 现行 lastmod 逐字一致，index.html 7,141→7,177 B（+36 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：dateModified 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。未补 datePublished——本站初始上线日期无可靠留痕，不编造。将来全站级变更落地时，须与 sitemap lastmod 同步更新本字段（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、dateModified 与 sitemap lastmod 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 dateModified 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12be 落地（2026-11-28，JSON-LD offers 补 url 报价地址声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）里 `offers` 是一个 Offer 对象，有 `price`/`priceCurrency`/`availability`（R12ay 补），但没有 Schema.org 为 Offer 定义的 `url`——这是整段 JSON-LD 里最后一个只有属性、没有地址的嵌套实体：顶层有 `url`/`installUrl`，`author`/`publisher` 两组织均有 `url`（R12ax/R12ba），唯独报价本身不指向任何获取地址，结构化数据消费方知道价格与可用性，却无从得知该报价在哪里兑现。与 R12ax 补 author.url、R12ay 补 offers.availability 同族，这次缺的是报价实体的地址字段本身。
+
+- 处理：JSON-LD 的 offers 对象补 `"url": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、`installUrl`、canonical 逐字一致的正式域名根地址——本站报价的兑现入口即站点根地址），index.html 7,177→7,221 B（+44 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 offers 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：offers.url 是站点级声明、不随路由变化（各工具页的报价入口仍是站点根地址），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来站点根地址变化时，须与顶层 url、installUrl、canonical 一并同步（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、offers.url 与顶层 url/installUrl 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 offers.url 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
