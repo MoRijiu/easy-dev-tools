@@ -952,3 +952,11 @@ R12 小盘点续项：`public/opensearch.xml`（R12bw 落地）有 ShortName/Des
 - 处理：`opensearch.xml` 在 `InputEncoding` 后补 `<Language>zh-CN</Language>` 一行（值与 html lang / JSON-LD inLanguage / Manifest lang 逐字一致），文件 597→626 B（+29 B）；其余元素一字未改，Url 模板与 `?q={searchTerms}` 落地搜索行为不变。
 - 边界：Language 只被 OpenSearch 消费方读取，不改任何运行时行为；opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap，按 R12bt 口径本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来站点主语言变更时，须与 html lang、Manifest lang、hreflang 一并同步复核本元素（已在本节留痕）。
 - 等价证据：改后文件经 XML 解析校验通过、Language 为 zh-CN 且与其余语言声明逐项一致、除新增元素外其余元素与改前逐项相同；test 构建 exit=0 且产物 opensearch.xml 与源文件逐字一致；无头 Chrome 冒烟核对 `/?q=json` 搜索落地无回归、首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
+
+## R12cn 落地（2026-11-29，OpenSearch 补 OutputEncoding 输出编码声明）
+
+R12 小盘点续项：`public/opensearch.xml`（R12bw 落地）有 `InputEncoding`、R12cm 又补了 `Language`，但从未声明 OpenSearch 1.1 的 `OutputEncoding` 元素——该元素专指搜索结果的字符编码，缺省时消费方只能猜测。本站的输出编码事实早已公开且一致：页面 `<meta charset="UTF-8">`、XML 声明 `encoding="UTF-8"`、输入编码亦为 UTF-8，搜索结果（中文工具名与说明）正是 UTF-8 输出，只是从未在 OpenSearch 通道里声明。与 R12cm 补 Language 同族，这次缺的是同一编码事实在搜索描述通道的输出侧声明本身。
+
+- 处理：`opensearch.xml` 在 `InputEncoding` 后补 `<OutputEncoding>UTF-8</OutputEncoding>` 一行（值与 InputEncoding、页面 charset、XML 声明逐字一致，置于 Language 之前与规范常见顺序一致），文件 626→667 B（+41 B）；其余元素一字未改，Url 模板与 `?q={searchTerms}` 落地搜索行为不变。
+- 边界：OutputEncoding 只被 OpenSearch 消费方读取，不改任何运行时行为；opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap，按 R12bt 口径本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来站点输出编码变更时，须与 charset、XML 声明、InputEncoding 一并同步复核本元素（已在本节留痕）。
+- 等价证据：改后文件经 XML 解析校验通过、OutputEncoding 为 UTF-8 且与 InputEncoding 及页面 charset 逐项一致、除新增元素外其余元素与改前逐项相同；test 构建 exit=0 且产物 opensearch.xml 与源文件逐字一致；无头 Chrome 冒烟核对 `/?q=json` 搜索落地无回归、首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
