@@ -201,17 +201,23 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
+import { useDownload } from "@/composables/useDownload.js";
 
 // 响应式状态
 const inputText = ref("");
 const qrcodeDataUrl = ref("");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const download = useDownload();
+
 const logoInput = ref(null);
 // 输入错误单独留存原文与来源字段：仅当前展示的正是该错误时才关联对应控件，下载成功等其他状态消息不误绑（R9bk）
 const inputError = ref("");
 const errorField = ref("");
-const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; status.showError(msg); };
 const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
 const fieldHit = (f) => activeErrorField.value === f
   || (activeErrorField.value === "contrast" && (f === "dark" || f === "light"))
@@ -404,10 +410,7 @@ const generateQrcode = async () => {
 const downloadQrcode = () => {
   if (!qrcodeDataUrl.value) return;
 
-  const link = document.createElement("a");
-  link.download = `qrcode_${Date.now()}.png`;
-  link.href = qrcodeDataUrl.value;
-  link.click();
+  download.downloadUrl(qrcodeDataUrl.value, `qrcode_${Date.now()}.png`);
 
   statusMessage.value = "✓ 二维码已下载";
   statusType.value = "success";

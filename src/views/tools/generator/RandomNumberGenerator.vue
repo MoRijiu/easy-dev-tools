@@ -56,6 +56,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { generateRandomIntegers, generateRandomFloats, summarizeNumbers, normalizeRandomText } from '@/utils/randomNumber.js';
 const features = [
   { icon: '🎲', title: '安全随机源', description: '基于 Web Crypto 的 crypto.getRandomValues，不用可预测的 Math.random' },
@@ -96,7 +98,10 @@ const errorFields = computed(() => {
 const invalidFor = (field) => (errorFields.value.has(field) ? 'true' : undefined);
 const describedByFor = (field) => (errorFields.value.has(field) ? 'random-number-error' : undefined);
 const note = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 const summary = computed(() => summarizeNumbers(results.value));
 const averageText = computed(() => (summary.value ? Number(summary.value.average.toFixed(6)).toString() : ''));
 const resultText = computed(() => results.value.join('\n'));
@@ -119,8 +124,7 @@ function loadLottery() { mode.value = 'integer'; minInput.value = '1'; maxInput.
 function loadFloat() { mode.value = 'float'; minInput.value = '0'; maxInput.value = '1'; countInput.value = '5'; decimalsInput.value = '2'; sort.value = 'none'; generate(); }
 function clearAll() { results.value = []; error.value = ''; note.value = ''; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  await clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 generate();
 </script>

@@ -76,6 +76,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { SNOWFLAKE_PRESETS, TWITTER_EPOCH, DISCORD_EPOCH, parseSnowflake, generateSnowflake, buildSnowflakeSummary } from '@/utils/snowflake.js';
 
 const features = [
@@ -108,8 +110,9 @@ const layoutNote = computed(() => {
 });
 const idInput = ref('175928847299117063');
 const parsed = ref(null);
-const parseMessage = ref('');
-const parseType = ref('');
+const parseStatus = useStatusMessage();
+const { statusMessage: parseMessage, statusType: parseType } = parseStatus;
+const parseClipboard = useClipboard(parseStatus);
 const parseNotes = ref([]);
 // 解析/生成错误单独留存全文：解析状态区还兼报复制结果，只有当前展示的正是该错误时才做字段关联（R9bb 口径）
 const parseError = ref('');
@@ -183,8 +186,8 @@ const loadTwitterExample = () => {
 const clearParse = () => { idInput.value = ''; parsed.value = null; parseNotes.value = []; parseMessage.value = ''; parseError.value = ''; parseErrorFull.value = ''; };
 const gen = ref({ timestampMs: Date.now(), datacenterId: 1, workerId: 1, sequence: 0 });
 const generatedId = ref('');
-const genMessage = ref('');
-const genType = ref('');
+const genStatus = useStatusMessage();
+const { statusMessage: genMessage, statusType: genType } = genStatus;
 const useNow = () => { gen.value.timestampMs = Date.now(); };
 const randomSeq = () => { gen.value.sequence = Math.floor(Math.random() * (2 ** layout.value.sequenceBits)); };
 const doGenerate = () => {
@@ -204,8 +207,7 @@ const doGenerate = () => {
 };
 const sendToParse = () => { idInput.value = generatedId.value; reparse(); };
 const copyText = async (text) => {
-  try { await navigator.clipboard.writeText(text); parseMessage.value = '✓ 已复制'; parseType.value = 'success'; }
-  catch { parseMessage.value = '✗ 复制失败，请手动复制'; parseType.value = 'error'; }
+  await parseClipboard.copyText(text, '✓ 已复制');
 };
 const copySummary = () => { if (parsed.value) copyText(buildSnowflakeSummary(parsed.value, layout.value)); };
 reparse();

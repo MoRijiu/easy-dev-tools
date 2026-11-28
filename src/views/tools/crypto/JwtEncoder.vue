@@ -53,6 +53,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { JWT_ALGS, signJwt, verifyJwtSignature, parseJsonObjectInput, applyTimeClaims } from '@/utils/jwtEncode.js';
 const features = [
   { icon: '✍️', title: 'HMAC 签名', description: 'HS256/HS384/HS512 三种 HMAC 算法，Web Crypto 本地签名' },
@@ -79,7 +81,10 @@ const showSecret = ref(false);
 const headerText = ref(EXAMPLE_HEADER);
 const payloadText = ref(EXAMPLE_PAYLOAD);
 const result = ref(null); const selfCheck = ref(null); const error = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 // 错误归属：signJwt/parseJsonObjectInput 的报错以 Header/Payload 开头或点名签名密钥，据此关联出错字段；签名失败等环境类错误不归字段
 const errorField = computed(() => {
   const e = error.value;
@@ -112,7 +117,7 @@ const generate = async () => {
 };
 const loadExample = () => { headerText.value = EXAMPLE_HEADER; payloadText.value = EXAMPLE_PAYLOAD; alg.value = 'HS256'; secret.value = 'your-256-bit-secret'; result.value = null; error.value = ''; };
 const clearAll = () => { payloadText.value = ''; result.value = null; selfCheck.value = null; error.value = ''; };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = async (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
 .jwt-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }

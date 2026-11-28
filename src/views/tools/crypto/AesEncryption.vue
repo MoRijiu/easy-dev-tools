@@ -151,6 +151,8 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
 import ToolEditorLayout from "@/components/ToolEditorLayout.vue";
 import ToolEditorPanel from "@/components/ToolEditorPanel.vue";
 import {
@@ -173,12 +175,14 @@ const iv = ref("");
 const keyLength = ref("256");
 const cipherMode = ref("GCM");
 const outputEncoding = ref("base64");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 // 错误归属：留存出错原文与归属字段，仅当前展示的正是该错误时才关联；复制失败等其他状态消息不误绑
 const errorText = ref("");
 const errorTargets = ref([]);
-const setStatusError = (msg, targets) => { statusMessage.value = msg; statusType.value = "error"; errorText.value = msg; errorTargets.value = targets; };
+const setStatusError = (msg, targets) => { status.showError(msg); errorText.value = msg; errorTargets.value = targets; };
 const aesInvalid = (field) => statusType.value === "error" && errorText.value !== "" && statusMessage.value === errorText.value && errorTargets.value.includes(field);
 // 按报错关键词归属：密钥→密钥框；IV→IV 框；密文/编码→输入框；解密失败可能源于密钥或密文，两端同绑；环境类不归字段
 const classifyAesError = (message) => {
@@ -281,16 +285,7 @@ const copyOutput = async () => {
     statusType.value = "error";
     return;
   }
-  try {
-    await navigator.clipboard.writeText(outputText.value);
-    statusMessage.value = "✓ 已复制到剪贴板";
-    statusType.value = "success";
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
-  } catch {
-    statusMessage.value = "✗ 复制失败";
-    statusType.value = "error";
-  }
+  await clipboard.copyText(outputText.value, "✓ 已复制到剪贴板", { failMsg: "✗ 复制失败", autoClearMs: 2000 });
 };
 
 // 交换内容

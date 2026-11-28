@@ -180,6 +180,9 @@ import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
+import { useDownload } from "@/composables/useDownload.js";
 import { MAX_IMAGE_COUNT, computeScaledSize, formatBytes, mimeLabel, mimeToExt, parseMaxWidth, parseQuality, resolveCompressMime, savingsPercent, summarizeCompression, validateImageFile } from "@/utils/imageTools.js";
 
 // 响应式状态
@@ -189,12 +192,15 @@ const images = ref([]);
 const quality = ref(80);
 const maxWidth = ref("");
 const outputFormat = ref("original");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const download = useDownload();
+
 // 输入错误单独留存原文与来源字段：文件类错误归上传区、设置校验按文案字段名归对应控件，仅当前展示的正是该错误时才关联（R9bk）
 const inputError = ref("");
 const errorField = ref("");
-const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; status.showError(msg); };
 const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
 const invalidFor = (f) => (activeErrorField.value === f ? "true" : undefined);
 const describedByFor = (f) => (activeErrorField.value === f ? "image-compress-status" : undefined);
@@ -348,13 +354,9 @@ const downloadImage = (index) => {
   const img = images.value[index];
   if (!img.compressedBlob) return;
 
-  const link = document.createElement("a");
   const ext = mimeToExt(img.compressedBlob.type);
   const baseName = img.name.replace(/\.[^/.]+$/, "");
-  link.download = `${baseName}_compressed.${ext}`;
-  link.href = URL.createObjectURL(img.compressedBlob);
-  link.click();
-  URL.revokeObjectURL(link.href);
+  download.downloadBlob(img.compressedBlob, `${baseName}_compressed.${ext}`);
 };
 
 // 下载全部

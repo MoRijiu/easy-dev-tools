@@ -58,6 +58,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { analyzePassword, buildStrengthSummary } from '@/utils/passwordStrength.js';
 const features = [
   { icon: '📐', title: '熵估算', description: '按字符集大小与长度计算原始熵，再按可猜测模式扣分得到有效熵' },
@@ -78,7 +80,10 @@ const faqs = [
 const EXAMPLES = ['qwerty2024', 'BlueSky2024', 'Tr7$kQ9!mZ2#xW', 'p@55w0rd'];
 const input = ref('');
 const visible = ref(false);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 const parsed = computed(() => {
   if (!input.value) return { result: null, error: '' };
   try { return { result: analyzePassword(input.value), error: '' }; }
@@ -114,8 +119,7 @@ const metricRows = computed(() => {
 function loadExample(v) { input.value = v; }
 function clearAll() { input.value = ''; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  await clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

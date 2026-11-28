@@ -110,6 +110,7 @@ import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import { useStatusMessage } from '@/composables/useStatusMessage.js';
 import { useClipboard } from '@/composables/useClipboard.js';
+import { useDownload } from '@/composables/useDownload.js';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { diffLines, pairRows, toUnifiedDiff, foldRows, similarity, splitLines, MAX_LINES } from '@/utils/textDiff.js';
 
@@ -186,6 +187,7 @@ const viewMode = ref('unified');
 const status = useStatusMessage();
 const { statusMessage, statusType } = status;
 const clipboard = useClipboard(status);
+const download = useDownload();
 
 const oldLines = computed(() => splitLines(oldText.value).length);
 const newLines = computed(() => splitLines(newText.value).length);
@@ -226,13 +228,7 @@ const swapTexts = () => { const t = oldText.value; oldText.value = newText.value
 const clearAll = () => { oldText.value = ''; newText.value = ''; statusMessage.value = ''; };
 const copyUnified = async () => clipboard.copyText(toUnifiedDiff(rows.value, { context: 3 }), '✓ 对比结果已复制（unified diff 格式）');
 const downloadDiff = () => {
-  const blob = new Blob([toUnifiedDiff(rows.value, { context: 3 })], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'text-diff.diff';
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(toUnifiedDiff(rows.value, { context: 3 }), 'text-diff.diff');
   statusMessage.value = '✓ 已下载 text-diff.diff';
   statusType.value = 'success';
 };

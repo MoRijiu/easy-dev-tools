@@ -136,6 +136,7 @@ import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { renderMarkdown, markdownStats, buildStandaloneHtml } from '@/utils/markdown.js';
 import { useStatusMessage } from '@/composables/useStatusMessage.js';
 import { useClipboard } from '@/composables/useClipboard.js';
+import { useDownload } from '@/composables/useDownload.js';
 
 const editorRef = ref(null);
 const previewRef = ref(null);
@@ -143,6 +144,7 @@ const markdownText = ref('');
 const status = useStatusMessage();
 const { statusMessage, statusType } = status;
 const { copyText } = useClipboard(status);
+const download = useDownload();
 const syncScroll = ref(true);
 
 // 文档统计（字符/行/词/标题/链接/图片/代码块/表格/阅读时长）
@@ -236,26 +238,14 @@ const copyHtml = async () => {
 
 // 导出 Markdown 文件
 const exportMarkdown = () => {
-  const blob = new Blob([markdownText.value], { type: 'text/markdown' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'document.md';
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(markdownText.value, 'document.md', 'text/markdown');
   status.showSuccess('✓ Markdown 文件已下载！', 2000);
 };
 
 // 导出 HTML 文件
 const exportHtml = () => {
   const htmlContent = buildStandaloneHtml(renderedHtml.value);
-  const blob = new Blob([htmlContent], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'document.html';
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(htmlContent, 'document.html', 'text/html');
   status.showSuccess('✓ HTML 文件已下载！', 2000);
 };
 

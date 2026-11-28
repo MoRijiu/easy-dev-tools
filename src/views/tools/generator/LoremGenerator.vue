@@ -92,13 +92,19 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
+import { useDownload } from "@/composables/useDownload.js";
 import { generateLorem, COUNT_LIMITS, TYPE_LABELS } from "@/utils/lorem.js";
 
 // 响应式状态
 const outputText = ref("");
 const stats = ref(null);
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+const download = useDownload();
+
 const countRaw = ref("3");
 
 // 生成错误单独留存：状态区还兼报复制/下载结果，只有当前展示的正是这条生成错误时才做字段关联
@@ -137,20 +143,14 @@ const generateText = () => {
 };
 
 // 复制
-const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch { return false; }
-};
-
 const copyOutput = async () => {
   if (!outputText.value) {
     statusMessage.value = "✗ 没有可复制的内容";
     statusType.value = "error";
     return;
   }
-  if (await copyToClipboard(outputText.value)) {
+  // 旧写法复制失败时静默（本地 copyToClipboard 返回 false 不提示），迁移后保持：只用底层 copyToClipboard
+  if (await clipboard.copyToClipboard(outputText.value)) {
     statusMessage.value = "✓ 已复制文本";
     statusType.value = "success";
   }
@@ -159,13 +159,7 @@ const copyOutput = async () => {
 // 下载
 const downloadOutput = () => {
   if (!outputText.value) return;
-  const blob = new Blob([outputText.value], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "lorem-ipsum.txt";
-  a.click();
-  URL.revokeObjectURL(url);
+  download.downloadText(outputText.value, "lorem-ipsum.txt");
   statusMessage.value = "✓ 已下载 lorem-ipsum.txt";
   statusType.value = "success";
 };

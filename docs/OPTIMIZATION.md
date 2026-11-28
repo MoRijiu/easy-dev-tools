@@ -50,3 +50,10 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - converter 组其余 25 个工具全部迁移到 `useStatusMessage` + `useClipboard`：Chmod、Cidr、ColorContrast、Cron、CssBoxShadow、CssFormatter、CssGradient、CssUnit、DataSize、DateCalculator、DockerRun、EnvJson、HtmlFormatter、IpAddress、JsonCsv、JsonToTypescript、RmbCapital、Semver、SqlFormatter、Timestamp、Timezone、TomlJson、Unit、XmlFormatter、YamlJson。迁移后 converter 组已无直调 `navigator.clipboard` 的文件。
 - 等价口径：成功/失败文案逐字保留——时区转换的无符号文案（已复制到剪贴板/复制失败，请手动选择复制）、时间戳与单位换算的 2 秒守卫清除 + 短失败文案（✗ 复制失败）、Semver 初始 statusType=info 均通过参数或初始值保留；各工具专属错误原文留存与 aria 关联（setInputError 等）原样保留。
 - 体积：test 构建 dist 1,977,626 B / 179 文件（R10b1 后 1,978,599 B，−973 B）。
+
+## R10b4 落地（2026-11-28）
+
+- crypto/generator/image 三组其余 16 个工具全部迁移到 `useStatusMessage` + `useClipboard`：Aes、Hmac、JwtDecoder、JwtEncoder、PasswordStrength、Lorem、Nanoid、QrcodeGenerator、RandomNumber、Ulid、UuidGenerator、UuidParser、ImageCompress、ImageConverter、QrcodeDecoder，以及双状态区的 Snowflake（解析/生成各用一个 useStatusMessage 实例、互不干扰）。至此全仓工具已无直调 `navigator.clipboard.writeText`、无手抄 statusMessage/statusType 双 ref（QrcodeDecoder 的 clipboard.read 读剪贴板图片属功能本身，保留）。
+- 新增 `src/composables/useDownload.js`（downloadBlob/downloadText/downloadUrl），收敛 9 个文件的下载写法共 10 处：Lorem、UuidGenerator、PasswordGenerator、QrcodeGenerator（data URL）、ImageCompress、ImageConverter、JsonFormatter、MarkdownEditor（两处）、TextDiff。QrcodeDecoder 的图片预览 createObjectURL 非下载用途，保留原样。
+- 等价口径：文案逐字保留——无符号文案组（已复制到剪贴板/复制失败，请手动选择复制）经 failMsg 保留、AES 复制的 2 秒守卫清除与短失败文案、UUID 的 2500ms 成功守卫清除（本地 showStatus 改为 composable 薄包装）、Lorem 复制失败静默（只用底层 copyToClipboard 返回布尔、不回写失败状态）、各工具 setInputError 与专属错误原文/aria 关联原样保留。
+- 体积：test 构建 dist 1,976,755 B / 180 文件（R10b3 后 1,976,928 B / 179 文件，−173 B / +1 文件为 useDownload 分块）。

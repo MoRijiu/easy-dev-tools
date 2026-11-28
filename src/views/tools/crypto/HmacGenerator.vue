@@ -57,6 +57,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { HMAC_ALGS, INPUT_ENCODINGS, EXPECTED_ENCODINGS, computeHmac, buildHmacSummary, verifyHmacSignature } from '@/utils/hmac.js';
 const features = [
   { icon: '🔏', title: '四种算法', description: 'HMAC-SHA-256 / SHA-512 / SHA-384 / SHA-1，走浏览器 Web Crypto 原生实现' },
@@ -83,7 +85,10 @@ const showKey = ref(false);
 const busy = ref(false);
 const result = ref(null);
 const error = ref('');
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 const summary = computed(() => buildHmacSummary(result.value));
 const outRows = computed(() => (result.value ? [
   { key: 'hex', label: 'Hex', value: result.value.hex },
@@ -139,8 +144,7 @@ function loadExample() {
 }
 function clearAll() { seq += 1; vseq += 1; busy.value = false; keyText.value = ''; messageText.value = ''; expectedText.value = ''; result.value = null; error.value = ''; verifyResult.value = null; verifyError.value = ''; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  await clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>

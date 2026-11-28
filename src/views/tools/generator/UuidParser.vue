@@ -44,6 +44,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseUuid, buildUuidSummary } from '@/utils/uuidParse.js';
 const features = [
   { icon: '✅', title: '格式校验', description: '校验长度、连字符分组与十六进制字符，错误精确定位到第几个字符' },
@@ -67,7 +69,10 @@ const EXAMPLES = [
   'ffffffff-ffff-ffff-ffff-ffffffffffff'
 ];
 const input = ref(EXAMPLES[0]);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
+
 const parsed = computed(() => (input.value.trim() ? parseUuid(input.value) : null));
 const lastValid = ref(null);
 watch(parsed, (v) => { if (v && v.ok) lastValid.value = v; }, { immediate: true });
@@ -100,8 +105,7 @@ const outRows = computed(() => {
 function loadExample(v) { input.value = v; }
 function clearAll() { input.value = ''; lastValid.value = null; }
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = '已复制到剪贴板'; statusType.value = 'success'; }
-  catch { statusMessage.value = '复制失败，请手动选择复制'; statusType.value = 'error'; }
+  await clipboard.copyText(text, '已复制到剪贴板', { failMsg: '复制失败，请手动选择复制' });
 }
 </script>
 <style scoped>
