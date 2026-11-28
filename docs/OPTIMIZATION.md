@@ -186,3 +186,11 @@ R11 小盘点续项：逐个核查 `public/` 与 `src/assets/` 静态资产的�
 - 删除 `Danmaku.vue` 的切换按钮（含 `aria-pressed` / `aria-label` 与点击状态）、`paused` 状态 ref、行上的 `is-paused` 类绑定，以及 `.danmaku-toggle` 与 `.danmaku-row.is-paused` 两组样式。
 - 保留两条暂停通道不变：桌面 `(hover: hover) and (pointer: fine)` 悬停自动暂停、`prefers-reduced-motion: reduce` 时 `animation: none` 直接静止；弹幕行数、每行内容与动画时长逻辑未动，链接仍为 432 个。
 - 同步修订 `docs/DESIGN.md`「自动移动内容的暂停通道」约定：手动开关口径改为已移除、不要再加回。
+
+## R11d 落地（2026-11-28，删除从未生效的 .htaccess 死配置）
+
+R11 小盘点续项：核查 `public/` 随产物发布的文件时，发现一份只对 Apache 服务器生效的 `.htaccess`。
+
+- 删除 `public/.htaccess`（1,955 B）：自初始提交起随 `public/` 原样拷贝进 dist 发布，但本站的托管与回源环境均不读取 Apache 配置，其中的 SPA 回退、缓存与安全响应头规则从未生效（这些行为由实际托管侧配置承担），留着只会误导后来者以为改它能改变线上行为。
+- 等价证据：删除前以文件名与内容关键词对全仓（含 `index.html`、全部源码与文档）与 `git log --all -S` 历史检索，引用数为 0、历史仅初始提交引入；删除后 test 构建 exit=0，dist 由 1,819,080 B / 184 文件降至 1,817,125 B / 183 文件（−1,955 B，与该文件字节数逐字吻合），其余资产与分块不变，页面冒烟无异常。该文件可从 git 历史随时恢复。
+- 后续 R11 候选（有实测瓶颈再立项）：大组件拆分仍暂缓（R10f 结论）；新功能继续按阶段口径等待拍板。
