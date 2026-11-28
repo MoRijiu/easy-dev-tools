@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import NotFound from '../views/NotFound.vue'
-import About from '../views/About.vue'
+// R10c 分块：Home 是首屏保持静态导入；About/NotFound 非首屏，改路由懒加载
+// 移出主包，按需加载（行为等价，仅加载时机后移）
+const NotFound = () => import('../views/NotFound.vue')
+const About = () => import('../views/About.vue')
 import { generateRoutes, getToolByPath } from './tools-config'
 import { useToolPrefs } from '../composables/useToolPrefs'
 
