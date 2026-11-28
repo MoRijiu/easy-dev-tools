@@ -68,8 +68,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useSeo } from '../composables/useSeo'
 import Danmaku from '../components/Danmaku.vue'
 import FavoriteButton from '../components/FavoriteButton.vue'
@@ -79,6 +79,7 @@ import { toolGroups, searchTools, totalToolCount, getAllTools } from '../router/
 const { favoriteTools, recentTools, clearRecent } = useToolPrefs()
 
 const router = useRouter()
+const route = useRoute()
 useSeo({
   title: '极速开发工具箱 - 在线开发者工具集合 | JSON格式化、Base64编解码、UUID生成器',
   description: '极速开发工具箱提供丰富的在线开发工具，包括JSON格式化、Base64编解码、URL编解码、时间戳转换、UUID生成、二维码生成、密码生成、哈希计算、图片压缩等实用工具，提升开发效率。',
@@ -86,7 +87,8 @@ useSeo({
   canonical: 'https://tools.morijiu.cn/'
 })
 
-const query = ref('')
+const query = ref(typeof route.query.q === 'string' ? route.query.q : '')
+watch(() => route.query.q, (q) => { if (typeof q === 'string') query.value = q })
 const activeGroup = ref('all')
 const totalCount = totalToolCount
 const popularTools = computed(() => getAllTools().filter(t => ['json-formatter', 'base64', 'timestamp', 'uuid'].includes(t.id)))

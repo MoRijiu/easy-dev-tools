@@ -816,3 +816,11 @@ R12 小盘点续项：站点没有 humans.txt 定义的人类可读站点信息�
 - 处理：新增 `public/humans.txt`（300 B）：`/* TEAM */` 段写开发者 Mo_Rijiu、其 GitHub 主页与 About 页已公开的联系邮箱（均与 About 页/Footer 逐字一致，不新增任何未公开信息）；`/* SITE */` 段写站点名（中英文）、正式域名、公开源码仓、语言 zh-CN、技术栈 Vue 3/Vite/Vue Router（与 README 技术栈一致）与 MIT 许可证。`index.html` 在 sitemap 链接后补 `<link rel="author" type="text/plain" href="/humans.txt" />` 发现声明（humans.txt 倡议的 link 发现方式），index.html 8,183→8,267 B（+84 B）；其余内容一字未改。
 - 边界：humans.txt 是独立静态文件、不是页面，不进 sitemap。本轮虽改了共享 `index.html`（仅加发现链接），但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来开发者、联系方式、源码仓或技术栈变更时，须与 About 页/README 一并同步复核本文件。它不改任何运行时行为。
 - 等价证据：文件按 humans.txt 段落格式校验（TEAM/SITE 两段、字段逐项与 About 页/README 公开信息一致）；test 构建 exit=0 且产物含 `humans.txt` 并与源文件逐字一致、产物 index.html 含 author 发现链接；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 text/plain 且内容与本地一致（验收结果见台账）。
+
+## R12bw 落地（2026-11-29，补 OpenSearch 浏览器搜索集成）
+
+R12 小盘点续项：站点没有 OpenSearch 描述文件——`public/` 下无 `opensearch.xml`，浏览器无法把本站添加为自定义搜索引擎；更关键的是首页搜索只认页内输入框、不读 URL 查询参数，即使手写 OpenSearch 模板指向 `/?q=关键词`，落地页也不会执行搜索，是假集成。与 R12bu 补 security.txt、R12bv 补 humans.txt 同族，这次缺的是标准搜索描述文件加上它依赖的落地搜索参数支持本身。
+
+- 处理：新增 `public/opensearch.xml`（597 B，OpenSearch 1.1）：`ShortName`/`Description` 用站名与搜索用途、`InputEncoding` UTF-8、`Image` 指向已有的 192×192 站点图标（正式域名绝对地址、尺寸与图标实测一致）、`Url` 模板为正式域名根地址带 `?q={searchTerms}`、`moz:SearchForm` 指向根地址。`index.html` 在 humans 链接后补 `<link rel="search" type="application/opensearchdescription+xml" title="极速开发工具箱" href="/opensearch.xml" />` 发现声明（index.html 8,267→8,416 B，+149 B）。首页 `Home.vue` 搜索词改为从路由 `q` 参数初始化、并监听该参数变化同步搜索词——浏览器地址栏经本站搜索引擎搜「json」即落地 `/?q=json` 并直接呈现筛选结果；无参数时与改前完全一致（空搜索）。
+- 边界：opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap；本轮虽改了共享 `index.html` 与首页，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。搜索参数只取单个字符串 `q`，数组/对象型参数一律忽略回落空搜索；它不改任何工具页行为。将来首页搜索参数名或正式域名变更时，须同步复核本文件模板（已在本节留痕）。
+- 等价证据：opensearch.xml 经 XML 解析校验通过（根元素/命名空间/模板/Image 尺寸逐项核对）；test 构建 exit=0 且产物含 `opensearch.xml` 并与源文件逐字一致、产物 index.html 含 search 发现链接；无头 Chrome 冒烟核对 `/?q=json` 落地即筛选出 JSON 相关工具、无参数首页无回归、工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
