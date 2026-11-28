@@ -848,3 +848,11 @@ R12 小盘点续项：站点图标声明已有 SVG favicon、favicon.ico 回退�
 - 处理：新增 `public/icons/mask-icon.svg`（746 B）：与 favicon.svg 同一 viewBox（0 0 32 32）与同一工具箱字形几何（箱体/箱盖/提手/闪电/速度线逐项同坐标），去掉渐变背景圆角矩形与全部多色填充，fill/stroke 统一为纯黑单色剪影；`index.html` 在 apple-touch-icon 后补 `<link rel="mask-icon" href="/icons/mask-icon.svg" color="#4f46e5" />` 一行（color 取 favicon 渐变起点色 #4F46E5，Safari 据此给剪影上色），index.html 8,773→8,846 B（+73 B）；其余图标声明一字未改。
 - 边界：mask-icon 只被 Safari 固定标签页消费，不改任何页面内行为，其他浏览器继续用既有 SVG/ICO 图标；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来 favicon 字形或品牌色变更时，须同步复核本图标的剪影几何与 color 值（已在本节留痕）。
 - 等价证据：mask-icon.svg 经 XML 解析通过、fill/stroke 集合均为单一 #000 且无渐变定义、字形坐标与 favicon.svg 逐项一致；test 构建 exit=0、产物含 mask-icon 声明与图标文件且与源文件逐字一致；无头 Chrome 冒烟核对图标 link 三条齐全、mask-icon 文件可达、JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ca 落地（2026-11-29，补 hreflang 语言版本声明）
+
+R12 小盘点续项：站点从未声明 `hreflang` 语言版本——`index.html` 只有 canonical 一条 URL 声明，搜索引擎无从从声明层确认根地址对应的语言版本。本站是单语言站点，语言事实早已多处公开且一致：`<html lang="zh-CN">`、JSON-LD `inLanguage: zh-CN`、`og:locale: zh_CN`、Manifest `lang: zh-CN`。与 R12by 补 favicon.ico 显式声明、R12bz 补 mask-icon 同族，这次缺的是语言版本的显式声明本身；不涉及任何其他语言版本，不编造不存在的翻译页。
+
+- 处理：`index.html` 在 canonical 后补两行 alternate 声明：`hreflang="zh-CN"` 与 `hreflang="x-default"`，href 均与 canonical 逐字一致的正式域名根地址（单语言站点的默认版本即中文版，x-default 指向同一根地址如实成立），index.html 8,846→9,042 B（+196 B）；其余内容一字未改。
+- 边界：hreflang 只被搜索引擎消费，不改任何页面内行为；工具页等深路径未逐页加声明——本站语言不随路径变化，根声明已如实覆盖站点语言事实，逐页复制只会增加维护面。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来若上线其他语言版本或正式域名变更，须同步复核这两行（已在本节留痕）。
+- 等价证据：改后两条 alternate 声明的 hreflang 取值与 html lang / JSON-LD inLanguage 逐项对齐（zh-CN，og:locale 的 zh_CN 为同一语言的 OG 写法）、href 与 canonical 逐字一致、JSON-LD 经 JSON 解析校验通过且字段无改动；test 构建 exit=0、产物 index.html 含本声明；无头 Chrome 冒烟核对工具页 alternate 声明保留、JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
