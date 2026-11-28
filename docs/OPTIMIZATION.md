@@ -760,3 +760,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层 `screenshot` 由单字符串改为双元素数组 `["https://tools.morijiu.cn/screenshots/home-wide.png", "https://tools.morijiu.cn/screenshots/home-narrow.png"]`（顺序与 Manifest screenshots 一致：wide 在前、narrow 在后，两地址均为正式域名绝对地址、与 Manifest 的 src 逐项对应），index.html 7,903→7,961 B（+58 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，screenshot 数组原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：screenshot 是站点级声明、不随路由变化（两张均为首页形态），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来首页视觉大改按 R12ah 口径重截 Manifest 截图时，须同步复核本数组仍与 Manifest screenshots 逐项对应（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、screenshot 数组与 Manifest screenshots 逐项一致、两张图实测尺寸与 Manifest sizes 声明一致（1280×720 / 390×844）、除本字段外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本数组；无头 Chrome 冒烟核对工具页 JSON-LD 的 screenshot 数组保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bp 落地（2026-11-28，JSON-LD 补 license 许可证声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）里从未声明许可证，但本站的许可证早已落地——R12x 补入仓库根目录 `LICENSE`（MIT），README 与仓库主页均据此展示 MIT 许可，结构化数据通道却没有这层声明，消费方无从从结构化数据得知该应用的授权条款。与 R12bn 补顶层 sameAs 指向源码仓同族，这次缺的是应用实体本身的许可证声明本身；Schema.org 的 `license` 即指「适用于该内容的许可文档，通常以 URL 指明」。
+
+- 处理：JSON-LD 顶层在 `sameAs` 后补 `"license": "https://github.com/MoRijiu/easy-dev-tools/blob/main/LICENSE"` 一行（正式仓库 main 分支上 LICENSE 文件的公开地址，与 R12x 落地的 MIT LICENSE 逐字对应），index.html 7,961→8,041 B（+80 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，license 原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：license 是站点级声明、不随路由变化（全站应用为同一实体、同一许可证），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来许可证变更或 LICENSE 文件迁移时，须与仓库 LICENSE 与 README 的许可声明一并同步复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、license 地址指向的 LICENSE 文件实测为 MIT 且与仓库一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 license 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
