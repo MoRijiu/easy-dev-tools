@@ -872,3 +872,11 @@ R12 小盘点续项：站点没有微软磁贴配置——`public/` 下无 `brow
 - 处理：新增 `public/browserconfig.xml`（222 B，微软 browserconfig 格式）：`square150x150logo` 指向新增的 `public/mstile-150x150.png`（150×150，由已有的 icon-192.png 同设计下采样生成，图形与 favicon/maskable 同源）、`TileColor` 为 `#4f46e5`（与 mask-icon 的 color、favicon 渐变起点色一致）；`index.html` 在 application-name 后补两条声明：`msapplication-TileColor`（同色）与 `msapplication-config` 指向 `/browserconfig.xml`（显式发现，同 R12by 给 favicon.ico 补显式声明口径），index.html 9,042→9,174 B（+132 B）；其余内容一字未改。只声明实际提供的 square150 档，wide310x150/large310x310 无对应图，一律不编造不写。
 - 边界：browserconfig 只被 Windows/Edge 固定场景消费，不改任何页面内行为；它是独立静态文件、不是页面，不进 sitemap；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来品牌色或图标字形变更时，须同步复核 TileColor 两处取值与磁贴图（已在本节留痕）。
 - 等价证据：browserconfig.xml 经 XML 解析通过（根元素/磁贴图路径/TileColor 逐项核对）、磁贴图实测 150×150 且与 icon-192 同设计；test 构建 exit=0 且产物含 browserconfig.xml 与磁贴图、与源文件逐字一致、产物 index.html 含两条 msapplication 声明；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
+
+## R12cd 落地（2026-11-29，JSON-LD 顶层补 keywords 关键词声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication）从未声明 Schema.org 的 `keywords`——站点的关键词口径早已存在且固定：`<meta name="keywords">` 自初始版本起维护一份 12 个词的站点级关键词（开发工具、在线工具、JSON格式化、Base64编码、URL编码、时间戳转换、UUID生成器、二维码生成、密码生成器、哈希计算、图片压缩、开发者工具箱），结构化数据消费方却只能从 meta 通道取词、JSON-LD 里没有这层声明。与 R12bq 补 alternateName、R12br 补 applicationSubCategory 同族，这次缺的是同一份既有口径在 JSON-LD 通道的声明本身；不新造词、不改 meta 原值。
+
+- 处理：JSON-LD 顶层在 `description` 后补 `"keywords"` 一行，值与 `<meta name="keywords">` 的 content 逐字一致（半角逗号分隔、无空格，与 meta 原写法相同），index.html 9,174→9,365 B（+191 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，keywords 原样保留、不进按页改写范围（它是站点级口径，不随工具页变化；各工具页自有 keywords 仍由 R12f 的 meta 按页同步负责，两条通道不互替）。
+- 边界：keywords 只被结构化数据消费方读取，不改任何页面内行为；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来站点级关键词口径变更时，须同步复核 meta keywords 与本字段两处（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、keywords 与 meta keywords 逐字一致、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 keywords 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
