@@ -3,6 +3,7 @@
   <ShortName>极速开发工具箱</ShortName>
   <Description>搜索极速开发工具箱的在线开发工具</Description>
   <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
   <Language>zh-CN</Language>
   <Image width="192" height="192" type="image/png">https://tools.morijiu.cn/icons/icon-192.png</Image>
   <Url type="text/html" template="https://tools.morijiu.cn/?q={searchTerms}" />
