@@ -712,3 +712,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD 里 `author` 与 `publisher` 两�
 - 处理：JSON-LD 的 author 与 publisher 对象各补 `"description"` 一行，文案与 `public/site.webmanifest` 的 `description` 逐字一致（「提供JSON格式化、Base64编解码、UUID生成器等丰富的在线开发工具，全部在浏览器本地运行。」——Manifest 里对同一主体的现行简介，不另造文案），index.html 7,492→7,784 B（+292 B，两处各 +146 B）；其余字段一字未改，改后两对象仍逐字一致。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套组织对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：组织 description 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来 Manifest 简介文案变更时，须同步复核本字段保持两处逐字一致（已在本节留痕）；创作主体与发布主体分离时（R12ba 留痕）须分别复核两对象的 description。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author 与 publisher 的 description 相同且与 Manifest description 逐字一致、两对象仍逐字一致、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的组织 description 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bj 落地（2026-11-28，JSON-LD 顶层补 image 声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）有 `screenshot`（R12av 补，真实界面截图），但没有 Schema.org 为 CreativeWork 定义的 `image`——该字段指该应用的代表图，消费方在卡片与结果展示里取图时靠它，而本站的代表图早已存在且口径固定：head 里的 `og:image` 指向 `og-image.png`（实测 1200×630，与 og:image:width/height 声明一致）。结构化数据消费方目前只能从 Open Graph 通道取这张图、从 JSON-LD 通道取不到。与 R12av 补 screenshot 同族，这次缺的是顶层实体的代表图字段本身；`screenshot` 与 `image` 语义不同（真实界面 vs 代表图），不互相替代。
+
+- 处理：JSON-LD 顶层在 `screenshot` 后补 `"image": "https://tools.morijiu.cn/og-image.png"` 一行（与 og:image、og:image:secure_url 逐字一致的正式域名绝对地址），index.html 7,784→7,840 B（+56 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：image 是站点级声明、不随路由变化（代表图为站点级品牌图、非单页截图），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来 og 分享图更换时，须与 og:image、og:image:secure_url、twitter:image 一并同步复核本字段（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、image 与 og:image 逐字一致、目标图实测 1200×630 且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 image 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
