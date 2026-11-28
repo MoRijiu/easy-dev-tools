@@ -319,3 +319,11 @@ R12 小盘点续项：R12k 已给 `og:image` 补 type/width/height/alt 四条结
 - 处理：`og:image` 后、其余结构化属性之前，按规范顺序补一条 `og:image:secure_url`，值与 `og:image` 逐字相同（同一张图的 https 地址）。该图全站共用、地址不随页面变化，属站点级常量，无需路由守卫或 useSeo 按页同步。
 - 边界：`og:image` 与 R12k 四条属性的 URL、content 一字未改；twitter:image 无对应的 secure_url 规范项，未动。若将来分享图改走 http 地址或更换 URL，必须同步更新本条。
 - 等价证据：构建产物中该属性单条齐全且值与 og:image 一致；无头 Chrome 冒烟逐页核对——首页/工具页/404 后该属性均为单份且值不变、原分享文案与结构化属性按页同步无回归，桌面/390px 无溢出、无 pageerror。
+
+## R12m 落地（2026-11-28，doctype 回到文件首字节）
+
+R12 小盘点续项：`index.html` 文件开头有一段编辑器自动生成的模板注释（作者/日期/「Do not edit」/Windows 风格的 `\easy-dev-tools\index.html` 路径），位于 `<!doctype html>` 之前。HTML 规范要求 doctype 位于文档最前面以确保标准渲染模式；现代解析器对 doctype 前的注释尚能容忍，但严格解析器、校验工具与部分旧引擎存在被前置内容影响渲染模式判定的风险，且这段注释对访客与维护均无信息价值、还随构建产物逐字发给每一位访客（185 B）。
+
+- 处理：整段删除该模板注释，文件首字节即 `<!doctype html>`；注释之后的全部内容（head 元标签、主题防闪脚本、正文）一字未动。
+- 边界：作者署名仍在仓库提交历史与站点页脚等正式位置，本删除不影响任何版权口径；文件内其余注释（Primary Meta Tags 等分节注释）均在 doctype 之后、属正常文档注释，未动。
+- 等价证据：构建产物 index.html 首字节为 doctype、模板注释清零；无头 Chrome 冒烟逐页核对 document.compatMode 仍为 CSS1Compat（标准模式）、标题与按页元标签同步无回归，桌面/390px 无溢出、无 pageerror。
