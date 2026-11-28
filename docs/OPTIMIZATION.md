@@ -632,3 +632,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD 里 `offers` 是一个 Offer 对�
 - 处理：JSON-LD 的 offers 对象补 `"availability": "https://schema.org/InStock"` 一行（Schema.org 规范登记的 ItemAvailability 枚举 URL），index.html 6,765→6,819 B（+54 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 offers 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：offers.availability 是站点级声明、不随路由变化（全站工具均在线可用），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来若站点停服或某形态下线，须同步把本字段改为 Discontinued/OutOfStock 并复核 offers 其余表述（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、offers.availability 为规范枚举 URL 且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 offers 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12az 落地（2026-11-28，JSON-LD 补 installUrl 安装地址声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）有顶层 `url`，但没有 Schema.org 为 SoftwareApplication 定义的 `installUrl`——结构化数据消费方无从以机器可读方式得知该 Web 应用的安装/访问入口，只能把普通网址字段当作入口猜测。本站为可安装的 Web 应用（已配 Manifest 与安装图标），其安装入口即正式域名根地址。与 R12ap 补 inLanguage、R12av 补 screenshot、R12ax 补 author.url 同族，这次缺的是应用安装入口字段本身。
+
+- 处理：JSON-LD 在顶层 `url` 后补 `"installUrl": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、canonical 逐字一致的正式域名根地址），index.html 6,819→6,868 B（+49 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：installUrl 是站点级声明、不随路由变化（各工具页的安装入口仍是站点根地址，安装后经 Manifest shortcuts/路由进入具体工具），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来站点根地址或安装形态变化时，须与顶层 url、canonical 一并同步（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、installUrl 与顶层 url 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 installUrl 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
