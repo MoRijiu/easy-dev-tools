@@ -808,3 +808,11 @@ R12 小盘点续项：站点没有 RFC 9116 定义的安全联系文件——`pu
 - 处理：新增 `public/.well-known/security.txt`（153 B）：`Contact` 用 About 页「联系我」已公开的邮箱（与 About 页逐字一致，不新增任何未公开联系方式）；`Expires` 为 2027-11-28（自落地日起 364 天、满足 RFC 9116「一年以内」要求）；`Preferred-Languages: zh`；`Canonical` 指向正式域名的同一路径。其余可选字段（Policy/Acknowledgments/Encryption/Hiring）本站无对应公开页面或材料，一律不编造、留空不写。
 - 边界：security.txt 是独立静态文件、不是页面，不进 sitemap，也不是全站级页面变更——按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。`Expires` 到期前须续期改日期（已在本节留痕：2027-11-28 前复核）；联系邮箱若在 About 页变更，须同步复核本文件。它不改任何运行时行为。
 - 等价证据：文件按 RFC 9116 字段格式逐行校验（字段名/冒号/值、Expires 可解析且在未来一年内、Canonical 与正式域名一致）；test 构建 exit=0 且产物含 `.well-known/security.txt` 并与源文件逐字一致；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 text/plain 且内容与本地一致（验收结果见台账）。
+
+## R12bv 落地（2026-11-29，补 /humans.txt 人类可读站点信息文件）
+
+R12 小盘点续项：站点没有 humans.txt 定义的人类可读站点信息文件——`public/` 下无 `humans.txt`，实测请求 `/humans.txt` 返回 200 但 Content-Type 是 text/html、内容是 SPA 兜底页（8,352 B），按标准路径找站点背后团队与技术信息时拿到一页 HTML。与 R12q 补 favicon.ico、R12bu 补 security.txt（默认/标准路径被 SPA 兜底成 HTML）同族，这次缺的是标准人类信息文件本身。
+
+- 处理：新增 `public/humans.txt`（300 B）：`/* TEAM */` 段写开发者 Mo_Rijiu、其 GitHub 主页与 About 页已公开的联系邮箱（均与 About 页/Footer 逐字一致，不新增任何未公开信息）；`/* SITE */` 段写站点名（中英文）、正式域名、公开源码仓、语言 zh-CN、技术栈 Vue 3/Vite/Vue Router（与 README 技术栈一致）与 MIT 许可证。`index.html` 在 sitemap 链接后补 `<link rel="author" type="text/plain" href="/humans.txt" />` 发现声明（humans.txt 倡议的 link 发现方式），index.html 8,183→8,267 B（+84 B）；其余内容一字未改。
+- 边界：humans.txt 是独立静态文件、不是页面，不进 sitemap。本轮虽改了共享 `index.html`（仅加发现链接），但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来开发者、联系方式、源码仓或技术栈变更时，须与 About 页/README 一并同步复核本文件。它不改任何运行时行为。
+- 等价证据：文件按 humans.txt 段落格式校验（TEAM/SITE 两段、字段逐项与 About 页/README 公开信息一致）；test 构建 exit=0 且产物含 `humans.txt` 并与源文件逐字一致、产物 index.html 含 author 发现链接；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 text/plain 且内容与本地一致（验收结果见台账）。
