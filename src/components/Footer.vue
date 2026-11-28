@@ -503,4 +503,20 @@ onBeforeUnmount(() => {
     font-size: 18px;
   }
 }
+
+/* 安全区适配：页脚底部与两侧用 env() 避开手势条/刘海遮挡；
+   无安全区的设备 env() 为 0，calc()/max() 保持原间距不变 */
+.footer .container {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+
+@media (max-width: 640px) {
+  .footer .container {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+}
 </style>

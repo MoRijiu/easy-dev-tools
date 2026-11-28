@@ -528,3 +528,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `orient
 - 处理：manifest 补 `"orientation": "any"`（明确任意方向均可、不锁定横竖屏，为规范登记值），文件 1,733→1,753 B（+20 B）；其余字段、图标、screenshots 与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
 - 边界：orientation 只是偏好声明，不改任何页面内布局与运行时行为，不支持的平台忽略该字段；将来若某个形态明确只适合横屏或竖屏，须同步改本字段（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验通过且除 orientation 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段值正确、icons/screenshots/shortcuts 与四目标页无回归（验收结果见台账）。
+
+## R12am 落地（2026-11-28，已安装 PWA 刘海屏安全区适配）
+
+R12 小盘点续项：Manifest 已声明 `display: standalone`，应用可被安装到主屏幕全屏运行，但 `index.html` 的 viewport 没有 `viewport-fit=cover`、全站 CSS 也没有任何 `env(safe-area-inset-*)`——在刘海/圆角屏设备上，已安装应用要么被系统保守地避开整个刘海区域留出不对称空白，要么（在允许延伸的平台上）顶栏与页脚内容可能被刘海/手势条遮挡。与 R12s 以来补齐 PWA 声明同族，这次缺的是安全区布局适配。
+
+- 处理：viewport 补 `viewport-fit=cover`（允许页面延伸到全屏、由页面自己负责避让）；`Header.vue` 追加安全区规则块——顶栏 `padding-top: env(safe-area-inset-top)`、容器左右以 `max(原间距, env(safe-area-inset-left/right))` 取大（桌面 24px / ≤768px 12px / ≤420px 8px 三档与既有间距逐档对应）；`Footer.vue` 同理追加——容器底部 `calc(原间距 + env(safe-area-inset-bottom))`（桌面 24px / ≤640px 20px）、左右 max() 同口径。追加规则用 `.header .container` / `.footer .container` 更高特异性书写，确保不被既有媒体查询里的 padding 简写覆盖。
+- 边界：无安全区的设备（桌面浏览器、普通安卓）env() 恒为 0，max()/calc() 结果与改前逐像素一致、零视觉变化；本项只适配常驻的顶栏与页脚两处全宽元素，页面主体为居中限宽容器（左右各有 ≥16px 内边距且不贴边固定），不在本轮扩围。将来新增贴边固定元素（如底部导航条）时须按本口径补其安全区内边距（已在本节留痕）。
+- 等价证据：无头 Chrome 实测改前/改后桌面 1280 与移动 390 两视口下顶栏高度、容器左右内边距、页脚底部内边距的计算值逐项一致且无溢出（验收结果见台账）；test 构建 exit=0、产物 index.html 含 viewport-fit=cover、CSS 产物含 safe-area-inset 规则。

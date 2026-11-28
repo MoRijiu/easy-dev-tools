@@ -644,4 +644,29 @@ const openPalette = () => {
     font-size: 12px;
   }
 }
+
+/* 安全区适配：viewport-fit=cover 后内容可延伸到刘海/圆角区域，顶栏用 env() 避开遮挡；
+   无安全区的设备 env() 为 0，max()/加法保持原间距不变 */
+.header {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.header .container {
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+
+@media (max-width: 768px) {
+  .header .container {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-width: 420px) {
+  .header .container {
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+}
 </style>
