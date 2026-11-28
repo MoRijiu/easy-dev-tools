@@ -439,3 +439,11 @@ R12 小盘点续项：`public/favicon.svg` 的 `<defs>` 里定义了两条线性
 - 处理：仅删除 `grad2` 的 `<linearGradient>` 定义块，文件由 1,349 B 降到 1,119 B；`grad1`、全部图形、尺寸与 viewBox 一字未改，SVG 经 XML 解析校验通过。
 - 边界：由 favicon.svg 派生渲染的 favicon.ico 与各档 PNG 图标（icon-192/icon-512/maskable/apple-touch-icon）因渲染像素逐点不变而原样成立，无需重渲染；若将来启用青蓝渐变，须按需重新定义，不得凭记忆假定 grad2 仍在。
 - 等价证据：删除前后以无头 Chrome 把 favicon 以 512×512 渲染截图，逐像素比对全部 identical（像素数据 sha256 一致）；test 构建 exit=0、产物 favicon 与源文件一致；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
+
+## R12ab 落地（2026-11-28，Manifest 补显式 id 稳定应用身份）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起就没有 `id` 字段。按 Web App Manifest 规范，`id` 是已安装 Web App 的身份标识；缺省时浏览器以 `start_url` 推导身份——将来若调整 `start_url`（例如改为某个常用工具页或带参数的入口），已安装应用会被当成另一个新应用（图标重复、安装状态与存储归属错位），用户与浏览器都无从知道它们是同一个应用。与 R12s/R12v 补齐 manifest 声明同族，这次缺的是身份稳定性声明。
+
+- 处理：manifest 补 `"id": "/"`（与现有 `scope`、`start_url` 逐字一致，取根路径为稳定身份），文件 667→676 B（+9 B）；其余字段、图标条目与 `index.html` 的 `rel="manifest"` 链接一字未改。
+- 边界：`id` 选定后即为应用身份锚点，若将来改 `start_url` 必须保留本 `id` 不变、不得随之改动（已在本节留痕）；本项不引入 Service Worker、不改任何运行时行为。
+- 等价证据：manifest 经 JSON 解析校验通过且除 `id` 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、图标条目无回归、首页/工具页无回归（验收结果见台账）。
