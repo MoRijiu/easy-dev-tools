@@ -96,10 +96,6 @@ const copyYaml = async () => clipboard.copyText(yamlText.value, '✓ YAML 已复
 </script>
 
 <style scoped>
-.docker-run { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .text-input { width: 100%; min-height: 110px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .text-input.output { min-height: 72px; background: var(--bg-soft); }
 .text-input.code { min-height: 220px; }
@@ -110,5 +106,5 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .sub { font-size: 1rem; color: var(--text-strong); margin: 16px 0 6px; }
 .stats { margin: 10px 0 0; font-size: 13px; color: var(--text-2); word-break: break-all; }
 .hint { font-size: 13px; color: var(--text-2); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .kv th { width: 96px; } }
+@media (max-width: 640px) { .kv th { width: 96px; } }
 </style>

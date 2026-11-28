@@ -133,10 +133,6 @@ async function copyText(text) {
 generate();
 </script>
 <style scoped>
-.nanoid-generator { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .notes { margin: 4px 0 10px; color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
 .notes.warn { background: var(--warn-soft); }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
@@ -151,5 +147,5 @@ textarea { resize: vertical; }
 .btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .error { color: var(--danger-text); font-size: 14px; }
 .summary { font-size: 13px; margin: 4px 0 10px; color: var(--text-2); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .field select { width: 150px; } }
+@media (max-width: 640px) { .field select { width: 150px; } }
 </style>

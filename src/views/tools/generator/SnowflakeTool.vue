@@ -214,10 +214,6 @@ reparse();
 </script>
 
 <style scoped>
-.snowflake-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .section-title { font-size: 1.15rem; color: var(--text-strong); margin: 22px 0 10px; }
 .section-title:first-of-type { margin-top: 14px; }
 .layout-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
@@ -243,5 +239,5 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .btn-secondary { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border); }
 .btn-success { background: var(--accent-solid); color: #fff; }
 .btn-danger { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .result-table th { width: 120px; } }
+@media (max-width: 640px) { .result-table th { width: 120px; } }
 </style>

@@ -125,10 +125,6 @@ async function copyText(text) {
 }
 </script>
 <style scoped>
-.luhn-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .section-title { font-size: 1.1rem; color: var(--text-strong); margin: 22px 0 10px; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
@@ -155,5 +151,5 @@ input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid
 .summary { font-size: 13px; margin: 6px 0; color: var(--text-2); }
 .batch-list { list-style: none; padding: 0; margin: 0; font-size: 13px; }
 .batch-list li { display: flex; gap: 10px; flex-wrap: wrap; padding: 4px 0; border-bottom: 1px solid var(--border); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .kv th { white-space: normal; } }
+@media (max-width: 640px) { .kv th { white-space: normal; } }
 </style>

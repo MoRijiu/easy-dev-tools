@@ -66,10 +66,6 @@ const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 analyze();
 </script>
 <style scoped>
-.rmb-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 .row label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); flex: 1; min-width: 200px; }
 input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; box-sizing: border-box; width: 100%; }
@@ -81,5 +77,5 @@ input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
 .note { font-size: 13px; color: var(--info-text, var(--text-2)); margin: 6px 0; }
 .capital { font-size: 20px; font-weight: 600; color: var(--text-strong); margin: 16px 0 6px; word-break: break-all; }
 .summary { font-size: 14px; color: var(--text-2); margin: 0 0 10px; font-family: monospace; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .capital { font-size: 17px; } }
+@media (max-width: 640px) { .capital { font-size: 17px; } }
 </style>

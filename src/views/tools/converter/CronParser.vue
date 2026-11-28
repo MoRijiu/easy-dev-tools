@@ -202,10 +202,6 @@ const copyNext = async () => clipboard.copyText(runs.value.map(t => `${formatTim
 </script>
 
 <style scoped>
-.cron-parser { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .warnings-list { margin: 0 0 12px; padding: 10px 14px 10px 30px; background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.7; }
 .input-section { margin-bottom: 12px; }
 .cron-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 15px; box-sizing: border-box; }
@@ -232,8 +228,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .run-week { margin-left: 10px; color: var(--text-2); font-size: 13px; }
 .runs-empty { color: var(--danger-text); font-size: 14px; margin: 0; }
 @media (max-width: 640px) {
-  h1 { font-size: 2rem; }
-  .tool-container { padding: 20px; }
   .field-hint { gap: 10px; }
 }
 </style>

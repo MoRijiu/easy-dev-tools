@@ -102,10 +102,6 @@ const copySummary = () => { if (result.value) copyText(result.value.summary); };
 </script>
 
 <style scoped>
-.ua-parser { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .notes { margin: 8px 0 0; padding: 8px 12px 8px 28px; background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; color: var(--warning-text); font-size: 12.5px; line-height: 1.6; }
 .text-input { width: 100%; min-height: 72px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .summary { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--text-strong); }
@@ -115,5 +111,5 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .kv th { width: 110px; color: var(--text-2); background: var(--bg-soft); font-weight: 600; }
 .kv code { word-break: break-all; color: var(--text); }
 .mini { padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; white-space: nowrap; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .kv th { width: 84px; } }
+@media (max-width: 640px) { .kv th { width: 84px; } }
 </style>

@@ -114,10 +114,6 @@ const copySummary = async () => { if (!diff.value) return; await clipboard.copyT
 process();
 </script>
 <style scoped>
-.date-calc { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .block { margin-bottom: 20px; } .block h2 { font-size: 16px; color: var(--text-strong); margin: 0 0 10px; }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
@@ -130,5 +126,5 @@ input, select { padding: 8px; border: 1px solid var(--border); border-radius: 8p
 .error-line { font-size: 13px; color: var(--danger-text); margin-top: 10px; }
 .quick { display: flex; gap: 6px; flex-wrap: wrap; } .quick button { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
 .result-line { margin-top: 12px; font-size: 14px; color: var(--text); background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 </style>

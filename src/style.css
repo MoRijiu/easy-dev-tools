@@ -355,6 +355,43 @@ img {
   height: auto;
 }
 
+/* 工具页公共版式（R10e 上收）：72 个工具原先逐个重复定义的外层容器、标题、
+   描述与内容卡规则收敛到这里一份。工具页的共同结构是主内容区直下、
+   含 .tool-container 子元素的根元素；首页/关于/404 的根元素无此子元素，不受影响。
+   祖先段用 :where() 压低优先级：个别工具保留的更宽断点（760/768px）scoped
+   响应式规则仍能覆盖这里的 640px 规则，与上收前行为一致。 */
+:where(.main-content > div:has(> .tool-container)) {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+:where(.main-content > div:has(> .tool-container)) > h1 {
+  font-size: 2.5rem;
+  color: var(--text-strong);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+:where(.main-content > div:has(> .tool-container)) > .description {
+  text-align: center;
+  color: var(--text-2);
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+:where(.main-content) .tool-container {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 640px) {
+  :where(.main-content > div:has(> .tool-container)) > h1 { font-size: 2rem; }
+  :where(.main-content) .tool-container { padding: 20px; }
+}
+
 /* 减少动态偏好：关停背景漂移与过渡动画，滚动一律瞬时（R9am：
    CSS 侧管原生锚点跳转，JS 指定的平滑滚动由 router 的 scrollBehavior 同口径处理） */
 @media (prefers-reduced-motion: reduce) {

@@ -285,10 +285,6 @@ const copyReplaced = () => { if (replacedText.value !== null) copyText(replacedT
 </script>
 
 <style scoped>
-.regex-tester { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .pattern-section, .text-section, .replace-section { margin-bottom: 16px; }
 .pattern-row { display: flex; align-items: center; gap: 6px; }
 .slash { color: var(--text-2); font-size: 18px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
@@ -329,8 +325,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .btn-sm { padding: 5px 12px; font-size: 13px; }
 .replace-output { margin: 10px 0 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow-y: auto; }
 @media (max-width: 640px) {
-  h1 { font-size: 2rem; }
-  .tool-container { padding: 20px; }
   .flags-text { min-width: 0; }
 }
 </style>

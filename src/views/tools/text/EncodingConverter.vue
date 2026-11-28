@@ -102,10 +102,6 @@ const clearAll = () => { input.value = ''; statusMessage.value = ''; };
 const copyOutput = async () => clipboard.copyText(output.value, '✓ 已复制结果');
 </script>
 <style scoped>
-.enc-converter { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .mode-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }

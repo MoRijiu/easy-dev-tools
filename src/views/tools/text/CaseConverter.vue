@@ -100,10 +100,6 @@ const copyAll = () => copyText(results.value.map(r => r.label.split(' ')[0] + ':
 </script>
 
 <style scoped>
-.case-converter { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .stats-line { color: var(--text-2); font-size: 12px; margin: 0 0 6px; }
 .warning-line { color: var(--warning-text); background: var(--warning-soft); font-size: 12px; margin: 0 0 6px; padding: 6px 8px; border-radius: 6px; }
 .text-input { width: 100%; min-height: 96px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; resize: vertical; margin-bottom: 14px; }
@@ -114,5 +110,5 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .copy-btn { flex: 0 0 auto; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; }
 .copy-btn:hover { border-color: var(--accent); color: var(--accent-text); }
 .placeholder { color: var(--text-2); font-size: 14px; padding: 12px 0; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .row-label { flex-basis: 118px; } }
+@media (max-width: 640px) { .row-label { flex-basis: 118px; } }
 </style>
