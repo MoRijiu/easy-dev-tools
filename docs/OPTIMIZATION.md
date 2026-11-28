@@ -447,3 +447,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起就没有 `id`
 - 处理：manifest 补 `"id": "/"`（与现有 `scope`、`start_url` 逐字一致，取根路径为稳定身份），文件 667→676 B（+9 B）；其余字段、图标条目与 `index.html` 的 `rel="manifest"` 链接一字未改。
 - 边界：`id` 选定后即为应用身份锚点，若将来改 `start_url` 必须保留本 `id` 不变、不得随之改动（已在本节留痕）；本项不引入 Service Worker、不改任何运行时行为。
 - 等价证据：manifest 经 JSON 解析校验通过且除 `id` 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、图标条目无回归、首页/工具页无回归（验收结果见台账）。
+
+## R12ac 落地（2026-11-28，Manifest 补常用工具快捷方式）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `shortcuts` 字段，已安装应用的长按/右键菜单只能回到首页再找工具，高频工具没有直达入口。与 R12s/R12v/R12ab 补齐 manifest 能力同族，这次缺的是已安装应用的快捷方式声明。
+
+- 处理：manifest 补 `shortcuts` 四条——JSON格式化（`/text/json-formatter`）、Base64编解码（`/text/base64`）、时间戳转换（`/converter/timestamp`）、UUID生成器（`/generator/uuid`），名称与站内工具名逐字一致、URL 与 sitemap/路由逐项核对一致；每条图标复用现有 `/icons/icon-192.png`（192×192 PNG），不新增图标文件。文件 676→1,205 B（+529 B），其余字段与图标条目未改。
+- 边界：快捷方式只对已安装应用的系统菜单生效，不改任何页面内导航与运行时行为；将来工具改名或改路径时须同步改本字段（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验通过、四条 URL 均在 sitemap 中存在；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、四条快捷方式齐全、四目标页可达且无回归（验收结果见台账）。
