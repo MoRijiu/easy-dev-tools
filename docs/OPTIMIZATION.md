@@ -552,3 +552,11 @@ R12 小盘点续项：`index.html` 从没有 `<meta name="format-detection">`。
 - 处理：index.html 在 color-scheme 后补 `<meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />`（四类自动识别全关），文件 5,914→6,005 B（+91 B）；其余 head 标签与页面内真实链接（页脚/导航等显式 `<a>`）一字未改——本声明只关浏览器自动猜测加链，不影响任何显式链接。
 - 边界：format-detection 主要由 iOS Safari（及部分安卓 WebView）实现，不支持的引擎忽略该字段、行为不变；它不改任何运行时逻辑。将来若某页确实希望电话/邮箱可点，应在该处用显式 `<a href="tel:/mailto:">` 实现，不得删本声明放开自动识别（已在本节留痕）。
 - 等价证据：改后 head 经解析核对 meta 存在且四项值正确、color-scheme/theme-color 无回归；test 构建 exit=0、产物 index.html 含本 meta；无头 Chrome 冒烟核对首页/工具页标题与按页元标签同步无回归、双视口无溢出、无 pageerror（验收结果见台账；iOS 真机自动识别关闭效果待 morijiu 有空时确认）。
+
+## R12ap 落地（2026-11-28，JSON-LD 补 inLanguage 语言声明）
+
+R12 小盘点续项：本站语言在各处都已声明——`<html lang="zh-CN">`、`og:locale` 为 `zh_CN`、Manifest 有 `lang: "zh-CN"`，唯独 `index.html` 的 JSON-LD（WebApplication 结构化数据）没有 `inLanguage`。按 Schema.org 规范，`inLanguage` 声明该应用内容所用语言；缺省时搜索引擎与结构化数据消费方只能靠页面其他信号猜测本站语言，与 R12e「JSON-LD 按页同步」同族，这次缺的是站点级语言字段本身。
+
+- 处理：JSON-LD 在 `name` 后补 `"inLanguage": "zh-CN"` 一行（与 html lang / Manifest lang 逐字一致），index.html 6,005→6,034 B（+29 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：inLanguage 是站点级声明、不随路由变化（全站均为中文），不进 syncJsonLd 的按页改写范围；将来若推出其他语言版本，须按多语言形态改本字段（数组或按页同步），不得只改 html lang 了事（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 inLanguage 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
