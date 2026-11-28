@@ -334,7 +334,8 @@ const copyResult = async (key, value) => {
     await navigator.clipboard.writeText(text);
     statusMessage.value = `✓ 已复制 ${getAlgorithmName(key)} 哈希值`;
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
   } catch {
     statusMessage.value = "✗ 复制失败";
     statusType.value = "error";
@@ -354,7 +355,8 @@ const copyAllResults = async () => {
     await navigator.clipboard.writeText(text);
     statusMessage.value = "✓ 已复制所有哈希值";
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
   } catch {
     statusMessage.value = "✗ 复制失败";
     statusType.value = "error";

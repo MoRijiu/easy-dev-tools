@@ -220,7 +220,8 @@ const clearContent = () => {
   markdownText.value = '';
   statusMessage.value = '已清空内容';
   statusType.value = 'info';
-  setTimeout(() => statusMessage.value = '', 2000);
+  const ownMsg = statusMessage.value;
+  setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
 };
 
 // 复制 Markdown
@@ -229,7 +230,8 @@ const copyMarkdown = async () => {
     await navigator.clipboard.writeText(markdownText.value);
     statusMessage.value = '✓ Markdown 已复制到剪贴板！';
     statusType.value = 'success';
-    setTimeout(() => statusMessage.value = '', 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
   } catch (error) {
     statusMessage.value = '✗ 复制失败，请手动复制';
     statusType.value = 'error';
@@ -242,7 +244,8 @@ const copyHtml = async () => {
     await navigator.clipboard.writeText(renderedHtml.value);
     statusMessage.value = '✓ HTML 已复制到剪贴板！';
     statusType.value = 'success';
-    setTimeout(() => statusMessage.value = '', 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
   } catch (error) {
     statusMessage.value = '✗ 复制失败，请手动复制';
     statusType.value = 'error';
@@ -260,7 +263,8 @@ const exportMarkdown = () => {
   URL.revokeObjectURL(url);
   statusMessage.value = '✓ Markdown 文件已下载！';
   statusType.value = 'success';
-  setTimeout(() => statusMessage.value = '', 2000);
+  const ownMsg = statusMessage.value;
+  setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
 };
 
 // 导出 HTML 文件
@@ -275,7 +279,8 @@ const exportHtml = () => {
   URL.revokeObjectURL(url);
   statusMessage.value = '✓ HTML 文件已下载！';
   statusType.value = 'success';
-  setTimeout(() => statusMessage.value = '', 2000);
+  const ownMsg = statusMessage.value;
+  setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
 };
 
 // 同步滚动：按滚动比例联动另一侧，scrollingFrom 防回环
