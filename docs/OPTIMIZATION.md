@@ -520,3 +520,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `handle
 - 处理：manifest 补 `"handle_links": "preferred"`（作用域内链接优先由已安装应用接管），文件 1,706→1,733 B（+27 B）；其余字段、图标、screenshots 与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
 - 边界：handle_links 目前主要由 Chromium 系浏览器实现，不支持的平台忽略该字段、按原默认策略打开链接，不产生负面影响；它不改任何页面内导航与运行时行为，也不引入 Service Worker。将来若希望站内链接一律留在浏览器，须同步改本字段为 not-preferred。
 - 等价证据：manifest 经 JSON 解析校验通过且除 handle_links 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段值正确、icons/screenshots/shortcuts 与四目标页无回归（验收结果见台账）。
+
+## R12al 落地（2026-11-28，Manifest 补 orientation 方向声明）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `orientation` 字段。按 Web App Manifest 规范，`orientation` 声明已安装应用偏好的屏幕方向；缺省时平台按自身默认处理，部分平台对已安装应用会按设备自然方向或首选方向锁定，用户横屏使用桌面级工具（如双栏 Diff、宽表格类工具）时可能被迫竖屏。与 R12ae 补 dir、R12af 补 display_override、R12ak 补 handle_links 同族，这次缺的是方向偏好声明，且本站工具在横竖屏下均有完整布局（全站已过 320px 窄屏与桌面双视口冒烟），没有任何工具需要锁定方向。
+
+- 处理：manifest 补 `"orientation": "any"`（明确任意方向均可、不锁定横竖屏，为规范登记值），文件 1,733→1,753 B（+20 B）；其余字段、图标、screenshots 与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
+- 边界：orientation 只是偏好声明，不改任何页面内布局与运行时行为，不支持的平台忽略该字段；将来若某个形态明确只适合横屏或竖屏，须同步改本字段（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验通过且除 orientation 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段值正确、icons/screenshots/shortcuts 与四目标页无回归（验收结果见台账）。
