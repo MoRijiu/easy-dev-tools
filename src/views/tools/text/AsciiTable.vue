@@ -5,7 +5,7 @@
     <div class="tool-container">
       <section class="convert">
         <div class="row">
-          <label>文本 <textarea v-model="textInput" rows="2" placeholder="输入文本，如 Hello" aria-label="待转文本" :aria-invalid="convertError && convertErrorSource === 'text' ? 'true' : undefined" :aria-describedby="convertError && convertErrorSource === 'text' ? 'ascii-convert-error' : undefined"></textarea></label>
+          <label>文本 <textarea spellcheck="false" v-model="textInput" rows="2" placeholder="输入文本，如 Hello" aria-label="待转文本" :aria-invalid="convertError && convertErrorSource === 'text' ? 'true' : undefined" :aria-describedby="convertError && convertErrorSource === 'text' ? 'ascii-convert-error' : undefined"></textarea></label>
           <label>格式
             <select v-model="format" aria-label="码值格式">
               <option value="dec">十进制</option><option value="hex">十六进制</option><option value="escape">\xHH 转义</option>
@@ -15,7 +15,7 @@
           <button class="btn ghost" @click="loadExample">示例</button>
         </div>
         <div class="row">
-          <label>ASCII 码 <textarea v-model="codeInput" rows="2" placeholder="输入码值，如 72 101 108 108 111" aria-label="待转码值" :aria-invalid="convertError && convertErrorSource === 'code' ? 'true' : undefined" :aria-describedby="convertError && convertErrorSource === 'code' ? 'ascii-convert-error' : undefined"></textarea></label>
+          <label>ASCII 码 <textarea spellcheck="false" v-model="codeInput" rows="2" placeholder="输入码值，如 72 101 108 108 111" aria-label="待转码值" :aria-invalid="convertError && convertErrorSource === 'code' ? 'true' : undefined" :aria-describedby="convertError && convertErrorSource === 'code' ? 'ascii-convert-error' : undefined"></textarea></label>
           <button class="btn" @click="doDecode">码 → 文本</button>
           <button v-if="convertOutput" class="btn ghost" @click="copyText(convertOutput)">复制结果</button>
         </div>

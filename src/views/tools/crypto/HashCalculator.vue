@@ -50,7 +50,7 @@
       <!-- 文本输入区域 -->
       <div class="input-section" v-if="mode === 'text'">
         <ToolEditorPanel title="输入内容" :info="inputInfo">
-          <textarea aria-label="输入需要计算哈希的文本"
+          <textarea spellcheck="false" aria-label="输入需要计算哈希的文本"
             v-model="inputText"
             class="text-input"
             placeholder="在此输入需要计算哈希的文本内容（可为空，空字符串也有确定哈希）..."

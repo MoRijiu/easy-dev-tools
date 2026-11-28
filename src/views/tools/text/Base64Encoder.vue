@@ -45,7 +45,7 @@
       <!-- 编辑器容器 -->
       <ToolEditorLayout>
         <ToolEditorPanel title="输入内容" :info="`${inputText.length} 字符`">
-          <textarea aria-label="输入需要编码或解码的内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'base64-status' : undefined"
+          <textarea spellcheck="false" aria-label="输入需要编码或解码的内容" :aria-invalid="inputErrorActive ? 'true' : undefined" :aria-describedby="inputErrorActive ? 'base64-status' : undefined"
             v-model="inputText"
             class="text-input"
             placeholder="在此输入需要编码或解码的内容..."

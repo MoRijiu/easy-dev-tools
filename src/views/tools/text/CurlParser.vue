@@ -40,7 +40,7 @@
         </template>
         <template v-else-if="result.body">
           <h2 class="sub">请求 Body</h2>
-          <textarea :value="prettyBody" class="text-input output" readonly aria-label="请求Body"></textarea>
+          <textarea spellcheck="false" :value="prettyBody" class="text-input output" readonly aria-label="请求Body"></textarea>
         </template>
         <ul v-if="result.warnings.length" class="warnings-list" role="status" aria-live="polite">
           <li v-for="(w, i) in result.warnings" :key="i">⚠️ {{ w }}</li>
@@ -51,7 +51,7 @@
           <button :class="['mode-btn', { active: codeKind === 'fetch' }]" :aria-pressed="codeKind === 'fetch'" @click="codeKind = 'fetch'">JavaScript fetch</button>
           <button :class="['mode-btn', { active: codeKind === 'python' }]" :aria-pressed="codeKind === 'python'" @click="codeKind = 'python'">Python requests</button>
         </div>
-        <textarea :value="codeText" class="text-input output code" readonly aria-label="生成代码"></textarea>
+        <textarea spellcheck="false" :value="codeText" class="text-input output code" readonly aria-label="生成代码"></textarea>
       </template>
       <ToolExamples :examples="examples" @use-example="useExample" />
       <ToolFeatures :features="features" />
