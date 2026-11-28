@@ -1,0 +1,12 @@
+/* TEAM */
+Developer: Mo_Rijiu
+GitHub: https://github.com/MoRijiu
+Contact: 1092257069@qq.com
+
+/* SITE */
+Site: 极速开发工具箱 (Easy Dev Tools)
+URL: https://tools.morijiu.cn/
+Repository: https://github.com/MoRijiu/easy-dev-tools
+Language: zh-CN
+Technology: Vue 3, Vite, Vue Router
+License: MIT
