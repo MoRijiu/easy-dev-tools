@@ -36,7 +36,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="unit-converter-status" :message="statusMessage" :type="statusType" />
 
       <!-- 转换区域 -->
       <div class="converter-area">
@@ -50,7 +50,7 @@
               </option>
             </select>
           </div>
-          <input id="unit-input-value" aria-label="输入值"
+          <input id="unit-input-value" aria-label="输入值" :aria-invalid="inputInvalid" :aria-describedby="inputDescribedBy"
             v-model="inputValue"
             type="text"
             inputmode="decimal"
@@ -158,6 +158,10 @@ const fromUnit = ref("");
 const toUnit = ref("");
 const statusMessage = ref("");
 const statusType = ref("");
+// 输入错误单独留存原文：换算错误（非法字符/绝对零度/溢出）全部源于输入值，状态区兼报的复制消息不误绑（R9bk）
+const inputError = ref("");
+const inputInvalid = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? "true" : undefined));
+const inputDescribedBy = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? "unit-converter-status" : undefined));
 
 // 单位类别（数据与精确系数在 utils/unitConvert.js）
 const categories = UNIT_CATEGORIES.map((c) => ({ ...c, icon: { length: "📏", weight: "⚖️", temperature: "🌡️", area: "📐", volume: "🧊", time: "⏱️", speed: "🚀", data: "💾" }[c.id] || "🔄" }));
@@ -238,7 +242,7 @@ const formatNumber = formatResult;
 // 严格校验后换算：非法字符定位、温度绝对零度、溢出都明确报错，不静默截断
 const convert = () => {
   if (!String(inputValue.value).trim() || !fromUnit.value || !toUnit.value) {
-    outputValue.value = ""; allResults.value = []; if (!String(inputValue.value).trim()) statusMessage.value = "";
+    outputValue.value = ""; allResults.value = []; if (!String(inputValue.value).trim()) { statusMessage.value = ""; inputError.value = ""; }
     return;
   }
   try {
@@ -246,10 +250,12 @@ const convert = () => {
     const result = convertUnit(value, currentCategory.value, fromUnit.value, toUnit.value);
     outputValue.value = formatResult(result);
     allResults.value = convertAll(value, currentCategory.value, fromUnit.value);
+    inputError.value = "";
     statusMessage.value = "✓ 转换成功！"; statusType.value = "success";
   } catch (error) {
     outputValue.value = ""; allResults.value = [];
-    statusMessage.value = `✗ ${error.message}`; statusType.value = "error";
+    inputError.value = `✗ ${error.message}`;
+    statusMessage.value = inputError.value; statusType.value = "error";
   }
 };
 
@@ -262,10 +268,10 @@ const switchCategory = (categoryId) => {
 };
 
 const swapUnits = () => { const t = fromUnit.value; fromUnit.value = toUnit.value; toUnit.value = t; convert(); };
-const clearAll = () => { inputValue.value = ""; outputValue.value = ""; allResults.value = []; statusMessage.value = ""; };
+const clearAll = () => { inputValue.value = ""; outputValue.value = ""; allResults.value = []; inputError.value = ""; statusMessage.value = ""; };
 
 const copyText = async (text) => {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = "✓ 已复制到剪贴板！"; statusType.value = "success"; setTimeout(() => (statusMessage.value = ""), 2000); }
+  try { await navigator.clipboard.writeText(text); statusMessage.value = "✓ 已复制到剪贴板！"; statusType.value = "success"; const ownMsg = statusMessage.value; setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000); }
   catch { statusMessage.value = "✗ 复制失败"; statusType.value = "error"; }
 };
 const copyResult = async () => {

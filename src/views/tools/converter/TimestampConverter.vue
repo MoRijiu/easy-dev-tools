@@ -45,7 +45,7 @@
       </ToolToolbar>
 
       <!-- 状态信息 -->
-      <ToolStatusMessage :message="statusMessage" :type="statusType" />
+      <ToolStatusMessage id="timestamp-status" :message="statusMessage" :type="statusType" />
 
       <!-- 编辑器容器 -->
       <ToolEditorLayout>
@@ -53,7 +53,7 @@
           <div class="input-section">
             <div class="input-group">
               <label for="ts-input">时间戳输入</label>
-              <input id="ts-input" aria-label="时间戳输入"
+              <input id="ts-input" aria-label="时间戳输入" :aria-invalid="invalidFor('ts')" :aria-describedby="describedByFor('ts')"
                 v-model="timestampInput"
                 type="text"
                 class="text-input-field"
@@ -78,7 +78,7 @@
             <div class="divider">或</div>
             <div class="input-group">
               <label for="ts-date-text">日期时间输入（文本，按本地时区）</label>
-              <input id="ts-date-text" aria-label="日期时间输入（文本，按本地时区）"
+              <input id="ts-date-text" aria-label="日期时间输入（文本，按本地时区）" :aria-invalid="invalidFor('dateText')" :aria-describedby="describedByFor('dateText')"
                 v-model="dateTextInput"
                 type="text"
                 class="text-input-field"
@@ -87,7 +87,7 @@
             </div>
             <div class="input-group">
               <label for="ts-date-picker">或用日期选择器</label>
-              <input id="ts-date-picker" aria-label="日期选择器"
+              <input id="ts-date-picker" aria-label="日期选择器" :aria-invalid="invalidFor('datePicker')" :aria-describedby="describedByFor('datePicker')"
                 v-model="dateInput"
                 type="datetime-local"
                 class="text-input-field"
@@ -180,6 +180,14 @@ const timestampUnit = ref("auto");
 const statusMessage = ref("");
 const statusType = ref("");
 const result = ref(null);
+// 输入错误单独留存原文与来源字段：状态区还兼报复制结果，仅当前展示的正是该输入错误时才关联对应控件（R9bk）
+const inputError = ref("");
+const errorField = ref("");
+const setInputError = (msg, field) => { inputError.value = msg; errorField.value = field; statusMessage.value = msg; statusType.value = "error"; };
+const activeErrorField = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? errorField.value : ""));
+const fieldHit = (f) => activeErrorField.value === f || (activeErrorField.value === "dateBoth" && (f === "dateText" || f === "datePicker"));
+const invalidFor = (f) => (fieldHit(f) ? "true" : undefined);
+const describedByFor = (f) => (fieldHit(f) ? "timestamp-status" : undefined);
 const detectedHint = ref("");
 
 // 当前时间
@@ -207,15 +215,13 @@ const applyResult = (ms, usRemainder = 0) => {
 // 时间戳转日期（逐字校验 + 秒/毫秒/微秒自动识别）
 const timestampToDate = () => {
   if (!timestampInput.value.trim()) {
-    statusMessage.value = "✗ 请输入时间戳";
-    statusType.value = "error";
+    setInputError("✗ 请输入时间戳", "ts");
     detectedHint.value = "";
     return;
   }
   const parsed = parseTimestampInput(timestampInput.value, timestampUnit.value);
   if (!parsed.ok) {
-    statusMessage.value = `✗ 转换失败: ${parsed.error.message}`;
-    statusType.value = "error";
+    setInputError(`✗ 转换失败: ${parsed.error.message}`, "ts");
     result.value = null;
     detectedHint.value = "";
     return;
@@ -233,8 +239,7 @@ const dateToTimestamp = () => {
   if (dateTextInput.value.trim()) {
     const parsed = parseDateText(dateTextInput.value);
     if (!parsed.ok) {
-      statusMessage.value = `✗ 转换失败: ${parsed.error.message}`;
-      statusType.value = "error";
+      setInputError(`✗ 转换失败: ${parsed.error.message}`, "dateText");
       result.value = null;
       return;
     }
@@ -244,14 +249,12 @@ const dateToTimestamp = () => {
     return;
   }
   if (!dateInput.value) {
-    statusMessage.value = "✗ 请输入日期时间文本或用选择器选择";
-    statusType.value = "error";
+    setInputError("✗ 请输入日期时间文本或用选择器选择", "dateBoth");
     return;
   }
   const parsed = parseDateText(dateInput.value);
   if (!parsed.ok) {
-    statusMessage.value = `✗ 转换失败: ${parsed.error.message}`;
-    statusType.value = "error";
+    setInputError(`✗ 转换失败: ${parsed.error.message}`, "datePicker");
     result.value = null;
     return;
   }
@@ -272,7 +275,7 @@ watch([timestampInput, timestampUnit], () => {
         ? `自动识别：共 ${parsed.digits} 位，按${parsed.unitLabel}级时间戳处理`
         : `按${parsed.unitLabel}级时间戳处理`;
       applyResult(parsed.ms, parsed.usRemainder);
-      if (statusType.value === "error") { statusMessage.value = ""; statusType.value = ""; }
+      if (statusType.value === "error") { statusMessage.value = ""; statusType.value = ""; inputError.value = ""; errorField.value = ""; }
     }
   }, 250);
 });
@@ -293,6 +296,7 @@ const clearAll = () => {
   dateTextInput.value = "";
   detectedHint.value = "";
   result.value = null;
+  inputError.value = ""; errorField.value = "";
   statusMessage.value = "";
 };
 
@@ -302,7 +306,8 @@ const copyToClipboard = async (text) => {
     await navigator.clipboard.writeText(text);
     statusMessage.value = "✓ 已复制到剪贴板！";
     statusType.value = "success";
-    setTimeout(() => { statusMessage.value = ""; }, 2000);
+    const ownMsg = statusMessage.value;
+    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
   } catch (error) {
     statusMessage.value = "✗ 复制失败";
     statusType.value = "error";
