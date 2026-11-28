@@ -888,3 +888,11 @@ R12 小盘点续项：R12cc 新增的 `public/mstile-150x150.png`（150×150 微
 - 处理：仅以 zopfli 重写 `public/mstile-150x150.png` 的 PNG 编码字节，像素、尺寸（150×150）、模式（RGBA）与 browserconfig.xml 中的磁贴条目一字未改。
 - 边界：磁贴图只被 Windows/Edge 固定场景经 browserconfig.xml 消费，不改任何页面内行为；它是独立静态文件、不是页面，不进 sitemap，也不是全站级页面变更——按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来按 R12cc 口径重生成磁贴图时，落盘后须再做一次 zopfli 无损重压缩（已在本节留痕）。
 - 等价证据：优化前后逐像素 RGBA 比对 identical、IHDR 尺寸不变；test 构建 exit=0 且产物磁贴图与源文件逐字一致；无头 Chrome 冒烟核对磁贴图可达且字节一致、browserconfig 与 msapplication 声明无回归、JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 PNG 且内容与本地一致（验收结果见台账）。
+
+## R12cf 落地（2026-11-29，JSON-LD 组织 logo 升级为 ImageObject）
+
+R12 小盘点续项：JSON-LD 里 author/publisher 两个 Organization 的 `logo`（R12bb/R12bc 落地）一直是裸字符串 URL。Schema.org 的 `logo` 期望 `ImageObject`（或 URL，二者皆合法），但裸 URL 不带任何尺寸信息，消费方拿到标志地址后还须自行下载图片才能知道宽高与长宽比，做标志排版/裁剪时无从预判；本站标志的尺寸事实早已实测固定——`public/icons/icon-512.png` 为 512×512（Manifest icons 的 maskable/any 条目与 R12bb 实测一致），只是从未在结构化数据里以 ImageObject 形式声明。与 R12k 给 og:image 补 width/height/type 结构化属性同族，这次缺的是 logo 本身的结构化对象形态。
+
+- 处理：author 与 publisher 两处 `logo` 由字符串改为 ImageObject 对象：`@type: ImageObject`、`url` 与原字符串逐字一致、`width: 512`、`height: 512`（与图标文件实测尺寸逐项一致），index.html 9,365→9,589 B（+224 B，两处各 +112 B）；其余字段一字未改，改后 author 与 publisher 仍逐字一致（R12bc 口径）。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，logo 对象原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：logo 对象是组织级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来图标文件或其尺寸变更时，须与 Manifest icons 一并同步复核两处 logo 的 url/width/height（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、两处 logo 均为 ImageObject 且 url 与改前字符串逐字一致、width/height 与图标实测 512×512 一致、author 与 publisher 仍逐项相同、除 logo 外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含 ImageObject logo；无头 Chrome 冒烟核对工具页 JSON-LD 的 logo 对象保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
