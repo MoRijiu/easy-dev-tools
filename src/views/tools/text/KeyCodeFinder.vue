@@ -145,7 +145,6 @@ const copyRow = (k) => copyText('key: ' + displayKey(k.key) + '\ncode: ' + k.cod
 .chips button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
 .chips button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .count { font-size: 13px; color: var(--text-2); margin: 12px 0 8px; }
-.table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
 th { color: var(--text-2); font-weight: 600; }

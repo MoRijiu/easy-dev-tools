@@ -307,7 +307,6 @@ const copyReplaced = () => { if (replacedText.value !== null) copyText(replacedT
 .hl-zero { display: inline-block; width: 2px; height: 1em; background: var(--accent); vertical-align: text-bottom; }
 .no-match { color: var(--text-2); font-size: 14px; margin: 0; }
 .matches-section { margin-bottom: 16px; }
-.table-wrap { overflow-x: auto; }
 .matches-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .matches-table th, .matches-table td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; color: var(--text); vertical-align: top; }
 .matches-table thead th { background: var(--bg-soft); color: var(--text-strong); }

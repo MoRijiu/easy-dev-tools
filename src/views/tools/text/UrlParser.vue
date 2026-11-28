@@ -127,7 +127,6 @@ const copyRebuilt = () => copyText(rebuilt.value);
 .kv { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
 .kv th, .kv td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
 .kv th { width: 110px; color: var(--text-2); background: var(--bg-soft); font-weight: 600; }
-.kv code { word-break: break-all; color: var(--text); }
 .mini { padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; white-space: nowrap; }
 .cell { width: 100%; padding: 5px 7px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 13px; box-sizing: border-box; }
 .sub { font-size: 1rem; color: var(--text-strong); margin: 16px 0 6px; }

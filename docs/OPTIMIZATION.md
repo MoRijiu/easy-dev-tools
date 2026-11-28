@@ -107,3 +107,12 @@ R10e 收官后对剩余优化面再盘点（脚本 r10f-inventory，台账存档
 - 等价证据：基线与新构建两轮无头 Chrome 计算样式探针（脚本 edt-r10g1-probe.js，合成元素复制根元素 data-v 属性以命中 scoped 规则）——4 个全中工具页（JsonEscape/Timezone/Luhn/QrcodeDecoder）五项探针与真实 `.btn.ghost`/`.chip` 元素计算样式逐项一致；对照页（Chmod 异值 chip、ColorConverter 全局兜底、JsonFormatter 工具栏）真实元素零变化（剩余差异仅为对照页模板从不使用的类的合成元素，属上收规则的预期覆盖面）；另 8 路由 × 桌面/390px 巡检无溢出、无 pageerror。
 - 体积：test 构建 exit=0，dist 1,946,107 → 1,940,082 B（−6,025 B，186 文件不变）。
 - 下一步 R10g2：布局/表格族重复 CSS 收敛（`.panes`/`.row`/`.text-input`/`table`/`.kv` 等）。
+
+## R10g2 落地（2026-11-28，布局/表格族重复 CSS 收敛）
+
+- 精确统计（脚本逐条比对 scoped 规则块）：布局/表格族逐字重复 ≥5 工具的有 `.panes` 11（+640px 响应式 11）、`.block` 12、`.row` 居中变体 10、`.text-input` 9、`.table-wrap` 两变体各 6、`.kv th/td` 合并规则 5、`.kv code` 5、`.stats` 顶距变体 5 等。
+- 实际上收三族到 `src/style.css`（锚点与 R10e 同口径、`:where()` 压低优先级）：`.panes`（11 工具，含响应式）、`.table-wrap` 无边距变体（6 工具）、`.kv code`（5 工具），工具 scoped 内共删除 33 条。全仓核查三族均无「模板使用但未定义」的工具页；`.table-wrap` 带 margin 变体（6 工具）声明的 overflow-x 与全局同值、margin 未被全局声明，不受影响；其余 3 个 `.kv` 工具的表格内无 code 元素。
+- **五族经探针实证后撤下、不上收**（与 R10g1 对 `.btn` 基础式的处理同口径）：`.row`/`.block`/`.stats` 的异值变体是「少声明属性」的部分变体，全局规则多出的属性会加法漏入——AsciiTable 真实 `.row` 元素探针 margin-bottom 0→10px 实证（flex-end 变体不声明 margin-bottom），DateCalculator 的 `.block` 只有 margin-bottom: 20px、JsonToTypescript 的 `.stats` 只有 margin-left/color，同理会被漏入 flex/字号/顶距；`.kv th/td` 的 border 会漏入 QrcodeDecoder/LuhnChecker/UlidTool 的无边框键值表（三者 scoped 单元格规则均不声明 border）；`.text-input` 另有 4 个工具在 ToolEditorPanel 内以 `:deep(.text-input)` 使用同名类，全局 border-radius 等非冲突属性会漏入面板上下文。`textarea`/`table` 元素规则使用面远超定义面（44/多工具），同样不上收。均维持现状并记录结论。
+- 等价证据：基线与新构建两轮无头 Chrome 计算样式探针（脚本 edt-r10g2-probe.js，12 路由 × 桌面/390px）——真实元素计算样式 diff 为 0（含回滚三族的对照页 AsciiTable 真实 `.row`、DateCalculator 真实 `.block`、JsonToTypescript 真实 `.stats`、QrcodeDecoder 真实 `.kv th/td`）；全中工具的合成探针（CssFormatter/JsonCsv/LineTools 的 `.panes` 桌面双栏与 390px 单栏、Timezone/AsciiTable 的 `.table-wrap`、Cidr/CurlParser 的 `.kv code`）逐项一致；剩余合成差异仅出现在模板从不使用该类的页面，属上收规则的预期覆盖面（同 R10g1 口径）；12 路由双视口无溢出、无 pageerror。
+- 体积：test 构建 exit=0，dist 1,940,082 → 1,938,245 B（−1,837 B，186 文件不变）。
+- 下一步 R10h：tools-config meta 拆分评估（原型 + 实测 + 结论）。

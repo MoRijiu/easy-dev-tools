@@ -119,9 +119,7 @@ const copyOutput = async () => clipboard.copyText(outputText.value, '✓ 结果�
 .mode-btn.active { background: var(--accent-solid); color: #fff; }
 .opt { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
 .select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 13px; }
-.panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .text-input { width: 100%; min-height: 220px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .text-input.output { background: var(--bg-soft); }
 .stats { margin: 10px 0 0; font-size: 13px; color: var(--text-2); }
-@media (max-width: 640px) { .panes { grid-template-columns: 1fr; } }
 </style>

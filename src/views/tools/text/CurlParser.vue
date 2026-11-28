@@ -135,7 +135,6 @@ const copyCode = async () => clipboard.copyText(codeText.value, '✓ 代码已�
 .kv { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
 .kv th, .kv td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
 .kv th { width: 150px; color: var(--text-2); background: var(--bg-soft); font-weight: 600; word-break: break-all; }
-.kv code { word-break: break-all; color: var(--text); }
 .sub { font-size: 1rem; color: var(--text-strong); margin: 16px 0 6px; }
 .stats { margin: 10px 0 0; font-size: 13px; color: var(--text-2); word-break: break-all; }
 .hint { font-size: 13px; color: var(--text-2); }

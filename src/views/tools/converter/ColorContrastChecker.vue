@@ -126,7 +126,6 @@ input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; 
 .summary { font-size: 14px; color: var(--text-strong); margin: 14px 0 8px; }
 .ratio { font-size: 20px; }
 .muted { color: var(--text-2); font-size: 12px; }
-.table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--text); }
 th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); }
 th { white-space: nowrap; color: var(--text-2); font-weight: 600; }

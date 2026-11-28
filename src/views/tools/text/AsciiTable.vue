@@ -102,7 +102,6 @@ textarea, select { padding: 8px 10px; border: 1px solid var(--border); border-ra
 .chips button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; }
 .chips button.active { background: var(--accent-solid); color: #fff; border-color: transparent; }
 .count { font-size: 13px; color: var(--text-2); margin: 12px 0 8px; }
-.table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--text); }
 th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 td.char { font-weight: 700; color: var(--text-strong); }
