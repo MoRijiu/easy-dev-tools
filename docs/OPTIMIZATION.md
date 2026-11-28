@@ -600,3 +600,11 @@ R12 小盘点续项：本站全部工具免费使用，JSON-LD 里已有 `offers
 - 处理：JSON-LD 在 `softwareVersion` 后补 `"isAccessibleForFree": true` 一行，index.html 6,321→6,356 B（+35 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：isAccessibleForFree 是站点级声明、不随路由变化（全站工具均免费、无付费墙），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来若引入付费功能或付费墙，须同步把本字段改为 false 或按页区分，并同步复核 offers 表述（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、isAccessibleForFree 为布尔 true 且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 isAccessibleForFree 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12av 落地（2026-11-28，JSON-LD 补 screenshot 截图声明）
+
+R12 小盘点续项：本站已有真实截图——R12ah 为 Manifest 安装展示截了首页桌面截图 `public/screenshots/home-wide.png`（实测 1280×720），但 `index.html` 的 JSON-LD（WebApplication 结构化数据）没有 Schema.org 为软件应用定义的 `screenshot`，结构化数据消费方无从得知该应用的界面截图，只能靠 og:image 的分享图间接代替，而分享图是品牌宣传图、不是真实界面。与 R12ap 补 inLanguage、R12as 补 browserRequirements、R12at 补 softwareVersion、R12au 补 isAccessibleForFree 同族，这次缺的是站点级截图字段本身。
+
+- 处理：JSON-LD 在 `isAccessibleForFree` 后补 `"screenshot": "https://tools.morijiu.cn/screenshots/home-wide.png"` 一行（正式域名绝对地址，指向 Manifest screenshots 已在用的同一张桌面首页截图），index.html 6,356→6,430 B（+74 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：screenshot 是站点级声明、不随路由变化（截图为首页形态），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来首页视觉大改、按 R12ah 口径重截 Manifest 截图时，须同步复核本字段仍指向现行截图（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、screenshot 与 Manifest 桌面截图地址逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 screenshot 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
