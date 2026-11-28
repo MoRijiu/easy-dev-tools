@@ -101,7 +101,8 @@ const router = createRouter({
 const SITE_ORIGIN = 'https://tools.morijiu.cn'
 
 // 把某个 meta 的 content 同步到所有已存在的同名标签（index.html 的
-// twitter 标签用 property=、useSeo 创建的用 name=，两种都得更新，否则
+// twitter 标签标准写法是 name=（R12j 已把 index.html 静态标签从
+// property= 改正），但历史残留可能两种都有，两种都得更新，否则
 // 会留一份旧值被平台优先读到）；一个都没有时按默认属性新建。
 const setMetaAll = (name, content, defaultAttr = 'property') => {
   const found = document.querySelectorAll(
@@ -214,7 +215,7 @@ const syncCanonical = (to) => {
     document.head.appendChild(ogUrlMeta)
   }
   ogUrlMeta.setAttribute('content', url)
-  setMetaAll('twitter:url', url)
+  setMetaAll('twitter:url', url, 'name')
 }
 
 // 全局路由守卫 - 设置页面标题和描述

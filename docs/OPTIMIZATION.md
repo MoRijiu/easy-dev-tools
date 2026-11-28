@@ -295,3 +295,11 @@ R12 小盘点续项：`index.html` 还留着两条不被任何主流搜索引擎
 - 处理：删除上述两行；`author`/`robots`/`title` 等其余 meta 未动（robots 由 R12g 守卫按页同步、title 由 R12c 守卫同步，均在实际生效链路上）。
 - 边界：全仓检索确认无代码读取这两条 meta，删除不影响任何运行时行为；页面语言声明走 html lang 这一标准位置，不受影响。
 - 等价证据：构建产物 index.html 中两条 meta 清零、其余 meta 逐项不变；无头 Chrome 冒烟核对首页/工具页/404 的标题、canonical、robots 与 JSON-LD 同步无回归。
+
+## R12j 落地（2026-11-28，twitter 元标签改标准 name 属性）
+
+R12 小盘点续项：`index.html` 的五条 twitter:* 元标签（card/url/title/description/image）一直用 Open Graph 的 `property=` 属性写，而 Twitter 卡片规范写法是 `name=`（og:* 才用 property=）。不执行 JS 的分享爬虫按规范以 name= 读取时可能读不到这五条，卡片只能退回 og:* 兜底；R12h 已让运行时代码同时兼容两种属性，但静态 HTML 本身仍是非标准写法。
+
+- 处理：index.html 五条 twitter:* 统一改 `name=`；路由守卫在 404 移除 twitter:url 后重建该标签时，新建属性同步改 `name=`（此前默认 property=，会把刚改正的写法又写回去）。守卫与 useSeo 的查询仍同时覆盖 property/name 两种，历史残留不会漏同步。
+- 边界：og:* 的 property= 是其规范写法，未动；标签的 content 值一字未改。
+- 等价证据：构建产物中 twitter:* 的 property= 形式清零、name= 形式五条齐全；无头 Chrome 冒烟逐页核对——首页/工具页 twitter:* 均为 name= 单份且值随页同步、404 时 twitter:url 移除、从 404 返回后以 name= 重建，桌面/390px 无溢出、无 pageerror。
