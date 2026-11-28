@@ -784,3 +784,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `applicationCategory` 后补 `"applicationSubCategory": "开发者工具"` 一行（与站内标题/关键词的类别口径一致的中文类别词，与 `inLanguage: "zh-CN"` 同语言口径），index.html 8,082→8,133 B（+51 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，本字段原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：applicationSubCategory 是站点级声明、不随路由变化（全站应用为同一实体、同一子分类），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。取值未用 Manifest 的 categories（utilities/productivity 是应用商店货架分类、与 Schema.org 子分类不是同一套口径，不混用）。将来产品定位变更（如收窄为某一垂直领域工具）时，须同步复核本字段。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、applicationSubCategory 与 applicationCategory 相邻且类别口径与站内标题/关键词一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的本字段保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bs 落地（2026-11-29，JSON-LD 顶层补 downloadUrl 下载地址声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）顶层有 `url` 与 `installUrl`，但没有 Schema.org 为 SoftwareApplication 定义的 `downloadUrl`——该字段专指应用的下载地址，结构化数据消费方按专用字段取下载入口时取不到，只能靠 `installUrl` 猜测。本站是可安装的 PWA（Manifest 齐全、display=standalone），下载/安装入口即站点根地址，与 `installUrl` 指向同一地址、只是字段语义不同（安装页 vs 下载地址），不互相替代。与 R12be 给 offers 补 url 同族，这次缺的是应用实体本身的下载地址字段。
+
+- 处理：JSON-LD 顶层在 `installUrl` 后补 `"downloadUrl": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、`installUrl`、canonical 逐字一致的正式域名根地址），index.html 8,133→8,183 B（+50 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，本字段原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：downloadUrl 是站点级声明、不随路由变化（全站应用为同一实体、下载入口为同一根地址），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来站点根地址变化时，须与顶层 url、installUrl、canonical 一并同步复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、downloadUrl 与顶层 url/installUrl 逐字一致、除新增项外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 downloadUrl 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
