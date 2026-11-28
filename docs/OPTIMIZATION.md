@@ -960,3 +960,11 @@ R12 小盘点续项：`public/opensearch.xml`（R12bw 落地）有 `InputEncodin
 - 处理：`opensearch.xml` 在 `InputEncoding` 后补 `<OutputEncoding>UTF-8</OutputEncoding>` 一行（值与 InputEncoding、页面 charset、XML 声明逐字一致，置于 Language 之前与规范常见顺序一致），文件 626→667 B（+41 B）；其余元素一字未改，Url 模板与 `?q={searchTerms}` 落地搜索行为不变。
 - 边界：OutputEncoding 只被 OpenSearch 消费方读取，不改任何运行时行为；opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap，按 R12bt 口径本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来站点输出编码变更时，须与 charset、XML 声明、InputEncoding 一并同步复核本元素（已在本节留痕）。
 - 等价证据：改后文件经 XML 解析校验通过、OutputEncoding 为 UTF-8 且与 InputEncoding 及页面 charset 逐项一致、除新增元素外其余元素与改前逐项相同；test 构建 exit=0 且产物 opensearch.xml 与源文件逐字一致；无头 Chrome 冒烟核对 `/?q=json` 搜索落地无回归、首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
+
+## R12co 落地（2026-11-29，OpenSearch 补 16×16 favicon 图标声明）
+
+R12 小盘点续项：`public/opensearch.xml`（R12bw 落地）只有一个 192×192 的 `Image`——OpenSearch 1.1 允许声明多个不同尺寸的 Image，浏览器把本站添加为搜索引擎后在搜索栏/结果等小尺寸场景显示图标时，192 图只能被大幅缩小凑数，没有与之匹配的小尺寸图。本站的小尺寸图标事实早已实测固定：`public/favicon.ico` 内含 16×16、32×32、48×48 三档（ICO 目录实测），`index.html` 的 favicon.ico 声明亦写作 `sizes="16x16 32x32 48x48"`、`type="image/x-icon"`，只是从未在 OpenSearch 通道里声明 16 档。与 R12cm/R12cn 给同一文件补 Language/OutputEncoding 同族，这次缺的是同一图标资产在搜索描述通道的小尺寸声明本身。
+
+- 处理：`opensearch.xml` 在既有 192 Image 前补一行 16×16 Image：`width="16"`、`height="16"`、`type="image/x-icon"`、地址为正式域名下的 `/favicon.ico`（与 ICO 实测最小档及 index.html 的 type 逐项一致），文件 667→764 B（+97 B）；其余元素一字未改，192 Image 与 Url 模板不变。
+- 边界：Image 只被 OpenSearch 消费方读取，不改任何运行时行为；opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap，按 R12bt 口径本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来 favicon.ico 的内含尺寸或格式变更时，须同步复核本行（已在本节留痕）。
+- 等价证据：改后文件经 XML 解析校验通过、两条 Image 的尺寸/类型与对应文件实测逐项一致（ICO 目录含 16 档、icon-192 为 192×192 PNG）、除新增行外其余元素与改前逐项相同；test 构建 exit=0 且产物 opensearch.xml 与源文件逐字一致；无头 Chrome 冒烟核对 `/?q=json` 搜索落地无回归、首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
