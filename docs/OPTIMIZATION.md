@@ -367,3 +367,11 @@ R12 小盘点续项：仓库 `README.md` 自初始提交后未随产品演进更
 - 处理：工具列表按 `src/router/tools-config.js` 全量重写——五组分别标注数量（文本处理 27 / 格式转换 27 / 生成器 9 / 加密解密 6 / 图片工具 3，合计 72），组内逐个列出工具名并注明以该配置文件为准；特性补搜索发现、收藏/最近使用、Ctrl+K 命令面板与暗色三态四项；技术栈的二维码库由只写 qrcode 补为 qrcode / jsQR（生成与解码各一，与 package.json 依赖一致）。
 - 边界：README 不进构建产物，本项不改变任何运行时行为；工具名逐字取自 tools-config，后续新增工具时应同步本列表（已在本节留痕）。快速开始、项目结构、许可证与作者等其余章节核对无误、未动。
 - 等价证据：脚本以 tools-config 为准逐名核对 README，72 个工具名缺失为 0、分组计数与配置一致；test 构建 exit=0 且产物与改前同哈希（README 不入产物），页面冒烟无回归（验收结果见台账）。
+
+## R12s 落地（2026-11-28，补 Web App Manifest）
+
+R12 小盘点续项：站点没有任何 Web App Manifest——`index.html` 无 `rel="manifest"` 链接、`public/` 无 manifest 文件。移动端浏览器「添加到主屏幕」与桌面浏览器的安装入口只能靠页面标题与图标临场拼凑：主屏幕名称取长标题、图标只能挑到 favicon 或 apple-touch-icon（尺寸/用途未按 manifest 规范声明），主题色与启动背景也无从得知。与 R12o 给图标 link 补 sizes 同族，都是把站点身份信息按规范声明完整。
+
+- 处理：新增 `public/site.webmanifest`（name=极速开发工具箱、short_name=开发工具箱、lang=zh-CN、start_url/scope 为根路径、display=standalone、theme_color/background_color 与亮色主题色 `#f8f9fa` 一致）；图标由现有 `favicon.svg` 原图渲染生成 192×192 与 512×512 两档 PNG（`public/icons/`），连同 SVG 本体一并写入 icons 数组，purpose 只声明 any（圆角透明底未经 maskable 安全区设计，不冒充 maskable）；`index.html` 补一条 `rel="manifest"` 链接。
+- 边界：本项只补声明文件，不引入 Service Worker、不做离线缓存，不改变任何页面运行时行为；若将来更换 favicon 设计或亮色主题色，必须同步重渲染两档 PNG 与 theme_color（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验、图标条目与实际文件尺寸逐项一致；构建产物含 manifest 与两档图标且字节与源文件一致；无头 Chrome 冒烟核对 manifest 可达且可解析、首页/工具页标题与按页元标签同步无回归（验收结果见台账）。
