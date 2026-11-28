@@ -351,3 +351,11 @@ R12 小盘点续项：`index.html` 没有声明 `meta[name=referrer]`，页面�
 - 处理：补一条 `<meta name="referrer" content="strict-origin-when-cross-origin" />`——同源请求保留完整地址、跨源只发源（协议+域名）、降级到 http 时不发送，与主流现代浏览器的推荐默认值逐字一致，显式化后全引擎口径统一。
 - 边界：全站外链已有 `rel="noopener noreferrer"`（单链接级已不发送），本条是页面级兜底，覆盖将来新增的普通链接与导航，不改变任何现有链接行为；该策略为站点级常量、不随页面变化，无需路由守卫按页同步。
 - 等价证据：构建产物中该 meta 单条齐全且值正确；无头 Chrome 冒烟逐页核对——首页/工具页/404 该 meta 均为单份且值不变、标题与按页元标签同步无回归，桌面/390px 无溢出、无 pageerror。
+
+## R12q 落地（2026-11-28，补 favicon.ico 默认图标）
+
+R12 小盘点续项：站点只声明了 SVG favicon 与 apple-touch-icon，`public/` 里没有 `favicon.ico`。实测线上（tools.test）请求 `/favicon.ico` 返回 200 但 Content-Type 是 text/html、内容是 SPA 兜底页（5,687 B）——不支持 SVG 图标的旧浏览器、以及只按默认路径 `/favicon.ico` 取图标的收藏夹/聚合/抓取服务，拿到的是一页 HTML 而不是图标，轻则无图标、重则解析报错。
+
+- 处理：由现有 `favicon.svg` 原图渲染生成 `public/favicon.ico`（16×16 / 32×32 / 48×48 三尺寸 PNG 条目，4,891 B），放在站点根路径供默认请求命中；`index.html` 的图标 link 未动——现代浏览器继续用 SVG（矢量任意尺寸更清晰），ICO 只兜底默认路径与旧引擎。
+- 边界：ICO 画面与 favicon.svg 为同一设计（紫色渐变圆角底 + 白色工具箱 + 黄色闪电，渲染后逐像素核对覆盖完整）；若将来更换 favicon.svg 设计，必须同步重渲染本文件（已在本节留痕）。
+- 等价证据：ICO 文件头与三尺寸条目经解析校验齐全、各尺寸画面非空且底部/中心采样与原图一致；构建产物根目录含 favicon.ico 且字节与源文件一致；无头 Chrome 冒烟核对首页/工具页标题与按页元标签同步无回归、双视口无溢出；部署后线上 `/favicon.ico` 返回 image/x-icon 且哈希与本地一致（验收结果见台账）。
