@@ -391,3 +391,11 @@ R12 小盘点续项：R12s 已补标准 Web App Manifest（display=standalone、
 - 处理：index.html 在 manifest 链接后补四条声明——`mobile-web-app-capable=yes`（标准/Chromium 口径）、`apple-mobile-web-app-capable=yes`（iOS 以 Web App 模式打开）、`apple-mobile-web-app-title=开发工具箱`（与 manifest short_name 逐字一致）、`apple-mobile-web-app-status-bar-style=default`（状态栏用默认样式，与亮色背景 `#f8f9fa` 协调；暗色模式下系统状态栏仍由页面 color-scheme 影响，本条不冒充 black-translucent）。
 - 边界：manifest 文件一字未改；这四条是站点级常量、不随页面变化，无需路由守卫或 useSeo 按页同步。若将来改 manifest short_name，必须同步 apple-mobile-web-app-title。
 - 等价证据：构建产物中四条标签单份齐全且标题与 short_name 一致；无头 Chrome 冒烟逐页核对——首页/工具页四条均为单份且值不变、标题与按页元标签同步无回归，桌面/390px 无溢出、无 pageerror（iOS 真机主屏幕模式待 morijiu 有空时确认）。
+
+## R12v 落地（2026-11-28，Manifest 补 maskable 图标）
+
+R12 小盘点续项：R12s 补 Web App Manifest 时，图标 purpose 只声明了 `any`——当时留痕「圆角透明底未经 maskable 安全区设计，不冒充 maskable」。但这也意味着 Android 自适应图标（圆形/水滴等系统遮罩裁切）拿不到专为裁切设计的图：现有 512 图四角透明、图形顶到画面边缘，被圆形遮罩裁切后会露透明边、边缘的速度线与闪电还可能被切掉。本轮把当时缺的设计真正补上，而不是改个声明了事。
+
+- 处理：以 `favicon.svg` 为源做 maskable 变体——背景改为满幅渐变（去掉圆角、四角不透明），工具箱/闪电/速度线整体绕中心按 0.8 缩放收进中央 80% 直径的安全区，渲染为 `public/icons/icon-maskable-512.png`（512×512）；manifest icons 追加一条 `purpose: "maskable"` 条目，原有三条 `any` 图标一字未动。
+- 边界：图形设计与配色和 favicon 完全同源，只是构图为裁切留白；安全区口径按 W3C maskable 规范（中央 80% 直径圆内须含全部关键图形）。若将来更换 favicon 设计，必须同步按本口径重渲染本文件（已在本节留痕）。
+- 等价证据：渲染产物逐项程序校验——四角与四边中点像素均为不透明渐变色、全图白色/黄色图形像素采样无一落在安全区圆外、中心为工具箱白色；manifest 经 JSON 解析校验且新条目尺寸与实际文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、首页/工具页标题与按页元标签同步无回归（验收结果见台账）。
