@@ -168,10 +168,18 @@ onMounted(() => {
 
 /* 暂停：手动开关与鼠标悬停时静止，方便点中移动中的链接。
    弹幕链接已退出 Tab 顺序（R9ai），不再有焦点进入区域的暂停通道；
-   暂停按钮保持焦点不影响滚动恢复（按钮在 wrapper 外）。 */
-.danmaku-row.is-paused,
-.danmaku-container:hover .danmaku-row {
+   暂停按钮保持焦点不影响滚动恢复（按钮在 wrapper 外）。
+   悬停暂停只对真有悬停能力的设备（鼠标）生效：触屏点按会让 :hover
+   粘滞在容器上，点「继续滚动」后 is-paused 已移除、动画却被粘滞的
+   :hover 规则继续按住，表现为关了再点没反应（真机反馈后修复）。 */
+.danmaku-row.is-paused {
   animation-play-state: paused;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .danmaku-container:hover .danmaku-row {
+    animation-play-state: paused;
+  }
 }
 
 /* 减少动态偏好：弹幕直接静止（全局规则只压缩时长会跳到末帧，这里明确关停） */
