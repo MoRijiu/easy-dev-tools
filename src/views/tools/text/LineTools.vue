@@ -133,8 +133,6 @@ const copyOutput = async () => {
 .options select, .options .affix { margin-left: 4px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
 .options .affix { width: 72px; }
 .options .check { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
-.panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .text-input { width: 100%; min-height: 220px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; box-sizing: border-box; resize: vertical; }
 .stats { margin-top: 10px; font-size: 13px; color: var(--text-2); }
-@media (max-width: 640px) { .panes { grid-template-columns: 1fr; } }
 </style>

@@ -225,7 +225,6 @@ reparse();
 .custom-grid, .gen-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
 .parse-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .text-input { flex: 1 1 320px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; }
-.table-wrap { overflow-x: auto; }
 .result-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
 .result-table th { text-align: left; padding: 6px 10px; color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; width: 180px; }
 .result-table td { padding: 6px 10px; color: var(--text); border-bottom: 1px solid var(--border); word-break: break-all; }

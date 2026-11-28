@@ -106,7 +106,6 @@ const copyOutput = async () => {
 .name-input { width: 130px; margin-left: 4px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; }
 .check { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
 .stats { margin-left: auto; color: var(--text-2); }
-.panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .io { width: 100%; min-height: 260px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.55; box-sizing: border-box; resize: vertical; }
-@media (max-width: 640px) { .panes { grid-template-columns: 1fr; } .stats { margin-left: 0; } }
+@media (max-width: 640px) { .stats { margin-left: 0; } }
 </style>

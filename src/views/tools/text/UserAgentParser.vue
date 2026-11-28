@@ -109,7 +109,6 @@ const copySummary = () => { if (result.value) copyText(result.value.summary); };
 .kv { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
 .kv th, .kv td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
 .kv th { width: 110px; color: var(--text-2); background: var(--bg-soft); font-weight: 600; }
-.kv code { word-break: break-all; color: var(--text); }
 .mini { padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-soft); color: var(--text-2); font-size: 12px; cursor: pointer; white-space: nowrap; }
 @media (max-width: 640px) { .kv th { width: 84px; } }
 </style>

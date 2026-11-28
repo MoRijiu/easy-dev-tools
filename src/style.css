@@ -430,6 +430,42 @@ img {
   cursor: not-allowed;
 }
 
+/* 工具页布局/表格族（R10g2 上收）：.panes（11 工具，含 640px 响应式）、
+   .table-wrap 无边距变体（6 工具）、.kv code（5 工具）原先逐字重复的 scoped
+   规则收敛到这里一份，工具内已删除。锚点与 R10e 同口径、祖先段用 :where()
+   压低优先级；三族均经核查：全仓无「模板使用但未定义」的工具页，异值定义
+   保留 scoped 并继续胜出——.table-wrap 带 margin-bottom 变体（6 工具）声明的
+   overflow-x 与此处同值、margin 不在此处声明，不受影响；其余 3 个 .kv 工具
+   的表格内无 code 元素，.kv code 不改变其外观。
+   以下各族逐字重复虽达 5+ 工具但不上收（计算样式探针实证有加法漏入）：
+   .row 居中变体（10 工具）/.block（12 工具）/.stats 顶距变体（5 工具）的
+   异值变体是「少声明属性」的部分变体（如 .row flex-end 变体不声明
+   margin-bottom、.block 只有 margin-bottom: 20px 的工具），全局规则里
+   多出的属性会漏入这些工具改变间距（AsciiTable 真实 .row 元素探针
+   margin-bottom 0→10px 实证）；.kv th/td 合并规则（5 工具）的 border
+   会漏入 QrcodeDecoder/LuhnChecker/UlidTool 的无边框键值表；.text-input
+   （9 工具）另有 4 个工具在 ToolEditorPanel 内以 :deep(.text-input) 使用
+   同名类，全局 border-radius 等非冲突属性会漏入面板上下文；
+   textarea/table 元素规则使用面远超定义面（44/多工具）。均维持现状。 */
+:where(.main-content > div:has(> .tool-container)) .panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  :where(.main-content > div:has(> .tool-container)) .panes { grid-template-columns: 1fr; }
+}
+
+:where(.main-content > div:has(> .tool-container)) .table-wrap {
+  overflow-x: auto;
+}
+
+:where(.main-content > div:has(> .tool-container)) .kv code {
+  word-break: break-all;
+  color: var(--text);
+}
+
 /* 减少动态偏好：关停背景漂移与过渡动画，滚动一律瞬时（R9am：
    CSS 侧管原生锚点跳转，JS 指定的平滑滚动由 router 的 scrollBehavior 同口径处理） */
 @media (prefers-reduced-motion: reduce) {

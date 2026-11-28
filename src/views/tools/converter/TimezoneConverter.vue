@@ -110,7 +110,6 @@ function copyText(text) { return clipboard.copyText(text, '已复制到剪贴板
 .muted { font-size: 12px; color: var(--text-2); }
 .daydiff { color: var(--accent-text); font-size: 12px; }
 .mono { font-family: monospace; }
-.table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
 tr.self td { font-weight: 600; }

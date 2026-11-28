@@ -105,7 +105,6 @@ const copySummary = async () => {
 </script>
 
 <style scoped>
-.panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .text-input { width: 100%; min-height: 260px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; line-height: 1.6; box-sizing: border-box; resize: vertical; }
 .panel { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); padding: 12px; }
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -118,5 +117,5 @@ const copySummary = async () => {
 .top ol { margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-2); }
 .top li { display: flex; justify-content: space-between; padding: 2px 0; }
 .word { color: var(--text); font-weight: 600; }
-@media (max-width: 640px) { .panes { grid-template-columns: 1fr; } .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 </style>
