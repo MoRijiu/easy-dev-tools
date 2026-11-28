@@ -455,3 +455,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `shortc
 - 处理：manifest 补 `shortcuts` 四条——JSON格式化（`/text/json-formatter`）、Base64编解码（`/text/base64`）、时间戳转换（`/converter/timestamp`）、UUID生成器（`/generator/uuid`），名称与站内工具名逐字一致、URL 与 sitemap/路由逐项核对一致；每条图标复用现有 `/icons/icon-192.png`（192×192 PNG），不新增图标文件。文件 676→1,205 B（+529 B），其余字段与图标条目未改。
 - 边界：快捷方式只对已安装应用的系统菜单生效，不改任何页面内导航与运行时行为；将来工具改名或改路径时须同步改本字段（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验通过、四条 URL 均在 sitemap 中存在；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、四条快捷方式齐全、四目标页可达且无回归（验收结果见台账）。
+
+## R12ad 落地（2026-11-28，Manifest 补 categories 分类声明）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `categories` 字段。按 Web App Manifest 规范，`categories` 是应用所属分类列表，供应用商店、安装界面与系统分类展示使用；缺省时平台只能靠名称/描述猜测归类，开发者工具箱这类工具型应用容易被归到无关类别。与 R12s/R12ab/R12ac 补齐 manifest 声明同族，这次缺的是分类声明。
+
+- 处理：manifest 补 `"categories": ["utilities", "productivity"]`（两项均为 W3C 规范登记的标准分类值：utilities 对应工具类、productivity 对应效率类，与本站定位逐项吻合），文件 1,205→1,247 B（+42 B）；其余字段、图标与 shortcuts 条目一字未改。
+- 边界：categories 只供平台分类展示，不改任何页面内导航与运行时行为；将来产品定位变更时须同步复核本字段（已在本节留痕）。不使用未登记的自造分类值（如 developer 不在标准登记表中，未采用）。
+- 等价证据：manifest 经 JSON 解析校验通过且除 categories 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、categories 两项齐全、图标/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
