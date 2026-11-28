@@ -276,3 +276,14 @@ R12 小盘点续项：R12b/R12c/R12e/R12f 已把 canonical、分享文案、JSON
 - 处理：守卫新增 `syncRobots(to)`，在 `syncCanonical` 内一并调用——已知路由保持 `index, follow`（与 index.html 静态值一致），NotFound 改为 `noindex, follow`（不收录、但仍跟随页内链接回正常页面）；标签不存在时新建。
 - 边界：useSeo 不写 robots、无覆盖冲突；从 404 返回已知路由时守卫恢复 `index, follow`，不残留 noindex。
 - 等价证据：无头 Chrome 冒烟逐页核对——首页/工具页/关于页 robots 为 `index, follow`、SPA 跳 404 后为 `noindex, follow`、从 404 回首页恢复 `index, follow`，桌面/390px 无溢出、无 pageerror。
+
+## R12h 落地（2026-11-28，useSeo 元标签同步修复）
+
+R12 小盘点续项：R12b/R12c 让路由守卫按页同步 canonical/og:url 与分享文案，但 Home/About 挂载后运行的 `useSeo` 会再改一轮，且有两处与守卫冲突——实测（本地静态服务 + 无头 Chrome 探针）复现：
+
+- **About 的 og:url 被当前地址覆盖**：About 调用 useSeo 时未传 canonical，旧版回退 `window.location.href`，挂载后 og:url 变成当前地址（本地探针为 `http://127.0.0.1:<端口>/about`；线上即测试/生产域名 + 实际路径，还会带查询串/锚点），把守卫刚写好的正式域名地址覆盖掉，与同页 canonical 自相矛盾。
+- **twitter 标签出现两份且值分叉**：index.html 的 twitter 标签用 `property=`，useSeo 旧版按 `name=` 查询、查不到就新建一份。首页实测 twitter:title 同时存在 property 版（守卫写的路由标题）与 name 版（useSeo 的专属长标题）两份、值不一致，twitter:card/description/image 同样成双，平台读到哪份不确定。
+
+- 处理（仅改 `src/composables/useSeo.js`）：①`setMetaTag` 改为同时查询 `property=` 与 `name=` 两种同名标签、全部同步为同一值，历史残留两份时只保留第一份删多余，一个都没有时才按指定属性新建（与守卫 setMetaAll 同口径）；②og:url 未传 canonical 时回退为正式域名 + 当前路由路径（只取路径），不再用 `window.location.href`。
+- 边界：Home/About 挂载后以专属长文案覆盖分享标题的既有口径不变（R12c），只是不再产生第二份标签；工具页不走 useSeo、守卫值即最终值，不受影响。
+- 等价证据：无头 Chrome 冒烟逐页核对——首页/关于页 og:url 为正式域名对应路径、twitter:title/card/description/image 均为单份且首页 twitter:title 与 og:title 一致、SPA 首页→关于 og:url 仍为正式域名、工具页无回归，桌面/390px 无溢出、无 pageerror。
