@@ -728,3 +728,11 @@ R12 小盘点续项：全站页脚（Footer.vue）自 R5 起版权口径已统�
 - 处理：About.vue 版权行改为 `© {{ currentYear }} morijiu.cn · 极速开发工具箱 | Made with ❤️ and ☕`（年份与主体/分隔对齐 Footer 现行口径，保留 About 自有的 Made with 后缀），script setup 补 `const currentYear = new Date().getFullYear()`（与 Footer 同写法）；其余内容一字未改。
 - 边界：只统一版权行，年份改为运行时动态计算、今后跨年自动更新，不再需要逐年手改；不改任何其他文案与布局。
 - 等价证据：改后全仓检索硬写年份版权清零；test 构建 exit=0；无头 Chrome 冒烟核对 About 页版权行渲染为当前年份 + morijiu.cn 口径、页脚版权无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bl 落地（2026-11-28，JSON-LD softwareVersion 改构建版本自动同步）
+
+R12 小盘点续项：`index.html` 的 JSON-LD 里 `softwareVersion: "1.0.0"` 是硬写值（R12at 补入），与 `package.json` 的 `version` 靠人工同步纪律保持一致（R12at 留痕：升 version 时须一并同步本字段）——而本站的真实版本已有构建注入的唯一口径：vite 把 `package.json` 的 version 注入 `__APP_VERSION__`、页脚版本徽标即由此渲染。硬写值一旦在升版本时漏改，结构化数据里的版本就会与页脚徽标、与实际构建不一致，且无任何机制能发现。与 R12e 的 JSON-LD 按页同步同族，这次缺的是版本字段与构建口径的自动对齐本身。
+
+- 处理：路由守卫 `syncJsonLd` 在改写 url/description 时一并把 `softwareVersion` 写为 `src/config/version.js` 导出的 `APP_VERSION`（即构建注入的裸版本号、不带 `_test`/`_dev` 环境后缀，与 R12at 口径一致）；`index.html` 静态值保持 `1.0.0` 不变（与当前 package.json 一致，首屏未执行 JS 前读到的仍是正确值）。其余字段一字未改，404 移除与模板恢复逻辑不受影响（恢复后首次同步即写入当前构建版本）。
+- 边界：R12at 的人工同步纪律自此由自动同步取代——今后升 `package.json` 的 version 无需再手改 index.html 的本字段，静态值仅作首屏兜底；它不改任何其他运行时行为。
+- 等价证据：当前 package.json 与 index.html 均为 1.0.0，改后 JSON-LD 经无头 Chrome 冒烟核对工具页/首页的 softwareVersion 均为构建版本且与页脚徽标裸版本一致、url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；test 构建 exit=0。
