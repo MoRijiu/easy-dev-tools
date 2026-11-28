@@ -568,3 +568,11 @@ R12 小盘点续项：本站应用名在各平台专用通道都已声明——M
 - 处理：index.html 在 manifest 链接后、mobile-web-app-capable 前补 `<meta name="application-name" content="极速开发工具箱" />`（与 Manifest `name` 逐字一致，用正式全名而非 iOS 短名），文件 6,034→6,103 B（+69 B）；其余 head 标签、Manifest 与 iOS 专用标题一字未改。
 - 边界：application-name 只是名称声明，不改任何页面标题、导航与运行时行为，不支持的浏览器忽略该字段；将来产品改名时须与 Manifest `name`、`og:site_name` 与本字段一并同步（已在本节留痕）。
 - 等价证据：改后 head 经解析核对 meta 单份且值与 Manifest name 逐字一致、apple-mobile-web-app-title 与 theme-color 无回归；test 构建 exit=0、产物 index.html 含本 meta；无头 Chrome 冒烟核对首页/工具页应用名在位、按页标题同步无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ar 落地（2026-11-28，index.html 补 sitemap 链接发现声明）
+
+R12 小盘点续项：本站 sitemap 的发现通道只有一条——`public/robots.txt` 末尾的 `Sitemap:` 行（R12a 整理后保留）；`index.html` 里从没有 `<link rel="sitemap">`。`rel="sitemap"` 是登记在册的链接关系类型，head 里的这条 link 是爬虫与站点工具发现站点地图的第二条标准通道；缺省时只读页面 head、不读 robots.txt 的消费方无从得知 sitemap 位置，与 R12d「sitemap 内容校准」同族，这次缺的是 head 侧的发现声明本身。
+
+- 处理：index.html 在 canonical 后补 `<!-- Sitemap -->` 分节与 `<link rel="sitemap" type="application/xml" title="Sitemap" href="https://tools.morijiu.cn/sitemap.xml" />` 一行，href 与 robots.txt 的 Sitemap 行逐字一致（正式域名绝对地址），文件 6,103→6,235 B（+132 B）；其余 head 标签与 sitemap.xml 内容一字未改。
+- 边界：本声明只是发现提示，不改 sitemap 内容、抓取规则与任何运行时行为；将来 sitemap 改名或拆分多文件时，须与 robots.txt 的 Sitemap 行一并同步（已在本节留痕）。
+- 等价证据：改后 head 经解析核对 link 单份且 href/type 正确、canonical 与 application-name 无回归；test 构建 exit=0、产物 index.html 含本 link；无头 Chrome 冒烟核对首页/工具页/404 该 link 在位且指向的 /sitemap.xml 可达可解析、双视口无溢出、无 pageerror（验收结果见台账）。
