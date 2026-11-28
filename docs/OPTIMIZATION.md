@@ -936,3 +936,11 @@ R12 小盘点续项：JSON-LD 里 author/publisher 两个 Organization 的 `logo
 - 处理：author 与 publisher 两处 `logo` ImageObject 各补 `caption` 一行，值同为「极速开发工具箱标志」（如实描述该图内容：它就是本站组织标志、512×512 应用图标），index.html 10,143→10,247 B（+104 B，两处各 +52 B）；其余字段一字未改，改后 author 与 publisher 仍逐字一致（R12bc 口径）。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，logo 对象原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：caption 是组织级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来标志图更换时，须同步复核两处 logo 的 caption 是否仍如实描述新图（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、两处 logo 仍为 ImageObject 且 url/width/height 与改前逐项一致、caption 两处一致、author 与 publisher 仍逐项相同、除 logo 外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含 caption；无头 Chrome 冒烟核对工具页 JSON-LD 的 logo caption 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12cl 落地（2026-11-29，JSON-LD ImageObject 补 encodingFormat 格式声明）
+
+R12 小盘点续项：JSON-LD 里五处 `ImageObject`（screenshot 两条 R12cg、顶层 image R12ch、author/publisher 的 logo R12cf）已先后补齐 url/width/height/caption（R12ci–R12ck），但从未声明 Schema.org `ImageObject` 的 `encodingFormat`——该字段专指图片的媒体格式（MIME 类型），消费方无从从结构化数据预判图片格式，只能靠扩展名猜测或下载后嗅探。五张图的格式事实早已实测固定且全为 PNG：截图与代表图、标志图的 IHDR/文件类型实测均为 PNG，`og:image:type` 亦已声明代表图为 `image/png`，只是从未在结构化数据通道里逐对象声明。与 R12ci–R12ck 给同一组对象补 caption 同族，这次缺的是同一组对象的格式声明本身。
+
+- 处理：五处 `ImageObject` 各在 `height` 后补 `"encodingFormat": "image/png"` 一行（值与五张图实测文件类型逐项一致，author 与 publisher 两处仍逐字一致），index.html 10,247→10,450 B（+203 B，五处合计）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，ImageObject 对象原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：encodingFormat 是应用/组织级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来任一图片更换格式（如换 WebP）时，须同步复核对应对象的 encodingFormat（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、五处 ImageObject 的 encodingFormat 均为 image/png 且与文件实测类型逐项一致、url/width/height/caption 与改前逐项相同、author 与 publisher 仍逐项相同、除本字段外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 encodingFormat 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
