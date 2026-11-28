@@ -720,3 +720,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `screenshot` 后补 `"image": "https://tools.morijiu.cn/og-image.png"` 一行（与 og:image、og:image:secure_url 逐字一致的正式域名绝对地址），index.html 7,784→7,840 B（+56 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：image 是站点级声明、不随路由变化（代表图为站点级品牌图、非单页截图），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来 og 分享图更换时，须与 og:image、og:image:secure_url、twitter:image 一并同步复核本字段（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、image 与 og:image 逐字一致、目标图实测 1200×630 且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 image 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bk 落地（2026-11-28，About 页版权口径统一）
+
+R12 小盘点续项：全站页脚（Footer.vue）自 R5 起版权口径已统一为动态年份的 `© {{ currentYear }} morijiu.cn · 极速开发工具箱`，但 About 页底部「页脚声明」区的版权行仍是接手前硬写的 `© 2025 极速开发工具箱 | Made with ❤️ and ☕`——年份写死（2026 年起即过期显示）、主体与分隔口径与全站页脚不一致，同一站点两处版权两种写法。全仓检索确认这是唯一一处硬写版权（其余 © 均为工具示例数据）。
+
+- 处理：About.vue 版权行改为 `© {{ currentYear }} morijiu.cn · 极速开发工具箱 | Made with ❤️ and ☕`（年份与主体/分隔对齐 Footer 现行口径，保留 About 自有的 Made with 后缀），script setup 补 `const currentYear = new Date().getFullYear()`（与 Footer 同写法）；其余内容一字未改。
+- 边界：只统一版权行，年份改为运行时动态计算、今后跨年自动更新，不再需要逐年手改；不改任何其他文案与布局。
+- 等价证据：改后全仓检索硬写年份版权清零；test 构建 exit=0；无头 Chrome 冒烟核对 About 页版权行渲染为当前年份 + morijiu.cn 口径、页脚版权无回归、双视口无溢出、无 pageerror（验收结果见台账）。
