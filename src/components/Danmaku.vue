@@ -10,7 +10,7 @@
       <span aria-hidden="true">{{ paused ? '▶' : '⏸' }}</span>
       {{ paused ? '继续滚动' : '暂停滚动' }}
     </button>
-    <!-- 弹幕是同页工具卡的重复推广位：每行把全部工具重复 3 遍、三行共 648 个
+    <!-- 弹幕是同页工具卡的重复推广位：三行共 432 个（R10d 降量后）
          与下方工具卡完全重复的链接，若进 Tab 顺序/无障碍树，键盘用户要穿过数百个
          重复链接、读屏链接列表也被淹没。故整区 aria-hidden + 链接 tabindex="-1"
          退出键盘与读屏通道（与无缝滚动复制份同一口径），鼠标点击与滚动不受影响，
@@ -84,21 +84,23 @@ const shuffleArray = (array) => {
 // 初始化弹幕行
 const initDanmaku = () => {
   const rows = []
-  
+
   for (let i = 0; i < rowCount; i++) {
-    // 随机打乱工具顺序
+    // 随机打乱工具顺序（R10d：每份内容只放 1 遍全部工具。
+    // 旧版每份重复 3 遍、三行 × 两份无缝复制共渲染 72×3×2×3=1296 个链接，
+    // 而单份 72 个工具的宽度已远超容器，无缝滚动只需两份相同内容即可，
+    // 重复 3 遍纯属多余 DOM 与布局/绘制开销。改后链接数降至 72×1×2×3=432（−66%）。
+    // 行宽同比例缩短为 1/3，动画时长同步除以 3，滚动线速度（px/s）与旧版一致。）
     const shuffledTools = shuffleArray(allTools)
-    // 重复3次以保证充足的长度
-    const repeatedTools = [...shuffledTools, ...shuffledTools, ...shuffledTools]
-    // 每行随机速度 (20-30秒)
-    const duration = 20 + Math.random() * 10
-    
+    // 每行随机速度：时长 20-30 秒对应旧版三倍行宽，故除以 3 保持线速度
+    const duration = (20 + Math.random() * 10) / 3
+
     rows.push({
-      items: repeatedTools,
+      items: shuffledTools,
       duration: duration
     })
   }
-  
+
   danmakuRows.value = rows
 }
 
@@ -205,7 +207,8 @@ onMounted(() => {
   box-shadow: var(--shadow-card);
   font-size: 0.95rem;
   color: var(--text-strong);
-  transition: all 0.3s ease;
+  /* R10d：原 transition: all 会让任意属性变化都触发过渡计算，收窄到 hover 实际变化的属性 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
   cursor: pointer;
   text-decoration: none;
 }

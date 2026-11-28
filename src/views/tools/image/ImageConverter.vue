@@ -248,22 +248,21 @@ const addImages = (files) => {
     if (images.value.length + added >= MAX_IMAGE_COUNT) { rejected.push(`${file.name}：一次最多 ${MAX_IMAGE_COUNT} 张`); return; }
     if (images.value.some(img => img.name === file.name && img.originalSize === file.size)) { rejected.push(`${file.name}：已在列表中`); return; }
     added++;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const probe = new Image();
-      probe.onload = () => {
-        images.value.push({
-          name: file.name, file, preview: e.target.result,
-          originalSize: file.size, originalFormat: mimeLabel(file.type),
-          width: probe.width, height: probe.height,
-          convertedSize: null, convertedBlob: null, converting: false,
-          outputLabel: "", outText: ""
-        });
-      };
-      probe.onerror = () => { setInputError(`✗ ${file.name} 图片加载失败，文件可能已损坏`, "upload"); };
-      probe.src = e.target.result;
+    // R10d：同 ImageCompress——预览改 URL.createObjectURL(file)，不再把每张图
+    // 读成大 1/3 的 base64 字符串常驻内存；释放口径见移除/清空/卸载处。
+    const previewUrl = URL.createObjectURL(file);
+    const probe = new Image();
+    probe.onload = () => {
+      images.value.push({
+        name: file.name, file, preview: previewUrl,
+        originalSize: file.size, originalFormat: mimeLabel(file.type),
+        width: probe.width, height: probe.height,
+        convertedSize: null, convertedBlob: null, converting: false,
+        outputLabel: "", outText: ""
+      });
     };
-    reader.readAsDataURL(file);
+    probe.onerror = () => { URL.revokeObjectURL(previewUrl); setInputError(`✗ ${file.name} 图片加载失败，文件可能已损坏`, "upload"); };
+    probe.src = previewUrl;
   });
   if (added) { statusMessage.value = `✓ 已添加 ${added} 张图片`; statusType.value = "success"; }
   if (rejected.length) { const rejMsg = `${added ? `✓ 已添加 ${added} 张；` : ""}已跳过 ${rejected.length} 个：${rejected.join("；")}`; if (added) { statusMessage.value = rejMsg; statusType.value = "info"; } else { setInputError(rejMsg, "upload"); } }
@@ -401,10 +400,13 @@ const convertAll = async () => {
   statusType.value = s.doneCount === s.totalCount ? "success" : "info";
 };
 
+// 取消尚未触发的批量下载定时器（抽出供下载全部/移除/清空/卸载共用）
+const clearDownloadTimers = () => { downloadTimers.forEach((t) => clearTimeout(t)); downloadTimers = []; };
+
 // 下载单张图片：扩展名按实际 blob.type，不按目标格式假装
 const downloadImage = (index) => {
   const img = images.value[index];
-  if (!img.convertedBlob) return;
+  if (!img?.convertedBlob) return;
 
   const ext = mimeToExt(img.convertedBlob.type);
   const baseName = img.name.replace(/\.[^/.]+$/, "");
@@ -414,8 +416,7 @@ const downloadImage = (index) => {
 // 下载全部
 let downloadTimers = [];
 const downloadAll = () => {
-  downloadTimers.forEach((t) => clearTimeout(t));
-  downloadTimers = [];
+  clearDownloadTimers();
   images.value.forEach((img, index) => {
     if (img.convertedBlob) {
       downloadTimers.push(setTimeout(() => downloadImage(index), index * 200));
@@ -423,16 +424,20 @@ const downloadAll = () => {
   });
 };
 
-// 卸载时取消尚未触发的批量下载，避免离开页面后仍陆续弹出下载
-onBeforeUnmount(() => { downloadTimers.forEach((t) => clearTimeout(t)); downloadTimers = []; });
+// 卸载时取消尚未触发的批量下载并释放全部预览 ObjectURL
+onBeforeUnmount(() => { clearDownloadTimers(); images.value.forEach((img) => URL.revokeObjectURL(img.preview)); });
 
-// 移除图片
+// 移除图片：释放其预览 ObjectURL，并取消待发批量下载（理由同 ImageCompress R10d）
 const removeImage = (index) => {
-  images.value.splice(index, 1);
+  clearDownloadTimers();
+  const [removed] = images.value.splice(index, 1);
+  if (removed) URL.revokeObjectURL(removed.preview);
 };
 
 // 清空
 const clearAll = () => {
+  clearDownloadTimers();
+  images.value.forEach((img) => URL.revokeObjectURL(img.preview));
   images.value = [];
   inputError.value = ""; errorField.value = "";
   statusMessage.value = "";

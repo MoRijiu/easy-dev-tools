@@ -124,7 +124,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, watch, onBeforeUnmount } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -164,7 +164,19 @@ const statsText = computed(() => {
 });
 
 // 渲染 HTML（安全渲染核心：原文 HTML 转义、危险协议链接拦截）
-const renderedHtml = computed(() => renderMarkdown(markdownText.value));
+// R10d 运行时核查：本文件已无手写 setTimeout（状态消息定时器在 R10b1 已收敛到
+// useStatusMessage），真正的开销是预览无防抖——旧版 renderedHtml 是 computed，
+// 每敲一键就全量 renderMarkdown 一遍并整块替换预览区 DOM，长文连续输入时
+// 中间帧全是白算。改防抖 ref：停顿 120ms 后才渲染，连续输入只渲染最终文本；
+// 120ms 内预览短暂滞后于输入，停顿后与旧版逐字一致（同一 renderMarkdown）。
+// 复制/导出 HTML 不用这份可能滞后的预览值，调用时按当前文本现算，保证不复制旧帧。
+const renderedHtml = ref(renderMarkdown(markdownText.value));
+let renderTimer = null;
+watch(markdownText, (value) => {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(() => { renderedHtml.value = renderMarkdown(value); }, 120);
+});
+onBeforeUnmount(() => { clearTimeout(renderTimer); renderTimer = null; });
 
 // 插入文本到光标位置
 const insertText = (before, after = '', placeholder = '') => {
@@ -231,9 +243,9 @@ const copyMarkdown = async () => {
   await copyText(markdownText.value, '✓ Markdown 已复制到剪贴板！', { autoClearMs: 2000 });
 };
 
-// 复制渲染后的 HTML
+// 复制渲染后的 HTML（按当前文本现算，不用防抖预览值，防复制到 120ms 内的旧帧）
 const copyHtml = async () => {
-  await copyText(renderedHtml.value, '✓ HTML 已复制到剪贴板！', { autoClearMs: 2000 });
+  await copyText(renderMarkdown(markdownText.value), '✓ HTML 已复制到剪贴板！', { autoClearMs: 2000 });
 };
 
 // 导出 Markdown 文件
@@ -242,9 +254,9 @@ const exportMarkdown = () => {
   status.showSuccess('✓ Markdown 文件已下载！', 2000);
 };
 
-// 导出 HTML 文件
+// 导出 HTML 文件（同 copyHtml，按当前文本现算）
 const exportHtml = () => {
-  const htmlContent = buildStandaloneHtml(renderedHtml.value);
+  const htmlContent = buildStandaloneHtml(renderMarkdown(markdownText.value));
   download.downloadText(htmlContent, 'document.html', 'text/html');
   status.showSuccess('✓ HTML 文件已下载！', 2000);
 };
