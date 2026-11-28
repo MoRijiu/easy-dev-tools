@@ -4,7 +4,7 @@ import Home from '../views/Home.vue'
 // 移出主包，按需加载（行为等价，仅加载时机后移）
 const NotFound = () => import('../views/NotFound.vue')
 const About = () => import('../views/About.vue')
-import { generateRoutes, getToolByPath } from './tools-config'
+import { generateRoutes, getToolByPath, totalToolCount } from './tools-config'
 import { useToolPrefs } from '../composables/useToolPrefs'
 import { APP_VERSION } from '../config/version'
 
@@ -45,7 +45,7 @@ const fallbackRoutes = [
     component: NotFound,
     meta: {
       title: '页面不存在 - 极速开发工具箱',
-      description: '访问的页面不存在，返回首页或搜索 72 个在线开发工具。'
+      description: `访问的页面不存在，返回首页或搜索 ${totalToolCount} 个在线开发工具。`
     }
   }
 ]
@@ -126,13 +126,17 @@ const removeMetaAll = (name) => {
 }
 
 // JSON-LD 结构化数据按页同步（R12e）：index.html 的静态 JSON-LD 恒指
-// 首页——渲染型爬虫执行 JS 后读到的仍是这份，72 个工具页全被描述成
+// 首页——渲染型爬虫执行 JS 后读到的仍是这份，各工具页全被描述成
 // 首页的 WebApplication（url/description 都是首页的）。与 canonical
 // 同口径按当前路由改写 url/description；404 页移除整段（不给不存在
 // 的页面宣称结构化数据），离开 404 时用首次捕获的原文模板恢复。
 // R12bl 续：softwareVersion 同步改写为构建注入的 APP_VERSION（package.json
 // 的 version）——index.html 里硬写的值靠 R12at 的人工同步纪律防漂移，
 // 升版本时漏改即与页脚版本徽标不一致；现以构建注入值为唯一口径自动同步。
+// R12bm 续：featureList 末尾的工具总数同样改写为 tools-config 的
+// totalToolCount——index.html 里硬写的总数靠 R12aw 的人工复核纪律防漂移，
+// 增删工具时漏改即与首页统计（同样取 totalToolCount）不一致；现自动同步，
+// 代表性工具清单本身仍为人工维护文案、不在改写范围。
 let jsonLdTemplate = null
 const syncJsonLd = (to, url) => {
   let el = document.querySelector('#edt-jsonld, script[type="application/ld+json"]')
@@ -153,6 +157,12 @@ const syncJsonLd = (to, url) => {
     const data = JSON.parse(el.textContent)
     data.url = url
     data.softwareVersion = APP_VERSION
+    if (typeof data.featureList === 'string') {
+      data.featureList = data.featureList.replace(
+        /等\d+个工具/,
+        `等${totalToolCount}个工具`
+      )
+    }
     if (to.meta.description) data.description = to.meta.description
     el.textContent = JSON.stringify(data, null, 2)
   } catch {
@@ -161,7 +171,7 @@ const syncJsonLd = (to, url) => {
 }
 
 // 按当前路由同步 canonical 与 og:url（R12b）：旧版守卫只更新标题/描述，
-// canonical 恒为 index.html 写死的首页地址——72 个工具页在爬虫眼里全是
+// canonical 恒为 index.html 写死的首页地址——各工具页在爬虫眼里全是
 // 首页的重复页，可能被合并索引。404 页则移除这两项：给不存在的 URL
 // 写 canonical 等于宣称它有规范版本，同样误导爬虫。
 // R12c 续：同一守卫再同步分享文案 og:title/og:description、

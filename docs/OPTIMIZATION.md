@@ -736,3 +736,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD 里 `softwareVersion: "1.0.0"` �
 - 处理：路由守卫 `syncJsonLd` 在改写 url/description 时一并把 `softwareVersion` 写为 `src/config/version.js` 导出的 `APP_VERSION`（即构建注入的裸版本号、不带 `_test`/`_dev` 环境后缀，与 R12at 口径一致）；`index.html` 静态值保持 `1.0.0` 不变（与当前 package.json 一致，首屏未执行 JS 前读到的仍是正确值）。其余字段一字未改，404 移除与模板恢复逻辑不受影响（恢复后首次同步即写入当前构建版本）。
 - 边界：R12at 的人工同步纪律自此由自动同步取代——今后升 `package.json` 的 version 无需再手改 index.html 的本字段，静态值仅作首屏兜底；它不改任何其他运行时行为。
 - 等价证据：当前 package.json 与 index.html 均为 1.0.0，改后 JSON-LD 经无头 Chrome 冒烟核对工具页/首页的 softwareVersion 均为构建版本且与页脚徽标裸版本一致、url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；test 构建 exit=0。
+
+## R12bm 落地（2026-11-28，JSON-LD featureList 与 404 描述的工具总数改配置自动同步）
+
+R12 小盘点续项：本站工具总数已有唯一口径——`tools-config` 的 `totalToolCount`（首页统计即由此渲染），但仍有两处用户可见文案把总数硬写为 72：`index.html` JSON-LD 的 `featureList` 末尾「等72个工具」（R12aw 补入，靠「工具总数变化须同步复核」的人工纪律防漂移），与路由守卫里 404 页 meta description 的「搜索 72 个在线开发工具」。增删工具时任一处漏改，就会与首页统计自相矛盾，且无任何机制能发现。与 R12bl 把 softwareVersion 改构建版本自动同步同族，这次缺的是工具总数与配置口径的自动对齐本身。
+
+- 处理：`syncJsonLd` 在改写 url/description/softwareVersion 时，一并把 `featureList` 中「等N个工具」的数字段改写为 `totalToolCount`（正则只替换计数段，代表性工具清单文案本身不动）；404 路由 meta 的 description 改为模板字符串直接引用 `totalToolCount`。`index.html` 静态 featureList 保持现值不变（与当前配置一致，首屏未执行 JS 前读到的仍是正确值）。其余字段一字未改，404 移除与模板恢复逻辑不受影响。
+- 边界：R12aw 的人工复核纪律自此收窄为「代表性工具清单变化时复核清单本身」，总数不再需要手改；README/docs 里的工具数仍为文档人工维护口径，不在自动同步范围。它不改任何其他运行时行为。
+- 等价证据：当前 totalToolCount 与两处硬写值均为 72，改后文案与改前逐字一致；test 构建 exit=0；无头 Chrome 冒烟核对工具页/首页 featureList 总数与配置一致、404 页 description 含配置总数、softwareVersion 与 url/description 按页同步无回归、404 移除 JSON-LD 无回归、双视口无溢出、无 pageerror（验收结果见台账）。
