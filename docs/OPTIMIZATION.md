@@ -616,3 +616,11 @@ R12 小盘点续项：本站有 72 个工具，但 `index.html` 的 JSON-LD（We
 - 处理：JSON-LD 在 `screenshot` 后补 `"featureList"` 一行，列明 JSON格式化、Base64编解码、URL编解码、时间戳转换、UUID生成、二维码生成与解码、密码生成、哈希计算、AES加密、图片压缩与格式转换、Cron解析、正则测试、文本对比等代表性工具，并注明共 72 个工具、全部在浏览器本地运行（工具名与总数与站内 tools-config 逐项核对），index.html 6,430→6,721 B（+291 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：featureList 是站点级声明、不随路由变化（清单为全站代表性功能而非单页工具），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来工具总数或代表性工具清单变化时，须同步复核本字段的总数与列名（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、featureList 与站内工具名/总数逐项一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 featureList 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ax 落地（2026-11-28，JSON-LD 补 author 组织 url）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）里 `author` 是一个 Organization 对象，但只有 `@type` 与 `name`、没有 `url`——这是整段 JSON-LD 里唯一只有名称、没有地址的实体：顶层 `url`、`screenshot`、`offers` 等其余引用均为正式域名绝对地址，结构化数据消费方拿到作者组织名后无从定位其官网。与 R12ap 补 inLanguage、R12av 补 screenshot、R12aw 补 featureList 同族，这次缺的是作者实体的地址字段本身。
+
+- 处理：JSON-LD 的 author 对象补 `"url": "https://tools.morijiu.cn/"` 一行（与顶层 `url`、canonical 逐字一致的正式域名根地址），index.html 6,721→6,765 B（+44 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 author 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：author.url 是站点级声明、不随路由变化（全站作者为同一组织），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来作者主体或官网地址变化时，须与顶层 url、canonical 一并同步（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author.url 与顶层 url 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 author 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
