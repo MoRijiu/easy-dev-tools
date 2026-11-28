@@ -303,3 +303,11 @@ R12 小盘点续项：`index.html` 的五条 twitter:* 元标签（card/url/titl
 - 处理：index.html 五条 twitter:* 统一改 `name=`；路由守卫在 404 移除 twitter:url 后重建该标签时，新建属性同步改 `name=`（此前默认 property=，会把刚改正的写法又写回去）。守卫与 useSeo 的查询仍同时覆盖 property/name 两种，历史残留不会漏同步。
 - 边界：og:* 的 property= 是其规范写法，未动；标签的 content 值一字未改。
 - 等价证据：构建产物中 twitter:* 的 property= 形式清零、name= 形式五条齐全；无头 Chrome 冒烟逐页核对——首页/工具页 twitter:* 均为 name= 单份且值随页同步、404 时 twitter:url 移除、从 404 返回后以 name= 重建，桌面/390px 无溢出、无 pageerror。
+
+## R12k 落地（2026-11-28，分享图结构化属性补全）
+
+R12 小盘点续项：`index.html` 的分享图只有 `og:image` / `twitter:image` 两个 URL，没有尺寸、类型与替代文本。实测两张图均为 1200×630 的 PNG（R11e 已无损重压缩、像素未动，尺寸可直接采信）；Open Graph 规范为 og:image 定义了结构化属性 `og:image:type` / `og:image:width` / `og:image:height` / `og:image:alt`，Twitter 卡片对应 `twitter:image:alt`。缺失时，分享爬虫必须回源抓图本体才能知道尺寸与类型，部分平台在抓取完成前无法预排版大图卡片，图片加载失败时也没有任何替代文本。
+
+- 处理：`og:image` 后按规范顺序紧跟四条结构化属性（type=image/png、width=1200、height=630、alt=站点标题文案），`twitter:image` 后补一条 `twitter:image:alt`（同文案）。两张图全站共用、尺寸与内容不随页面变化，这些属性是站点级常量，无需路由守卫或 useSeo 按页同步——它们既不被守卫改写、也不会残留上一页的值。
+- 边界：og:image 与 twitter:image 的 URL、content 一字未改；若将来更换分享图尺寸或格式，必须同步更新这四条属性（已在本节留痕）。
+- 等价证据：构建产物中五条新属性齐全且值与实测图属性一致；无头 Chrome 冒烟逐页核对——首页/工具页/404 后新属性均为单份且值不变、原分享文案按页同步无回归，桌面/390px 无溢出、无 pageerror。
