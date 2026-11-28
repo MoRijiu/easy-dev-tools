@@ -664,3 +664,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 的 author 对象补 `"logo": "https://tools.morijiu.cn/icons/icon-512.png"` 一行（与 publisher.logo 逐字一致，指向 Manifest icons 已在用的同一枚 512×512 PNG 应用图标，实测尺寸 512×512），index.html 7,078→7,141 B（+63 B，与 R12bb 同字段增量一致）；其余字段一字未改，改后 author 与 publisher 两对象恢复逐字一致。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 author 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：author.logo 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用图标更换时，须与 publisher.logo、Manifest icons 三处一并同步复核（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author.logo 与 publisher.logo 及 Manifest 512 图标地址逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 author.logo 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bd 落地（2026-11-28，JSON-LD 补 dateModified 修改日期声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）没有任何日期字段，但本站的真实变更日期在另一处已有校准口径——R12d 已把 sitemap 全部 74 条 URL 的 lastmod 校准为 2026-11-28（当天 R2–R5 全站能力与 R12 系列逐页变更落地之日，git 提交记录可查）。结构化数据消费方从 sitemap 能得知页面修改日期、从 JSON-LD 却无从得知应用本身的修改日期，两条标准通道口径不一致。与 R12ap 补 inLanguage、R12at 补 softwareVersion、R12av 补 screenshot 同族，这次缺的是站点级日期字段本身。
+
+- 处理：JSON-LD 顶层补 `"dateModified": "2026-11-28"` 一行（Schema.org 为 CreativeWork 定义的修改日期字段，WebApplication 继承之），取值与 sitemap 现行 lastmod 逐字一致，index.html 7,141→7,177 B（+36 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：dateModified 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。未补 datePublished——本站初始上线日期无可靠留痕，不编造。将来全站级变更落地时，须与 sitemap lastmod 同步更新本字段（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、dateModified 与 sitemap lastmod 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 dateModified 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
