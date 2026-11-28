@@ -120,10 +120,6 @@ const clearAll = () => { payloadText.value = ''; result.value = null; selfCheck.
 const copyText = async (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
-.jwt-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .warn-box { background: var(--warn-soft); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-bottom: 10px; }
 .warn-box p { margin: 2px 0; }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
@@ -146,5 +142,5 @@ textarea { width: 100%; font-family: monospace; font-size: 13px; resize: vertica
 .verify.ok { color: var(--success-text); }
 .verify.bad { color: var(--danger-text); }
 .muted { font-size: 12px; color: var(--text-2); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .cols { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .cols { grid-template-columns: 1fr; } }
 </style>

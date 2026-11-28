@@ -235,10 +235,6 @@ const downloadDiff = () => {
 </script>
 
 <style scoped>
-.text-diff { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
 .text-input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; line-height: 1.6; box-sizing: border-box; resize: vertical; }
 .options-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 16px; }
@@ -272,8 +268,6 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .no-diff { color: var(--text-2); font-size: 13px; padding: 10px; margin: 0; font-family: inherit; }
 .fold-line { padding: 3px 10px; text-align: center; color: var(--text-3); background: var(--bg-soft); font-size: 12px; user-select: none; }
 @media (max-width: 640px) {
-  h1 { font-size: 2rem; }
-  .tool-container { padding: 20px; }
   .input-grid { grid-template-columns: 1fr; }
   .split-row { grid-template-columns: 1fr; }
   .split-cell.left { border-right: none; border-bottom: 1px dashed var(--border); }

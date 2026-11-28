@@ -112,10 +112,6 @@ const applyPreset = (p) => { form.layers = p.layers.map((l) => ({ ...l })); };
 const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
-.cs-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .preview { display: flex; justify-content: center; padding: 36px 16px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; }
 .preview-box { width: 220px; max-width: 70%; padding: 28px 0; text-align: center; background: var(--surface); color: var(--text); border-radius: 12px; font-size: 14px; }
 .layers-head { display: flex; gap: 8px; align-items: center; margin: 6px 0 10px; font-size: 13px; color: var(--text-2); }
@@ -145,5 +141,5 @@ input[type="color"] { width: 42px; height: 34px; padding: 2px; border: 1px solid
 .code { background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 13px; color: var(--text); overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin: 0; }
 .copy { padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; white-space: nowrap; }
 .mono { font-family: monospace; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .sliders { grid-template-columns: 1fr; } .preview { padding: 28px 12px; } }
+@media (max-width: 640px) { .sliders { grid-template-columns: 1fr; } .preview { padding: 28px 12px; } }
 </style>

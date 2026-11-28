@@ -344,32 +344,6 @@ const examples = [
 </script>
 
 <style scoped>
-.aes-encryption {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-h1 {
-  font-size: 2.5rem;
-  color: var(--text-strong);
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.description {
-  text-align: center;
-  color: var(--text-2);
-  font-size: 1.1rem;
-  margin-bottom: 30px;
-}
-
-.tool-container {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: var(--shadow-md);
-}
 
 /* 模式选择 */
 .mode-section {
@@ -553,14 +527,6 @@ h1 {
 
 /* 响应式设计 */
 @media (max-width: 640px) {
-  h1 {
-    font-size: 2rem;
-  }
-
-  .tool-container {
-    padding: 20px;
-  }
-
   .mode-tabs {
     flex-direction: column;
   }

@@ -148,10 +148,6 @@ async function copyText(text) {
 }
 </script>
 <style scoped>
-.hmac-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
 .row label, .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
 .block { margin-bottom: 10px; }
@@ -177,5 +173,4 @@ td.mono { font-family: monospace; word-break: break-all; }
 .verify-box { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
 .verify-ok { color: var(--success-text); font-size: 14px; }
 .verify-bad { color: var(--danger-text); font-size: 14px; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

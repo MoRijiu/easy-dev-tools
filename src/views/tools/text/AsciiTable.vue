@@ -89,10 +89,6 @@ const copyText = async (txt) => clipboard.copyText(txt, '✓ 已复制结果');
 const copyItem = async (t) => clipboard.copyText(buildAsciiSummary(t), '✓ 已复制 ' + t.code);
 </script>
 <style scoped>
-.ascii-table { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .convert { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 .row label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); flex: 1; min-width: 220px; }
@@ -115,5 +111,4 @@ td.mono { font-family: monospace; }
 .note { color: var(--text-2); }
 .copy { padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .empty { color: var(--text-2); font-size: 14px; padding: 16px 0; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

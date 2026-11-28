@@ -90,10 +90,6 @@ async function copyText(text) {
 }
 </script>
 <style scoped>
-.puny-conv { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .options select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; }
 .options label { font-size: 13px; color: var(--text-2); display: inline-flex; gap: 6px; align-items: center; }
@@ -108,5 +104,4 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .warn { color: var(--warning-text); background: var(--warning-soft); border: 1px solid var(--warning-border); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

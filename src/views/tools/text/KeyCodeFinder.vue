@@ -122,10 +122,6 @@ const copySnippet = () => copyText(buildCodeSnippet(current.value), '已复制 J
 const copyRow = (k) => copyText('key: ' + displayKey(k.key) + '\ncode: ' + k.code + '\nkeyCode: ' + k.keyCode + '\n中文名: ' + k.nameZh, '已复制 ' + k.code);
 </script>
 <style scoped>
-.keycode-finder { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .capture { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 16px; border: 2px dashed var(--border); border-radius: 12px; background: var(--bg-softer); cursor: pointer; }
 .capture.focused { border-style: solid; border-color: var(--accent); }
 .big-key { font-size: 34px; font-weight: 700; color: var(--text-strong); line-height: 1.2; word-break: break-all; text-align: center; }
@@ -155,5 +151,5 @@ th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--bord
 th { color: var(--text-2); font-weight: 600; }
 code { font-family: ui-monospace, Menlo, Consolas, monospace; }
 .empty { color: var(--text-2); font-size: 14px; padding: 16px 0; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .big-key { font-size: 26px; } }
+@media (max-width: 640px) { .big-key { font-size: 26px; } }
 </style>

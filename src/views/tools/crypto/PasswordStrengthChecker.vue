@@ -123,10 +123,6 @@ async function copyText(text) {
 }
 </script>
 <style scoped>
-.password-strength { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .error-text { font-size: 13px; color: var(--danger-text); margin: 10px 0; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
@@ -152,5 +148,5 @@ td { padding: 6px 8px; color: var(--text); }
 .findings { margin: 0 0 10px; padding-left: 18px; font-size: 13px; color: var(--text); }
 .findings li { margin-bottom: 4px; }
 .muted { font-size: 12px; color: var(--text-2); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } th { width: 150px; } }
+@media (max-width: 640px) { th { width: 150px; } }
 </style>

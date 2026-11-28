@@ -129,10 +129,6 @@ async function copyText(text) {
 generate();
 </script>
 <style scoped>
-.random-number { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); }
 .field input, .field select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; width: 130px; box-sizing: border-box; }
@@ -144,5 +140,5 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .error { color: var(--danger-text); font-size: 14px; }
 .note { color: var(--info-text, var(--text-2)); background: var(--info-soft, var(--bg-soft)); border: 1px solid var(--info-border, var(--border)); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 .summary { font-size: 14px; margin: 10px 0 6px; color: var(--text); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .field input, .field select { width: 108px; } }
+@media (max-width: 640px) { .field input, .field select { width: 108px; } }
 </style>

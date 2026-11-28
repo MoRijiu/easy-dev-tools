@@ -120,10 +120,6 @@ const copySummary = () => copyText(buildSummary(bits));
 </script>
 
 <style scoped>
-.chmod-calculator { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .text-input, .umask-input { padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 14px; box-sizing: border-box; }
 .text-input { width: 100%; }
 .umask-input { width: 90px; }
@@ -144,5 +140,5 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .umask-box h2 { font-size: 15px; color: var(--text-strong); margin: 0 0 8px; }
 .umask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: var(--text-2); }
 .err { color: var(--danger-text); }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .special-cell label { display: block; margin: 2px 0; } }
+@media (max-width: 640px) { .special-cell label { display: block; margin: 2px 0; } }
 </style>

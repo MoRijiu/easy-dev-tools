@@ -105,10 +105,6 @@ const copySummary = async () => {
 </script>
 
 <style scoped>
-.text-stats { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .text-input { width: 100%; min-height: 260px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; line-height: 1.6; box-sizing: border-box; resize: vertical; }
 .panel { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); padding: 12px; }
@@ -122,5 +118,5 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .top ol { margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-2); }
 .top li { display: flex; justify-content: space-between; padding: 2px 0; }
 .word { color: var(--text); font-weight: 600; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .panes { grid-template-columns: 1fr; } .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .panes { grid-template-columns: 1fr; } .grid { grid-template-columns: repeat(2, 1fr); } }
 </style>

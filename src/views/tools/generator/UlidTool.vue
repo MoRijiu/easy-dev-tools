@@ -134,10 +134,6 @@ generate();
 runParse();
 </script>
 <style scoped>
-.ulid-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .notes { margin: 10px 0 0; color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
 .notes.warn { background: var(--warn-soft); }
 .section-title { font-size: 16px; color: var(--text-strong); margin: 18px 0 10px; }
@@ -159,5 +155,5 @@ textarea { resize: vertical; }
 .kv th { text-align: left; color: var(--text-2); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; width: 170px; }
 .kv td { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); word-break: break-all; }
 .mono { font-family: monospace; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .kv th { width: 120px; } }
+@media (max-width: 640px) { .kv th { width: 120px; } }
 </style>

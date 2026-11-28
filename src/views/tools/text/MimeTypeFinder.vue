@@ -61,10 +61,6 @@ const clipboard = useClipboard(status);
 const copyItem = async (t) => clipboard.copyText(buildMimeSummary(t), '✓ 已复制 .' + t.ext);
 </script>
 <style scoped>
-.mime-finder { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .unknown { border: 1px dashed var(--border-strong, var(--border)); border-radius: 8px; padding: 10px 12px; margin: 0 0 10px; line-height: 1.6; }
 .controls { display: flex; flex-direction: column; gap: 10px; }
 .search { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 14px; width: 100%; box-sizing: border-box; }
@@ -81,5 +77,4 @@ h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-ali
 .copy { margin-left: auto; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
 .desc { margin: 6px 0 0; font-size: 14px; color: var(--text); line-height: 1.55; }
 .empty { color: var(--text-2); font-size: 14px; padding: 16px 0; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>

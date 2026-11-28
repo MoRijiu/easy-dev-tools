@@ -209,10 +209,6 @@ async function copyText(text) {
 onBeforeUnmount(revokePreview);
 </script>
 <style scoped>
-.qr-decoder { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; background: var(--bg-softer); margin-bottom: 12px; }
 .drop-zone.dragging { border-color: var(--accent); }
 .drop-zone:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -235,5 +231,5 @@ textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); bord
 .kv th { text-align: left; color: var(--text-2); font-weight: 500; padding: 5px 10px 5px 0; white-space: nowrap; vertical-align: top; }
 .kv td { padding: 5px 0; color: var(--text); word-break: break-all; }
 .mono { font-family: monospace; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .preview { max-width: 200px; max-height: 200px; } }
+@media (max-width: 640px) { .preview { max-width: 200px; max-height: 200px; } }
 </style>

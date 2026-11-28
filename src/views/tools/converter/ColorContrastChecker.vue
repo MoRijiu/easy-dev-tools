@@ -111,10 +111,6 @@ const fixToAAA = () => applyFix(WCAG_THRESHOLDS.normalAAA, 'AAA');
 const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 </script>
 <style scoped>
-.cc-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 .row label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); flex: 1; min-width: 200px; }
 .field { display: flex; gap: 6px; }
@@ -141,5 +137,5 @@ th { white-space: nowrap; color: var(--text-2); font-weight: 600; }
 .fail { color: var(--danger-text); white-space: nowrap; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .fix-note { font-size: 13px; color: var(--text); margin-top: 10px; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } .swap { order: 3; } }
+@media (max-width: 640px) { .swap { order: 3; } }
 </style>

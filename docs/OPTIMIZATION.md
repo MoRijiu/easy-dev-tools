@@ -71,3 +71,11 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - **MarkdownEditor（有问题，已改）**：台账所说「多处 setTimeout」已不存在——状态消息定时器在 R10b1 已收敛到 useStatusMessage，本文件只剩同步滚动的 requestAnimationFrame（防回环、合理，保留）。真正开销是预览无防抖：每敲一键全量 renderMarkdown 并整块替换预览 DOM。改 120ms 防抖渲染（连续输入只渲染最终文本，停顿后结果与旧版逐字一致）；复制/导出 HTML 改按当前文本现算，不用可能滞后的预览值；卸载清理防抖定时器。
 - **HashCalculator（有问题，已改）**：`digestAll` 旧版逐个 await 串行算各算法，改 Promise.all 并发、按入参顺序组装（键序与值经 Node 独立向量核对与串行版/Node crypto 完全一致，含 100k 字符大文本）；`textStats` 旧版每敲一键都把全文 encode 一遍只为取字节数，改按码点算术求 UTF-8 字节长，免去整份分配（孤立代理项等边界已与 TextEncoder 核对）。已有的 250ms 输入防抖与序号防竞态守卫核查无误，保留。
 - **ImageCompress / ImageConverter（有问题，已改）**：① 预览旧版用 FileReader 读成 base64 data URL（比原文件大约 1/3 的字符串常驻内存），改 `URL.createObjectURL(file)` 引用式预览，解码与压缩/转换结果不变；ObjectURL 在条目移除、清空、组件卸载、探针加载失败时配对 revoke。② 批量下载定时器旧版只在「再次下载全部」与卸载时清理，移除/清空不清——到期会按旧下标取图，列表变短取到 undefined 报错、变位下错图；两工具现统一抽 `clearDownloadTimers()` 供下载全部/移除/清空/卸载共用，`downloadImage` 加空守卫。③ 批量压缩/转换的逐张串行 await 核查合理（并行会同时解码多张大图、内存峰值更高），保留不动。
+
+## R10e1 落地（2026-11-28，重复 CSS 上收）
+
+- 盘点复核：72 个工具的四组规则逐字同构——外层容器 `max-width: 1400px; margin: 0 auto; padding: 20px`、标题 `h1`、`.description`、`.tool-container` 基础规则；响应式 `h1 2rem` + `.tool-container padding 20px` 在 66 个工具里同为 640px 断点，另 5 个工具为 760/768px 断点（Unit/ImageCompress/ImageConverter/Encoding/Morse），QrcodeGenerator 无响应式组。
+- 上收：四组基础规则 + 640px 响应式组移入 `src/style.css` 一份，工具页 scoped 中删除（72 文件共删 727 行量级）。全局选择器以工具页共同结构定位（主内容区直下、含 `.tool-container` 子元素的根元素），首页/关于/404 根元素无此子元素、不受影响；祖先段用 `:where()` 压低优先级，使 5 个保留在 scoped 里的 760/768px 响应式规则仍能覆盖全局 640px 规则，断点行为与上收前逐字一致。
+- R10e 拆分：本轮为 R10e1（CSS 上收）；utils 导出面收敛列为 R10e2 下一轮（逐个核实仅内部使用的导出改私有，低优先、无行为变化）。
+- 等价证据：test 构建 exit=0，dist 1,979,911 → 1,946,107 B（−33,804 B，文件数 186 不变，CSS 重复消除）。无头 Chrome 计算样式冒烟 12/12（脚本 edt-r10e-smoke.js）：桌面工具页 h1 40px/居中/mb10、描述 17.6px/mb30、卡 padding 30px/圆角 12px、外层 padding 20px/max-width 1400px 与上收前一致；700px 时 640 断点工具回到桌面尺寸、768 断点 Unit 工具仍 32px/padding 20px（scoped 宽断点规则胜出）；390px 两类均为 32px/padding 20px；首页 h1 保持 36px 未被上收规则污染；无溢出、无 pageerror。
+- 一处刻意的一致性修正：QrcodeGenerator 原是 72 个工具里唯一没有响应式组的，上收后它在 ≤640px 也获得与其余 71 个工具相同的 h1 32px / 卡 padding 20px（桌面无变化）。

@@ -101,10 +101,6 @@ const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 analyze();
 </script>
 <style scoped>
-.ip-tool { max-width: 1400px; margin: 0 auto; padding: 20px; }
-h1 { font-size: 2.5rem; color: var(--text-strong); margin-bottom: 10px; text-align: center; }
-.description { text-align: center; color: var(--text-2); font-size: 1.1rem; margin-bottom: 30px; }
-.tool-container { background: var(--surface); border-radius: 12px; padding: 30px; box-shadow: var(--shadow-md); }
 .warnings-list { margin: 12px 0 0; padding: 10px 14px 10px 30px; background: var(--warn-soft); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.7; }
 .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 .row label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); flex: 1; min-width: 240px; }
@@ -121,5 +117,4 @@ th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--bord
 th { white-space: nowrap; color: var(--text-2); font-weight: 600; }
 td.mono { font-family: monospace; word-break: break-all; }
 .copy { padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; white-space: nowrap; }
-@media (max-width: 640px) { h1 { font-size: 2rem; } .tool-container { padding: 20px; } }
 </style>
