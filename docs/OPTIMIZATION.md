@@ -912,3 +912,11 @@ R12 小盘点续项：JSON-LD 里 WebApplication 的 `image`（R12bj 落地）�
 - 处理：顶层 `image` 由字符串改为 ImageObject 对象：`@type: ImageObject`、`url` 与原字符串逐字一致、`width: 1200`、`height: 630`（与代表图实测尺寸逐项一致），index.html 9,838→9,941 B（+103 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，image 对象原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：image 是应用级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来代表图文件或其尺寸变更时，须与 og:image 的 width/height 一并同步复核本对象的 url/width/height（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、image 为 ImageObject 且 url 与改前字符串逐字一致、width/height 与代表图实测 1200×630 及 og 声明逐项一致、除 image 外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含 ImageObject image；无头 Chrome 冒烟核对工具页 JSON-LD 的 image 对象保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12ci 落地（2026-11-29，JSON-LD screenshot ImageObject 补 caption 说明）
+
+R12 小盘点续项：JSON-LD 里 WebApplication 的 `screenshot` 两条 ImageObject（R12cg 升级）只有 url/width/height，没有任何文字说明，消费方分不清两张图分别是桌面还是移动形态；同一组截图的文字说明口径早已存在——Manifest `screenshots` 的两条 `label`（R12ah 落地）正是「极速开发工具箱首页（桌面）」「极速开发工具箱首页（移动）」，只是从未在结构化数据通道里声明。与 R12cg 给 screenshot 补尺寸同族，这次缺的是同一组截图的说明文字在 JSON-LD 通道的声明本身；不新造文案、与 Manifest label 逐字一致。
+
+- 处理：`screenshot` 两条 ImageObject 各补 `caption` 一行，值与 Manifest 对应条目的 `label` 逐字一致（宽图桌面、窄图移动，顺序与数组既有顺序一致），index.html 9,941→10,069 B（+128 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，screenshot 对象原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：caption 是应用级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来截图更换或 Manifest label 文案变更时，须同步复核两条 screenshot 的 caption（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、两条 screenshot 仍为 ImageObject 且 url/width/height 与改前逐项一致、caption 与 Manifest label 逐字一致、除 screenshot 外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含 caption；无头 Chrome 冒烟核对工具页 JSON-LD 的 screenshot caption 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
