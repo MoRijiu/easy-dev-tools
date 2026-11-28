@@ -123,6 +123,37 @@ const removeMetaAll = (name) => {
     .forEach((el) => el.remove())
 }
 
+// JSON-LD 结构化数据按页同步（R12e）：index.html 的静态 JSON-LD 恒指
+// 首页——渲染型爬虫执行 JS 后读到的仍是这份，72 个工具页全被描述成
+// 首页的 WebApplication（url/description 都是首页的）。与 canonical
+// 同口径按当前路由改写 url/description；404 页移除整段（不给不存在
+// 的页面宣称结构化数据），离开 404 时用首次捕获的原文模板恢复。
+let jsonLdTemplate = null
+const syncJsonLd = (to, url) => {
+  let el = document.querySelector('#edt-jsonld, script[type="application/ld+json"]')
+  if (el && jsonLdTemplate === null) jsonLdTemplate = el.textContent
+  if (to.name === 'NotFound') {
+    el?.remove()
+    return
+  }
+  if (!el) {
+    if (jsonLdTemplate === null) return
+    el = document.createElement('script')
+    el.id = 'edt-jsonld'
+    el.type = 'application/ld+json'
+    el.textContent = jsonLdTemplate
+    document.head.appendChild(el)
+  }
+  try {
+    const data = JSON.parse(el.textContent)
+    data.url = url
+    if (to.meta.description) data.description = to.meta.description
+    el.textContent = JSON.stringify(data, null, 2)
+  } catch {
+    // 模板损坏时保持原文，不阻断导航
+  }
+}
+
 // 按当前路由同步 canonical 与 og:url（R12b）：旧版守卫只更新标题/描述，
 // canonical 恒为 index.html 写死的首页地址——72 个工具页在爬虫眼里全是
 // 首页的重复页，可能被合并索引。404 页则移除这两项：给不存在的 URL
@@ -148,9 +179,11 @@ const syncCanonical = (to) => {
     linkElement?.remove()
     ogUrlMeta?.remove()
     removeMetaAll('twitter:url')
+    syncJsonLd(to)
     return
   }
   const url = SITE_ORIGIN + (to.path === '/' ? '/' : to.path)
+  syncJsonLd(to, url)
   if (!linkElement) {
     linkElement = document.createElement('link')
     linkElement.setAttribute('rel', 'canonical')
