@@ -178,3 +178,11 @@ R11 小盘点续项：逐个核查 `public/` 与 `src/assets/` 静态资产的�
 - 删除 `public/vite.svg`（1,497 B）与 `src/assets/vue.svg`（496 B）：Vite/Vue 脚手架默认残留，全仓零引用（`vue.svg` 未被 import、不进产物；`vite.svg` 随 `public/` 进 dist）。
 - 等价证据：删除前以文件名对全仓（含 `index.html`、全部 `.vue`/`.js`/`.css`）与 `git log --all -S` 历史检索，三文件引用数均为 0；删除后 test 构建 exit=0，dist 由 1,824,353 B / 186 文件降至 1,820,050 B / 184 文件（−4,303 B，与两张 public 死图字节数逐字吻合），`favicon.svg`、`apple-touch-icon.png`、`og-image.png` 等在用资产仍在产物中，页面冒烟无异常。三文件均可从 git 历史随时恢复。
 - 后续 R11 候选（有实测瓶颈再立项）：大组件拆分仍暂缓（R10f 结论）；新功能继续按阶段口径等待拍板。
+
+## R11c 落地（2026-11-28，移除首页弹幕手动暂停按钮）
+
+产品决定项：首页弹幕的「暂停滚动 / 继续滚动」手动按钮用处不大，予以移除。
+
+- 删除 `Danmaku.vue` 的切换按钮（含 `aria-pressed` / `aria-label` 与点击状态）、`paused` 状态 ref、行上的 `is-paused` 类绑定，以及 `.danmaku-toggle` 与 `.danmaku-row.is-paused` 两组样式。
+- 保留两条暂停通道不变：桌面 `(hover: hover) and (pointer: fine)` 悬停自动暂停、`prefers-reduced-motion: reduce` 时 `animation: none` 直接静止；弹幕行数、每行内容与动画时长逻辑未动，链接仍为 432 个。
+- 同步修订 `docs/DESIGN.md`「自动移动内容的暂停通道」约定：手动开关口径改为已移除、不要再加回。

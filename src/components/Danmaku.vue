@@ -1,15 +1,5 @@
 <template>
   <div class="danmaku-container">
-    <button
-      type="button"
-      class="danmaku-toggle"
-      :aria-pressed="paused ? 'true' : 'false'"
-      :aria-label="paused ? '继续滚动工具弹幕' : '暂停滚动工具弹幕'"
-      @click="paused = !paused"
-    >
-      <span aria-hidden="true">{{ paused ? '▶' : '⏸' }}</span>
-      {{ paused ? '继续滚动' : '暂停滚动' }}
-    </button>
     <!-- 弹幕是同页工具卡的重复推广位：三行共 432 个（R10d 降量后）
          与下方工具卡完全重复的链接，若进 Tab 顺序/无障碍树，键盘用户要穿过数百个
          重复链接、读屏链接列表也被淹没。故整区 aria-hidden + 链接 tabindex="-1"
@@ -20,7 +10,6 @@
         v-for="(row, index) in danmakuRows"
         :key="index"
         class="danmaku-row"
-        :class="{ 'is-paused': paused }"
         :style="{ animationDuration: row.duration + 's' }"
       >
         <div class="danmaku-content">
@@ -63,13 +52,9 @@ const allTools = getAllTools()
 // 弹幕行数
 const rowCount = 3
 const danmakuRows = ref([])
-// 自动滚动必须可暂停（WCAG 2.2.2）：用户手动暂停、悬停/聚焦时自动暂停；
-// 系统要求减少动态时默认静止，由用户主动开启滚动。
-const paused = ref(
-  typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-)
+// 暂停通道（R11c 起）：手动暂停/继续按钮已按产品决定移除（用处不大）；
+// 保留桌面鼠标悬停自动暂停（方便点中移动中的链接）与
+// prefers-reduced-motion 时直接静止两条通道，见下方样式。
 
 // 随机打乱数组
 const shuffleArray = (array) => {
@@ -139,28 +124,6 @@ onMounted(() => {
   padding: 2rem 0;
 }
 
-.danmaku-toggle {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  min-height: 32px;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--danmaku-bg);
-  color: var(--text-2);
-  font-size: 0.8rem;
-  box-shadow: var(--shadow-card);
-}
-
-.danmaku-toggle:hover {
-  color: var(--accent-text);
-}
-
 .danmaku-row {
   display: flex;
   white-space: nowrap;
@@ -168,16 +131,10 @@ onMounted(() => {
   will-change: transform;
 }
 
-/* 暂停：手动开关与鼠标悬停时静止，方便点中移动中的链接。
-   弹幕链接已退出 Tab 顺序（R9ai），不再有焦点进入区域的暂停通道；
-   暂停按钮保持焦点不影响滚动恢复（按钮在 wrapper 外）。
+/* 暂停：鼠标悬停时静止，方便点中移动中的链接（R11c 起无手动开关）。
+   弹幕链接已退出 Tab 顺序（R9ai），不再有焦点进入区域的暂停通道。
    悬停暂停只对真有悬停能力的设备（鼠标）生效：触屏点按会让 :hover
-   粘滞在容器上，点「继续滚动」后 is-paused 已移除、动画却被粘滞的
-   :hover 规则继续按住，表现为关了再点没反应（真机反馈后修复）。 */
-.danmaku-row.is-paused {
-  animation-play-state: paused;
-}
-
+   粘滞在容器上，静止状态会一直保持到手指离开后的下一次交互。 */
 @media (hover: hover) and (pointer: fine) {
   .danmaku-container:hover .danmaku-row {
     animation-play-state: paused;
