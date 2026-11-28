@@ -144,8 +144,6 @@ generate();
 .block input, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; box-sizing: border-box; }
 textarea { resize: vertical; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.error { color: var(--danger-text); font-size: 14px; }
 .summary { font-size: 13px; margin: 4px 0 10px; color: var(--text-2); }
 @media (max-width: 640px) { .field select { width: 150px; } }
 </style>

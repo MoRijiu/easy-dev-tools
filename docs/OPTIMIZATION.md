@@ -97,3 +97,13 @@ R10e 收官后对剩余优化面再盘点（脚本 r10f-inventory，台账存档
 - **tools-config 数据体积（R10h 对象）**：配置源文件 57,851 B（gzip 13,650 B），其中每工具的 `meta`（title/description/keywords）共 72 段、14,965 B，约占 26%；`aliases` 4,267 B。meta 只在进入对应工具页设置 SEO 时才需要，首页、Header 与搜索同步依赖的是 id/name/path/description/aliases。R10h 先做拆分原型并实测入口收益（当前入口 78,425 B / gzip 25,276 B）：若 meta 改为按 id 的独立映射并在路由守卫里查表，源数据仍在同一文件则无收益，必须评估独立分块 + 守卫同步可达的组织方式；收益不足 5% 或需改异步守卫则放弃并记录结论，不为拆而拆。
 - **大组件拆分暂缓**：ImageConverter 990 行、ImageCompress 892 行、QrcodeGenerator 835 行主要是模板+样式+单一职责逻辑，拆子组件纯结构搬家、回归面大且无用户收益，暂缓；待后续真要改这三个工具时顺带拆，不单独立项。
 - **定序**：R10g1 按钮/错误族重复 CSS 收敛 → R10g2 布局/表格族重复 CSS 收敛 → R10h tools-config meta 拆分评估（原型 + 实测 + 结论） → R10i R10 收官核查（全量构建体积对比 R10a 基线、冒烟总回归、OPTIMIZATION.md 总结）。新功能继续暂停，遵阶段口径。
+
+## R10g1 落地（2026-11-28，按钮/错误族重复 CSS 收敛）
+
+- 上收三族逐字重复规则到 `src/style.css`（锚点与 R10e 同口径、只作用于工具页）：`.btn.ghost`（23 个工具）、`.error`（21 个）、`.chip`（14 个），工具 scoped 内共删除 68 条（另含 `.btn:disabled` 10 条，见下）。异值定义的工具（Chmod 的 `.chip`、HashCalculator 的 `.error` 等 15 处）保留 scoped、优先级高于上收规则，行为不变；全仓核查三族均无「模板使用但未定义」的文件，上收不改变任何现存元素外观。
+- `.btn.ghost` 的锚点祖先段不用 `:where()`：需压过同文件保留的 scoped `.btn` 基础式（data-v 属性选择器同为 (0,2,0) 时靠加载顺序会输），实测幽灵按钮底色与上收前一致。
+- `.btn:disabled` 逐字副本（10 个）与全局 `.btn:disabled` 同值、直接删除；但带 scoped `.btn` 的工具里分块 CSS 靠后加载使 `.btn` 的 `cursor: pointer` 压过全局 disabled 规则，补一条锚定强化规则 `button.btn:disabled`（特异性 (0,2,1)，高于 scoped `.btn`、低于个别工具保留的异值 scoped `.btn:disabled`），禁用光标与删除前一致。
+- `.btn` 基础式（20 个工具逐字）**不上收**：另有 44 个工具未定义 `.btn`、靠全局兜底 + `.btn-primary` 等变体色（或 ToolToolbar 的 :deep 规则），全局改成强调底基础式会污染其外观（如颜色转换「解析」钮的尺寸与底色），收益不抵风险，维持现状并记录结论。
+- 等价证据：基线与新构建两轮无头 Chrome 计算样式探针（脚本 edt-r10g1-probe.js，合成元素复制根元素 data-v 属性以命中 scoped 规则）——4 个全中工具页（JsonEscape/Timezone/Luhn/QrcodeDecoder）五项探针与真实 `.btn.ghost`/`.chip` 元素计算样式逐项一致；对照页（Chmod 异值 chip、ColorConverter 全局兜底、JsonFormatter 工具栏）真实元素零变化（剩余差异仅为对照页模板从不使用的类的合成元素，属上收规则的预期覆盖面）；另 8 路由 × 桌面/390px 巡检无溢出、无 pageerror。
+- 体积：test 构建 exit=0，dist 1,946,107 → 1,940,082 B（−6,025 B，186 文件不变）。
+- 下一步 R10g2：布局/表格族重复 CSS 收敛（`.panes`/`.row`/`.text-input`/`table`/`.kv` 等）。

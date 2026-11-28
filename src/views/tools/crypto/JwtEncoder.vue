@@ -135,9 +135,6 @@ textarea { width: 100%; font-family: monospace; font-size: 13px; resize: vertica
 .actions { align-items: center; }
 .ttl { font-size: 13px; color: var(--text-2); }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger-text); font-size: 14px; }
 .verify { font-size: 14px; margin: 10px 0 4px; }
 .verify.ok { color: var(--success-text); }
 .verify.bad { color: var(--danger-text); }

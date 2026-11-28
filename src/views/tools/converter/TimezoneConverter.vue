@@ -105,10 +105,6 @@ function copyText(text) { return clipboard.copyText(text, '已复制到剪贴板
 .options select, .options .dt { padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-size: 13px; min-width: 0; max-width: 100%; }
 .options .dt { width: 160px; font-family: monospace; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-.chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger-text); font-size: 14px; }
 .note { color: var(--info-text, var(--text-2)); background: var(--info-soft, var(--bg-soft)); border: 1px solid var(--info-border, var(--border)); border-radius: 8px; padding: 6px 10px; font-size: 13px; margin: 6px 0; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }

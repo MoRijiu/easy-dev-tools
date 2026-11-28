@@ -392,6 +392,44 @@ img {
   :where(.main-content) .tool-container { padding: 20px; }
 }
 
+/* 工具页按钮/错误族（R10g1 上收）：.btn.ghost（23 工具）、.error（21 工具）、
+   .chip（14 工具）原先逐字重复的 scoped 规则收敛到这里一份，工具内已删除；
+   异值定义的工具（如 Chmod 的 .chip、HashCalculator 的 .error）保留 scoped，
+   其优先级高于此处、行为不变。锚点与 R10e 同口径，只作用于工具页根元素内。
+   .btn.ghost 的祖先段不用 :where()：需压过同文件保留的 scoped .btn 基础式
+   （data-v 属性选择器），否则幽灵按钮底色会被强调底覆盖。
+   .btn:disabled 的逐字副本（10 工具）与上方全局 .btn:disabled 同值，已直接删除；
+   但其中带 scoped .btn 基础式的工具，分块 CSS 靠后加载会使 .btn 的 cursor:pointer
+   压过全局 .btn:disabled，故补下方锚定强化规则（特异性高于 scoped .btn、
+   低于个别工具保留的异值 scoped .btn:disabled，行为与删除前一致）。
+   .btn 基础式（20 工具逐字）不上收：44 个未定义工具靠全局兜底 + 变体色，
+   全局改成强调底会污染其外观（如颜色转换「解析」钮），维持现状。 */
+.main-content > div:has(> .tool-container) .btn.ghost {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+:where(.main-content > div:has(> .tool-container)) .error {
+  color: var(--danger-text);
+  font-size: 14px;
+}
+
+:where(.main-content > div:has(> .tool-container)) .chip {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+:where(.main-content > div:has(> .tool-container)) button.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* 减少动态偏好：关停背景漂移与过渡动画，滚动一律瞬时（R9am：
    CSS 侧管原生锚点跳转，JS 指定的平滑滚动由 router 的 scrollBehavior 同口径处理） */
 @media (prefers-reduced-motion: reduce) {

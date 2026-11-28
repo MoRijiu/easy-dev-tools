@@ -93,10 +93,6 @@ async function copyText(text) {
 .block { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
 textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; resize: vertical; box-sizing: border-box; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-.chip { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px; }
-.error { color: var(--danger-text); font-size: 14px; }
 .notes { color: var(--text-2); font-size: 13px; background: var(--bg-softer); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
 .summary { font-size: 13px; margin: 6px 0 10px; color: var(--text-2); }
 .muted { font-size: 12px; color: var(--text-2); }

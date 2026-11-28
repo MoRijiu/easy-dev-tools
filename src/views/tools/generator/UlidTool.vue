@@ -148,9 +148,7 @@ runParse();
 .block input, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-softer); color: var(--text); font-family: monospace; font-size: 13px; box-sizing: border-box; }
 textarea { resize: vertical; }
 .btn { padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; background: var(--accent-solid); color: #fff; cursor: pointer; font-size: 13px; white-space: nowrap; }
-.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn.sm { padding: 4px 10px; font-size: 12px; }
-.error { color: var(--danger-text); font-size: 14px; }
 .kv { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 13px; }
 .kv th { text-align: left; color: var(--text-2); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; width: 170px; }
 .kv td { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); word-break: break-all; }
