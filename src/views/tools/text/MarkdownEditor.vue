@@ -134,12 +134,15 @@ import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { renderMarkdown, markdownStats, buildStandaloneHtml } from '@/utils/markdown.js';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 
 const editorRef = ref(null);
 const previewRef = ref(null);
 const markdownText = ref('');
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const { copyText } = useClipboard(status);
 const syncScroll = ref(true);
 
 // 文档统计（字符/行/词/标题/链接/图片/代码块/表格/阅读时长）
@@ -218,38 +221,17 @@ const handleKeydown = (e) => {
 // 清空内容
 const clearContent = () => {
   markdownText.value = '';
-  statusMessage.value = '已清空内容';
-  statusType.value = 'info';
-  const ownMsg = statusMessage.value;
-  setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
+  status.showInfo('已清空内容', 2000);
 };
 
 // 复制 Markdown
 const copyMarkdown = async () => {
-  try {
-    await navigator.clipboard.writeText(markdownText.value);
-    statusMessage.value = '✓ Markdown 已复制到剪贴板！';
-    statusType.value = 'success';
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
-  } catch (error) {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
+  await copyText(markdownText.value, '✓ Markdown 已复制到剪贴板！', { autoClearMs: 2000 });
 };
 
 // 复制渲染后的 HTML
 const copyHtml = async () => {
-  try {
-    await navigator.clipboard.writeText(renderedHtml.value);
-    statusMessage.value = '✓ HTML 已复制到剪贴板！';
-    statusType.value = 'success';
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
-  } catch (error) {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
+  await copyText(renderedHtml.value, '✓ HTML 已复制到剪贴板！', { autoClearMs: 2000 });
 };
 
 // 导出 Markdown 文件
@@ -261,10 +243,7 @@ const exportMarkdown = () => {
   a.download = 'document.md';
   a.click();
   URL.revokeObjectURL(url);
-  statusMessage.value = '✓ Markdown 文件已下载！';
-  statusType.value = 'success';
-  const ownMsg = statusMessage.value;
-  setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
+  status.showSuccess('✓ Markdown 文件已下载！', 2000);
 };
 
 // 导出 HTML 文件
@@ -277,10 +256,7 @@ const exportHtml = () => {
   a.download = 'document.html';
   a.click();
   URL.revokeObjectURL(url);
-  statusMessage.value = '✓ HTML 文件已下载！';
-  statusType.value = 'success';
-  const ownMsg = statusMessage.value;
-  setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ''; }, 2000);
+  status.showSuccess('✓ HTML 文件已下载！', 2000);
 };
 
 // 同步滚动：按滚动比例联动另一侧，scrollingFrom 防回环

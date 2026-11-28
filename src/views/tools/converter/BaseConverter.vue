@@ -89,6 +89,8 @@ import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { COMMON_BASES, convertBase, groupDigits, bitLength } from '@/utils/baseConvert.js';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 
 const features = [
   { icon: '🔢', title: '2–36 进制互转', description: '常用二/八/十/十六/三十六进制一屏对照，另可任选自定义目标进制' },
@@ -154,10 +156,11 @@ const customBase = ref(36);
 const grouped = ref(true);
 const results = ref(null);
 const bits = ref(0);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const { copyText } = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 
 const resultRows = computed(() => {
@@ -181,8 +184,7 @@ const convert = () => {
     for (const b of COMMON_BASES) out[b] = convertBase(raw, fromBase.value, b);
     results.value = out;
     bits.value = bitLength(raw, fromBase.value);
-    statusMessage.value = '✓ 转换成功';
-    statusType.value = 'success';
+    status.showSuccess('✓ 转换成功');
   } catch (e) {
     setInputError(`✗ ${e.message}`);
   }
@@ -196,16 +198,6 @@ const useExample = (ex) => {
 };
 const clearAll = () => { inputValue.value = ''; results.value = null; statusMessage.value = ''; };
 
-const copyText = async (text, okMsg) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    statusMessage.value = okMsg;
-    statusType.value = 'success';
-  } catch {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
-};
 const copyOne = (row) => copyText(row.value, `✓ ${row.base} 进制结果已复制`);
 const copyAll = () => copyText(resultRows.value.map(r => `${r.base} 进制: ${r.value}`).join('\n'), '✓ 全部结果已复制到剪贴板');
 </script>

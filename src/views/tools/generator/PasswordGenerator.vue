@@ -121,11 +121,14 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
 
 // 响应式状态
 const passwords = ref([]);
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const { copyToClipboard } = useClipboard();
 
 const options = ref({
   length: 16,
@@ -159,12 +162,10 @@ const generatePasswords = () => {
     const result = generateCore({ ...options.value });
     passwords.value = result.passwords;
     genError.value = "";
-    statusMessage.value = `✓ 已生成 ${result.count} 个密码 · 字符池 ${result.poolSize} · 理论熵约 ${result.entropyBits} 位`;
-    statusType.value = "success";
+    status.showSuccess(`✓ 已生成 ${result.count} 个密码 · 字符池 ${result.poolSize} · 理论熵约 ${result.entropyBits} 位`);
   } catch (e) {
     genError.value = e.message;
-    statusMessage.value = `✗ ${e.message}`;
-    statusType.value = "error";
+    status.showError(`✗ ${e.message}`);
   }
 };
 
@@ -177,8 +178,7 @@ const downloadPasswords = () => {
   a.download = "passwords.txt";
   a.click();
   URL.revokeObjectURL(url);
-  statusMessage.value = "✓ 已下载 passwords.txt";
-  statusType.value = "success";
+  status.showSuccess("✓ 已下载 passwords.txt");
 };
 
 // 理论强度：熵 = 长度 × log2(字符池)，配置非法时直接展示原因
@@ -206,32 +206,20 @@ const strengthClass = computed(() => {
 
 const strengthText = computed(() => strengthInfo.value.label);
 
-// 复制功能
-const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch { return false; }
-};
-
+// 复制功能（copyToClipboard 由 useClipboard 提供）
 const copyOutput = async () => {
   if (!passwords.value.length) {
-    statusMessage.value = "✗ 没有可复制的内容";
-    statusType.value = "error";
+    status.showError("✗ 没有可复制的内容");
     return;
   }
   if (await copyToClipboard(passwords.value.join("\n"))) {
-    statusMessage.value = "✓ 已复制所有密码";
-    statusType.value = "success";
+    status.showSuccess("✓ 已复制所有密码");
   }
 };
 
 const copySingle = async (pwd) => {
   if (await copyToClipboard(pwd)) {
-    statusMessage.value = "✓ 已复制密码";
-    statusType.value = "success";
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
+    status.showSuccess("✓ 已复制密码", 2000);
   }
 };
 

@@ -110,6 +110,8 @@ import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
 import ToolEditorLayout from '@/components/ToolEditorLayout.vue';
 import ToolEditorPanel from '@/components/ToolEditorPanel.vue';
 import { parseJsonDetailed, sortObjectKeys, jsonStats, buildJsonStatsSummary, buildJsonErrorSummary } from '@/utils/jsonFormat.js';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 
 // 功能特点数据
 const features = [
@@ -172,8 +174,9 @@ const examples = [
 
 const inputJson = ref('');
 const outputJson = ref('');
-const statusMessage = ref('');
-const statusType = ref(''); // 'success', 'error', 'info'
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const { copyText } = useClipboard(status);
 const errorDetail = ref(null);
 const inputErrorText = ref('');
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
@@ -202,8 +205,7 @@ onBeforeUnmount(() => { clearTimeout(debounceTimer); debounceTimer = null; });
 
 // 统一处理解析失败：状态行 + 定位详情面板
 const applyError = (error) => {
-  statusMessage.value = `✗ JSON 格式错误: ${error.message}`;
-  statusType.value = 'error';
+  status.showError(`✗ JSON 格式错误: ${error.message}`);
   inputErrorText.value = statusMessage.value;
   errorDetail.value = error;
   statsSummary.value = '';
@@ -218,8 +220,7 @@ const formatJson = () => {
   outputJson.value = JSON.stringify(sorted, null, options.value.indent);
   errorDetail.value = null;
   statsSummary.value = buildJsonStatsSummary(jsonStats(result.value));
-  statusMessage.value = '✓ JSON 格式化成功！';
-  statusType.value = 'success';
+  status.showSuccess('✓ JSON 格式化成功！');
 };
 
 // 使用示例
@@ -236,8 +237,7 @@ const minifyJson = () => {
   errorDetail.value = null;
   statsSummary.value = buildJsonStatsSummary(jsonStats(result.value));
   const ratio = inputJson.value.length ? Math.round((1 - outputJson.value.length / inputJson.value.length) * 100) : 0;
-  statusMessage.value = `✓ JSON 压缩成功！从 ${inputJson.value.length} 字符压缩到 ${outputJson.value.length} 字符（-${ratio}%）`;
-  statusType.value = 'success';
+  status.showSuccess(`✓ JSON 压缩成功！从 ${inputJson.value.length} 字符压缩到 ${outputJson.value.length} 字符（-${ratio}%）`);
 };
 
 // 验证 JSON
@@ -246,8 +246,7 @@ const validateJson = () => {
   if (!result.ok) { applyError(result.error); return false; }
   errorDetail.value = null;
   statsSummary.value = buildJsonStatsSummary(jsonStats(result.value));
-  statusMessage.value = '✓ JSON 格式正确！';
-  statusType.value = 'success';
+  status.showSuccess('✓ JSON 格式正确！');
   return true;
 };
 
@@ -264,8 +263,7 @@ const clearAll = () => {
 const useOutputAsInput = () => {
   if (!outputJson.value) return;
   inputJson.value = outputJson.value;
-  statusMessage.value = '已把输出填回输入框';
-  statusType.value = 'info';
+  status.showInfo('已把输出填回输入框');
 };
 
 // 下载输出为 .json 文件（纯本地生成）
@@ -282,30 +280,12 @@ const downloadOutput = () => {
 
 // 复制错误诊断（原文行 + 位置 + 可能原因）
 const copyError = async () => {
-  try {
-    await navigator.clipboard.writeText(buildJsonErrorSummary(errorDetail.value));
-    statusMessage.value = '✓ 诊断信息已复制';
-    statusType.value = 'success';
-  } catch {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
+  await copyText(buildJsonErrorSummary(errorDetail.value), '✓ 诊断信息已复制');
 };
 
 // 复制输出结果
 const copyOutput = async () => {
-  try {
-    await navigator.clipboard.writeText(outputJson.value);
-    statusMessage.value = '✓ 已复制到剪贴板！';
-    statusType.value = 'success';
-    const ownMsg = statusMessage.value;
-    setTimeout(() => {
-      if (statusMessage.value === ownMsg) statusMessage.value = '';
-    }, 2000);
-  } catch (error) {
-    statusMessage.value = '✗ 复制失败，请手动复制';
-    statusType.value = 'error';
-  }
+  await copyText(outputJson.value, '✓ 已复制到剪贴板！', { autoClearMs: 2000 });
 };
 
 // 语法高亮

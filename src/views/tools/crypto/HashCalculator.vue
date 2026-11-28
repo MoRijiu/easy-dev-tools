@@ -165,6 +165,8 @@ import {
   HASH_ALGORITHMS, digestAll, textToBytes, textStats,
   normalizeExpectedHash, findHashMatches, formatFileSize
 } from "@/utils/hash.js";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
 
 const mode = ref("text");
 const inputText = ref("");
@@ -184,11 +186,12 @@ const onDropZoneKeydown = (e) => {
 const selectedAlgorithms = ref(["MD5", "SHA-256"]);
 const hashResults = ref({});
 const upperCase = reactive({});
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const { copyText } = useClipboard(status);
 // 文件类状态错误（未选文件/读取失败）留存原文，仅当前展示的正是该错误时才关联到拖放区；算法未勾选等其他状态消息不误绑
 const fileErrorText = ref("");
-const setFileError = (msg) => { statusMessage.value = msg; statusType.value = "error"; fileErrorText.value = msg; };
+const setFileError = (msg) => { status.showError(msg); fileErrorText.value = msg; };
 const fileErrorActive = computed(() => statusType.value === "error" && fileErrorText.value !== "" && statusMessage.value === fileErrorText.value);
 const expectedInput = ref("");
 const verifyMessage = ref("");
@@ -231,8 +234,7 @@ const sourceBytes = () => (mode.value === "text" ? textToBytes(inputText.value) 
 const calculateHash = async () => {
   const seq = ++computeSeq;
   if (selectedAlgorithms.value.length === 0) {
-    statusMessage.value = "✗ 请至少选择一种哈希算法";
-    statusType.value = "error";
+    status.showError("✗ 请至少选择一种哈希算法");
     hashResults.value = {};
     return;
   }
@@ -251,13 +253,11 @@ const calculateHash = async () => {
     const source = mode.value === "text"
       ? (inputText.value === "" ? "空字符串" : `${formatFileSize(bytes.length)} 文本`)
       : `文件 ${fileMeta.value.name}（${formatFileSize(bytes.length)}）`;
-    statusMessage.value = `✓ 已计算 ${source} 的 ${selectedAlgorithms.value.length} 种哈希值`;
-    statusType.value = "success";
+    status.showSuccess(`✓ 已计算 ${source} 的 ${selectedAlgorithms.value.length} 种哈希值`);
     runVerify();
   } catch (error) {
     if (seq !== computeSeq) return;
-    statusMessage.value = `✗ 计算失败: ${error.message}`;
-    statusType.value = "error";
+    status.showError(`✗ 计算失败: ${error.message}`);
   }
 };
 
@@ -333,37 +333,18 @@ const toggleCase = (key) => {
 
 const copyResult = async (key, value) => {
   const text = upperCase[key] ? value.toUpperCase() : value;
-  try {
-    await navigator.clipboard.writeText(text);
-    statusMessage.value = `✓ 已复制 ${getAlgorithmName(key)} 哈希值`;
-    statusType.value = "success";
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
-  } catch {
-    statusMessage.value = "✗ 复制失败";
-    statusType.value = "error";
-  }
+  await copyText(text, `✓ 已复制 ${getAlgorithmName(key)} 哈希值`, { failMsg: "✗ 复制失败", autoClearMs: 2000 });
 };
 
 const copyAllResults = async () => {
   if (Object.keys(hashResults.value).length === 0) {
-    statusMessage.value = "✗ 没有可复制的结果";
-    statusType.value = "error";
+    status.showError("✗ 没有可复制的结果");
     return;
   }
   const text = Object.entries(hashResults.value)
     .map(([key, value]) => `${getAlgorithmName(key)}: ${upperCase[key] ? value.toUpperCase() : value}`)
     .join('\n');
-  try {
-    await navigator.clipboard.writeText(text);
-    statusMessage.value = "✓ 已复制所有哈希值";
-    statusType.value = "success";
-    const ownMsg = statusMessage.value;
-    setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000);
-  } catch {
-    statusMessage.value = "✗ 复制失败";
-    statusType.value = "error";
-  }
+  await copyText(text, "✓ 已复制所有哈希值", { failMsg: "✗ 复制失败", autoClearMs: 2000 });
 };
 
 const clearAll = () => {

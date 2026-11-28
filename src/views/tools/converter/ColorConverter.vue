@@ -165,6 +165,8 @@ import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
 import { parseColorInput, componentsToRgb, formatAll, nearestNamedColor, buildColorSummary } from "@/utils/colorConvert.js";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
 
 // 响应式状态（转换与校验全部走 src/utils/colorConvert.js，纯本地）
 const master = ref({ r: 102, g: 126, b: 234, a: 1 });
@@ -179,8 +181,9 @@ const alphaPct = ref(100);
 const anyInput = ref("");
 const parseError = ref("");
 const hexError = ref("");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const { copyToClipboard } = useClipboard();
 
 const formats = computed(() => formatAll(master.value));
 const nearest = computed(() => nearestNamedColor(master.value));
@@ -203,7 +206,7 @@ const syncFromMaster = () => {
   alphaPct.value = f.alphaPct;
 };
 
-const setError = (msg) => { statusMessage.value = msg ? `✗ ${msg}` : ""; statusType.value = msg ? "error" : ""; compErrorText.value = msg || ""; };
+const setError = (msg) => { if (msg) status.showError(`✗ ${msg}`); else status.clearStatus(); compErrorText.value = msg || ""; };
 // 分量/透明度错误归属：报错文案自带格式与分量名（如「RGB 的 R 应在 0–255 之间」），据此关联对应分量框；HWB 白+黑超限同绑两框
 const compErrorText = ref("");
 const COMP_LABEL_KEYS = { RGB: { R: "rgb.r", G: "rgb.g", B: "rgb.b" }, HSL: { "H 色相": "hsl.h", "S 饱和度": "hsl.s", "L 亮度": "hsl.l" }, HSV: { "H 色相": "hsv.h", "S 饱和度": "hsv.s", "V 明度": "hsv.v" }, CMYK: { C: "cmyk.c", M: "cmyk.m", Y: "cmyk.y", K: "cmyk.k" }, HWB: { "H 色相": "hwb.h", "W 白度": "hwb.w", "B 黑度": "hwb.b" } };
@@ -243,11 +246,8 @@ const parseAny = () => {
   parseError.value = "";
   master.value = parsed.rgba;
   syncFromMaster();
-  const msg = `✓ 已识别为 ${parsed.format} 格式`;
-  statusMessage.value = msg;
-  statusType.value = "success";
-  // 自动清空只清自己这条：2 秒内若已换成别的消息（如分量错误），不得误清
-  setTimeout(() => { if (statusMessage.value === msg) statusMessage.value = ""; }, 2000);
+  // 自动清空只清自己这条：2 秒内若已换成别的消息（如分量错误），不得误清（useStatusMessage 守卫）
+  status.showSuccess(`✓ 已识别为 ${parsed.format} 格式`, 2000);
 };
 
 const onAlphaChange = () => {
@@ -267,8 +267,7 @@ const onHwbChange = () => applyComponents('hwb', hwb.value);
 const randomColor = () => {
   master.value = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256), a: master.value.a };
   syncFromMaster();
-  statusMessage.value = "✓ 已生成随机颜色！";
-  statusType.value = "success";
+  status.showSuccess("✓ 已生成随机颜色！");
 };
 
 const clearAll = () => {
@@ -278,25 +277,15 @@ const clearAll = () => {
   statusMessage.value = "";
 };
 
-const copyToClipboard = async (text) => {
-  try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
-};
-
 const copyValue = async (value, format) => {
   if (await copyToClipboard(value)) {
-    const msg = `✓ 已复制 ${format} 值！`;
-    statusMessage.value = msg;
-    statusType.value = "success";
-    setTimeout(() => { if (statusMessage.value === msg) statusMessage.value = ""; }, 2000);
-  } else { statusMessage.value = "✗ 复制失败"; statusType.value = "error"; }
+    status.showSuccess(`✓ 已复制 ${format} 值！`, 2000);
+  } else { status.showError("✗ 复制失败"); }
 };
 
 const copyAllFormats = async () => {
   if (await copyToClipboard(buildColorSummary(master.value))) {
-    const msg = "✓ 已复制所有格式！";
-    statusMessage.value = msg;
-    statusType.value = "success";
-    setTimeout(() => { if (statusMessage.value === msg) statusMessage.value = ""; }, 2000);
+    status.showSuccess("✓ 已复制所有格式！", 2000);
   }
 };
 

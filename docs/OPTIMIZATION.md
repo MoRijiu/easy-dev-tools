@@ -37,3 +37,10 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - **R10c**：产物优化——主包 90.9 KB 构成分析（tools-config 元数据与首屏代码同包问题）、按分析结果调整分块，给出优化前后体积对比。
 - **R10d**：运行时性能核查（见上「运行时关注点」），逐项给结论或修复。
 - **R10e**：重复 CSS 上收与导出面收敛收尾，逐页截图比对。
+
+## R10b1 落地（2026-11-28）
+
+- 新增 `src/composables/useStatusMessage.js`：统一 `statusMessage/statusType` 与守卫式自动清除（存 ownMsg、到期比对仍是自己这条才清文本、类型不动；不取消先前待发定时器，与旧手抄行为一致；卸载时清理待发定时器）。
+- 新增 `src/composables/useClipboard.js`：统一 `copyToClipboard`（只返回布尔）与 `copyText`（复制并按旧文案回写成功/失败状态、可选守卫清除）；不加 execCommand 回退，保持全仓失败提示口径。
+- 试点迁移 6 个工具：JsonFormatter、ColorConverter、PasswordGenerator、BaseConverter、HashCalculator、MarkdownEditor。各工具专属的错误原文留存与 aria 关联计算（inputErrorText/genError/compErrorText/fileErrorText 等）保持原样，只替换状态写入与复制骨架；迁移后 6 文件已无直调 `navigator.clipboard`。
+- 等价口径：成功/失败文案逐字保留；原本带 2 秒守卫清除的消息继续带、原本常驻的消息继续常驻；ColorConverter 复制失败文案「✗ 复制失败」与 HashCalculator 的同名文案通过 failMsg 参数保留，未被统一文案覆盖。
