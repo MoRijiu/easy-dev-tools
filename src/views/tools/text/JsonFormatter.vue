@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
@@ -196,6 +196,9 @@ const onInputChange = () => {
     }
   }, 1000);
 };
+
+// 卸载时取消待发的防抖校验，避免离开页面后仍校验已卸载组件的输入
+onBeforeUnmount(() => { clearTimeout(debounceTimer); debounceTimer = null; });
 
 // 统一处理解析失败：状态行 + 定位详情面板
 const applyError = (error) => {

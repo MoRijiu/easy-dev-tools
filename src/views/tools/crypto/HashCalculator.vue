@@ -153,7 +153,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, computed, watch, onBeforeUnmount } from "vue";
 import ToolFeatures from "@/components/ToolFeatures.vue";
 import ToolUsageGuide from "@/components/ToolUsageGuide.vue";
 import ToolFaq from "@/components/ToolFaq.vue";
@@ -266,6 +266,9 @@ const scheduleCalculate = () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(calculateHash, 250);
 };
+
+// 卸载时取消待发的防抖计算，避免离开页面后仍对已卸载组件做异步哈希运算
+onBeforeUnmount(() => { clearTimeout(debounceTimer); debounceTimer = null; });
 
 watch(mode, () => {
   hashResults.value = {};
