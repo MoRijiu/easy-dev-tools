@@ -479,3 +479,11 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起只有 `displa
 - 处理：manifest 在 `display` 后补 `"display_override": ["standalone", "minimal-ui"]`（首项与 display 一致、二项为次选 minimal-ui，均为规范登记的显示模式值），文件 1,259→1,306 B（+47 B）；其余字段、图标与 shortcuts 条目一字未改。
 - 边界：display_override 只影响不支持首选模式的平台如何回退，不改支持 standalone 平台上的任何表现与运行时行为；将来若 display 改值，须同步复核本链首项（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验通过且除 display_override 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、display_override 两项齐全、dir/categories/icons/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
+
+## R12ag 落地（2026-11-28，Manifest 补 prefer_related_applications 显式声明）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `prefer_related_applications` 字段。按 Web App Manifest 规范，该字段声明是否希望平台优先推荐关联的原生应用；缺省时虽默认为 false，但安装提示与平台推荐逻辑在不同实现里对「未声明」的处理并不一致，本站并无任何关联原生应用，继续留空等于让平台替本站猜测。与 R12ab 补 id、R12ac 补 shortcuts、R12ad 补 categories、R12ae 补 dir、R12af 补 display_override 同族，这次缺的是关联应用偏好声明。
+
+- 处理：manifest 补 `"prefer_related_applications": false`（明确不优先推荐原生应用、Web App 本身即正式入口），文件 1,306→1,342 B（+36 B）；其余字段、图标与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
+- 边界：该字段不引入任何原生应用关联（`related_applications` 仍不声明、无从填写平台与 id），不改任何页面内行为；将来若真推出关联原生应用，须同时补 `related_applications` 并把本字段改为 true，两处一并复核（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验通过且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段为 false、dir/categories/display_override/icons/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
