@@ -504,3 +504,11 @@ R12 小盘点续项：R12ah 新增的两张安装展示截图 `public/screenshot
 - 处理：仅以 zopfli 重写两张截图的 PNG 编码字节，尺寸（1280×720 / 390×844）、调色板模式（P）与 manifest 中的 screenshots 条目（sizes/type/form_factor/label）一字未改；zopfli 会重排调色板顺序，故逐像素比对口径为渲染后的 RGB（与 R12y/R12z 同口径）。
 - 边界：截图本身在 R12ah 已做有损量化（256 色），本轮重压缩相对量化后版本为无损、不得把本项说成整链无损；截图仅在安装提示时按需抓取、不进页面加载路径，本项收益在安装展示抓取体积。若将来重截截图，落盘后须依次做量化与 zopfli 无损重压缩（已在本节留痕）。
 - 等价证据：重压缩前后逐像素 RGB 解码比对全部 identical、尺寸不变；manifest 经 JSON 解析校验且 screenshots 条目无回归；test 构建 exit=0、产物中两张截图字节与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、截图可达且尺寸正确、首页/工具页无回归（验收结果见台账）。
+
+## R12aj 落地（2026-11-28，Manifest 补 launch_handler 启动处理声明）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `launch_handler` 字段。按 Web App Manifest 规范，`launch_handler` 决定已安装应用被再次启动（点图标、点 shortcuts 快捷方式、系统分享/协议唤起等）时如何处理窗口；缺省时各平台按默认策略处理，Chromium 的默认行为可能为每次启动新开一个窗口，用户从快捷方式直达某个工具时会攒出一排重复的工具箱窗口。与 R12ab 补 id、R12af 补 display_override、R12ag 补 prefer_related_applications 同族，这次缺的是启动处理声明。
+
+- 处理：manifest 补 `"launch_handler": {"client_mode": "navigate-existing"}`（已有窗口时把该窗口导航到本次启动 URL 并聚焦，不再新开窗口；快捷方式直达工具的语义因此是「在现有窗口里打开该工具」），文件 1,653→1,706 B（+53 B）；其余字段、图标、screenshots 与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
+- 边界：launch_handler 目前由 Chromium 系浏览器实现，不支持的平台忽略该字段、按原默认策略启动，不产生负面影响；它不改任何页面内导航与运行时行为，也不引入 Service Worker。将来若产品形态改为希望每次启动都开新窗口，须同步改本字段（已在本节留痕）。
+- 等价证据：manifest 经 JSON 解析校验通过且除 launch_handler 外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段值正确、icons/screenshots/shortcuts 与四目标页无回归（验收结果见台账）。
