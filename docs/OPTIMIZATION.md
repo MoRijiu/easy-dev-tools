@@ -744,3 +744,11 @@ R12 小盘点续项：本站工具总数已有唯一口径——`tools-config` �
 - 处理：`syncJsonLd` 在改写 url/description/softwareVersion 时，一并把 `featureList` 中「等N个工具」的数字段改写为 `totalToolCount`（正则只替换计数段，代表性工具清单文案本身不动）；404 路由 meta 的 description 改为模板字符串直接引用 `totalToolCount`。`index.html` 静态 featureList 保持现值不变（与当前配置一致，首屏未执行 JS 前读到的仍是正确值）。其余字段一字未改，404 移除与模板恢复逻辑不受影响。
 - 边界：R12aw 的人工复核纪律自此收窄为「代表性工具清单变化时复核清单本身」，总数不再需要手改；README/docs 里的工具数仍为文档人工维护口径，不在自动同步范围。它不改任何其他运行时行为。
 - 等价证据：当前 totalToolCount 与两处硬写值均为 72，改后文案与改前逐字一致；test 构建 exit=0；无头 Chrome 冒烟核对工具页/首页 featureList 总数与配置一致、404 页 description 含配置总数、softwareVersion 与 url/description 按页同步无回归、404 移除 JSON-LD 无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bn 落地（2026-11-28，JSON-LD 顶层补 sameAs 应用源码仓声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD 里 `author` 与 `publisher` 两个 Organization 对象已有 `sameAs`（R12bh 补，指向组织在 GitHub 的个人主页），但顶层 WebApplication 实体本身没有 `sameAs`——该字段专指该实体在其他平台的公开页面地址，消费方靠它把实体与外部平台页面关联起来。本站应用的公开源码仓地址早已在站内公开展示：页脚与 About 页均链接 `https://github.com/MoRijiu/easy-dev-tools`（与本节处理逐字一致，且经 gh 核实该仓为 PUBLIC），但结构化数据里从未声明这层应用级关联。与 R12bh 补组织 sameAs 同族，这次缺的是应用实体本身的外部页面关联；组织 sameAs 指向个人主页、应用 sameAs 指向源码仓，二者指向不同页面、不互相替代。
+
+- 处理：JSON-LD 顶层在 `featureList` 后补 `"sameAs": ["https://github.com/MoRijiu/easy-dev-tools"]` 一行（数组形式、单元素，与页脚/About 公开链接逐字一致），index.html 7,840→7,903 B（+63 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description/softwareVersion/featureList、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：sameAs 是站点级声明、不随路由变化（全站应用为同一实体、源码仓为同一地址），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用源码仓迁移或新增应用级公开页面时，须与页脚/About 的仓库链接一并同步复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、顶层 sameAs 与页脚/About 公开链接逐字一致且与组织 sameAs 指向不同页面、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的顶层 sameAs 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
