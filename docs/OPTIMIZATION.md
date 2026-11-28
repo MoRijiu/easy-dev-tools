@@ -584,3 +584,11 @@ R12 小盘点续项：本站是纯前端工具站，全部工具都靠 JavaScrip
 - 处理：JSON-LD 在 operatingSystem 后补 `"browserRequirements": "Requires JavaScript"` 一行，index.html 6,235→6,287 B（+52 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：browserRequirements 是站点级声明、不随路由变化（全站工具均需 JS），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为，将来若推出无需 JS 的静态工具页，须同步复核本字段表述（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 browserRequirements 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12at 落地（2026-11-28，JSON-LD 补 softwareVersion 软件版本声明）
+
+R12 小盘点续项：本站有真实且在用的版本口径——`package.json` 的 `version: "1.0.0"` 经 vite 构建注入、页脚版本徽标按环境显示（生产裸版本、测试 `_test`、开发 `_dev`）；但 `index.html` 的 JSON-LD（WebApplication 结构化数据）没有 Schema.org 为软件应用定义的 `softwareVersion`，结构化数据消费方无从得知当前应用版本。与 R12ap 补 inLanguage、R12as 补 browserRequirements 同族，这次缺的是站点级版本字段本身。
+
+- 处理：JSON-LD 在 `browserRequirements` 后补 `"softwareVersion": "1.0.0"` 一行（与 `package.json` 的 version 逐字一致、取裸版本号不带环境后缀——环境后缀是本站展示口径、不是版本本身），index.html 6,287→6,321 B（+34 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：softwareVersion 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。**版本同步纪律（留痕）：今后升 `package.json` 的 version 时，须一并同步本字段**，两处不一致即以 package.json 为准修正本字段。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、softwareVersion 与 package.json 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 softwareVersion 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
