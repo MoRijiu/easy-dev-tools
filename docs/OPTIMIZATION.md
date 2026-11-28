@@ -311,3 +311,11 @@ R12 小盘点续项：`index.html` 的分享图只有 `og:image` / `twitter:imag
 - 处理：`og:image` 后按规范顺序紧跟四条结构化属性（type=image/png、width=1200、height=630、alt=站点标题文案），`twitter:image` 后补一条 `twitter:image:alt`（同文案）。两张图全站共用、尺寸与内容不随页面变化，这些属性是站点级常量，无需路由守卫或 useSeo 按页同步——它们既不被守卫改写、也不会残留上一页的值。
 - 边界：og:image 与 twitter:image 的 URL、content 一字未改；若将来更换分享图尺寸或格式，必须同步更新这四条属性（已在本节留痕）。
 - 等价证据：构建产物中五条新属性齐全且值与实测图属性一致；无头 Chrome 冒烟逐页核对——首页/工具页/404 后新属性均为单份且值不变、原分享文案按页同步无回归，桌面/390px 无溢出、无 pageerror。
+
+## R12l 落地（2026-11-28，og:image 补 secure_url）
+
+R12 小盘点续项：R12k 已给 `og:image` 补 type/width/height/alt 四条结构化属性，但 Open Graph 规范为 https 页面还定义了 `og:image:secure_url`——内容须为该图的 https 地址，供在 https 页面下抓取分享图的平台优先使用。本站页面与分享图均为 https，`og:image` 本身已是 https 地址，却没有声明 secure_url，严格按规范读取结构化属性的爬虫拿不到这一项。
+
+- 处理：`og:image` 后、其余结构化属性之前，按规范顺序补一条 `og:image:secure_url`，值与 `og:image` 逐字相同（同一张图的 https 地址）。该图全站共用、地址不随页面变化，属站点级常量，无需路由守卫或 useSeo 按页同步。
+- 边界：`og:image` 与 R12k 四条属性的 URL、content 一字未改；twitter:image 无对应的 secure_url 规范项，未动。若将来分享图改走 http 地址或更换 URL，必须同步更新本条。
+- 等价证据：构建产物中该属性单条齐全且值与 og:image 一致；无头 Chrome 冒烟逐页核对——首页/工具页/404 后该属性均为单份且值不变、原分享文案与结构化属性按页同步无回归，桌面/390px 无溢出、无 pageerror。
