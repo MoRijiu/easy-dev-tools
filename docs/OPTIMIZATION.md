@@ -87,3 +87,13 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - 无处使用 20 个：均为从未被任何代码调用的小包装/常量（baseConvert.convertAll、ulid.generateUlid 与 isValidUlid、uuidGenerate.generateUuidV7、semver.isValidSemver、urlCodec.URL_ENCODE_MODES 等），连同定义一并删除（同名符号在其他模块的同名导出经逐文件核实不受影响，如 unitConvert.convertAll 仍在用、保留）。
 - 等价证据：构建期 Rollup 对缺失 import 名会直接报错，test 构建 exit=0 即证明 307 个保留导出与全部 import 对齐；dist 1,946,107 B / 186 文件与 R10e1 逐字相同（未用导出原本就被 tree-shaking 剔除，去 export 不改变产物）。Node 直载 72 个 utils 模块全成功，关键向量 8/8（进制 255→ff、命名转换、JSON/CSV 往返、SemVer 比较、ULID 批量、UUID 解析、单位换算、Luhn 校验）；无头 Chrome 页面冒烟 12/12、无 pageerror。
 - R10e 至此收官（CSS 上收 + 导出面收敛）；R10 代码优化队列全部完成，后续新台阶待定（新功能继续暂停，遵阶段口径）。
+
+## R10f 盘点续项（2026-11-28，composables/views 层与 tools-config）
+
+R10e 收官后对剩余优化面再盘点（脚本 r10f-inventory，台账存档）：src 共 172 个代码文件、36,978 行；工具组件 72 个、16,789 行（R10a 时 17,624 行，R10b–R10e 累计净减约 835 行）。
+
+- **composables 层已收敛到位**：现有 6 个 composable（useStatusMessage/useClipboard/useDownload/useSeo/useTheme/useToolPrefs）覆盖状态、复制、下载、SEO、主题与收藏。工具内 `setTimeout` 只剩 9 个文件 10 处（批量下载间隔、二维码生成防抖、摩尔斯播放、时间戳时钟等），语义各异且多已在 R10d 核查合理，硬抽 `useDebouncedRef` 收益低、风险高，结论**不做**。输入错误关联（aria-invalid/describedby）在 66 个工具出现 606 处，但每处绑定各自的字段与错误原文，属 R9az–R9bk 的逐字段口径，不存在可安全共享的骨架，结论**不抽象**。
+- **第二波重复 CSS（R10g 对象）**：R10e1 上收基础版式后，工具 scoped 样式仍有 4,310 行，其中 38 条规则在 ≥5 个工具里逐字重复——`.btn` 基础样式 20 处、`.btn.ghost` 23 处、`.error` 21 处、`.chip` 14 处、`.block` 12 处、`.panes` 双栏布局 11 处等。注意全局样式已有 `.btn` 兜底（R9av），scoped 里的同名规则多为冗余复写；逐条核对与全局同值者删除、仅数值不同者保留，并按规则族分两批做（按钮/错误族一批、布局/表格族一批），每批以计算样式冒烟保等价。
+- **tools-config 数据体积（R10h 对象）**：配置源文件 57,851 B（gzip 13,650 B），其中每工具的 `meta`（title/description/keywords）共 72 段、14,965 B，约占 26%；`aliases` 4,267 B。meta 只在进入对应工具页设置 SEO 时才需要，首页、Header 与搜索同步依赖的是 id/name/path/description/aliases。R10h 先做拆分原型并实测入口收益（当前入口 78,425 B / gzip 25,276 B）：若 meta 改为按 id 的独立映射并在路由守卫里查表，源数据仍在同一文件则无收益，必须评估独立分块 + 守卫同步可达的组织方式；收益不足 5% 或需改异步守卫则放弃并记录结论，不为拆而拆。
+- **大组件拆分暂缓**：ImageConverter 990 行、ImageCompress 892 行、QrcodeGenerator 835 行主要是模板+样式+单一职责逻辑，拆子组件纯结构搬家、回归面大且无用户收益，暂缓；待后续真要改这三个工具时顺带拆，不单独立项。
+- **定序**：R10g1 按钮/错误族重复 CSS 收敛 → R10g2 布局/表格族重复 CSS 收敛 → R10h tools-config meta 拆分评估（原型 + 实测 + 结论） → R10i R10 收官核查（全量构建体积对比 R10a 基线、冒烟总回归、OPTIMIZATION.md 总结）。新功能继续暂停，遵阶段口径。
