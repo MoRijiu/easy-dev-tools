@@ -43,6 +43,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { envToJson, jsonToEnv } from '@/utils/envJson.js';
 
 const features = [
@@ -73,10 +75,11 @@ const inputText = ref('');
 const outputText = ref('');
 const stats = ref('');
 const notes = ref([]);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const countLines = (s) => (s ? s.split('\n').length : 0);
 const convert = () => {
@@ -107,10 +110,7 @@ const loadExample = () => { inputText.value = mode.value === 'env2json' ? ENV_EX
 const useExample = (ex) => { mode.value = ex.description.startsWith('JSON') ? 'json2env' : 'env2json'; inputText.value = ex.input; convert(); };
 const swap = () => { if (!outputText.value) return; inputText.value = outputText.value; mode.value = mode.value === 'env2json' ? 'json2env' : 'env2json'; convert(); };
 const clearAll = () => { inputText.value = ''; outputText.value = ''; stats.value = ''; notes.value = []; statusMessage.value = ''; };
-const copyOutput = async () => {
-  try { await navigator.clipboard.writeText(outputText.value); statusMessage.value = '✓ 结果已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyOutput = async () => clipboard.copyText(outputText.value, '✓ 结果已复制');
 </script>
 
 <style scoped>

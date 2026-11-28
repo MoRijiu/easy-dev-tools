@@ -60,6 +60,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { GROUPS, PERMS, PRESETS, parseChmod, parseOctal, toOctal, toSymbolic, describeBits, buildSummary, applyUmask, isChmodMode, applyChmodMode } from '@/utils/chmod.js';
 
 const features = [
@@ -85,10 +87,11 @@ const examples = [
 ];
 const bits = reactive(parseOctal('755'));
 const parseInput = ref('');
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const umaskInput = ref('022');
 const specialDigit = computed(() => (bits.setuid ? 4 : 0) + (bits.setgid ? 2 : 0) + (bits.sticky ? 1 : 0));
@@ -112,10 +115,7 @@ const doParse = () => {
 const loadPreset = (p) => { assign(parseOctal(p.octal)); parseInput.value = p.octal; statusMessage.value = `✓ 已套用 ${p.octal}：${p.note}`; statusType.value = 'success'; };
 const useExample = (ex) => { parseInput.value = ex.input; doParse(); };
 const clearAll = () => { assign(parseOctal('000')); parseInput.value = ''; statusMessage.value = ''; };
-const copyText = async (t) => {
-  try { await navigator.clipboard.writeText(t); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyText = (t) => clipboard.copyText(txt, '✓ 已复制');
 const copySummary = () => copyText(buildSummary(bits));
 </script>
 

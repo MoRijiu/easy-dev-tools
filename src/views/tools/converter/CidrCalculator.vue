@@ -41,6 +41,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseCidr } from '@/utils/cidr.js';
 
 const features = [
@@ -65,10 +67,11 @@ const examples = [
 ];
 const inputText = ref('');
 const result = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const inputErrorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const rows = computed(() => {
   if (!result.value) return [];
@@ -109,10 +112,7 @@ const applyPrefix = (p) => {
 const loadExample = () => { inputText.value = examples[0].input; calculate(); };
 const useExample = (ex) => { inputText.value = ex.input; calculate(); };
 const clearAll = () => { inputText.value = ''; result.value = null; statusMessage.value = ''; };
-const copyText = async (t) => {
-  try { await navigator.clipboard.writeText(t); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
-};
+const copyText = (t) => clipboard.copyText(txt, '✓ 已复制');
 const copySummary = () => {
   if (!result.value) return;
   const r = result.value;

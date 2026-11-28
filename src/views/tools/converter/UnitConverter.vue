@@ -148,6 +148,8 @@ import ToolFaq from "@/components/ToolFaq.vue";
 import ToolExamples from "@/components/ToolExamples.vue";
 import ToolToolbar from "@/components/ToolToolbar.vue";
 import ToolStatusMessage from "@/components/ToolStatusMessage.vue";
+import { useStatusMessage } from "@/composables/useStatusMessage.js";
+import { useClipboard } from "@/composables/useClipboard.js";
 import { UNIT_CATEGORIES, UNIT_DATA, parseValueStrict, convertUnit, convertAll, formatResult, ratioFromBase, getUnit } from "@/utils/unitConvert.js";
 
 // 响应式状态
@@ -156,8 +158,9 @@ const outputValue = ref("");
 const currentCategory = ref("length");
 const fromUnit = ref("");
 const toUnit = ref("");
-const statusMessage = ref("");
-const statusType = ref("");
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 // 输入错误单独留存原文：换算错误（非法字符/绝对零度/溢出）全部源于输入值，状态区兼报的复制消息不误绑（R9bk）
 const inputError = ref("");
 const inputInvalid = computed(() => (inputError.value && statusType.value === "error" && statusMessage.value === inputError.value ? "true" : undefined));
@@ -270,10 +273,7 @@ const switchCategory = (categoryId) => {
 const swapUnits = () => { const t = fromUnit.value; fromUnit.value = toUnit.value; toUnit.value = t; convert(); };
 const clearAll = () => { inputValue.value = ""; outputValue.value = ""; allResults.value = []; inputError.value = ""; statusMessage.value = ""; };
 
-const copyText = async (text) => {
-  try { await navigator.clipboard.writeText(text); statusMessage.value = "✓ 已复制到剪贴板！"; statusType.value = "success"; const ownMsg = statusMessage.value; setTimeout(() => { if (statusMessage.value === ownMsg) statusMessage.value = ""; }, 2000); }
-  catch { statusMessage.value = "✗ 复制失败"; statusType.value = "error"; }
-};
+const copyText = async (text) => clipboard.copyText(text, "✓ 已复制到剪贴板！", { failMsg: "✗ 复制失败", autoClearMs: 2000 });
 const copyResult = async () => {
   if (!outputValue.value) { statusMessage.value = "✗ 没有可复制的内容"; statusType.value = "error"; return; }
   const toU = currentUnits.value.find((u) => u.id === toUnit.value);

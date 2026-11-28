@@ -34,6 +34,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { jsonToTypeScript } from '@/utils/jsonToTs.js';
 
 const features = [
@@ -72,10 +74,11 @@ const outputText = ref('');
 const rootName = ref('Root');
 const useExport = ref(true);
 const stats = ref(null);
-const statusMessage = ref('');
-const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const inputErrorText = ref('');
-const setInputError = (msg) => { statusMessage.value = msg; statusType.value = 'error'; inputErrorText.value = msg; };
+const setInputError = (msg) => { status.showError(msg); inputErrorText.value = msg; };
 const errorActive = computed(() => statusType.value === 'error' && inputErrorText.value !== '' && statusMessage.value === inputErrorText.value);
 const rootErrorActive = computed(() => errorActive.value && inputErrorText.value.includes('根类型名'));
 const inputErrorActive = computed(() => errorActive.value && !inputErrorText.value.includes('根类型名'));
@@ -94,8 +97,7 @@ const useExample = (ex) => { inputText.value = ex.input; convert(); };
 const clearAll = () => { inputText.value = ''; outputText.value = ''; stats.value = null; statusMessage.value = ''; };
 const copyOutput = async () => {
   if (!outputText.value) return;
-  try { await navigator.clipboard.writeText(outputText.value); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; }
-  catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; }
+  await clipboard.copyText(outputText.value, '✓ 已复制');
 };
 </script>
 

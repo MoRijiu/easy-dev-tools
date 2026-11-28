@@ -54,6 +54,8 @@ import ToolFaq from '@/components/ToolFaq.vue';
 import ToolExamples from '@/components/ToolExamples.vue';
 import ToolToolbar from '@/components/ToolToolbar.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { diffDates, addToDate, dateInfo, parseDateInput, buildDiffSummary } from '@/utils/dateCalc.js';
 const features = [
   { icon: '📅', title: '间隔分解', description: '总天数之外还给出年/月/日日历分解与周数分解' },
@@ -77,7 +79,10 @@ const examples = [
 ];
 const today = new Date(); const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const startDate = ref(fmt(today)); const endDate = ref(''); const baseDate = ref(fmt(today)); const amount = ref('30'); const unit = ref('days');
-const diff = ref(null); const added = ref(null); const statusMessage = ref(''); const statusType = ref('');
+const diff = ref(null); const added = ref(null);
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const diffError = ref(''); const addError = ref('');
 // 逐字段错误归属：错误文案仍由整区计算给出，字段标记靠单独复核定位
 const startFieldError = ref(false); const endFieldError = ref(false);
@@ -105,7 +110,7 @@ const loadExample = () => applySnapshot(examples[0].snapshot);
 const useExample = (example) => { if (example && example.snapshot) applySnapshot(example.snapshot); else loadExample(); };
 const swapDates = () => { [startDate.value, endDate.value] = [endDate.value, startDate.value]; process(); };
 const setQuick = (a, u) => { amount.value = String(a); unit.value = u; process(); };
-const copySummary = async () => { if (!diff.value) return; try { await navigator.clipboard.writeText(buildDiffSummary(diff.value)); statusMessage.value = '✓ 已复制摘要'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copySummary = async () => { if (!diff.value) return; await clipboard.copyText(buildDiffSummary(diff.value), '✓ 已复制摘要'); };
 process();
 </script>
 <style scoped>

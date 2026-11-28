@@ -44,3 +44,9 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - 新增 `src/composables/useClipboard.js`：统一 `copyToClipboard`（只返回布尔）与 `copyText`（复制并按旧文案回写成功/失败状态、可选守卫清除）；不加 execCommand 回退，保持全仓失败提示口径。
 - 试点迁移 6 个工具：JsonFormatter、ColorConverter、PasswordGenerator、BaseConverter、HashCalculator、MarkdownEditor。各工具专属的错误原文留存与 aria 关联计算（inputErrorText/genError/compErrorText/fileErrorText 等）保持原样，只替换状态写入与复制骨架；迁移后 6 文件已无直调 `navigator.clipboard`。
 - 等价口径：成功/失败文案逐字保留；原本带 2 秒守卫清除的消息继续带、原本常驻的消息继续常驻；ColorConverter 复制失败文案「✗ 复制失败」与 HashCalculator 的同名文案通过 failMsg 参数保留，未被统一文案覆盖。
+
+## R10b2 落地（2026-11-28）
+
+- converter 组其余 25 个工具全部迁移到 `useStatusMessage` + `useClipboard`：Chmod、Cidr、ColorContrast、Cron、CssBoxShadow、CssFormatter、CssGradient、CssUnit、DataSize、DateCalculator、DockerRun、EnvJson、HtmlFormatter、IpAddress、JsonCsv、JsonToTypescript、RmbCapital、Semver、SqlFormatter、Timestamp、Timezone、TomlJson、Unit、XmlFormatter、YamlJson。迁移后 converter 组已无直调 `navigator.clipboard` 的文件。
+- 等价口径：成功/失败文案逐字保留——时区转换的无符号文案（已复制到剪贴板/复制失败，请手动选择复制）、时间戳与单位换算的 2 秒守卫清除 + 短失败文案（✗ 复制失败）、Semver 初始 statusType=info 均通过参数或初始值保留；各工具专属错误原文留存与 aria 关联（setInputError 等）原样保留。
+- 体积：test 构建 dist 1,977,626 B / 179 文件（R10b1 后 1,978,599 B，−973 B）。

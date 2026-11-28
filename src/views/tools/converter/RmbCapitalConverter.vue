@@ -31,6 +31,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { convertAmountInput } from '@/utils/rmbCapital.js';
 const features = [
   { icon: '🏦', title: '财务规范读法', description: '按 4 位分级读万/亿/兆，级内连零只读一个、级末零不读，角分缺位按规则补零或加「整」' },
@@ -50,7 +52,9 @@ const faqs = [
 const examples = ['1234.56', '10001', '100.01', '0.07', '987654321.09'];
 const input = ref('1234.56');
 const result = ref(null); const error = ref(''); const notes = ref([]);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const analyze = () => {
   const r = convertAmountInput(input.value);
   if (r.ok) { error.value = ''; notes.value = r.notes || []; result.value = r; }
@@ -58,7 +62,7 @@ const analyze = () => {
 };
 const pick = (e) => { input.value = e; analyze(); };
 const clearAll = () => { input.value = ''; result.value = null; error.value = ''; notes.value = []; };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 analyze();
 </script>
 <style scoped>

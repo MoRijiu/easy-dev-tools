@@ -43,6 +43,8 @@ import ToolFeatures from '@/components/ToolFeatures.vue';
 import ToolUsageGuide from '@/components/ToolUsageGuide.vue';
 import ToolFaq from '@/components/ToolFaq.vue';
 import ToolStatusMessage from '@/components/ToolStatusMessage.vue';
+import { useStatusMessage } from '@/composables/useStatusMessage.js';
+import { useClipboard } from '@/composables/useClipboard.js';
 import { parseCssLength, convertCssLength, normalizeContext, buildCssSummary, CSS_UNITS, DEFAULT_CONTEXT } from '@/utils/cssUnits.js';
 const features = [
   { icon: '📐', title: '相对单位可调', description: 'rem/em/%/vw 都依赖上下文，本工具把根字号、父字号、百分比基准与视口尺寸全部开放可调' },
@@ -64,7 +66,9 @@ const unitSymbols = CSS_UNITS.map((u) => u.symbol);
 const input = ref('16px'); const defaultUnit = ref('px');
 const ctxForm = reactive({ ...DEFAULT_CONTEXT });
 const parsed = ref(null); const activeCtx = ref({ ...DEFAULT_CONTEXT }); const error = ref(''); const notes = ref([]);
-const statusMessage = ref(''); const statusType = ref('');
+const status = useStatusMessage();
+const { statusMessage, statusType } = status;
+const clipboard = useClipboard(status);
 const CTX_LABELS = { rootFontSize: '根字号', parentFontSize: '父元素字号', percentBase: '百分比基准', viewportWidth: '视口宽度', viewportHeight: '视口高度' };
 const errorCtxField = computed(() => {
   if (!error.value) return '';
@@ -84,7 +88,7 @@ const analyze = () => {
 };
 const pick = (e) => { input.value = e; analyze(); };
 const clearAll = () => { input.value = ''; parsed.value = null; error.value = ''; notes.value = []; };
-const copyText = async (txt) => { try { await navigator.clipboard.writeText(txt); statusMessage.value = '✓ 已复制'; statusType.value = 'success'; } catch { statusMessage.value = '✗ 复制失败，请手动复制'; statusType.value = 'error'; } };
+const copyText = (txt) => clipboard.copyText(txt, '✓ 已复制');
 analyze();
 </script>
 <style scoped>
