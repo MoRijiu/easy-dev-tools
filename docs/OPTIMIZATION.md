@@ -536,3 +536,11 @@ R12 小盘点续项：Manifest 已声明 `display: standalone`，应用可被安
 - 处理：viewport 补 `viewport-fit=cover`（允许页面延伸到全屏、由页面自己负责避让）；`Header.vue` 追加安全区规则块——顶栏 `padding-top: env(safe-area-inset-top)`、容器左右以 `max(原间距, env(safe-area-inset-left/right))` 取大（桌面 24px / ≤768px 12px / ≤420px 8px 三档与既有间距逐档对应）；`Footer.vue` 同理追加——容器底部 `calc(原间距 + env(safe-area-inset-bottom))`（桌面 24px / ≤640px 20px）、左右 max() 同口径。追加规则用 `.header .container` / `.footer .container` 更高特异性书写，确保不被既有媒体查询里的 padding 简写覆盖。
 - 边界：无安全区的设备（桌面浏览器、普通安卓）env() 恒为 0，max()/calc() 结果与改前逐像素一致、零视觉变化；本项只适配常驻的顶栏与页脚两处全宽元素，页面主体为居中限宽容器（左右各有 ≥16px 内边距且不贴边固定），不在本轮扩围。将来新增贴边固定元素（如底部导航条）时须按本口径补其安全区内边距（已在本节留痕）。
 - 等价证据：无头 Chrome 实测改前/改后桌面 1280 与移动 390 两视口下顶栏高度、容器左右内边距、页脚底部内边距的计算值逐项一致且无溢出（验收结果见台账）；test 构建 exit=0、产物 index.html 含 viewport-fit=cover、CSS 产物含 safe-area-inset 规则。
+
+## R12an 落地（2026-11-28，index.html 补 color-scheme 元声明）
+
+R12 小盘点续项：本站自 R4a 起支持亮/暗双主题，`src/style.css` 已按主题在根元素上声明 CSS `color-scheme: light / dark`，首屏脚本也会同步 `documentElement.style.colorScheme`；但 `index.html` 的 head 里从没有 `<meta name="color-scheme">`。该 meta 是浏览器在 CSS 加载与执行之前就能读到的配色方案声明：缺省时浏览器只能按默认亮色渲染原生控件、滚动条与页面初始背景，暗色用户在首屏瞬间可能先看到亮色原生 UI 再切换，且部分平台的自动深色处理（强制变暗）无法得知本站已原生支持暗色。与 R12i/R12u 补齐 head 声明同族，这次缺的是配色方案元声明。
+
+- 处理：index.html 在 theme-color 后补 `<meta name="color-scheme" content="light dark" />`（顺序与 CSS 声明口径一致：默认亮色、同时声明支持暗色），文件 5,860→5,914 B（+54 B）；其余 head 标签、首屏主题脚本与 style.css 的逐主题 color-scheme 一字未改。
+- 边界：meta 只声明「本站同时支持亮与暗」，具体用哪一种仍由既有主题机制（edt:theme + 首屏脚本 + CSS 变量）决定，不新增主题逻辑、不改任何运行时行为；将来若取消暗色支持，须同步把本 meta 改为仅 light（已在本节留痕）。
+- 等价证据：改后 head 经解析核对 meta 存在且值为 light dark、theme-color 与首屏脚本无回归；test 构建 exit=0、产物 index.html 含本 meta；无头 Chrome 冒烟核对亮/暗两主题下根元素 computed colorScheme 与改前一致、首页/工具页无回归（验收结果见台账）。
