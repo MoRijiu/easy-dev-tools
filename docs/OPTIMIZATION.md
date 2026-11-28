@@ -968,3 +968,11 @@ R12 小盘点续项：`public/opensearch.xml`（R12bw 落地）只有一个 192�
 - 处理：`opensearch.xml` 在既有 192 Image 前补一行 16×16 Image：`width="16"`、`height="16"`、`type="image/x-icon"`、地址为正式域名下的 `/favicon.ico`（与 ICO 实测最小档及 index.html 的 type 逐项一致），文件 667→764 B（+97 B）；其余元素一字未改，192 Image 与 Url 模板不变。
 - 边界：Image 只被 OpenSearch 消费方读取，不改任何运行时行为；opensearch.xml 是独立静态描述文件、不是页面，不进 sitemap，按 R12bt 口径本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来 favicon.ico 的内含尺寸或格式变更时，须同步复核本行（已在本节留痕）。
 - 等价证据：改后文件经 XML 解析校验通过、两条 Image 的尺寸/类型与对应文件实测逐项一致（ICO 目录含 16 档、icon-192 为 192×192 PNG）、除新增行外其余元素与改前逐项相同；test 构建 exit=0 且产物 opensearch.xml 与源文件逐字一致；无头 Chrome 冒烟核对 `/?q=json` 搜索落地无回归、首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 XML 且内容与本地一致（验收结果见台账）。
+
+## R12cp 落地（2026-11-29，补 /llms.txt 大模型站点说明文件）
+
+R12 小盘点续项：站点没有 llms.txt——llmstxt.org 提出的这一约定让站点在根路径放一份 Markdown 格式的站点说明（H1 标题、摘要、按主题分节的链接清单），供大模型与 AI 爬虫快速读懂站点结构；本站此前只有给搜索引擎的 sitemap.xml（纯 URL 清单、无工具说明）与给人读的 humans.txt，实测请求 `/llms.txt` 返回 SPA 兜底页（text/html），AI 消费方按约定路径取说明时拿到一页 HTML。与 R12bu 补 security.txt、R12bv 补 humans.txt、R12cb 补 gpc.json 同族，这次缺的是 AI 说明通道文件本身。
+
+- 处理：新增 `public/llms.txt`（9,437 B），内容由生成脚本（diag-tools/gen-llms.js）从唯一数据源 `src/router/tools-config.js` 直接生成、不手抄：H1 为站名、引用块摘要与 site.webmanifest 的 description 逐字一致、正文先列站点两页（首页/关于），再按 tools-config 的 5 个分组逐节列出全部 72 个工具（名称、正式域名链接、tools-config 的 description 短说明）。
+- 边界：llms.txt 是独立静态文件、不是页面，不进 sitemap，也不加无标准的发现 link（该约定本身只要求文件位于根路径）；按 R12bt 口径，本轮不同步刷新 JSON-LD dateModified 与 sitemap lastmod。将来增删工具或改分组/说明时，须重跑生成脚本同步本文件、不得手改后与配置漂移（已在本节留痕）。它不改任何运行时行为。
+- 等价证据：生成后逐项核对——文件内 74 条链接（72 工具 + 首页 + 关于）与 sitemap.xml 的 74 条 loc 集合完全相等、无多无漏无重复，H2 分节与 tools-config 分组逐项一致，摘要与 Manifest description 逐字一致；test 构建 exit=0 且产物 llms.txt 与源文件逐字一致；无头 Chrome 冒烟核对首页/工具页 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）；部署后线上该路径须返回 text/plain 且内容与本地一致（验收结果见台账）。

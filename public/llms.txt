@@ -1,0 +1,97 @@
+# 极速开发工具箱
+
+> 提供JSON格式化、Base64编解码、UUID生成器等丰富的在线开发工具，全部在浏览器本地运行。
+
+本站共 72 个在线开发工具，全部在浏览器本地运行，数据不上传服务器。以下按分类列出全部工具页，链接与站点地图（sitemap.xml）一致。
+
+## 站点
+
+- [首页](https://tools.morijiu.cn/): 工具搜索、分类导航、收藏与最近使用
+- [关于](https://tools.morijiu.cn/about): 开发初衷、技术栈与开源信息
+
+## 文本处理
+
+- [JSON格式化](https://tools.morijiu.cn/text/json-formatter): 格式化和验证JSON数据
+- [JSON字符串转义](https://tools.morijiu.cn/text/json-escape): 普通文本与JSON字符串互转，处理引号、换行与Unicode转义
+- [JSONPath查询](https://tools.morijiu.cn/text/jsonpath): 用JSONPath表达式从JSON中提取数据，支持通配/递归/切片/过滤
+- [Base64编解码](https://tools.morijiu.cn/text/base64): Base64编码和解码工具
+- [URL编解码](https://tools.morijiu.cn/text/url-encode): URL编码和解码工具
+- [URL解析](https://tools.morijiu.cn/text/url-parser): 拆解URL组件与查询参数，参数可编辑重组
+- [cURL解析](https://tools.morijiu.cn/text/curl-parser): 解析curl命令为方法/请求头/Body，并生成fetch与Python代码
+- [User Agent解析](https://tools.morijiu.cn/text/user-agent): 解析UA字符串的浏览器、系统与设备信息
+- [HTTP状态码查询](https://tools.morijiu.cn/text/http-status): 按码值或关键词速查HTTP状态码含义与排查提示
+- [MIME类型查询](https://tools.morijiu.cn/text/mime-type): 按扩展名或MIME类型速查对应关系与Content-Type
+- [键盘按键查询](https://tools.morijiu.cn/text/keycode-finder): 按任意键实时查看key/code/keyCode，附常用键码表
+- [常用端口查询](https://tools.morijiu.cn/text/port-finder): 按端口号或服务名速查常用端口、协议与安全提示
+- [ASCII码查询](https://tools.morijiu.cn/text/ascii-table): 速查ASCII码表四种进制，并支持文本与码值互转
+- [编码转换](https://tools.morijiu.cn/text/encoding-converter): 文本与Hex/Base32/Base58互转，UTF-8安全
+- [Punycode转换](https://tools.morijiu.cn/text/punycode): 中文/国际化域名与Punycode（xn--）互转，多行批量
+- [Luhn校验](https://tools.morijiu.cn/text/luhn-checker): 银行卡/IMEI等号码Luhn校验、校验位生成与批量校验
+- [摩尔斯电码编解码](https://tools.morijiu.cn/text/morse-code): 文本与摩尔斯电码互转，可播放点画试听
+- [Markdown编辑器](https://tools.morijiu.cn/text/markdown): 实时预览的Markdown编辑器
+- [正则表达式测试](https://tools.morijiu.cn/text/regex-tester): 在线测试正则，匹配高亮与捕获组查看
+- [Unicode/HTML实体](https://tools.morijiu.cn/text/unicode-html): Unicode转义与HTML实体编解码
+- [命名格式转换](https://tools.morijiu.cn/text/case-converter): camelCase/snake_case/kebab-case 等命名风格互转
+- [文本对比](https://tools.morijiu.cn/text/text-diff): 对比两段文本差异，行级与行内高亮
+- [文本统计](https://tools.morijiu.cn/text/text-stats): 统计字数、词数、行段句、字节与阅读时长、高频词
+- [文本行工具](https://tools.morijiu.cn/text/line-tools): 按行排序、去重、删空行、加行号与前后缀
+- [Markdown表格生成](https://tools.morijiu.cn/text/markdown-table): 粘贴Excel/TSV/CSV一键生成Markdown表格，自动对齐
+- [全角半角转换](https://tools.morijiu.cn/text/width-converter): 全角字母数字标点与半角互转，可按类别选择
+- [URL Slug生成](https://tools.morijiu.cn/text/slug-generator): 把标题转成URL友好的slug，支持批量与重名加序号
+
+## 格式转换
+
+- [时间戳转换](https://tools.morijiu.cn/converter/timestamp): 时间戳与日期时间互转
+- [Cron表达式解析](https://tools.morijiu.cn/converter/cron-parser): 解析Cron表达式含义并预览执行时间
+- [进制转换](https://tools.morijiu.cn/converter/base-converter): 二/八/十/十六等进制互转，支持大整数与小数
+- [JSON/CSV互转](https://tools.morijiu.cn/converter/json-csv): JSON对象数组与CSV表格互转，支持类型推断
+- [YAML/JSON互转](https://tools.morijiu.cn/converter/yaml-json): YAML与JSON互转，支持嵌套、流式写法、注释与块标量
+- [.env/JSON互转](https://tools.morijiu.cn/converter/env-json): .env环境变量与JSON互转，支持export/注释/引号/多行值
+- [SQL格式化](https://tools.morijiu.cn/converter/sql-formatter): 美化或压缩SQL，子句分行缩进，字符串与注释不受影响
+- [TOML/JSON 互转](https://tools.morijiu.cn/converter/toml-json): TOML 与 JSON 双向转换，支持表/数组表/点分键，错误定位到行
+- [XML格式化](https://tools.morijiu.cn/converter/xml-formatter): 美化或压缩XML并校验良构性，错误定位到行
+- [CSS格式化](https://tools.morijiu.cn/converter/css-formatter): 美化或压缩CSS并校验结构，错误定位到行
+- [HTML格式化](https://tools.morijiu.cn/converter/html-formatter): 美化或压缩HTML并校验标签嵌套，错误定位到行
+- [CIDR子网计算器](https://tools.morijiu.cn/converter/cidr-calculator): 由IP与前缀算网络/广播地址、可用主机范围与掩码
+- [IP地址工具](https://tools.morijiu.cn/converter/ip-address): 解析IPv4/IPv6：整数/十六进制互转、展开压缩与性质判定
+- [数据大小换算](https://tools.morijiu.cn/converter/data-size): 字节/比特与KB/MB/GB互转，SI与IEC双标准，估算下载耗时
+- [时区转换](https://tools.morijiu.cn/converter/timezone-converter): 某个时区的时间一屏对照全球主要时区，自动处理夏令时
+- [CSS单位换算](https://tools.morijiu.cn/converter/css-units): px/rem/em/%/vw/vh与pt/in/cm互转，根字号与视口可调
+- [金额大写转换](https://tools.morijiu.cn/converter/rmb-capital): 数字金额转人民币大写，处理各级零与角分规则
+- [JSON转TypeScript](https://tools.morijiu.cn/converter/json-to-ts): 由JSON生成TS interface，嵌套拆分、数组合并推断
+- [日期计算器](https://tools.morijiu.cn/converter/date-calculator): 计算日期间隔、工作日与日期加减
+- [SemVer版本工具](https://tools.morijiu.cn/converter/semver): 解析语义化版本、比较大小、递增与范围校验
+- [Docker Run转Compose](https://tools.morijiu.cn/converter/docker-run): 把docker run命令解析为docker-compose.yml配置
+- [Chmod权限计算器](https://tools.morijiu.cn/converter/chmod-calculator): 勾选权限算八进制与符号形式、反向解析与umask计算
+- [颜色转换](https://tools.morijiu.cn/converter/color-converter): RGB、HEX、HSL颜色转换
+- [颜色对比度检查](https://tools.morijiu.cn/converter/color-contrast): 按WCAG计算前景/背景对比度，判定AA/AAA并可一键调整达标
+- [CSS渐变生成器](https://tools.morijiu.cn/converter/css-gradient): 可视化调线性/径向/锥形渐变，多色标实时预览并复制CSS
+- [CSS阴影生成器](https://tools.morijiu.cn/converter/css-box-shadow): 可视化调box-shadow，多层阴影实时预览并复制CSS
+- [单位转换](https://tools.morijiu.cn/converter/unit-converter): 长度、重量等单位转换
+
+## 生成器
+
+- [UUID生成器](https://tools.morijiu.cn/generator/uuid): 生成UUID/GUID，支持v4随机与v7时间有序
+- [UUID解析](https://tools.morijiu.cn/generator/uuid-parser): 校验UUID并解析版本、变体与内嵌时间
+- [雪花ID解析/生成](https://tools.morijiu.cn/generator/snowflake): 解析雪花ID的时间、机器与序列号，也可按布局生成
+- [Nano ID生成](https://tools.morijiu.cn/generator/nanoid): 生成短小、URL安全的随机ID，支持自定义字母表与批量
+- [ULID生成/解析](https://tools.morijiu.cn/generator/ulid): 生成按时间可排序的ULID并解析内嵌时间戳，支持批量与单调递增
+- [二维码生成](https://tools.morijiu.cn/generator/qrcode): 生成二维码图片
+- [密码生成器](https://tools.morijiu.cn/generator/password): 生成安全的随机密码
+- [随机数生成器](https://tools.morijiu.cn/generator/random-number): 安全无偏地生成随机整数与小数
+- [占位文本生成](https://tools.morijiu.cn/generator/lorem-ipsum): 生成Lorem Ipsum占位文本
+
+## 加密解密
+
+- [哈希计算](https://tools.morijiu.cn/crypto/hash): MD5、SHA1、SHA256等哈希计算
+- [AES加解密](https://tools.morijiu.cn/crypto/aes): AES对称加密解密
+- [JWT解码](https://tools.morijiu.cn/crypto/jwt-decoder): 解析JWT的Header与Payload、校验过期
+- [JWT生成](https://tools.morijiu.cn/crypto/jwt-encoder): 用HMAC密钥本地签名生成JWT Token
+- [HMAC签名生成](https://tools.morijiu.cn/crypto/hmac-generator): 用密钥对消息做HMAC签名，支持多算法与Hex/Base64输入
+- [密码强度检查](https://tools.morijiu.cn/crypto/password-strength): 估算密码熵，检测弱口令/序列/键盘连排等模式并估算爆破耗时
+
+## 图片工具
+
+- [图片压缩](https://tools.morijiu.cn/image/image-compress): 在线压缩图片大小
+- [图片格式转换](https://tools.morijiu.cn/image/image-converter): 转换图片格式
+- [二维码解码](https://tools.morijiu.cn/image/qrcode-decoder): 上传/拖放/粘贴二维码图片，本地解码并识别内容类型
