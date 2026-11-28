@@ -544,3 +544,11 @@ R12 小盘点续项：本站自 R4a 起支持亮/暗双主题，`src/style.css` 
 - 处理：index.html 在 theme-color 后补 `<meta name="color-scheme" content="light dark" />`（顺序与 CSS 声明口径一致：默认亮色、同时声明支持暗色），文件 5,860→5,914 B（+54 B）；其余 head 标签、首屏主题脚本与 style.css 的逐主题 color-scheme 一字未改。
 - 边界：meta 只声明「本站同时支持亮与暗」，具体用哪一种仍由既有主题机制（edt:theme + 首屏脚本 + CSS 变量）决定，不新增主题逻辑、不改任何运行时行为；将来若取消暗色支持，须同步把本 meta 改为仅 light（已在本节留痕）。
 - 等价证据：改后 head 经解析核对 meta 存在且值为 light dark、theme-color 与首屏脚本无回归；test 构建 exit=0、产物 index.html 含本 meta；无头 Chrome 冒烟核对亮/暗两主题下根元素 computed colorScheme 与改前一致、首页/工具页无回归（验收结果见台账）。
+
+## R12ao 落地（2026-11-28，index.html 补 format-detection 禁自动识别）
+
+R12 小盘点续项：`index.html` 从没有 `<meta name="format-detection">`。iOS Safari 默认会把页面文本里长得像电话号码、日期、地址、邮箱的字符串自动改成可点链接——本站工具的输出区恰恰满是这类内容：时间戳转换的日期、常用端口与状态码的数字串、IP/CIDR 结果、文本统计的数字、示例里的邮箱样式文本，都可能被自动加链，轻则样式被改（变蓝带下划线）、重则点一下跳去拨号/日历，打断工具使用。与 R12an 补 color-scheme 同族，这次缺的是禁止自动识别声明。
+
+- 处理：index.html 在 color-scheme 后补 `<meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />`（四类自动识别全关），文件 5,914→6,005 B（+91 B）；其余 head 标签与页面内真实链接（页脚/导航等显式 `<a>`）一字未改——本声明只关浏览器自动猜测加链，不影响任何显式链接。
+- 边界：format-detection 主要由 iOS Safari（及部分安卓 WebView）实现，不支持的引擎忽略该字段、行为不变；它不改任何运行时逻辑。将来若某页确实希望电话/邮箱可点，应在该处用显式 `<a href="tel:/mailto:">` 实现，不得删本声明放开自动识别（已在本节留痕）。
+- 等价证据：改后 head 经解析核对 meta 存在且四项值正确、color-scheme/theme-color 无回归；test 构建 exit=0、产物 index.html 含本 meta；无头 Chrome 冒烟核对首页/工具页标题与按页元标签同步无回归、双视口无溢出、无 pageerror（验收结果见台账；iOS 真机自动识别关闭效果待 morijiu 有空时确认）。
