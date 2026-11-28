@@ -487,3 +487,12 @@ R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `prefer
 - 处理：manifest 补 `"prefer_related_applications": false`（明确不优先推荐原生应用、Web App 本身即正式入口），文件 1,306→1,342 B（+36 B）；其余字段、图标与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
 - 边界：该字段不引入任何原生应用关联（`related_applications` 仍不声明、无从填写平台与 id），不改任何页面内行为；将来若真推出关联原生应用，须同时补 `related_applications` 并把本字段改为 true，两处一并复核（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验通过且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 manifest 与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、新字段为 false、dir/categories/display_override/icons/shortcuts 无回归、首页/工具页无回归（验收结果见台账）。
+
+## R12ah 落地（2026-11-28，Manifest 补 screenshots 安装展示截图）
+
+R12 小盘点续项：`public/site.webmanifest` 自 R12s 新增起没有 `screenshots` 字段。按 Web App Manifest 规范，`screenshots` 是已安装应用在安装提示与应用商店式展示中使用的预览图；缺省时平台只能拿图标与名称/描述拼凑安装界面，用户在点「安装」前看不到应用长什么样。与 R12s/R12v/R12ac 补齐 manifest 声明同族，这次缺的是安装展示截图声明。
+
+- 处理：以 test 构建产物本地渲染首页真实截图两张——桌面 1280×720（`form_factor: "wide"`）与移动 390×844（`form_factor: "narrow"`），存 `public/screenshots/home-wide.png` / `home-narrow.png`，manifest 补 `screenshots` 两条（sizes/type/form_factor/label 齐全，label 注明桌面/移动首页）；其余字段、图标与 shortcuts 条目一字未改（脚本逐项比对除新增项外零变更）。
+- 体积口径：截图为渐变背景的整页渲染，原图 464,424 / 191,091 B 过重，故以 256 色调色板量化（Floyd–Steinberg 抖动）压到 221,931 / 80,796 B，合计 302,727 B；截图仅在安装提示时按需抓取、不进页面加载路径。量化后肉眼与原图无可辨差异（渐变平滑、文字清晰），但它不是逐像素无损——与图标类的无损重压缩（R12w/R12y/R12z）口径不同，本节如实留痕。
+- 边界：截图内容为首页当前形态（72 工具口径、弹幕与工具卡）；将来首页视觉大改后须按本口径重截并同步 sizes（已在本节留痕）。本项不引入 Service Worker、不改任何页面运行时行为。
+- 等价证据：manifest 经 JSON 解析校验通过且除 `screenshots` 外字段与改前逐项相同、两条截图 sizes 与实际文件尺寸逐项一致；test 构建 exit=0、产物中 manifest 与两张截图字节与源文件一致；无头 Chrome 冒烟核对 manifest 可达可解析、截图可达且尺寸正确、首页/工具页无回归（验收结果见台账）。
