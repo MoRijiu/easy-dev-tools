@@ -656,3 +656,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 的 publisher 对象补 `"logo": "https://tools.morijiu.cn/icons/icon-512.png"` 一行（正式域名绝对地址，指向 Manifest icons 已在用的同一枚 512×512 PNG 应用图标，实测尺寸 512×512 与声明用途吻合），index.html 7,015→7,078 B（+63 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 publisher 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：publisher.logo 是站点级声明、不随路由变化（全站发布者为同一组织），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用图标更换时，须同步复核本字段仍指向现行图标，并与 Manifest icons 一并核对（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、publisher.logo 与 Manifest 512 图标地址逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 publisher.logo 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bc 落地（2026-11-28，JSON-LD author 补 logo 声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）里 `author` 与 `publisher` 是同一个 Organization（R12ba 留痕：本站创作与发布为同一主体、两对象逐字一致），但 R12bb 只给 publisher 补了 `logo`，author 仍只有 `@type`/`name`/`url`——同一组织在同一段结构化数据里一处有标志、一处没有，消费方从作者实体仍无从得知其标志图，只能靠 favicon 或 og:image 猜测。与 R12ax 补 author.url、R12bb 补 publisher.logo 同族，这次缺的是作者实体的标志字段本身。
+
+- 处理：JSON-LD 的 author 对象补 `"logo": "https://tools.morijiu.cn/icons/icon-512.png"` 一行（与 publisher.logo 逐字一致，指向 Manifest icons 已在用的同一枚 512×512 PNG 应用图标，实测尺寸 512×512），index.html 7,078→7,141 B（+63 B，与 R12bb 同字段增量一致）；其余字段一字未改，改后 author 与 publisher 两对象恢复逐字一致。路由守卫的 syncJsonLd 只改写顶层 url/description、经 JSON 解析后回写，嵌套 author 对象（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：author.logo 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用图标更换时，须与 publisher.logo、Manifest icons 三处一并同步复核（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、author.logo 与 publisher.logo 及 Manifest 512 图标地址逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 author.logo 保留且顶层 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
