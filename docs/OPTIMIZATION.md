@@ -243,3 +243,12 @@ R12 小盘点续项：R12b 只同步了 canonical 与 og:url，路由守卫对 o
 - 处理：守卫新增 setMetaAll/removeMetaAll 辅助函数，syncCanonical 内一并按当前路由的 meta.title / meta.description 同步上述分享文案，twitter:url 与 canonical 同步为当前页地址；NotFound 时分享文案写 404 页自身的标题/描述（避免残留上一页），三个 URL 类标签一并移除。
 - 边界：index.html 的 twitter 标签用 property=、useSeo 创建的用 name=，setMetaAll 两种属性的同名标签全部更新、一个都没有时才新建，避免留一份旧值被平台优先读到；Home/About 挂载后 useSeo 仍会以其专属长文案覆盖首页/关于页的分享标题（与 document.title 的既有口径一致），工具页无此覆盖、守卫值即最终值。
 - 等价证据：无头 Chrome 冒烟 23/23——工具页 og/twitter 标题与摘要逐字等于该页 title/description、twitter:url 为各自路径，SPA 跳转跟随且无上一页残留，首页/关于页正常，404 三个 URL 标签移除且分享文案为 404 自身，桌面/390px 无溢出、无 pageerror。
+
+## R12d 落地（2026-11-28，sitemap lastmod 按真实变更校准）
+
+R12 小盘点续项：`public/sitemap.xml` 共 74 条 URL（72 工具 + 首页 + 关于），条目齐全、与路由配置逐项一致，但 `lastmod` 已全面失准——19 条仍停在 2025-12-05（hxd 接手前的最后一次提交日），其余 55 条停在各自工具的上线日 2026-11-26/27。
+
+- 失准证据：2026-11-26 起每一页都发生过实质变更——R2–R5 的全站搜索/收藏/暗色模式/命令面板、R7–R9 的逐工具打磨、R10e 的全局 CSS 上收，以及 2026-11-28 当天落地的 R12b/R12c（每个页面渲染出的 canonical 与分享文案都已改变）。没有任何一页的内容还停留在其 lastmod 所写日期；搜索引擎对长期不准的 lastmod 会整体忽略，该字段等于白写。
+- 处理：74 条 lastmod 统一更新为 2026-11-28，即全站最近一次逐页变更（R12b/R12c 合入日）；loc 集合、顺序、changefreq 与 priority 一字未动。
+- 评估未动项：changefreq/priority 主流搜索引擎已明确忽略，删除无收益、保留亦无害，为缩小 diff 不动；sitemap 仍为手工维护（新增工具时追加条目并更新其 lastmod），后续若再有全站级变更，同步批量刷新 lastmod。
+- 等价证据：改后 XML 解析通过、74 条 loc 与改前逐项相同、仅 lastmod 行变化（74 增 74 删）；页面代码未动，构建产物仅 sitemap.xml 变化。
