@@ -431,3 +431,11 @@ R12 小盘点续项：R12v 新增的 maskable 图标在 R12w 只用 PIL 优化�
 - 处理：仅以 zopfli 重写 `public/icons/icon-maskable-512.png` 的 PNG 编码字节，像素、尺寸（512×512）、模式（RGB）与 manifest 中的 maskable 条目一字未改。
 - 边界：R12v 的安全区校验结论因像素逐点一致而原样成立；若将来重渲染 maskable 图标，落盘后须依次做 PIL 优化与 zopfli 无损重压缩两步（已在本节留痕）。
 - 等价证据：重压缩前后逐像素 RGB 解码比对全部 identical、尺寸不变；构建产物中该图标字节与源文件一致、manifest 解析与 maskable 条目无回归；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
+
+## R12aa 落地（2026-11-28，favicon.svg 删除未引用渐变定义）
+
+R12 小盘点续项：`public/favicon.svg` 的 `<defs>` 里定义了两条线性渐变，但全图只有背景矩形引用 `grad1`（`fill="url(#grad1)"`），`grad2`（青蓝渐变）在 favicon 内无任何引用、全仓检索也无其他文件引用它——是一条从未生效的死定义，随 favicon 逐字发给每一位访客（230 B，占该文件 17.0%）。
+
+- 处理：仅删除 `grad2` 的 `<linearGradient>` 定义块，文件由 1,349 B 降到 1,119 B；`grad1`、全部图形、尺寸与 viewBox 一字未改，SVG 经 XML 解析校验通过。
+- 边界：由 favicon.svg 派生渲染的 favicon.ico 与各档 PNG 图标（icon-192/icon-512/maskable/apple-touch-icon）因渲染像素逐点不变而原样成立，无需重渲染；若将来启用青蓝渐变，须按需重新定义，不得凭记忆假定 grad2 仍在。
+- 等价证据：删除前后以无头 Chrome 把 favicon 以 512×512 渲染截图，逐像素比对全部 identical（像素数据 sha256 一致）；test 构建 exit=0、产物 favicon 与源文件一致；无头 Chrome 冒烟核对首页/工具页无回归（验收结果见台账）。
