@@ -252,3 +252,11 @@ R12 小盘点续项：`public/sitemap.xml` 共 74 条 URL（72 工具 + 首页 +
 - 处理：74 条 lastmod 统一更新为 2026-11-28，即全站最近一次逐页变更（R12b/R12c 合入日）；loc 集合、顺序、changefreq 与 priority 一字未动。
 - 评估未动项：changefreq/priority 主流搜索引擎已明确忽略，删除无收益、保留亦无害，为缩小 diff 不动；sitemap 仍为手工维护（新增工具时追加条目并更新其 lastmod），后续若再有全站级变更，同步批量刷新 lastmod。
 - 等价证据：改后 XML 解析通过、74 条 loc 与改前逐项相同、仅 lastmod 行变化（74 增 74 删）；页面代码未动，构建产物仅 sitemap.xml 变化。
+
+## R12e 落地（2026-11-28，JSON-LD 结构化数据按页同步）
+
+R12 小盘点续项：R12b/R12c 已把 canonical、og:url 与分享文案按页同步，但 `index.html` 的静态 JSON-LD 从未更新——url 与 description 恒为首页值。渲染型爬虫执行 JS 后读到的结构化数据，等于 72 个工具页全被描述成首页的 WebApplication，与按页 URL 自相矛盾。
+
+- 处理：路由守卫新增 `syncJsonLd(to, url)`，在 `syncCanonical` 内一并调用——已知路由把 JSON-LD 的 url 改写为当前页规范地址、description 改写为当前页描述，其余字段（@type/name/offers/author）保留站点级口径；NotFound 移除整段 script（不给不存在的页面宣称结构化数据），离开 404 时用首次捕获的原文模板恢复重建。`index.html` 的 script 补 `id="edt-jsonld"` 便于稳定定位（按 type 兜底查询保留）。
+- 边界：模板解析失败时保持原文、不阻断导航；恢复模板取首次同步前捕获的原文，后续改写不污染模板。
+- 等价证据：无头 Chrome 冒烟逐页核对——工具页 JSON-LD url/description 为该页值且其余字段完整、首页为根地址、404 时整段移除、从 404 返回首页后恢复且 url 为根地址，桌面/390px 无溢出、无 pageerror。
