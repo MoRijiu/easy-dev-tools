@@ -752,3 +752,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD 里 `author` 与 `publisher` 两�
 - 处理：JSON-LD 顶层在 `featureList` 后补 `"sameAs": ["https://github.com/MoRijiu/easy-dev-tools"]` 一行（数组形式、单元素，与页脚/About 公开链接逐字一致），index.html 7,840→7,903 B（+63 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写顶层 url/description/softwareVersion/featureList、经 JSON 解析后回写，本字段原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：sameAs 是站点级声明、不随路由变化（全站应用为同一实体、源码仓为同一地址），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来应用源码仓迁移或新增应用级公开页面时，须与页脚/About 的仓库链接一并同步复核（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、顶层 sameAs 与页脚/About 公开链接逐字一致且与组织 sameAs 指向不同页面、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的顶层 sameAs 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12bo 落地（2026-11-28，JSON-LD screenshot 补移动窄图声明）
+
+R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据）里 `screenshot` 只有桌面宽图一条（R12av 补入，指向 `screenshots/home-wide.png`），但本站的真实截图早已是两张——R12ah 为 Manifest 安装展示截了桌面 1280×720（wide）与移动 390×844（narrow）两张，Manifest `screenshots` 两条齐全，JSON-LD 通道却只声明了桌面形态，结构化数据消费方无从得知该应用在移动端的界面形态。与 R12av 补 screenshot、R12ah 补 Manifest 双图同族，这次缺的是 JSON-LD 侧的第二种形态声明本身；Schema.org 的 `screenshot` 可取多值，JSON-LD 数组即其标准表达。
+
+- 处理：JSON-LD 顶层 `screenshot` 由单字符串改为双元素数组 `["https://tools.morijiu.cn/screenshots/home-wide.png", "https://tools.morijiu.cn/screenshots/home-narrow.png"]`（顺序与 Manifest screenshots 一致：wide 在前、narrow 在后，两地址均为正式域名绝对地址、与 Manifest 的 src 逐项对应），index.html 7,903→7,961 B（+58 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，screenshot 数组原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：screenshot 是站点级声明、不随路由变化（两张均为首页形态），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来首页视觉大改按 R12ah 口径重截 Manifest 截图时，须同步复核本数组仍与 Manifest screenshots 逐项对应（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、screenshot 数组与 Manifest screenshots 逐项一致、两张图实测尺寸与 Manifest sizes 声明一致（1280×720 / 390×844）、除本字段外其余字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本数组；无头 Chrome 冒烟核对工具页 JSON-LD 的 screenshot 数组保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
