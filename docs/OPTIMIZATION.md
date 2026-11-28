@@ -592,3 +592,11 @@ R12 小盘点续项：本站有真实且在用的版本口径——`package.json
 - 处理：JSON-LD 在 `browserRequirements` 后补 `"softwareVersion": "1.0.0"` 一行（与 `package.json` 的 version 逐字一致、取裸版本号不带环境后缀——环境后缀是本站展示口径、不是版本本身），index.html 6,287→6,321 B（+34 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：softwareVersion 是站点级声明、不随路由变化，不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。**版本同步纪律（留痕）：今后升 `package.json` 的 version 时，须一并同步本字段**，两处不一致即以 package.json 为准修正本字段。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、softwareVersion 与 package.json 逐字一致且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 softwareVersion 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12au 落地（2026-11-28，JSON-LD 补 isAccessibleForFree 免费访问声明）
+
+R12 小盘点续项：本站全部工具免费使用，JSON-LD 里已有 `offers.price: "0"` 表达价格，但没有 Schema.org 为 CreativeWork/WebApplication 定义的 `isAccessibleForFree` 布尔声明——该字段是结构化数据消费方判断「内容/应用是否可免费访问（无付费墙）」的直接机器可读信号，缺省时只能靠 offers 价格间接推断。与 R12ap 补 inLanguage、R12as 补 browserRequirements、R12at 补 softwareVersion 同族，这次缺的是站点级免费访问字段本身。
+
+- 处理：JSON-LD 在 `softwareVersion` 后补 `"isAccessibleForFree": true` 一行，index.html 6,321→6,356 B（+35 B）；其余字段一字未改。路由守卫的 syncJsonLd 只改写 url/description、经 JSON 解析后回写，其余字段（含本字段）原样保留，404 移除与模板恢复逻辑不受影响。
+- 边界：isAccessibleForFree 是站点级声明、不随路由变化（全站工具均免费、无付费墙），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。将来若引入付费功能或付费墙，须同步把本字段改为 false 或按页区分，并同步复核 offers 表述（已在本节留痕）。
+- 等价证据：改后 JSON-LD 经 JSON 解析校验通过、isAccessibleForFree 为布尔 true 且除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 isAccessibleForFree 保留且 url/description 按页同步无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
