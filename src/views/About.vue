@@ -165,7 +165,7 @@
           💻 用心开发 | 🚀 持续更新 | 🌟 完全免费
         </p>
         <p class="copyright">
-          © 2025 极速开发工具箱 | Made with ❤️ and ☕
+          © {{ currentYear }} morijiu.cn · 极速开发工具箱 | Made with ❤️ and ☕
         </p>
       </section>
     </div>
@@ -174,6 +174,8 @@
 
 <script setup>
 import { useSeo } from '../composables/useSeo'
+
+const currentYear = new Date().getFullYear()
 
 // SEO 优化
 useSeo({
