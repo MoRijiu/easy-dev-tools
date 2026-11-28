@@ -116,3 +116,13 @@ R10e 收官后对剩余优化面再盘点（脚本 r10f-inventory，台账存档
 - 等价证据：基线与新构建两轮无头 Chrome 计算样式探针（脚本 edt-r10g2-probe.js，12 路由 × 桌面/390px）——真实元素计算样式 diff 为 0（含回滚三族的对照页 AsciiTable 真实 `.row`、DateCalculator 真实 `.block`、JsonToTypescript 真实 `.stats`、QrcodeDecoder 真实 `.kv th/td`）；全中工具的合成探针（CssFormatter/JsonCsv/LineTools 的 `.panes` 桌面双栏与 390px 单栏、Timezone/AsciiTable 的 `.table-wrap`、Cidr/CurlParser 的 `.kv code`）逐项一致；剩余合成差异仅出现在模板从不使用该类的页面，属上收规则的预期覆盖面（同 R10g1 口径）；12 路由双视口无溢出、无 pageerror。
 - 体积：test 构建 exit=0，dist 1,940,082 → 1,938,245 B（−1,837 B，186 文件不变）。
 - 下一步 R10h：tools-config meta 拆分评估（原型 + 实测 + 结论）。
+
+## R10h 评估（2026-11-28，tools-config meta 拆分：放弃，记录结论）
+
+按 R10f 预设标准做原型实测：收益不足 5% 或需改异步守卫则放弃。基线（main@56fc755，test 构建 exit=0）：入口 `index` 78,425 B / gzip 24,798 B，dist 1,938,245 B / 186 文件。原型脚本把 72 段 `meta`（title/description/keywords）抽成按 id 索引的独立模块 `tools-meta.js`（24,027 B 源文件），分别实测三种组织方式，原型分支已丢弃、不合入：
+
+- **静态同图拆文件**：meta 独立文件但仍被路由静态导入，Rollup 直接内联回入口——入口 79,066 B（+641 B / +0.8%），gzip 26,315 B（+6.1%）。按 id 索引多出一层键名开销，拆文件本身无收益。
+- **manualChunks 强制分块 + 同步导入**：入口降至 56,227 B，但 meta 分块 23,145 B 为入口的静态依赖，浏览器执行入口前必须先加载它；首屏合计 79,372 B（+947 B / +1.2%）、gzip 合计 26,341 B（+6.2%），还多一次请求。入口文件变小只是账面搬家，首屏字节不减反增。
+- **异步守卫拆分**：路由守卫改为 `async` + 动态导入 meta 分块后，入口单独降至 56,055 B（−28.5%）/ gzip 18,962 B（−23.5%），仅首页访问受益；但任何工具页导航都要先等 meta 分块（23,156 B）加载完才放行，工具访问合计反而 +786 B / gzip +1,564 B，并串行延迟工具组件的加载；且 `searchTools` 同步依赖 `meta.keywords` 做搜索命中——344 个关键词词条中有 194 个只出现在 meta.keywords 里（72 个工具全部受影响），异步化要么丢这部分搜索命中、要么把 keywords 留在主配置里（收益随之缩水）；meta 分块加载失败时 SEO 信息还会静默缺失。此方案命中预设的「需改异步守卫」放弃条件。
+
+结论：**不拆分，维持现状**。meta 与工具配置同文件同步可达是当前组织下的最优解；入口体积若再优化，应从其他构成入手而非 meta。下一步 R10i：R10 收官核查（全量构建体积对比 R10a 基线、冒烟总回归、本文件总结）。
