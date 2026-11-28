@@ -64,3 +64,10 @@ R10 代码优化阶段的起点盘点：摸清重复逻辑、大组件、产物�
 - 调整：About/NotFound 改路由懒加载（`() => import()`，与 72 个工具页同口径）；CommandPalette 改 `defineAsyncComponent` 异步组件（布局渲染时即并行加载分块，挂载仅后移一个分块往返，Ctrl+K/`/`/Header 按钮唤起行为不变）。Home 为首屏保持静态；tools-config 元数据被首页/Header/搜索同步依赖，拆独立 chunk 不减首屏字节、只增往返，结论是不拆。
 - 体积对比：入口 index 91,233 → 78,440 B（−12,793 B / −14.0%），vite 报告 gzip 29.15 → 25.29 kB（−13.2%）；新增 About 6,965 B、CommandPalette 5,405 B、NotFound 1,408 B 三个按需 JS 分块及各自 CSS 分块。dist 总量 1,976,755 → 1,979,390 B（+2,635 B / +6 文件）——分块包装与 CSS 拆分开销，换首屏入口净减，属预期取舍。
 - 等价证据：无头 Chrome 冒烟 11/11（脚本 edt-r10c-smoke.js：首页渲染/无溢出、Ctrl+K 打开面板、输 json 首项与 Enter 跳转、/about 渲染与标题、未知深路径落 404 页、工具页正常、320px 无溢出、无 pageerror）。
+
+## R10d 落地（2026-11-28，运行时性能逐项核查）
+
+- **Danmaku（有问题，已改）**：渲染方式本身已是 CSS transform 动画（无 JS 逐帧改样式），问题在 DOM 量——每行把全部 72 个工具重复 3 遍、三行 × 两份无缝复制共 1,296 个链接。单份 72 个工具宽度已远超容器，无缝滚动只需两份相同内容，重复 3 遍纯属多余。改每份只放 1 遍：链接 1,296 → 432（−66%）；行宽缩为 1/3、动画时长同步除以 3，滚动线速度不变。另把弹幕项 `transition: all` 收窄到 hover 实际变化的四个属性。
+- **MarkdownEditor（有问题，已改）**：台账所说「多处 setTimeout」已不存在——状态消息定时器在 R10b1 已收敛到 useStatusMessage，本文件只剩同步滚动的 requestAnimationFrame（防回环、合理，保留）。真正开销是预览无防抖：每敲一键全量 renderMarkdown 并整块替换预览 DOM。改 120ms 防抖渲染（连续输入只渲染最终文本，停顿后结果与旧版逐字一致）；复制/导出 HTML 改按当前文本现算，不用可能滞后的预览值；卸载清理防抖定时器。
+- **HashCalculator（有问题，已改）**：`digestAll` 旧版逐个 await 串行算各算法，改 Promise.all 并发、按入参顺序组装（键序与值经 Node 独立向量核对与串行版/Node crypto 完全一致，含 100k 字符大文本）；`textStats` 旧版每敲一键都把全文 encode 一遍只为取字节数，改按码点算术求 UTF-8 字节长，免去整份分配（孤立代理项等边界已与 TextEncoder 核对）。已有的 250ms 输入防抖与序号防竞态守卫核查无误，保留。
+- **ImageCompress / ImageConverter（有问题，已改）**：① 预览旧版用 FileReader 读成 base64 data URL（比原文件大约 1/3 的字符串常驻内存），改 `URL.createObjectURL(file)` 引用式预览，解码与压缩/转换结果不变；ObjectURL 在条目移除、清空、组件卸载、探针加载失败时配对 revoke。② 批量下载定时器旧版只在「再次下载全部」与卸载时清理，移除/清空不清——到期会按旧下标取图，列表变短取到 undefined 报错、变位下错图；两工具现统一抽 `clearDownloadTimers()` 供下载全部/移除/清空/卸载共用，`downloadImage` 加空守卫。③ 批量压缩/转换的逐张串行 await 核查合理（并行会同时解码多张大图、内存峰值更高），保留不动。

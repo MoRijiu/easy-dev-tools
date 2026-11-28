@@ -91,12 +91,14 @@ export async function digestHex(algorithm, bytes) {
   return bytesToHex(new Uint8Array(buf));
 }
 
-// 批量计算，返回 { 算法id: hex }，顺序与入参一致
+// 批量计算，返回 { 算法id: hex }，顺序与入参一致。
+// R10d：各算法彼此独立，旧版逐个 await 串行等待 Web Crypto；改并发后
+// 结果按入参顺序组装，键顺序与值与串行版完全一致，只是总等待变短。
+// MD5 为同步实现，并发不改变其计算本身。
 export async function digestAll(algorithms, bytes) {
+  const values = await Promise.all(algorithms.map((id) => digestHex(id, bytes)));
   const results = {};
-  for (const id of algorithms) {
-    results[id] = await digestHex(id, bytes);
-  }
+  algorithms.forEach((id, i) => { results[id] = values[i]; });
   return results;
 }
 
@@ -106,9 +108,21 @@ export function textToBytes(text) {
 }
 
 // 文本统计：码点字符数 + UTF-8 字节数（哈希实际是对字节算的，字节数才是口径）
+// R10d：字节数旧版每次都 encoder.encode 全文只为取 length，输入框每敲一键
+// 就白白分配一份与全文等大的 Uint8Array（且随后计算时还要再编码一份）。
+// 改为按码点算术求 UTF-8 字节长：<0x80→1、<0x800→2、<0x10000→3、其余→4；
+// 孤立代理项码点落在 0xD800–0xDFFF（<0x10000→3），与 TextEncoder 将其
+// 替换为 U+FFFD（3 字节）的结果一致，已用含 Emoji/孤立代理项的向量核对。
 export function textStats(text) {
   const str = String(text ?? '');
-  return { chars: [...str].length, bytes: encoder.encode(str).length };
+  let chars = 0;
+  let bytes = 0;
+  for (const ch of str) {
+    chars++;
+    const cp = ch.codePointAt(0);
+    bytes += cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+  }
+  return { chars, bytes };
 }
 
 // 归一化用户粘贴的期望哈希：去空白、转小写；非法字符定位报错；
