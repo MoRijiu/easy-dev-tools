@@ -832,3 +832,11 @@ R12 小盘点续项：`index.html` 的 JSON-LD（WebApplication 结构化数据�
 - 处理：JSON-LD 顶层在 `license` 后补 `potentialAction` 一项：`@type: SearchAction`、`target` 为 `EntryPoint` 且 `urlTemplate` 为 `https://tools.morijiu.cn/?q={search_term_string}`（与 OpenSearch 的 `Url` 模板同源、仅占位符名按 Schema.org 约定用 `search_term_string`）、`query-input` 为 `required name=search_term_string`，index.html 8,416→8,683 B（+267 B）；其余字段一字未改。路由守卫的 syncJsonLd 经 JSON 解析后回写，只改写 url/description/softwareVersion/featureList，potentialAction 原样保留，404 移除与模板恢复逻辑不受影响。
 - 边界：potentialAction 是站点级声明、不随路由变化（全站搜索入口为同一根地址模板），不进 syncJsonLd 的按页改写范围；它不改任何运行时行为。本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来首页搜索参数名、参数语义或正式域名变更时，须与 OpenSearch 模板一并同步复核本字段（已在本节留痕）。
 - 等价证据：改后 JSON-LD 经 JSON 解析校验通过、potentialAction 的 urlTemplate 与 OpenSearch 模板同源且占位符/query-input 逐项符合 SearchAction 写法、除新增项外字段与改前逐项相同；test 构建 exit=0、产物 index.html 含本字段；无头 Chrome 冒烟核对工具页 JSON-LD 的 potentialAction 保留且 url/description 按页同步无回归、`/?q=json` 搜索落地无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
+
+## R12by 落地（2026-11-29，补 favicon.ico 显式图标声明）
+
+R12 小盘点续项：R12q 已补入 `public/favicon.ico`（16/32/48 三尺寸），但当时 `index.html` 的图标 link 未动——页面里只有 SVG 图标与 apple-touch-icon 两条声明，ICO 的发现全靠浏览器按惯例猜默认路径 `/favicon.ico`。只解析 link 标签、不猜默认路径的收藏/聚合/抓取服务拿到不到这层回退图标；且 ICO 内含的三档尺寸从未在声明层面对外说明。与 R12q 补文件本身同族，这次缺的是该文件的显式发现声明本身。
+
+- 处理：`index.html` 在 SVG 图标声明后补 `<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />` 一行（sizes 与 ICO 实测三条目 16×16/32×32/48×48 逐项一致），index.html 8,683→8,773 B（+90 B）；SVG 声明仍在前，支持 SVG 的现代浏览器继续优先用 SVG，ICO 只作回退；其余内容一字未改。
+- 边界：本声明不改任何运行时行为，favicon.ico 文件本身未动；本轮虽改了共享 `index.html`，但落地日 2026-11-29 与现行 JSON-LD `dateModified`、sitemap `lastmod` 同日，按 R12bt 口径无需再刷新日期。将来 ICO 尺寸构成或图标文件变更时，须同步复核本行的 type/sizes（已在本节留痕）。
+- 等价证据：改后页面图标 link 共两条且 SVG 在前、ICO 的 sizes 与文件实测条目逐项一致；test 构建 exit=0、产物 index.html 含本声明；无头 Chrome 冒烟核对 ICO 可达且类型/文件头正确、SVG link 与 JSON-LD 无回归、404 移除无回归、双视口无溢出、无 pageerror（验收结果见台账）。
