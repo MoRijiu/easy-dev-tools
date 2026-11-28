@@ -375,3 +375,11 @@ R12 小盘点续项：站点没有任何 Web App Manifest——`index.html` 无 
 - 处理：新增 `public/site.webmanifest`（name=极速开发工具箱、short_name=开发工具箱、lang=zh-CN、start_url/scope 为根路径、display=standalone、theme_color/background_color 与亮色主题色 `#f8f9fa` 一致）；图标由现有 `favicon.svg` 原图渲染生成 192×192 与 512×512 两档 PNG（`public/icons/`），连同 SVG 本体一并写入 icons 数组，purpose 只声明 any（圆角透明底未经 maskable 安全区设计，不冒充 maskable）；`index.html` 补一条 `rel="manifest"` 链接。
 - 边界：本项只补声明文件，不引入 Service Worker、不做离线缓存，不改变任何页面运行时行为；若将来更换 favicon 设计或亮色主题色，必须同步重渲染两档 PNG 与 theme_color（已在本节留痕）。
 - 等价证据：manifest 经 JSON 解析校验、图标条目与实际文件尺寸逐项一致；构建产物含 manifest 与两档图标且字节与源文件一致；无头 Chrome 冒烟核对 manifest 可达且可解析、首页/工具页标题与按页元标签同步无回归（验收结果见台账）。
+
+## R12t 落地（2026-11-28，Web App Manifest 标准 MIME 对齐）
+
+R12 小盘点续项：R12s 上线后实测发现，测试环境返回 `/site.webmanifest` 时 Content-Type 为 `application/octet-stream`——站点服务器的默认 MIME 表没有 `.webmanifest` 扩展名映射。浏览器抓取 manifest 时虽可凭内容嗅探勉强解析，但按 Web App Manifest 规范，清单应以 `application/manifest+json` 返回；类型不符时部分浏览器的安装提示与清单校验工具会直接判不合格，嗅探行为也不保证跨引擎一致。
+
+- 处理：测试环境站点配置为 `/site.webmanifest` 精确路径补 `default_type application/manifest+json`，配置校验通过后平滑 reload；仓库内的 manifest 文件内容与 `index.html` 的 `rel="manifest"` 链接一字未改。本节即本项在仓内的留痕。
+- 边界：仅测试环境站点配置变更，生产环境未动；若将来把站点迁到其他静态托管，须确认新环境对 `.webmanifest` 的 MIME 映射同样为 `application/manifest+json`（已在本节留痕）。
+- 等价证据：修复后实测 `/site.webmanifest` 返回 200 且 Content-Type 为 `application/manifest+json`、内容与源文件一致；首页/关于/工具页/图标/robots/sitemap 等其余路径状态码与类型无变化（验收结果见台账）。
